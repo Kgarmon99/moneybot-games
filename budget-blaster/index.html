@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Budget Blaster | MoneyBot Gaming</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: none; user-select: none; }
+        :root { --moneybot-black: #000000; --moneybot-neon: #00FF99; --moneybot-neon-light: #33FFB5; --moneybot-graphite: #0D0D0D; --moneybot-charcoal: #1A1A1A; --moneybot-white: #FFFFFF; --moneybot-gray: #888888; --moneybot-blue: #00D4FF; --moneybot-purple: #7B61FF; --moneybot-gold: #FFD700; --moneybot-red: #FF4D4D; --glow-neon: 0 0 10px #00FF99, 0 0 20px #00FF99; --glow-strong: 0 0 20px #00FF99, 0 0 40px #00FF99; }
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--moneybot-black); min-height: 100vh; overflow: hidden; }
+        body::before { content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-image: linear-gradient(rgba(0, 255, 153, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 255, 153, 0.03) 1px, transparent 1px); background-size: 80px 80px; pointer-events: none; z-index: 0; }
+        body::after { content: ''; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 600px; height: 600px; background: radial-gradient(circle, rgba(0, 255, 153, 0.08) 0%, transparent 70%); pointer-events: none; z-index: 0; animation: pulse 4s ease-in-out infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 0.3; transform: translate(-50%, -50%) scale(1); } 50% { opacity: 0.6; transform: translate(-50%, -50%) scale(1.2); } }
+        .app { max-width: 430px; margin: 0 auto; min-height: 100vh; position: relative; z-index: 1; display: flex; flex-direction: column; }
+        .header { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; z-index: 100; border-bottom: 1px solid rgba(0, 255, 153, 0.1); }
+        .header-logo { display: flex; align-items: center; gap: 12px; }
+        .moneybot-brand { display: flex; align-items: center; gap: 8px; }
+        .moneybot-icon { width: 32px; height: 32px; background: linear-gradient(135deg, var(--moneybot-neon), var(--moneybot-blue)); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; box-shadow: var(--glow-neon); }
+        .back-btn { width: 44px; height: 44px; border-radius: 14px; background: rgba(0, 255, 153, 0.1); border: none; color: var(--moneybot-neon); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 20px; text-decoration: none; transition: all 0.2s; }
+        .back-btn:hover { background: rgba(0, 255, 153, 0.2); transform: scale(1.05); }
+        .back-btn:active { transform: scale(0.95); }
+        .header-title { font-weight: 800; font-size: 18px; color: var(--moneybot-white); }
+        .score-pill { background: linear-gradient(135deg, var(--moneybot-neon), var(--moneybot-blue)); color: var(--moneybot-black); padding: 10px 20px; border-radius: 25px; font-weight: 700; font-size: 16px; box-shadow: var(--glow-neon); }
+        .game-area { flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        #gameCanvas { background: var(--moneybot-graphite); border-radius: 20px; box-shadow: var(--glow-neon); }
+        .overlay-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.95); backdrop-filter: blur(20px); z-index: 200; padding: 40px; }
+        .overlay-screen.hidden { display: none; }
+        .game-icon { width: 120px; height: 120px; background: linear-gradient(135deg, var(--moneybot-neon), var(--moneybot-blue)); border-radius: 32px; display: flex; align-items: center; justify-content: center; font-size: 60px; margin-bottom: 30px; box-shadow: var(--glow-strong); animation: blast 1s ease-in-out infinite; }
+        @keyframes blast { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+        .game-title { font-size: 36px; font-weight: 900; color: var(--moneybot-white); margin-bottom: 12px; }
+        .game-subtitle { color: var(--moneybot-gray); font-size: 17px; margin-bottom: 40px; text-align: center; }
+        .stats-card { background: var(--moneybot-graphite); border-radius: 20px; padding: 24px 40px; margin-bottom: 30px; text-align: center; border: 1px solid rgba(0, 255, 153, 0.2); }
+        .stats-label { font-size: 13px; color: var(--moneybot-gray); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+        .stats-value { font-size: 36px; font-weight: 800; color: var(--moneybot-neon); }
+        .primary-btn { background: linear-gradient(135deg, var(--moneybot-neon), var(--moneybot-blue)); color: var(--moneybot-black); border: none; padding: 20px 60px; font-size: 18px; font-weight: 700; border-radius: 16px; cursor: pointer; box-shadow: var(--glow-neon); transition: all 0.3s; width: 100%; max-width: 280px; }
+        .primary-btn:hover { transform: scale(1.05); box-shadow: var(--glow-strong); }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <div class="header">
+            <div class="header-logo">
+                <a href="../moneybot-official/" class="back-btn">←</a>
+                <div class="moneybot-brand">
+                    <div class="moneybot-icon">🤖</div>
+                    <span class="header-title">Budget Blaster</span>
+                </div>
+            </div>
+            <div class="score-pill">$<span id="score">0</span></div>
+        </div>
+        <div class="game-area">
+            <canvas id="gameCanvas" width="350" height="500"></canvas>
+        </div>
+    </div>
+    <div class="overlay-screen" id="startScreen">
+        <div class="game-icon">🔫</div>
+        <div class="game-title">Budget Blaster</div>
+        <div class="game-subtitle">Blast falling expenses!<br>Protect your budget</div>
+        <div class="stats-card">
+            <div class="stats-label">High Score</div>
+            <div class="stats-value" id="highScore">$0</div>
+        </div>
+        <button class="primary-btn" onclick="startGame()">Start Blasting</button>
+    </div>
+    <div class="overlay-screen hidden" id="gameOverScreen">
+        <div class="game-icon" style="background: linear-gradient(135deg, var(--moneybot-red), #ff0000);">💸</div>
+        <div class="game-title">Budget Busted!</div>
+        <div class="game-subtitle">You saved $<span id="finalScore" style="color: var(--moneybot-neon); font-weight: 800;">0</span></div>
+        <button class="primary-btn" onclick="restartGame()">Try Again</button>
+    </div>
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        let gameRunning = false;
+        let score = 0;
+        let highScore = localStorage.getItem('budgetBlasterHighScore') || 0;
+        let player = { x: 175, y: 450, width: 50 };
+        let bullets = [];
+        let expenses = [];
+        let particles = [];
+        let gameLoop;
+        document.getElementById('highScore').textContent = '$' + highScore;
+        const expenseTypes = [
+            { emoji: '🍔', name: 'Food', value: 10 },
+            { emoji: '🛍️', name: 'Shopping', value: 20 },
+            { emoji: '🎮', name: 'Entertainment', value: 15 },
+            { emoji: '🚗', name: 'Transport', value: 25 },
+            { emoji: '💳', name: 'Debt', value: 50 }
+        ];
+        function startGame() {
+            document.getElementById('startScreen').classList.add('hidden');
+            document.getElementById('gameOverScreen').classList.add('hidden');
+            gameRunning = true;
+            score = 0;
+            player.x = 175;
+            bullets = [];
+            expenses = [];
+            particles = [];
+            updateScore();
+            gameLoop = requestAnimationFrame(update);
+        }
+        function restartGame() {
+            startGame();
+        }
+        function update() {
+            if (!gameRunning) return;
+            if (Math.random() < 0.02 + score / 10000) {
+                const type = expenseTypes[Math.floor(Math.random() * expenseTypes.length)];
+                expenses.push({
+                    x: Math.random() * 300 + 25,
+                    y: -30,
+                    type: type,
+                    speed: 2 + Math.random() * 2
+                });
+            }
+            bullets = bullets.filter(bullet => {
+                bullet.y -= 10;
+                return bullet.y > 0;
+            });
+            expenses = expenses.filter(expense => {
+                expense.y += expense.speed;
+                bullets.forEach((bullet, bIdx) => {
+                    if (Math.abs(bullet.x - expense.x) < 25 && Math.abs(bullet.y - expense.y) < 25) {
+                        score += expense.type.value;
+                        for (let i = 0; i < 5; i++) {
+                            particles.push({
+                                x: expense.x,
+                                y: expense.y,
+                                vx: (Math.random() - 0.5) * 8,
+                                vy: (Math.random() - 0.5) * 8,
+                                life: 1,
+                                color: '#00FF99'
+                            });
+                        }
+                        bullets.splice(bIdx, 1);
+                        expense.hit = true;
+                        if (navigator.vibrate) navigator.vibrate(10);
+                    }
+                });
+                if (expense.y > canvas.height) {
+                    score -= expense.type.value * 2;
+                    if (navigator.vibrate) navigator.vibrate(30);
+                }
+                return !expense.hit && expense.y < canvas.height;
+            });
+            particles = particles.filter(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.life -= 0.05;
+                return p.life > 0;
+            });
+            if (score < 0) {
+                gameOver();
+                return;
+            }
+            updateScore();
+            draw();
+            gameLoop = requestAnimationFrame(update);
+        }
+        function gameOver() {
+            gameRunning = false;
+            cancelAnimationFrame(gameLoop);
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem('budgetBlasterHighScore', highScore);
+            }
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('gameOverScreen').classList.remove('hidden');
+        }
+        function updateScore() {
+            document.getElementById('score').textContent = score;
+        }
+        function draw() {
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#00FF99';
+            ctx.shadowBlur = 20;
+            ctx.shadowColor = '#00FF99';
+            ctx.fillRect(player.x - 25, player.y, 50, 10);
+            ctx.shadowBlur = 0;
+            ctx.fillStyle = '#FFD700';
+            bullets.forEach(bullet => {
+                ctx.beginPath();
+                ctx.arc(bullet.x, bullet.y, 4, 0, Math.PI * 2);
+                ctx.fill();
+            });
+            ctx.font = '30px Arial';
+            ctx.textAlign = 'center';
+            expenses.forEach(expense => {
+                ctx.fillText(expense.type.emoji, expense.x, expense.y);
+            });
+            particles.forEach(p => {
+                ctx.save();
+                ctx.globalAlpha = p.life;
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            });
+        }
+        canvas.addEventListener('touchmove', (e) => {
+            if (!gameRunning) return;
+            const rect = canvas.getBoundingClientRect();
+            player.x = Math.max(25, Math.min(325, e.touches[0].clientX - rect.left));
+        });
+        canvas.addEventListener('mousemove', (e) => {
+            if (!gameRunning) return;
+            const rect = canvas.getBoundingClientRect();
+            player.x = Math.max(25, Math.min(325, e.clientX - rect.left));
+        });
+        canvas.addEventListener('click', () => {
+            if (!gameRunning) return;
+            bullets.push({ x: player.x, y: player.y });
+            if (navigator.vibrate) navigator.vibrate(5);
+        });
+        canvas.addEventListener('touchstart', () => {
+            if (!gameRunning) return;
+            bullets.push({ x: player.x, y: player.y });
+            if (navigator.vibrate) navigator.vibrate(5);
+        });
+    </script>
+</body>
+</html>
