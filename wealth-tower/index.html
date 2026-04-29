@@ -3,79 +3,472 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Wealth Tower - Tower Bloxx Style</title>
+    <title>Wealth Tower | MoneyBot</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; touch-action: none; user-select: none; }
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
-        :root { --mb-green: #22C55E; --mb-gold: #FBBF24; --mb-dark: #0F172A; }
-        body { font-family: 'Inter', sans-serif; background: linear-gradient(180deg, #F8FAFC 0%, #E2E8F0 100%); min-height: 100vh; overflow: hidden; }
-        #game-container { position: relative; width: 100%; height: 100vh; }
-        #game-canvas { display: block; width: 100%; height: 100%; }
-        .ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
-        .header { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); text-align: center; }
-        h1 { color: var(--mb-dark); font-size: 1.5rem; font-weight: 800; margin-bottom: 10px; }
-        .stats { display: flex; gap: 20px; justify-content: center; }
-        .stat-box { background: white; padding: 10px 20px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        .stat-value { font-size: 1.2rem; font-weight: 700; color: var(--mb-green); }
-        .stat-label { font-size: 0.7rem; color: #64748B; }
-        .controls { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); text-align: center; pointer-events: auto; }
-        .btn { background: linear-gradient(135deg, var(--mb-green), #16A34A); color: white; border: none; padding: 15px 40px; font-size: 1rem; font-weight: 700; border-radius: 50px; cursor: pointer; box-shadow: 0 8px 20px rgba(34, 197, 94, 0.4); }
-        .perfect-text { position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%); font-size: 3rem; font-weight: 800; color: var(--mb-gold); text-shadow: 0 4px 10px rgba(0,0,0,0.2); opacity: 0; pointer-events: none; }
-        .perfect-text.show { animation: perfectPop 1s ease-out; }
-        @keyframes perfectPop { 0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); } 50% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); } 100% { opacity: 0; transform: translate(-50%, -50%) scale(1); } }
+        @import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;500;600;700;800&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: none;
+            user-select: none;
+        }
+        
+        :root {
+            --moneybot-green: #00E676;
+            --moneybot-green-light: #69F0AE;
+            --moneybot-green-dark: #00C853;
+            --moneybot-dark: #1A1A2E;
+            --moneybot-gray: #F5F5F7;
+            --moneybot-text: #1A1A2E;
+            --moneybot-text-secondary: #6B7280;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+            --shadow-lg: 0 12px 40px rgba(0,0,0,0.12);
+            --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+            --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', sans-serif;
+            background: var(--moneybot-gray);
+            min-height: 100vh;
+            color: var(--moneybot-text);
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        /* Animated Background */
+        .bg-gradient {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(ellipse at 20% 20%, rgba(0, 230, 118, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(0, 230, 118, 0.05) 0%, transparent 50%),
+                var(--moneybot-gray);
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        /* App Container */
+        .app {
+            position: relative;
+            z-index: 1;
+            max-width: 430px;
+            margin: 0 auto;
+            min-height: 100vh;
+            background: var(--moneybot-gray);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Header */
+        .header {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+        
+        .header-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .back-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            border: none;
+            background: rgba(0, 230, 118, 0.1);
+            color: var(--moneybot-green);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s var(--ease-out-expo);
+            text-decoration: none;
+        }
+        
+        .back-btn:hover {
+            background: rgba(0, 230, 118, 0.2);
+            transform: translateX(-2px);
+        }
+        
+        .back-btn:active {
+            transform: scale(0.92);
+        }
+        
+        .header-title {
+            font-weight: 700;
+            font-size: 17px;
+            letter-spacing: -0.3px;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .icon-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            border: none;
+            background: rgba(0, 230, 118, 0.1);
+            color: var(--moneybot-green);
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s var(--ease-out-expo);
+        }
+        
+        .icon-btn:active {
+            transform: scale(0.92);
+            background: rgba(0, 230, 118, 0.2);
+        }
+        
+        /* Stats Card */
+        .stats-card {
+            background: white;
+            margin: 16px 20px;
+            padding: 20px;
+            border-radius: 20px;
+            display: flex;
+            justify-content: space-around;
+            box-shadow: var(--shadow-md);
+            gap: 16px;
+        }
+        
+        .stat-item {
+            text-align: center;
+            flex: 1;
+        }
+        
+        .stat-value {
+            font-weight: 800;
+            font-size: 28px;
+            color: var(--moneybot-green);
+            margin-bottom: 4px;
+            transition: all 0.3s var(--ease-spring);
+        }
+        
+        .stat-value.pulse {
+            transform: scale(1.2);
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: var(--moneybot-text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+        
+        /* Game Container */
+        .game-container {
+            flex: 1;
+            position: relative;
+            margin: 0 20px 20px;
+            background: linear-gradient(180deg, #1A1A2E 0%, #0F172A 100%);
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+        }
+        
+        #game-canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+        
+        /* Perfect Text Overlay */
+        .perfect-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--moneybot-green);
+            text-shadow: 0 4px 20px rgba(0, 230, 118, 0.5);
+            opacity: 0;
+            pointer-events: none;
+            z-index: 10;
+        }
+        
+        .perfect-overlay.show {
+            animation: perfectPop 0.8s var(--ease-spring) forwards;
+        }
+        
+        @keyframes perfectPop {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.3); }
+            50% { opacity: 1; transform: translate(-50%, -50%) scale(1.3); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(1) translateY(-50px); }
+        }
+        
+        /* Controls */
+        .controls {
+            padding: 0 20px 24px;
+        }
+        
+        .drop-btn {
+            width: 100%;
+            background: linear-gradient(135deg, var(--moneybot-green) 0%, var(--moneybot-green-dark) 100%);
+            color: white;
+            border: none;
+            padding: 18px 32px;
+            font-size: 18px;
+            font-weight: 700;
+            border-radius: 16px;
+            cursor: pointer;
+            box-shadow: 
+                0 8px 24px rgba(0, 230, 118, 0.4),
+                inset 0 1px 0 rgba(255,255,255,0.2);
+            transition: all 0.2s var(--ease-spring);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .drop-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 
+                0 12px 32px rgba(0, 230, 118, 0.5),
+                inset 0 1px 0 rgba(255,255,255,0.2);
+        }
+        
+        .drop-btn:active {
+            transform: scale(0.96);
+            box-shadow: 
+                0 4px 16px rgba(0, 230, 118, 0.3),
+                inset 0 1px 0 rgba(255,255,255,0.2);
+        }
+        
+        /* Game Over Modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(10px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+        
+        .modal.show {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 24px;
+            padding: 32px;
+            text-align: center;
+            max-width: 320px;
+            width: 100%;
+            box-shadow: var(--shadow-lg);
+            animation: slideUp 0.4s var(--ease-spring);
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .modal-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+        }
+        
+        .modal-title {
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 8px;
+            color: var(--moneybot-text);
+        }
+        
+        .modal-stats {
+            background: var(--moneybot-gray);
+            border-radius: 16px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .modal-stat {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+        
+        .modal-stat:last-child {
+            margin-bottom: 0;
+            padding-top: 12px;
+            border-top: 1px solid rgba(0,0,0,0.1);
+        }
+        
+        .modal-stat-label {
+            color: var(--moneybot-text-secondary);
+            font-size: 14px;
+        }
+        
+        .modal-stat-value {
+            font-weight: 700;
+            color: var(--moneybot-text);
+        }
+        
+        .modal-stat-value.highlight {
+            color: var(--moneybot-green);
+            font-size: 18px;
+        }
+        
+        .modal-btn {
+            width: 100%;
+            background: var(--moneybot-green);
+            color: white;
+            border: none;
+            padding: 16px;
+            font-size: 16px;
+            font-weight: 700;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s var(--ease-out-expo);
+        }
+        
+        .modal-btn:active {
+            transform: scale(0.96);
+        }
     </style>
 </head>
 <body>
-    <div id="game-container">
-        <canvas id="game-canvas"></canvas>
-        <div class="ui-layer">
-            <div class="header">
-                <h1>🏢 Wealth Tower</h1>
-                <div class="stats">
-                    <div class="stat-box">
-                        <div class="stat-value" id="floors">0</div>
-                        <div class="stat-label">Floors</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-value" id="value">$0</div>
-                        <div class="stat-label">Property Value</div>
-                    </div>
-                </div>
+    <div class="bg-gradient"></div>
+    
+    <div class="app">
+        <header class="header">
+            <div class="header-logo">
+                <a href="../moneybot-official/" class="back-btn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M19 12H5M12 19l-7-7 7-7"/>
+                    </svg>
+                </a>
+                <span class="header-title">Wealth Tower</span>
             </div>
-            <div class="perfect-text" id="perfect">PERFECT! 🎯</div>
-            <div class="controls">
-                <button class="btn" id="dropBtn" onclick="dropFloor()">DROP FLOOR</button>
+            <div class="header-actions">
+                <button class="icon-btn" onclick="resetGame()">🔄</button>
+            </div>
+        </header>
+        
+        <div class="stats-card">
+            <div class="stat-item">
+                <div class="stat-value" id="floors">0</div>
+                <div class="stat-label">Floors</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="value">$0</div>
+                <div class="stat-label">Value</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="streak">0</div>
+                <div class="stat-label">Streak</div>
             </div>
         </div>
+        
+        <div class="game-container">
+            <canvas id="game-canvas"></canvas>
+            <div class="perfect-overlay" id="perfect">PERFECT! 🎯</div>
+        </div>
+        
+        <div class="controls">
+            <button class="drop-btn" id="dropBtn" onclick="dropFloor()">Drop Floor</button>
+        </div>
     </div>
+    
+    <div class="modal" id="gameOverModal">
+        <div class="modal-content">
+            <div class="modal-icon">🏢</div>
+            <div class="modal-title">Tower Complete!</div>
+            <div class="modal-stats">
+                <div class="modal-stat">
+                    <span class="modal-stat-label">Floors Built</span>
+                    <span class="modal-stat-value" id="modalFloors">0</span>
+                </div>
+                <div class="modal-stat">
+                    <span class="modal-stat-label">Best Streak</span>
+                    <span class="modal-stat-value" id="modalStreak">0</span>
+                </div>
+                <div class="modal-stat">
+                    <span class="modal-stat-label">Total Value</span>
+                    <span class="modal-stat-value highlight" id="modalValue">$0</span>
+                </div>
+            </div>
+            <button class="modal-btn" onclick="closeModal()">Build Again</button>
+        </div>
+    </div>
+    
     <script>
         const canvas = document.getElementById('game-canvas');
         const ctx = canvas.getContext('2d');
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
         
-        const FLOOR_HEIGHT = 40;
-        const FLOOR_WIDTH = 200;
-        const COLORS = ['#22C55E', '#3B82F6', '#F59E0B', '#8B5CF6', '#EF4444', '#14B8A6'];
+        const FLOOR_HEIGHT = 36;
+        const FLOOR_WIDTH = 180;
+        const COLORS = ['#00E676', '#00C853', '#69F0AE', '#00BFA5', '#1DE9B6', '#64FFDA'];
         
         let floors = [];
         let currentFloor = null;
         let swinging = true;
         let swingAngle = 0;
-        let swingSpeed = 0.02;
+        let swingSpeed = 0.025;
         let score = 0;
         let gameOver = false;
         let perfectStreak = 0;
+        let bestStreak = 0;
+        
+        function resize() {
+            const container = canvas.parentElement;
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+        }
         
         function init() {
-            floors.push({ x: canvas.width/2 - FLOOR_WIDTH/2, y: canvas.height - 100, width: FLOOR_WIDTH, color: COLORS[0] });
+            resize();
+            floors.push({ 
+                x: canvas.width/2 - FLOOR_WIDTH/2, 
+                y: canvas.height - 80, 
+                width: FLOOR_WIDTH, 
+                color: COLORS[0] 
+            });
             createNewFloor();
             gameLoop();
         }
         
         function createNewFloor() {
             const color = COLORS[floors.length % COLORS.length];
-            currentFloor = { x: 0, y: 100, width: FLOOR_WIDTH, color: color, angle: 0 };
+            currentFloor = { x: 0, y: 120, width: FLOOR_WIDTH, color: color, angle: 0 };
             swinging = true;
         }
         
@@ -83,15 +476,14 @@
             if (!swinging || gameOver) return;
             swinging = false;
             
+            if (navigator.vibrate) navigator.vibrate(15);
+            
             const lastFloor = floors[floors.length - 1];
             const overlap = Math.max(0, Math.min(currentFloor.x + currentFloor.width, lastFloor.x + lastFloor.width) - Math.max(currentFloor.x, lastFloor.x));
             
             if (overlap <= 0) {
                 gameOver = true;
-                setTimeout(() => {
-                    alert(`Game Over! You built ${floors.length} floors worth $${score.toLocaleString()}`);
-                    resetGame();
-                }, 500);
+                showGameOver();
                 return;
             }
             
@@ -99,9 +491,11 @@
             if (isPerfect) {
                 currentFloor.x = lastFloor.x;
                 perfectStreak++;
+                if (perfectStreak > bestStreak) bestStreak = perfectStreak;
                 score += 1000 * perfectStreak;
                 document.getElementById('perfect').classList.add('show');
-                setTimeout(() => document.getElementById('perfect').classList.remove('show'), 1000);
+                if (navigator.vibrate) navigator.vibrate([30, 50, 30]);
+                setTimeout(() => document.getElementById('perfect').classList.remove('show'), 800);
             } else {
                 perfectStreak = 0;
                 currentFloor.width = overlap;
@@ -117,37 +511,83 @@
             updateDisplay();
             
             if (floors.length < 50) {
-                setTimeout(createNewFloor, 500);
+                setTimeout(createNewFloor, 400);
+            } else {
+                setTimeout(showGameOver, 500);
             }
         }
         
         function updateDisplay() {
-            document.getElementById('floors').textContent = floors.length;
-            document.getElementById('value').textContent = '$' + score.toLocaleString();
+            const floorsEl = document.getElementById('floors');
+            const valueEl = document.getElementById('value');
+            const streakEl = document.getElementById('streak');
+            
+            floorsEl.textContent = floors.length;
+            valueEl.textContent = '$' + score.toLocaleString();
+            streakEl.textContent = perfectStreak;
+            
+            floorsEl.classList.add('pulse');
+            setTimeout(() => floorsEl.classList.remove('pulse'), 300);
+        }
+        
+        function showGameOver() {
+            document.getElementById('modalFloors').textContent = floors.length;
+            document.getElementById('modalStreak').textContent = bestStreak;
+            document.getElementById('modalValue').textContent = '$' + score.toLocaleString();
+            document.getElementById('gameOverModal').classList.add('show');
+        }
+        
+        function closeModal() {
+            document.getElementById('gameOverModal').classList.remove('show');
+            resetGame();
         }
         
         function resetGame() {
             floors = [];
             score = 0;
             perfectStreak = 0;
+            bestStreak = 0;
             gameOver = false;
             init();
+            updateDisplay();
         }
         
         function gameLoop() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            if (gameOver) return;
+            
+            ctx.fillStyle = '#0F172A';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw grid lines
+            ctx.strokeStyle = 'rgba(0, 230, 118, 0.1)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < canvas.width; i += 40) {
+                ctx.beginPath();
+                ctx.moveTo(i, 0);
+                ctx.lineTo(i, canvas.height);
+                ctx.stroke();
+            }
             
             // Draw floors
             floors.forEach((floor, i) => {
-                ctx.fillStyle = floor.color;
+                // Floor shadow
+                ctx.fillStyle = 'rgba(0,0,0,0.3)';
+                ctx.fillRect(floor.x + 4, floor.y + 4, floor.width, FLOOR_HEIGHT);
+                
+                // Floor body
+                const gradient = ctx.createLinearGradient(floor.x, floor.y, floor.x, floor.y + FLOOR_HEIGHT);
+                gradient.addColorStop(0, floor.color);
+                gradient.addColorStop(1, adjustColor(floor.color, -20));
+                ctx.fillStyle = gradient;
                 ctx.fillRect(floor.x, floor.y, floor.width, FLOOR_HEIGHT);
-                ctx.strokeStyle = 'rgba(0,0,0,0.1)';
-                ctx.lineWidth = 2;
-                ctx.strokeRect(floor.x, floor.y, floor.width, FLOOR_HEIGHT);
+                
+                // Floor highlight
+                ctx.fillStyle = 'rgba(255,255,255,0.2)';
+                ctx.fillRect(floor.x, floor.y, floor.width, 3);
                 
                 // Floor number
-                ctx.fillStyle = 'white';
-                ctx.font = 'bold 16px Inter';
+                ctx.fillStyle = 'rgba(255,255,255,0.9)';
+                ctx.font = 'bold 14px -apple-system, sans-serif';
                 ctx.textAlign = 'center';
                 ctx.fillText(i + 1, floor.x + floor.width/2, floor.y + FLOOR_HEIGHT/2 + 5);
             });
@@ -155,23 +595,59 @@
             // Update and draw current floor
             if (swinging && currentFloor) {
                 swingAngle += swingSpeed;
-                currentFloor.x = canvas.width/2 - currentFloor.width/2 + Math.sin(swingAngle) * (canvas.width/2 - currentFloor.width);
+                currentFloor.x = canvas.width/2 - currentFloor.width/2 + Math.sin(swingAngle) * (canvas.width/2 - currentFloor.width - 40);
                 
-                ctx.fillStyle = currentFloor.color;
-                ctx.globalAlpha = 0.8;
+                // Shadow
+                ctx.fillStyle = 'rgba(0,0,0,0.2)';
+                ctx.fillRect(currentFloor.x + 4, currentFloor.y + 4, currentFloor.width, FLOOR_HEIGHT);
+                
+                // Floor
+                const gradient = ctx.createLinearGradient(currentFloor.x, currentFloor.y, currentFloor.x, currentFloor.y + FLOOR_HEIGHT);
+                gradient.addColorStop(0, currentFloor.color);
+                gradient.addColorStop(1, adjustColor(currentFloor.color, -20));
+                ctx.fillStyle = gradient;
+                ctx.globalAlpha = 0.9;
                 ctx.fillRect(currentFloor.x, currentFloor.y, currentFloor.width, FLOOR_HEIGHT);
                 ctx.globalAlpha = 1;
+                
+                // Glow effect
+                ctx.shadowColor = currentFloor.color;
+                ctx.shadowBlur = 20;
+                ctx.strokeStyle = currentFloor.color;
+                ctx.lineWidth = 2;
+                ctx.strokeRect(currentFloor.x, currentFloor.y, currentFloor.width, FLOOR_HEIGHT);
+                ctx.shadowBlur = 0;
             }
             
             requestAnimationFrame(gameLoop);
         }
         
-        window.addEventListener('resize', () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
+        function adjustColor(color, amount) {
+            const num = parseInt(color.replace('#', ''), 16);
+            const r = Math.max(0, Math.min(255, (num >> 16) + amount));
+            const g = Math.max(0, Math.min(255, ((num >> 8) & 0x00FF) + amount));
+            const b = Math.max(0, Math.min(255, (num & 0x0000FF) + amount));
+            return '#' + ((r << 16) | (g << 8) | b).toString(16).padStart(6, '0');
+        }
+        
+        window.addEventListener('resize', resize);
+        
+        // Touch support
+        document.addEventListener('touchstart', (e) => {
+            if (e.target === canvas || e.target.closest('.game-container')) {
+                dropFloor();
+            }
+        });
+        
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                dropFloor();
+            }
         });
         
         init();
+        updateDisplay();
     </script>
 </body>
 </html>
