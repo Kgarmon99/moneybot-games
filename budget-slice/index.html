@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Budget Slice | MoneyBot</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: none;
+            user-select: none;
+        }
+        
+        :root {
+            --moneybot-green: #00E676;
+            --moneybot-green-dark: #00C853;
+            --moneybot-red: #FF5252;
+            --moneybot-dark: #1A1A2E;
+            --moneybot-gray: #F5F5F7;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+            background: linear-gradient(180deg, #1A1A2E 0%, #0F0F1A 100%);
+            min-height: 100vh;
+            overflow: hidden;
+        }
+        
+        .app {
+            max-width: 430px;
+            margin: 0 auto;
+            min-height: 100vh;
+            position: relative;
+        }
+        
+        .header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            background: linear-gradient(to bottom, rgba(26,26,46,0.9) 0%, transparent 100%);
+        }
+        
+        .back-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border: none;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 20px;
+            text-decoration: none;
+        }
+        
+        .score-display {
+            background: rgba(0, 230, 118, 0.2);
+            border: 1px solid var(--moneybot-green);
+            padding: 10px 20px;
+            border-radius: 20px;
+            color: var(--moneybot-green);
+            font-weight: 700;
+            font-size: 18px;
+        }
+        
+        #gameCanvas {
+            display: block;
+            width: 100%;
+            height: 100vh;
+        }
+        
+        .start-screen, .game-over-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(26, 26, 46, 0.95);
+            z-index: 200;
+        }
+        
+        .game-over-screen {
+            display: none;
+        }
+        
+        .logo {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+        
+        .title {
+            font-size: 32px;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .subtitle {
+            color: rgba(255,255,255,0.6);
+            font-size: 16px;
+            margin-bottom: 40px;
+            text-align: center;
+            padding: 0 40px;
+        }
+        
+        .start-btn {
+            background: linear-gradient(135deg, var(--moneybot-green), var(--moneybot-green-dark));
+            color: white;
+            border: none;
+            padding: 20px 60px;
+            font-size: 20px;
+            font-weight: 700;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(0, 230, 118, 0.4);
+            transition: transform 0.2s;
+        }
+        
+        .start-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .instructions {
+            margin-top: 30px;
+            color: rgba(255,255,255,0.5);
+            text-align: center;
+            font-size: 14px;
+        }
+        
+        .combo-display {
+            position: absolute;
+            top: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 36px;
+            font-weight: 800;
+            color: var(--moneybot-green);
+            text-shadow: 0 0 20px rgba(0, 230, 118, 0.5);
+            opacity: 0;
+            pointer-events: none;
+            z-index: 50;
+        }
+        
+        .combo-display.show {
+            animation: comboPop 0.5s ease-out;
+        }
+        
+        @keyframes comboPop {
+            0% { opacity: 0; transform: translateX(-50%) scale(0.5); }
+            50% { opacity: 1; transform: translateX(-50%) scale(1.2); }
+            100% { opacity: 0; transform: translateX(-50%) scale(1) translateY(-50px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <div class="header">
+            <a href="../moneybot-official/" class="back-btn">←</a>
+            <div class="score-display">$<span id="score">0</span></div>
+        </div>
+        
+        <canvas id="gameCanvas"></canvas>
+        
+        <div class="combo-display" id="comboDisplay">COMBO x3!</div>
+        
+        <div class="start-screen" id="startScreen">
+            <div class="logo">⚔️</div>
+            <div class="title">Budget Slice</div>
+            <div class="subtitle">Slice bad expenses, save the good investments!</div>
+            <button class="start-btn" onclick="startGame()">PLAY NOW</button>
+            <div class="instructions">Swipe to slice • Avoid bombs<br>💰 Save money • 💣 Avoid debt</div>
+        </div>
+        
+        <div class="game-over-screen" id="gameOverScreen">
+            <div class="logo">💸</div>
+            <div class="title">Game Over!</div>
+            <div class="subtitle">You saved $<span id="finalScore">0</span></div>
+            <button class="start-btn" onclick="restartGame()">PLAY AGAIN</button>
+        </div>
+    </div>
+    
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth > 430 ? 430 : window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        let gameRunning = false;
+        let score = 0;
+        let combo = 0;
+        let items = [];
+        let particles = [];
+        let trails = [];
+        let lastTime = 0;
+        let spawnTimer = 0;
+        let gameSpeed = 1;
+        
+        const goodItems = ['💰', '💵', '🏦', '📈', '💎', '🪙'];
+        const badItems = ['💳', '🛍️', '🍔', '🎮', '👟', '📱'];
+        
+        class Item {
+            constructor() {
+                this.x = Math.random() * (canvas.width - 60) + 30;
+                this.y = canvas.height + 50;
+                this.vx = (Math.random() - 0.5) * 4;
+                this.vy = -(Math.random() * 5 + 8 + gameSpeed);
+                this.gravity = 0.15;
+                this.rotation = 0;
+                this.vr = (Math.random() - 0.5) * 0.2;
+                this.size = 50;
+                this.sliced = false;
+                this.isGood = Math.random() > 0.4;
+                this.emoji = this.isGood ? 
+                    goodItems[Math.floor(Math.random() * goodItems.length)] :
+                    badItems[Math.floor(Math.random() * badItems.length)];
+                this.isBomb = Math.random() < 0.1;
+                if (this.isBomb) {
+                    this.emoji = '💣';
+                    this.isGood = false;
+                }
+            }
+            
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.vy += this.gravity;
+                this.rotation += this.vr;
+                
+                return this.y < canvas.height + 100;
+            }
+            
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.rotation);
+                
+                if (this.sliced) {
+                    ctx.globalAlpha = 0.5;
+                }
+                
+                ctx.font = `${this.size}px Arial`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(this.emoji, 0, 0);
+                
+                ctx.restore();
+            }
+        }
+        
+        class Particle {
+            constructor(x, y, color) {
+                this.x = x;
+                this.y = y;
+                this.vx = (Math.random() - 0.5) * 10;
+                this.vy = (Math.random() - 0.5) * 10;
+                this.life = 1;
+                this.color = color;
+                this.size = Math.random() * 4 + 2;
+            }
+            
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.vy += 0.3;
+                this.life -= 0.02;
+                return this.life > 0;
+            }
+            
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.life;
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+        
+        let isDragging = false;
+        let lastPos = null;
+        
+        canvas.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            lastPos = { x: e.clientX - canvas.getBoundingClientRect().left, y: e.clientY };
+        });
+        
+        canvas.addEventListener('mousemove', (e) => {
+            if (!isDragging || !gameRunning) return;
+            
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            trails.push({ x, y, life: 1 });
+            
+            checkSlice(x, y);
+            lastPos = { x, y };
+        });
+        
+        canvas.addEventListener('mouseup', () => {
+            isDragging = false;
+            lastPos = null;
+        });
+        
+        canvas.addEventListener('touchstart', (e) => {
+            isDragging = true;
+            const touch = e.touches[0];
+            const rect = canvas.getBoundingClientRect();
+            lastPos = { x: touch.clientX - rect.left, y: touch.clientY - rect.top };
+        });
+        
+        canvas.addEventListener('touchmove', (e) => {
+            if (!isDragging || !gameRunning) return;
+            e.preventDefault();
+            
+            const touch = e.touches[0];
+            const rect = canvas.getBoundingClientRect();
+            const x = touch.clientX - rect.left;
+            const y = touch.clientY - rect.top;
+            
+            trails.push({ x, y, life: 1 });
+            checkSlice(x, y);
+            lastPos = { x, y };
+        });
+        
+        canvas.addEventListener('touchend', () => {
+            isDragging = false;
+            lastPos = null;
+        });
+        
+        function checkSlice(x, y) {
+            items.forEach(item => {
+                if (item.sliced) return;
+                
+                const dx = x - item.x;
+                const dy = y - item.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                
+                if (dist < item.size) {
+                    sliceItem(item);
+                }
+            });
+        }
+        
+        function sliceItem(item) {
+            item.sliced = true;
+            
+            if (item.isBomb) {
+                gameOver();
+                return;
+            }
+            
+            if (item.isGood) {
+                score += 10 * (combo + 1);
+                combo++;
+                
+                if (combo > 1) {
+                    const comboEl = document.getElementById('comboDisplay');
+                    comboEl.textContent = `COMBO x${combo}!`;
+                    comboEl.classList.add('show');
+                    setTimeout(() => comboEl.classList.remove('show'), 500);
+                }
+                
+                for (let i = 0; i < 10; i++) {
+                    particles.push(new Particle(item.x, item.y, '#00E676'));
+                }
+                
+                if (navigator.vibrate) navigator.vibrate(20);
+            } else {
+                score = Math.max(0, score - 5);
+                combo = 0;
+                
+                for (let i = 0; i < 5; i++) {
+                    particles.push(new Particle(item.x, item.y, '#FF5252'));
+                }
+                
+                if (navigator.vibrate) navigator.vibrate([50, 30, 50]);
+            }
+            
+            document.getElementById('score').textContent = score;
+        }
+        
+        function startGame() {
+            document.getElementById('startScreen').style.display = 'none';
+            gameRunning = true;
+            score = 0;
+            combo = 0;
+            items = [];
+            particles = [];
+            trails = [];
+            gameSpeed = 1;
+            document.getElementById('score').textContent = score;
+            requestAnimationFrame(gameLoop);
+        }
+        
+        function restartGame() {
+            document.getElementById('gameOverScreen').style.display = 'none';
+            startGame();
+        }
+        
+        function gameOver() {
+            gameRunning = false;
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('gameOverScreen').style.display = 'flex';
+            
+            if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 200]);
+        }
+        
+        function gameLoop(timestamp) {
+            if (!gameRunning) return;
+            
+            const dt = timestamp - lastTime;
+            lastTime = timestamp;
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Spawn items
+            spawnTimer += dt;
+            if (spawnTimer > 1500 - gameSpeed * 100) {
+                items.push(new Item());
+                spawnTimer = 0;
+                gameSpeed = Math.min(gameSpeed + 0.05, 5);
+            }
+            
+            // Update and draw trails
+            trails = trails.filter(trail => {
+                trail.life -= 0.05;
+                if (trail.life <= 0) return false;
+                
+                ctx.save();
+                ctx.globalAlpha = trail.life;
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                ctx.beginPath();
+                ctx.arc(trail.x, trail.y, 3, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+                
+                return true;
+            });
+            
+            // Update and draw items
+            items = items.filter(item => {
+                const onScreen = item.update();
+                item.draw();
+                
+                if (!onScreen && !item.sliced && item.isGood) {
+                    combo = 0;
+                }
+                
+                return onScreen && !item.sliced;
+            });
+            
+            // Update and draw particles
+            particles = particles.filter(p => {
+                const alive = p.update();
+                p.draw();
+                return alive;
+            });
+            
+            requestAnimationFrame(gameLoop);
+        }
+    </script>
+</body>
+</html>

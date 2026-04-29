@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Coin Collector | MoneyBot</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: none;
+            user-select: none;
+        }
+        
+        :root {
+            --moneybot-green: #00E676;
+            --moneybot-green-dark: #00C853;
+            --moneybot-dark: #1A1A2E;
+            --moneybot-gray: #F5F5F7;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+            background: var(--moneybot-dark);
+            min-height: 100vh;
+            overflow: hidden;
+        }
+        
+        .app {
+            max-width: 430px;
+            margin: 0 auto;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            background: rgba(26, 26, 46, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .back-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 20px;
+            text-decoration: none;
+        }
+        
+        .score-display {
+            background: rgba(0, 230, 118, 0.2);
+            border: 1px solid var(--moneybot-green);
+            padding: 10px 20px;
+            border-radius: 20px;
+            color: var(--moneybot-green);
+            font-weight: 700;
+            font-size: 18px;
+        }
+        
+        .game-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        #gameCanvas {
+            background: #0a0a1a;
+            border-radius: 16px;
+            box-shadow: 0 0 40px rgba(0, 230, 118, 0.2);
+        }
+        
+        .controls {
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+        
+        .control-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(0, 230, 118, 0.3);
+            color: white;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .control-btn:active {
+            background: var(--moneybot-green);
+            transform: scale(0.95);
+        }
+        
+        .start-screen, .game-over-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(26, 26, 46, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 200;
+        }
+        
+        .game-over-screen {
+            display: none;
+        }
+        
+        .logo {
+            font-size: 64px;
+            margin-bottom: 10px;
+        }
+        
+        .title {
+            font-size: 32px;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: rgba(255,255,255,0.7);
+            font-size: 16px;
+            margin-bottom: 40px;
+            text-align: center;
+            padding: 0 40px;
+        }
+        
+        .start-btn {
+            background: linear-gradient(135deg, var(--moneybot-green), var(--moneybot-green-dark));
+            color: white;
+            border: none;
+            padding: 20px 60px;
+            font-size: 20px;
+            font-weight: 700;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(0, 230, 118, 0.4);
+            transition: transform 0.2s;
+        }
+        
+        .start-btn:active {
+            transform: scale(0.95);
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <div class="header">
+            <a href="../moneybot-official/" class="back-btn">←</a>
+            <div class="score-display">$<span id="score">0</span></div>
+        </div>
+        
+        <div class="game-container">
+            <canvas id="gameCanvas" width="350" height="400"></canvas>
+        </div>
+        
+        <div class="controls">
+            <button class="control-btn" id="leftBtn">←</button>
+            <button class="control-btn" id="upBtn">↑</button>
+            <button class="control-btn" id="downBtn">↓</button>
+            <button class="control-btn" id="rightBtn">→</button>
+        </div>
+    </div>
+    
+    <div class="start-screen" id="startScreen">
+        <div class="logo">🪙</div>
+        <div class="title">Coin Collector</div>
+        <div class="subtitle">Eat all the coins! Avoid the debt ghosts!<br>Use arrow keys or buttons to move</div>
+        <button class="start-btn" onclick="startGame()">PLAY NOW</button>
+    </div>
+    
+    <div class="game-over-screen" id="gameOverScreen">
+        <div class="logo">👻</div>
+        <div class="title">Game Over!</div>
+        <div class="subtitle">You collected $<span id="finalScore">0</span></div>
+        <button class="start-btn" onclick="restartGame()">PLAY AGAIN</button>
+    </div>
+    
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        const CELL_SIZE = 25;
+        const COLS = 14;
+        const ROWS = 16;
+        
+        let gameRunning = false;
+        let score = 0;
+        let player = { x: 7, y: 12, dir: 'left', nextDir: 'left' };
+        let ghosts = [];
+        let coins = [];
+        let walls = [];
+        let particles = [];
+        
+        // Simple maze layout
+        const maze = [
+            "##############",
+            "#............#",
+            "#.####.####.#",
+            "#.#........#.#",
+            "#.#.######.#.#",
+            "#............#",
+            "#.##.####.##.#",
+            "#....#..#....#",
+            "####.#..#.####",
+            "#............#",
+            "#.##########.#",
+            "#............#",
+            "#.####..####.#",
+            "#............#",
+            "##############"
+        ];
+        
+        function initGame() {
+            walls = [];
+            coins = [];
+            ghosts = [];
+            particles = [];
+            score = 0;
+            player = { x: 7, y: 12, dir: 'left', nextDir: 'left' };
+            
+            // Parse maze
+            for (let row = 0; row < ROWS; row++) {
+                for (let col = 0; col < COLS; col++) {
+                    if (maze[row][col] === '#') {
+                        walls.push({ x: col, y: row });
+                    } else if (maze[row][col] === '.') {
+                        coins.push({ x: col, y: row, collected: false });
+                    }
+                }
+            }
+            
+            // Add ghosts
+            ghosts = [
+                { x: 7, y: 3, dir: 'up', color: '#FF5252', emoji: '👻' },
+                { x: 6, y: 5, dir: 'right', color: '#FF9800', emoji: '👹' },
+                { x: 8, y: 5, dir: 'left', color: '#2196F3', emoji: '👺' }
+            ];
+            
+            document.getElementById('score').textContent = score;
+        }
+        
+        function startGame() {
+            document.getElementById('startScreen').style.display = 'none';
+            document.getElementById('gameOverScreen').style.display = 'none';
+            initGame();
+            gameRunning = true;
+            gameLoop();
+        }
+        
+        function restartGame() {
+            startGame();
+        }
+        
+        function gameOver() {
+            gameRunning = false;
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('gameOverScreen').style.display = 'flex';
+        }
+        
+        function canMove(x, y) {
+            if (x < 0 || x >= COLS || y < 0 || y >= ROWS) return false;
+            return !walls.some(w => w.x === x && w.y === y);
+        }
+        
+        function update() {
+            // Update player direction
+            if (player.nextDir !== player.dir) {
+                let nx = player.x;
+                let ny = player.y;
+                
+                if (player.nextDir === 'up') ny--;
+                else if (player.nextDir === 'down') ny++;
+                else if (player.nextDir === 'left') nx--;
+                else if (player.nextDir === 'right') nx++;
+                
+                if (canMove(nx, ny)) {
+                    player.dir = player.nextDir;
+                }
+            }
+            
+            // Move player
+            let newX = player.x;
+            let newY = player.y;
+            
+            if (player.dir === 'up') newY--;
+            else if (player.dir === 'down') newY++;
+            else if (player.dir === 'left') newX--;
+            else if (player.dir === 'right') newX++;
+            
+            if (canMove(newX, newY)) {
+                player.x = newX;
+                player.y = newY;
+            }
+            
+            // Collect coins
+            coins.forEach(coin => {
+                if (!coin.collected && coin.x === player.x && coin.y === player.y) {
+                    coin.collected = true;
+                    score += 10;
+                    document.getElementById('score').textContent = score;
+                    
+                    // Particles
+                    for (let i = 0; i < 5; i++) {
+                        particles.push({
+                            x: coin.x * CELL_SIZE + CELL_SIZE/2,
+                            y: coin.y * CELL_SIZE + CELL_SIZE/2,
+                            vx: (Math.random() - 0.5) * 4,
+                            vy: (Math.random() - 0.5) * 4,
+                            life: 1,
+                            color: '#FFD700'
+                        });
+                    }
+                    
+                    if (navigator.vibrate) navigator.vibrate(10);
+                }
+            });
+            
+            // Check win
+            if (coins.every(c => c.collected)) {
+                gameOver();
+                return;
+            }
+            
+            // Move ghosts
+            ghosts.forEach(ghost => {
+                const dirs = ['up', 'down', 'left', 'right'];
+                
+                // Simple AI: try to move toward player
+                let bestDir = ghost.dir;
+                let minDist = Infinity;
+                
+                dirs.forEach(dir => {
+                    let nx = ghost.x;
+                    let ny = ghost.y;
+                    
+                    if (dir === 'up') ny--;
+                    else if (dir === 'down') ny++;
+                    else if (dir === 'left') nx--;
+                    else if (dir === 'right') nx++;
+                    
+                    if (canMove(nx, ny)) {
+                        const dist = Math.abs(nx - player.x) + Math.abs(ny - player.y);
+                        if (dist < minDist) {
+                            minDist = dist;
+                            bestDir = dir;
+                        }
+                    }
+                });
+                
+                ghost.dir = bestDir;
+                
+                let nx = ghost.x;
+                let ny = ghost.y;
+                
+                if (ghost.dir === 'up') ny--;
+                else if (ghost.dir === 'down') ny++;
+                else if (ghost.dir === 'left') nx--;
+                else if (ghost.dir === 'right') nx++;
+                
+                if (canMove(nx, ny)) {
+                    ghost.x = nx;
+                    ghost.y = ny;
+                }
+                
+                // Check collision with player
+                if (ghost.x === player.x && ghost.y === player.y) {
+                    gameOver();
+                }
+            });
+            
+            // Update particles
+            particles = particles.filter(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.life -= 0.05;
+                return p.life > 0;
+            });
+        }
+        
+        function draw() {
+            ctx.fillStyle = '#0a0a1a';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw walls
+            ctx.fillStyle = '#1a1a3e';
+            walls.forEach(w => {
+                ctx.fillRect(w.x * CELL_SIZE, w.y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+                ctx.strokeStyle = '#2a2a5e';
+                ctx.strokeRect(w.x * CELL_SIZE, w.y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+            });
+            
+            // Draw coins
+            coins.forEach(coin => {
+                if (!coin.collected) {
+                    ctx.font = '16px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText('🪙', coin.x * CELL_SIZE + CELL_SIZE/2, coin.y * CELL_SIZE + CELL_SIZE/2);
+                }
+            });
+            
+            // Draw player
+            ctx.font = '22px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('😀', player.x * CELL_SIZE + CELL_SIZE/2, player.y * CELL_SIZE + CELL_SIZE/2);
+            
+            // Draw ghosts
+            ghosts.forEach(ghost => {
+                ctx.font = '22px Arial';
+                ctx.fillText(ghost.emoji, ghost.x * CELL_SIZE + CELL_SIZE/2, ghost.y * CELL_SIZE + CELL_SIZE/2);
+            });
+            
+            // Draw particles
+            particles.forEach(p => {
+                ctx.save();
+                ctx.globalAlpha = p.life;
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            });
+        }
+        
+        function gameLoop() {
+            if (!gameRunning) return;
+            
+            update();
+            draw();
+            
+            setTimeout(() => requestAnimationFrame(gameLoop), 150);
+        }
+        
+        // Controls
+        document.addEventListener('keydown', (e) => {
+            if (!gameRunning) return;
+            if (e.key === 'ArrowUp') player.nextDir = 'up';
+            if (e.key === 'ArrowDown') player.nextDir = 'down';
+            if (e.key === 'ArrowLeft') player.nextDir = 'left';
+            if (e.key === 'ArrowRight') player.nextDir = 'right';
+        });
+        
+        document.getElementById('upBtn').addEventListener('click', () => { if (gameRunning) player.nextDir = 'up'; });
+        document.getElementById('downBtn').addEventListener('click', () => { if (gameRunning) player.nextDir = 'down'; });
+        document.getElementById('leftBtn').addEventListener('click', () => { if (gameRunning) player.nextDir = 'left'; });
+        document.getElementById('rightBtn').addEventListener('click', () => { if (gameRunning) player.nextDir = 'right'; });
+    </script>
+</body>
+</html>
