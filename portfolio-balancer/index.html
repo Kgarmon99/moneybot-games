@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Portfolio Balancer - Candy Crush Style</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; touch-action: none; user-select: none; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+        :root { --mb-green: #22C55E; --mb-gold: #FBBF24; --mb-dark: #0F172A; }
+        body { font-family: 'Inter', sans-serif; background: linear-gradient(180deg, #F8FAFC 0%, #E2E8F0 100%); min-height: 100vh; overflow: hidden; }
+        #game-container { max-width: 500px; margin: 0 auto; padding: 20px; }
+        .header { text-align: center; margin-bottom: 20px; }
+        h1 { color: var(--mb-dark); font-size: 1.8rem; font-weight: 800; }
+        .stats { display: flex; justify-content: space-around; margin-bottom: 20px; }
+        .stat-box { background: white; padding: 15px 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; }
+        .stat-value { font-size: 1.5rem; font-weight: 700; color: var(--mb-green); }
+        .stat-label { font-size: 0.75rem; color: #64748B; text-transform: uppercase; }
+        #grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px; background: rgba(255,255,255,0.5); padding: 10px; border-radius: 15px; }
+        .cell { aspect-ratio: 1; border-radius: 10px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .cell:hover { transform: scale(1.1); }
+        .cell.selected { box-shadow: 0 0 0 3px var(--mb-gold); }
+        .asset-cash { background: linear-gradient(135deg, #22C55E, #16A34A); }
+        .asset-stock { background: linear-gradient(135deg, #3B82F6, #2563EB); }
+        .asset-bond { background: linear-gradient(135deg, #F59E0B, #D97706); }
+        .asset-crypto { background: linear-gradient(135deg, #8B5CF6, #7C3AED); }
+        .asset-gold { background: linear-gradient(135deg, #FBBF24, #F59E0B); }
+        .asset-real-estate { background: linear-gradient(135deg, #EF4444, #DC2626); }
+        .btn { background: linear-gradient(135deg, var(--mb-green), #16A34A); color: white; border: none; padding: 15px 40px; font-size: 1.1rem; font-weight: 700; border-radius: 50px; cursor: pointer; margin: 20px auto; display: block; box-shadow: 0 8px 20px rgba(34, 197, 94, 0.4); }
+        .level-info { text-align: center; margin: 10px 0; color: #64748B; }
+        .moves-left { font-weight: 700; color: var(--mb-dark); }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <div class="header">
+            <h1>💎 Portfolio Balancer</h1>
+            <p class="level-info">Level <span id="level">1</span> - Match 3+ assets to diversify!</p>
+        </div>
+        <div class="stats">
+            <div class="stat-box">
+                <div class="stat-value" id="score">0</div>
+                <div class="stat-label">Portfolio Value</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value moves-left" id="moves">20</div>
+                <div class="stat-label">Moves Left</div>
+            </div>
+        </div>
+        <div id="grid"></div>
+        <button class="btn" onclick="resetGame()">New Game</button>
+    </div>
+    <script>
+        const ASSETS = ['💵', '📈', '📜', '₿', '🥇', '🏠'];
+        const ASSET_CLASSES = ['asset-cash', 'asset-stock', 'asset-bond', 'asset-crypto', 'asset-gold', 'asset-real-estate'];
+        const GRID_SIZE = 8;
+        let grid = [], score = 0, moves = 20, level = 1, selectedCell = null;
+        
+        function initGrid() {
+            grid = [];
+            for (let i = 0; i < GRID_SIZE * GRID_SIZE; i++) {
+                grid.push(Math.floor(Math.random() * ASSETS.length));
+            }
+            renderGrid();
+        }
+        
+        function renderGrid() {
+            const gridEl = document.getElementById('grid');
+            gridEl.innerHTML = '';
+            grid.forEach((asset, index) => {
+                const cell = document.createElement('div');
+                cell.className = `cell ${ASSET_CLASSES[asset]}`;
+                cell.textContent = ASSETS[asset];
+                cell.dataset.index = index;
+                cell.onclick = () => handleClick(index);
+                if (selectedCell === index) cell.classList.add('selected');
+                gridEl.appendChild(cell);
+            });
+        }
+        
+        function handleClick(index) {
+            if (moves <= 0) return;
+            
+            if (selectedCell === null) {
+                selectedCell = index;
+            } else {
+                const diff = Math.abs(selectedCell - index);
+                if (diff === 1 || diff === GRID_SIZE) {
+                    swapCells(selectedCell, index);
+                    moves--;
+                    updateDisplay();
+                    setTimeout(() => {
+                        checkMatches();
+                        if (moves <= 0) endGame();
+                    }, 300);
+                }
+                selectedCell = null;
+            }
+            renderGrid();
+        }
+        
+        function swapCells(a, b) {
+            [grid[a], grid[b]] = [grid[b], grid[a]];
+        }
+        
+        function checkMatches() {
+            let matches = [];
+            // Horizontal matches
+            for (let row = 0; row < GRID_SIZE; row++) {
+                for (let col = 0; col < GRID_SIZE - 2; col++) {
+                    const idx = row * GRID_SIZE + col;
+                    if (grid[idx] === grid[idx + 1] && grid[idx] === grid[idx + 2]) {
+                        matches.push(idx, idx + 1, idx + 2);
+                    }
+                }
+            }
+            // Vertical matches
+            for (let col = 0; col < GRID_SIZE; col++) {
+                for (let row = 0; row < GRID_SIZE - 2; row++) {
+                    const idx = row * GRID_SIZE + col;
+                    if (grid[idx] === grid[idx + GRID_SIZE] && grid[idx] === grid[idx + GRID_SIZE * 2]) {
+                        matches.push(idx, idx + GRID_SIZE, idx + GRID_SIZE * 2);
+                    }
+                }
+            }
+            
+            if (matches.length > 0) {
+                matches = [...new Set(matches)];
+                score += matches.length * 100 * level;
+                matches.forEach(idx => {
+                    grid[idx] = Math.floor(Math.random() * ASSETS.length);
+                });
+                updateDisplay();
+                renderGrid();
+                setTimeout(checkMatches, 300);
+            }
+        }
+        
+        function updateDisplay() {
+            document.getElementById('score').textContent = score.toLocaleString();
+            document.getElementById('moves').textContent = moves;
+            document.getElementById('level').textContent = level;
+        }
+        
+        function endGame() {
+            if (score > 5000) {
+                level++;
+                moves = 20;
+                alert(`🎉 Level Complete! Starting Level ${level}`);
+            } else {
+                alert(`Game Over! Final Score: ${score.toLocaleString()}`);
+                resetGame();
+            }
+        }
+        
+        function resetGame() {
+            score = 0;
+            moves = 20;
+            level = 1;
+            selectedCell = null;
+            initGrid();
+            updateDisplay();
+        }
+        
+        initGrid();
+    </script>
+</body>
+</html>

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Market Racer - Temple Run Style</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; touch-action: none; user-select: none; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+        :root { --mb-green: #22C55E; --mb-gold: #FBBF24; --mb-dark: #0F172A; }
+        body { font-family: 'Inter', sans-serif; background: #0F172A; overflow: hidden; }
+        #game-container { position: relative; width: 100vw; height: 100vh; }
+        canvas { display: block; }
+        .ui { position: absolute; top: 0; left: 0; width: 100%; padding: 20px; display: flex; justify-content: space-between; color: white; font-weight: 700; font-size: 1.2rem; pointer-events: none; }
+        .coin-display { color: var(--mb-gold); }
+        .instructions { position: absolute; bottom: 100px; left: 50%; transform: translateX(-50%); color: white; text-align: center; font-size: 1rem; }
+        .btn { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, var(--mb-green), #16A34A); color: white; border: none; padding: 15px 40px; font-size: 1.1rem; font-weight: 700; border-radius: 50px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <canvas id="canvas"></canvas>
+        <div class="ui">
+            <div>Distance: <span id="distance">0</span>m</div>
+            <div class="coin-display">🪙 <span id="coins">0</span></div>
+        </div>
+        <div class="instructions" id="instructions">Swipe or Arrow Keys to Move<br>Collect 🪙 Coins, Avoid 🔴 Crashes</div>
+        <button class="btn" id="startBtn" onclick="startGame()">START RACING</button>
+    </div>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        let gameRunning = false;
+        let player = { x: canvas.width/2, y: canvas.height - 150, width: 40, height: 60, lane: 1 };
+        let coins = [];
+        let obstacles = [];
+        let distance = 0;
+        let coinCount = 0;
+        let speed = 5;
+        let lanes = [canvas.width * 0.25, canvas.width * 0.5, canvas.width * 0.75];
+        
+        function startGame() {
+            gameRunning = true;
+            document.getElementById('startBtn').style.display = 'none';
+            document.getElementById('instructions').style.display = 'none';
+            gameLoop();
+        }
+        
+        function gameLoop() {
+            if (!gameRunning) return;
+            
+            ctx.fillStyle = '#0F172A';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw lanes
+            ctx.strokeStyle = 'rgba(34, 197, 94, 0.3)';
+            ctx.lineWidth = 2;
+            lanes.forEach(lane => {
+                ctx.beginPath();
+                ctx.moveTo(lane, 0);
+                ctx.lineTo(lane, canvas.height);
+                ctx.stroke();
+            });
+            
+            // Update player position
+            player.x = lanes[player.lane];
+            
+            // Draw player (MoneyBot car)
+            ctx.fillStyle = '#22C55E';
+            ctx.fillRect(player.x - 20, player.y, 40, 60);
+            ctx.fillStyle = '#FBBF24';
+            ctx.fillRect(player.x - 15, player.y + 10, 30, 20);
+            
+            // Spawn coins
+            if (Math.random() < 0.02) {
+                coins.push({ x: lanes[Math.floor(Math.random() * 3)], y: -50, collected: false });
+            }
+            
+            // Spawn obstacles
+            if (Math.random() < 0.015) {
+                obstacles.push({ x: lanes[Math.floor(Math.random() * 3)], y: -50, type: 'crash' });
+            }
+            
+            // Update and draw coins
+            coins = coins.filter(coin => {
+                coin.y += speed;
+                if (!coin.collected && Math.abs(coin.x - player.x) < 30 && Math.abs(coin.y - player.y) < 60) {
+                    coin.collected = true;
+                    coinCount += 10;
+                    document.getElementById('coins').textContent = coinCount;
+                }
+                if (!coin.collected) {
+                    ctx.fillStyle = '#FBBF24';
+                    ctx.beginPath();
+                    ctx.arc(coin.x, coin.y, 15, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.fillStyle = '#0F172A';
+                    ctx.font = 'bold 12px Inter';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('$', coin.x, coin.y + 4);
+                }
+                return coin.y < canvas.height + 50 && !coin.collected;
+            });
+            
+            // Update and draw obstacles
+            obstacles = obstacles.filter(obs => {
+                obs.y += speed;
+                if (Math.abs(obs.x - player.x) < 30 && Math.abs(obs.y - player.y) < 60) {
+                    gameOver();
+                }
+                ctx.fillStyle = '#EF4444';
+                ctx.fillRect(obs.x - 20, obs.y, 40, 40);
+                ctx.fillStyle = '#7F1D1D';
+                ctx.font = 'bold 20px Inter';
+                ctx.textAlign = 'center';
+                ctx.fillText('📉', obs.x, obs.y + 28);
+                return obs.y < canvas.height + 50;
+            });
+            
+            distance += speed / 10;
+            document.getElementById('distance').textContent = Math.floor(distance);
+            speed += 0.001;
+            
+            requestAnimationFrame(gameLoop);
+        }
+        
+        function gameOver() {
+            gameRunning = false;
+            alert(`Market Crash! Distance: ${Math.floor(distance)}m, Coins: ${coinCount}`);
+            location.reload();
+        }
+        
+        function moveLane(direction) {
+            if (!gameRunning) return;
+            player.lane += direction;
+            if (player.lane < 0) player.lane = 0;
+            if (player.lane > 2) player.lane = 2;
+        }
+        
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') moveLane(-1);
+            if (e.key === 'ArrowRight') moveLane(1);
+        });
+        
+        let touchStartX = 0;
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+        });
+        
+        document.addEventListener('touchend', (e) => {
+            const touchEndX = e.changedTouches[0].clientX;
+            if (touchEndX < touchStartX - 50) moveLane(-1);
+            if (touchEndX > touchStartX + 50) moveLane(1);
+        });
+    </script>
+</body>
+</html>

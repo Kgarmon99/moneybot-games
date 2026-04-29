@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Risk Management - Tetris Style</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; touch-action: none; user-select: none; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+        :root { --mb-green: #22C55E; --mb-gold: #FBBF24; --mb-dark: #0F172A; }
+        body { font-family: 'Inter', sans-serif; background: linear-gradient(180deg, #F8FAFC 0%, #E2E8F0 100%); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        h1 { color: var(--mb-dark); font-size: 1.8rem; font-weight: 800; margin-bottom: 10px; text-align: center; }
+        .subtitle { color: #64748B; margin-bottom: 15px; text-align: center; font-size: 0.9rem; }
+        #game-container { display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap; justify-content: center; }
+        canvas { background: #0F172A; border-radius: 10px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
+        .side-panel { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); min-width: 150px; }
+        .stat { margin-bottom: 15px; text-align: center; }
+        .stat-value { font-size: 1.5rem; font-weight: 700; color: var(--mb-green); }
+        .stat-label { font-size: 0.75rem; color: #64748B; text-transform: uppercase; }
+        .next-piece { width: 100px; height: 100px; background: #0F172A; border-radius: 8px; margin: 10px auto; display: flex; align-items: center; justify-content: center; }
+        .controls-info { margin-top: 15px; font-size: 0.8rem; color: #64748B; line-height: 1.6; }
+        .btn { background: linear-gradient(135deg, var(--mb-green), #16A34A); color: white; border: none; padding: 12px 30px; font-size: 1rem; font-weight: 700; border-radius: 25px; cursor: pointer; width: 100%; margin-top: 10px; }
+        .risk-meter { margin-top: 15px; }
+        .risk-bar { height: 20px; background: #E2E8F0; border-radius: 10px; overflow: hidden; margin-top: 5px; }
+        .risk-fill { height: 100%; background: linear-gradient(90deg, #22C55E, #FBBF24, #EF4444); width: 0%; transition: width 0.3s; }
+    </style>
+</head>
+<body>
+    <h1>⚠️ Risk Management Tetris</h1>
+    <p class="subtitle">Balance risk vs reward! Clear lines to reduce portfolio risk.</p>
+    <div id="game-container">
+        <canvas id="canvas" width="300" height="600"></canvas>
+        <div class="side-panel">
+            <div class="stat">
+                <div class="stat-value" id="score">0</div>
+                <div class="stat-label">Portfolio Value</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="lines">0</div>
+                <div class="stat-label">Lines Cleared</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Next Asset</div>
+                <div class="next-piece" id="nextPiece"></div>
+            </div>
+            <div class="risk-meter">
+                <div class="stat-label">Risk Level</div>
+                <div class="risk-bar">
+                    <div class="risk-fill" id="riskFill"></div>
+                </div>
+            </div>
+            <button class="btn" onclick="newGame()">NEW GAME</button>
+            <div class="controls-info">
+                ← → : Move<br>
+                ↑ : Rotate<br>
+                ↓ : Soft Drop<br>
+                Space : Hard Drop
+            </div>
+        </div>
+    </div>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const COLS = 10;
+        const ROWS = 20;
+        const BLOCK_SIZE = 30;
+        
+        const ASSETS = {
+            I: { shape: [[1,1,1,1]], color: '#22C55E', name: 'Cash' },
+            O: { shape: [[1,1],[1,1]], color: '#3B82F6', name: 'Bonds' },
+            T: { shape: [[0,1,0],[1,1,1]], color: '#8B5CF6', name: 'Crypto' },
+            S: { shape: [[0,1,1],[1,1,0]], color: '#F59E0B', name: 'Gold' },
+            Z: { shape: [[1,1,0],[0,1,1]], color: '#EF4444', name: 'Stocks' },
+            J: { shape: [[1,0,0],[1,1,1]], color: '#14B8A6', name: 'Real Estate' },
+            L: { shape: [[0,0,1],[1,1,1]], color: '#F97316', name: 'Commodities' }
+        };
+        
+        let board = Array(ROWS).fill().map(() => Array(COLS).fill(0));
+        let currentPiece = null;
+        let nextPieceType = null;
+        let score = 0;
+        let lines = 0;
+        let gameOver = false;
+        let dropCounter = 0;
+        let dropInterval = 1000;
+        let lastTime = 0;
+        
+        function randomPiece() {
+            const types = Object.keys(ASSETS);
+            const type = types[Math.floor(Math.random() * types.length)];
+            return {
+                type: type,
+                shape: ASSETS[type].shape,
+                color: ASSETS[type].color,
+                x: Math.floor(COLS / 2) - Math.floor(ASSETS[type].shape[0].length / 2),
+                y: 0
+            };
+        }
+        
+        function draw() {
+            ctx.fillStyle = '#0F172A';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw grid lines
+            ctx.strokeStyle = '#1E293B';
+            ctx.lineWidth = 1;
+            for (let i = 0; i <= COLS; i++) {
+                ctx.beginPath();
+                ctx.moveTo(i * BLOCK_SIZE, 0);
+                ctx.lineTo(i * BLOCK_SIZE, canvas.height);
+                ctx.stroke();
+            }
+            for (let i = 0; i <= ROWS; i++) {
+                ctx.beginPath();
+                ctx.moveTo(0, i * BLOCK_SIZE);
+                ctx.lineTo(canvas.width, i * BLOCK_SIZE);
+                ctx.stroke();
+            }
+            
+            // Draw board
+            for (let r = 0; r < ROWS; r++) {
+                for (let c = 0; c < COLS; c++) {
+                    if (board[r][c]) {
+                        ctx.fillStyle = board[r][c];
+                        ctx.fillRect(c * BLOCK_SIZE, r * BLOCK_SIZE, BLOCK_SIZE - 2, BLOCK_SIZE - 2);
+                    }
+                }
+            }
+            
+            // Draw current piece
+            if (currentPiece) {
+                ctx.fillStyle = currentPiece.color;
+                currentPiece.shape.forEach((row, y) => {
+                    row.forEach((value, x) => {
+                        if (value) {
+                            ctx.fillRect((currentPiece.x + x) * BLOCK_SIZE, (currentPiece.y + y) * BLOCK_SIZE, BLOCK_SIZE - 2, BLOCK_SIZE - 2);
+                        }
+                    });
+                });
+            }
+        }
+        
+        function drawNextPiece() {
+            const nextDiv = document.getElementById('nextPiece');
+            nextDiv.innerHTML = '';
+            const asset = ASSETS[nextPieceType];
+            nextDiv.style.color = asset.color;
+            nextDiv.style.fontSize = '0.8rem';
+            nextDiv.style.textAlign = 'center';
+            nextDiv.innerHTML = `<div style="font-size: 2rem;">${asset.shape.map(row => row.map(c => c ? '█' : ' ').join('')).join('<br>')}</div><div style="margin-top: 5px;">${asset.name}</div>`;
+        }
+        
+        function collision(piece, offsetX = 0, offsetY = 0) {
+            return piece.shape.some((row, y) => {
+                return row.some((value, x) => {
+                    if (!value) return false;
+                    const newX = piece.x + x + offsetX;
+                    const newY = piece.y + y + offsetY;
+                    return newX < 0 || newX >= COLS || newY >= ROWS || (newY >= 0 && board[newY][newX]);
+                });
+            });
+        }
+        
+        function merge() {
+            currentPiece.shape.forEach((row, y) => {
+                row.forEach((value, x) => {
+                    if (value) {
+                        board[currentPiece.y + y][currentPiece.x + x] = currentPiece.color;
+                    }
+                });
+            });
+        }
+        
+        function rotate() {
+            const rotated = currentPiece.shape[0].map((_, i) => currentPiece.shape.map(row => row[i]).reverse());
+            const previousShape = currentPiece.shape;
+            currentPiece.shape = rotated;
+            if (collision(currentPiece)) {
+                currentPiece.shape = previousShape;
+            }
+        }
+        
+        function clearLines() {
+            let linesCleared = 0;
+            for (let r = ROWS - 1; r >= 0; r--) {
+                if (board[r].every(cell => cell !== 0)) {
+                    board.splice(r, 1);
+                    board.unshift(Array(COLS).fill(0));
+                    linesCleared++;
+                    r++;
+                }
+            }
+            if (linesCleared > 0) {
+                lines += linesCleared;
+                score += linesCleared * 100 * linesCleared;
+                updateDisplay();
+            }
+        }
+        
+        function update(time = 0) {
+            if (gameOver) return;
+            
+            const deltaTime = time - lastTime;
+            lastTime = time;
+            dropCounter += deltaTime;
+            
+            if (dropCounter > dropInterval) {
+                if (!collision(currentPiece, 0, 1)) {
+                    currentPiece.y++;
+                } else {
+                    merge();
+                    clearLines();
+                    spawnPiece();
+                }
+                dropCounter = 0;
+            }
+            
+            draw();
+            requestAnimationFrame(update);
+        }
+        
+        function spawnPiece() {
+            currentPiece = randomPiece();
+            currentPiece.type = nextPieceType;
+            currentPiece.shape = ASSETS[nextPieceType].shape;
+            currentPiece.color = ASSETS[nextPieceType].color;
+            nextPieceType = Object.keys(ASSETS)[Math.floor(Math.random() * Object.keys(ASSETS).length)];
+            drawNextPiece();
+            
+            if (collision(currentPiece)) {
+                gameOver = true;
+                alert(`Portfolio Collapsed! Score: ${score}`);
+            }
+        }
+        
+        function updateDisplay() {
+            document.getElementById('score').textContent = score.toLocaleString();
+            document.getElementById('lines').textContent = lines;
+            const risk = Math.min(100, (lines * 5) + (score / 1000));
+            document.getElementById('riskFill').style.width = risk + '%';
+        }
+        
+        function newGame() {
+            board = Array(ROWS).fill().map(() => Array(COLS).fill(0));
+            score = 0;
+            lines = 0;
+            gameOver = false;
+            nextPieceType = Object.keys(ASSETS)[Math.floor(Math.random() * Object.keys(ASSETS).length)];
+            spawnPiece();
+            updateDisplay();
+            update();
+        }
+        
+        document.addEventListener('keydown', (e) => {
+            if (gameOver) return;
+            if (e.key === 'ArrowLeft' && !collision(currentPiece, -1, 0)) currentPiece.x--;
+            if (e.key === 'ArrowRight' && !collision(currentPiece, 1, 0)) currentPiece.x++;
+            if (e.key === 'ArrowDown' && !collision(currentPiece, 0, 1)) currentPiece.y++;
+            if (e.key === 'ArrowUp') rotate();
+            if (e.key === ' ') {
+                while (!collision(currentPiece, 0, 1)) currentPiece.y++;
+            }
+        });
+        
+        newGame();
+    </script>
+</body>
+</html>

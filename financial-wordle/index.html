@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Financial Wordle - Daily Finance Terms</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; touch-action: manipulation; user-select: none; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+        :root { --mb-green: #22C55E; --mb-gold: #FBBF24; --mb-dark: #0F172A; --mb-gray: #64748B; }
+        body { font-family: 'Inter', sans-serif; background: linear-gradient(180deg, #F8FAFC 0%, #E2E8F0 100%); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        h1 { color: var(--mb-dark); font-size: 2rem; font-weight: 800; margin-bottom: 10px; text-align: center; }
+        .subtitle { color: var(--mb-gray); margin-bottom: 20px; text-align: center; }
+        #game-board { display: grid; grid-template-rows: repeat(6, 1fr); gap: 10px; margin-bottom: 20px; }
+        .row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+        .tile { width: 60px; height: 60px; border: 2px solid #E2E8F0; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 700; text-transform: uppercase; transition: all 0.3s; }
+        .tile.correct { background: var(--mb-green); color: white; border-color: var(--mb-green); animation: flip 0.5s; }
+        .tile.present { background: var(--mb-gold); color: white; border-color: var(--mb-gold); animation: flip 0.5s; }
+        .tile.absent { background: #94A3B8; color: white; border-color: #94A3B8; animation: flip 0.5s; }
+        @keyframes flip { 0% { transform: rotateX(0); } 50% { transform: rotateX(90deg); } 100% { transform: rotateX(0); } }
+        #keyboard { display: flex; flex-direction: column; gap: 8px; max-width: 500px; }
+        .keyboard-row { display: flex; justify-content: center; gap: 6px; }
+        .key { min-width: 32px; height: 50px; background: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1); transition: all 0.2s; }
+        .key:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
+        .key.correct { background: var(--mb-green); color: white; }
+        .key.present { background: var(--mb-gold); color: white; }
+        .key.absent { background: #94A3B8; color: white; }
+        .key.wide { min-width: 50px; }
+        #message { height: 30px; text-align: center; font-weight: 600; color: var(--mb-dark); margin: 10px 0; }
+        .definition { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); max-width: 400px; text-align: center; margin-top: 20px; display: none; }
+        .definition.show { display: block; animation: slideIn 0.5s; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+    <h1>💰 Financial Wordle</h1>
+    <p class="subtitle">Guess the 5-letter finance term!</p>
+    <div id="game-board"></div>
+    <div id="message"></div>
+    <div id="keyboard"></div>
+    <div class="definition" id="definition"></div>
+    <script>
+        const WORDS = [
+            { word: 'ASSET', def: 'Something valuable that you own (cash, stocks, property)' },
+            { word: 'DEBIT', def: 'Money taken out of your account' },
+            { word: 'CREDIT', def: 'Money borrowed that must be paid back' },
+            { word: 'EQUITY', def: 'Ownership value in an asset after debts are paid' },
+            { word: 'YIELD', def: 'Income return on an investment' },
+            { word: 'TRADE', def: 'Buying and selling financial instruments' },
+            { word: 'STOCK', def: 'Ownership share in a company' },
+            { word: 'BONDS', def: 'Loans made to governments or corporations' },
+            { word: 'FUNDS', def: 'Pools of money invested in various assets' },
+            { word: 'RATES', def: 'The cost of borrowing money or return on savings' },
+            { word: 'PRICE', def: 'The amount of money needed to purchase something' },
+            { word: 'VALUE', def: 'The worth of an asset or investment' },
+            { word: 'SAVED', def: 'Money set aside for future use' },
+            { word: 'SPEND', def: 'To use money to buy goods or services' },
+            { word: 'EARN', def: 'To receive money for work or investments' }
+        ];
+        
+        let targetWord, currentRow = 0, currentTile = 0, gameOver = false;
+        
+        function init() {
+            targetWord = WORDS[Math.floor(Math.random() * WORDS.length)];
+            createBoard();
+            createKeyboard();
+        }
+        
+        function createBoard() {
+            const board = document.getElementById('game-board');
+            for (let i = 0; i < 6; i++) {
+                const row = document.createElement('div');
+                row.className = 'row';
+                for (let j = 0; j < 5; j++) {
+                    const tile = document.createElement('div');
+                    tile.className = 'tile';
+                    tile.dataset.row = i;
+                    tile.dataset.col = j;
+                    row.appendChild(tile);
+                }
+                board.appendChild(row);
+            }
+        }
+        
+        function createKeyboard() {
+            const keys = [
+                'QWERTYUIOP',
+                'ASDFGHJKL',
+                'ZXCVBNM'
+            ];
+            const keyboard = document.getElementById('keyboard');
+            
+            keys.forEach((row, i) => {
+                const rowDiv = document.createElement('div');
+                rowDiv.className = 'keyboard-row';
+                
+                if (i === 2) {
+                    const enterKey = document.createElement('button');
+                    enterKey.className = 'key wide';
+                    enterKey.textContent = 'ENTER';
+                    enterKey.onclick = () => submitGuess();
+                    rowDiv.appendChild(enterKey);
+                }
+                
+                row.split('').forEach(key => {
+                    const btn = document.createElement('button');
+                    btn.className = 'key';
+                    btn.textContent = key;
+                    btn.onclick = () => addLetter(key);
+                    btn.id = `key-${key}`;
+                    rowDiv.appendChild(btn);
+                });
+                
+                if (i === 2) {
+                    const backKey = document.createElement('button');
+                    backKey.className = 'key wide';
+                    backKey.textContent = '⌫';
+                    backKey.onclick = () => removeLetter();
+                    rowDiv.appendChild(backKey);
+                }
+                
+                keyboard.appendChild(rowDiv);
+            });
+        }
+        
+        function addLetter(letter) {
+            if (gameOver || currentTile >= 5) return;
+            const tile = document.querySelector(`.tile[data-row="${currentRow}"][data-col="${currentTile}"]`);
+            tile.textContent = letter;
+            currentTile++;
+        }
+        
+        function removeLetter() {
+            if (currentTile === 0) return;
+            currentTile--;
+            const tile = document.querySelector(`.tile[data-row="${currentRow}"][data-col="${currentTile}"]`);
+            tile.textContent = '';
+        }
+        
+        function submitGuess() {
+            if (currentTile < 5) {
+                showMessage('Not enough letters!');
+                return;
+            }
+            
+            let guess = '';
+            for (let i = 0; i < 5; i++) {
+                guess += document.querySelector(`.tile[data-row="${currentRow}"][data-col="${i}"]`).textContent;
+            }
+            
+            const target = targetWord.word;
+            const tiles = document.querySelectorAll(`.tile[data-row="${currentRow}"]`);
+            
+            for (let i = 0; i < 5; i++) {
+                const letter = guess[i];
+                const tile = tiles[i];
+                const key = document.getElementById(`key-${letter}`);
+                
+                setTimeout(() => {
+                    if (letter === target[i]) {
+                        tile.classList.add('correct');
+                        key.classList.add('correct');
+                    } else if (target.includes(letter)) {
+                        tile.classList.add('present');
+                        if (!key.classList.contains('correct')) key.classList.add('present');
+                    } else {
+                        tile.classList.add('absent');
+                        key.classList.add('absent');
+                    }
+                }, i * 200);
+            }
+            
+            if (guess === target) {
+                gameOver = true;
+                setTimeout(() => {
+                    showMessage('🎉 Correct! Great job!');
+                    showDefinition();
+                }, 1200);
+            } else if (currentRow === 5) {
+                gameOver = true;
+                setTimeout(() => {
+                    showMessage(`The word was: ${target}`);
+                    showDefinition();
+                }, 1200);
+            } else {
+                currentRow++;
+                currentTile = 0;
+            }
+        }
+        
+        function showMessage(msg) {
+            const el = document.getElementById('message');
+            el.textContent = msg;
+            setTimeout(() => el.textContent = '', 3000);
+        }
+        
+        function showDefinition() {
+            const def = document.getElementById('definition');
+            def.innerHTML = `<strong>${targetWord.word}:</strong> ${targetWord.def}`;
+            def.classList.add('show');
+        }
+        
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') submitGuess();
+            else if (e.key === 'Backspace') removeLetter();
+            else if (/^[a-zA-Z]$/.test(e.key)) addLetter(e.key.toUpperCase());
+        });
+        
+        init();
+    </script>
+</body>
+</html>

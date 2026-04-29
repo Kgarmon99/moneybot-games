@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Wealth Tower - Tower Bloxx Style</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; touch-action: none; user-select: none; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+        :root { --mb-green: #22C55E; --mb-gold: #FBBF24; --mb-dark: #0F172A; }
+        body { font-family: 'Inter', sans-serif; background: linear-gradient(180deg, #F8FAFC 0%, #E2E8F0 100%); min-height: 100vh; overflow: hidden; }
+        #game-container { position: relative; width: 100%; height: 100vh; }
+        #game-canvas { display: block; width: 100%; height: 100%; }
+        .ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+        .header { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); text-align: center; }
+        h1 { color: var(--mb-dark); font-size: 1.5rem; font-weight: 800; margin-bottom: 10px; }
+        .stats { display: flex; gap: 20px; justify-content: center; }
+        .stat-box { background: white; padding: 10px 20px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .stat-value { font-size: 1.2rem; font-weight: 700; color: var(--mb-green); }
+        .stat-label { font-size: 0.7rem; color: #64748B; }
+        .controls { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); text-align: center; pointer-events: auto; }
+        .btn { background: linear-gradient(135deg, var(--mb-green), #16A34A); color: white; border: none; padding: 15px 40px; font-size: 1rem; font-weight: 700; border-radius: 50px; cursor: pointer; box-shadow: 0 8px 20px rgba(34, 197, 94, 0.4); }
+        .perfect-text { position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%); font-size: 3rem; font-weight: 800; color: var(--mb-gold); text-shadow: 0 4px 10px rgba(0,0,0,0.2); opacity: 0; pointer-events: none; }
+        .perfect-text.show { animation: perfectPop 1s ease-out; }
+        @keyframes perfectPop { 0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); } 50% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); } 100% { opacity: 0; transform: translate(-50%, -50%) scale(1); } }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <canvas id="game-canvas"></canvas>
+        <div class="ui-layer">
+            <div class="header">
+                <h1>🏢 Wealth Tower</h1>
+                <div class="stats">
+                    <div class="stat-box">
+                        <div class="stat-value" id="floors">0</div>
+                        <div class="stat-label">Floors</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="value">$0</div>
+                        <div class="stat-label">Property Value</div>
+                    </div>
+                </div>
+            </div>
+            <div class="perfect-text" id="perfect">PERFECT! 🎯</div>
+            <div class="controls">
+                <button class="btn" id="dropBtn" onclick="dropFloor()">DROP FLOOR</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        const canvas = document.getElementById('game-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        const FLOOR_HEIGHT = 40;
+        const FLOOR_WIDTH = 200;
+        const COLORS = ['#22C55E', '#3B82F6', '#F59E0B', '#8B5CF6', '#EF4444', '#14B8A6'];
+        
+        let floors = [];
+        let currentFloor = null;
+        let swinging = true;
+        let swingAngle = 0;
+        let swingSpeed = 0.02;
+        let score = 0;
+        let gameOver = false;
+        let perfectStreak = 0;
+        
+        function init() {
+            floors.push({ x: canvas.width/2 - FLOOR_WIDTH/2, y: canvas.height - 100, width: FLOOR_WIDTH, color: COLORS[0] });
+            createNewFloor();
+            gameLoop();
+        }
+        
+        function createNewFloor() {
+            const color = COLORS[floors.length % COLORS.length];
+            currentFloor = { x: 0, y: 100, width: FLOOR_WIDTH, color: color, angle: 0 };
+            swinging = true;
+        }
+        
+        function dropFloor() {
+            if (!swinging || gameOver) return;
+            swinging = false;
+            
+            const lastFloor = floors[floors.length - 1];
+            const overlap = Math.max(0, Math.min(currentFloor.x + currentFloor.width, lastFloor.x + lastFloor.width) - Math.max(currentFloor.x, lastFloor.x));
+            
+            if (overlap <= 0) {
+                gameOver = true;
+                setTimeout(() => {
+                    alert(`Game Over! You built ${floors.length} floors worth $${score.toLocaleString()}`);
+                    resetGame();
+                }, 500);
+                return;
+            }
+            
+            const isPerfect = Math.abs(currentFloor.x - lastFloor.x) < 5;
+            if (isPerfect) {
+                currentFloor.x = lastFloor.x;
+                perfectStreak++;
+                score += 1000 * perfectStreak;
+                document.getElementById('perfect').classList.add('show');
+                setTimeout(() => document.getElementById('perfect').classList.remove('show'), 1000);
+            } else {
+                perfectStreak = 0;
+                currentFloor.width = overlap;
+                if (currentFloor.x < lastFloor.x) {
+                    currentFloor.x = lastFloor.x;
+                }
+                score += overlap * 10;
+            }
+            
+            currentFloor.y = lastFloor.y - FLOOR_HEIGHT;
+            floors.push(currentFloor);
+            
+            updateDisplay();
+            
+            if (floors.length < 50) {
+                setTimeout(createNewFloor, 500);
+            }
+        }
+        
+        function updateDisplay() {
+            document.getElementById('floors').textContent = floors.length;
+            document.getElementById('value').textContent = '$' + score.toLocaleString();
+        }
+        
+        function resetGame() {
+            floors = [];
+            score = 0;
+            perfectStreak = 0;
+            gameOver = false;
+            init();
+        }
+        
+        function gameLoop() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw floors
+            floors.forEach((floor, i) => {
+                ctx.fillStyle = floor.color;
+                ctx.fillRect(floor.x, floor.y, floor.width, FLOOR_HEIGHT);
+                ctx.strokeStyle = 'rgba(0,0,0,0.1)';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(floor.x, floor.y, floor.width, FLOOR_HEIGHT);
+                
+                // Floor number
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 16px Inter';
+                ctx.textAlign = 'center';
+                ctx.fillText(i + 1, floor.x + floor.width/2, floor.y + FLOOR_HEIGHT/2 + 5);
+            });
+            
+            // Update and draw current floor
+            if (swinging && currentFloor) {
+                swingAngle += swingSpeed;
+                currentFloor.x = canvas.width/2 - currentFloor.width/2 + Math.sin(swingAngle) * (canvas.width/2 - currentFloor.width);
+                
+                ctx.fillStyle = currentFloor.color;
+                ctx.globalAlpha = 0.8;
+                ctx.fillRect(currentFloor.x, currentFloor.y, currentFloor.width, FLOOR_HEIGHT);
+                ctx.globalAlpha = 1;
+            }
+            
+            requestAnimationFrame(gameLoop);
+        }
+        
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+        
+        init();
+    </script>
+</body>
+</html>
