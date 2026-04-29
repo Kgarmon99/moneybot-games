@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Wealth Tower | MoneyBot</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
         
         * {
             margin: 0;
@@ -20,10 +20,10 @@
             --moneybot-green: #00E676;
             --moneybot-green-light: #69F0AE;
             --moneybot-green-dark: #00C853;
+            --moneybot-gold: #FBBF24;
             --moneybot-dark: #1A1A2E;
             --moneybot-gray: #F5F5F7;
             --moneybot-text: #1A1A2E;
-            --moneybot-text-secondary: #6B7280;
             --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
             --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
             --shadow-lg: 0 12px 40px rgba(0,0,0,0.12);
@@ -32,407 +32,383 @@
         }
         
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', sans-serif;
-            background: var(--moneybot-gray);
+            font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+            background: linear-gradient(180deg, #1A1A2E 0%, #0F0F1A 100%);
             min-height: 100vh;
-            color: var(--moneybot-text);
             overflow: hidden;
-            -webkit-font-smoothing: antialiased;
         }
         
-        /* Animated Background */
-        .bg-gradient {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: 
-                radial-gradient(ellipse at 20% 20%, rgba(0, 230, 118, 0.08) 0%, transparent 50%),
-                radial-gradient(ellipse at 80% 80%, rgba(0, 230, 118, 0.05) 0%, transparent 50%),
-                var(--moneybot-gray);
-            pointer-events: none;
-            z-index: 0;
-        }
-        
-        /* App Container */
         .app {
-            position: relative;
-            z-index: 1;
             max-width: 430px;
             margin: 0 auto;
             min-height: 100vh;
-            background: var(--moneybot-gray);
-            display: flex;
-            flex-direction: column;
+            position: relative;
         }
         
-        /* Header */
         .header {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(20px) saturate(180%);
-            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
             padding: 16px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            position: sticky;
-            top: 0;
             z-index: 100;
-            border-bottom: 1px solid rgba(0,0,0,0.05);
-        }
-        
-        .header-logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
+            background: linear-gradient(to bottom, rgba(26,26,46,0.9) 0%, transparent 100%);
         }
         
         .back-btn {
-            width: 36px;
-            height: 36px;
-            border-radius: 10px;
-            border: none;
-            background: rgba(0, 230, 118, 0.1);
-            color: var(--moneybot-green);
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: white;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: all 0.2s var(--ease-out-expo);
+            font-size: 22px;
             text-decoration: none;
-        }
-        
-        .back-btn:hover {
-            background: rgba(0, 230, 118, 0.2);
-            transform: translateX(-2px);
+            transition: all 0.2s var(--ease-out-expo);
         }
         
         .back-btn:active {
-            transform: scale(0.92);
+            transform: scale(0.95);
+            background: rgba(255,255,255,0.25);
         }
         
-        .header-title {
-            font-weight: 700;
-            font-size: 17px;
-            letter-spacing: -0.3px;
-        }
-        
-        .header-actions {
-            display: flex;
-            gap: 8px;
-        }
-        
-        .icon-btn {
-            width: 36px;
-            height: 36px;
-            border-radius: 10px;
-            border: none;
-            background: rgba(0, 230, 118, 0.1);
-            color: var(--moneybot-green);
-            font-size: 18px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.2s var(--ease-out-expo);
-        }
-        
-        .icon-btn:active {
-            transform: scale(0.92);
+        .score-display {
             background: rgba(0, 230, 118, 0.2);
-        }
-        
-        /* Stats Card */
-        .stats-card {
-            background: white;
-            margin: 16px 20px;
-            padding: 20px;
+            border: 1px solid var(--moneybot-green);
+            padding: 10px 20px;
             border-radius: 20px;
-            display: flex;
-            justify-content: space-around;
-            box-shadow: var(--shadow-md);
-            gap: 16px;
+            color: var(--moneybot-green);
+            font-weight: 700;
+            font-size: 18px;
         }
         
-        .stat-item {
+        #gameCanvas {
+            display: block;
+            width: 100%;
+            height: 100vh;
+        }
+        
+        .stats-overlay {
+            position: absolute;
+            top: 80px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            justify-content: space-between;
+            z-index: 50;
+        }
+        
+        .stat-box {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 12px 20px;
             text-align: center;
-            flex: 1;
+            min-width: 80px;
         }
         
         .stat-value {
+            font-size: 24px;
             font-weight: 800;
-            font-size: 28px;
             color: var(--moneybot-green);
-            margin-bottom: 4px;
-            transition: all 0.3s var(--ease-spring);
-        }
-        
-        .stat-value.pulse {
-            transform: scale(1.2);
+            margin-bottom: 2px;
         }
         
         .stat-label {
-            font-size: 12px;
-            color: var(--moneybot-text-secondary);
+            font-size: 11px;
+            color: rgba(255,255,255,0.6);
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            font-weight: 600;
         }
         
-        /* Game Container */
-        .game-container {
-            flex: 1;
-            position: relative;
-            margin: 0 20px 20px;
-            background: linear-gradient(180deg, #1A1A2E 0%, #0F172A 100%);
-            border-radius: 24px;
-            overflow: hidden;
-            box-shadow: var(--shadow-lg);
-        }
-        
-        #game-canvas {
-            display: block;
-            width: 100%;
-            height: 100%;
-        }
-        
-        /* Perfect Text Overlay */
-        .perfect-overlay {
+        .perfect-text {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            font-size: 2.5rem;
-            font-weight: 800;
-            color: var(--moneybot-green);
-            text-shadow: 0 4px 20px rgba(0, 230, 118, 0.5);
+            font-size: 48px;
+            font-weight: 900;
+            color: var(--moneybot-gold);
+            text-shadow: 0 0 40px rgba(251, 191, 36, 0.8);
             opacity: 0;
             pointer-events: none;
-            z-index: 10;
+            z-index: 60;
         }
         
-        .perfect-overlay.show {
+        .perfect-text.show {
             animation: perfectPop 0.8s var(--ease-spring) forwards;
         }
         
         @keyframes perfectPop {
             0% { opacity: 0; transform: translate(-50%, -50%) scale(0.3); }
             50% { opacity: 1; transform: translate(-50%, -50%) scale(1.3); }
-            100% { opacity: 0; transform: translate(-50%, -50%) scale(1) translateY(-50px); }
-        }
-        
-        /* Controls */
-        .controls {
-            padding: 0 20px 24px;
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(1) translateY(-60px); }
         }
         
         .drop-btn {
-            width: 100%;
-            background: linear-gradient(135deg, var(--moneybot-green) 0%, var(--moneybot-green-dark) 100%);
+            position: absolute;
+            bottom: 30px;
+            left: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, var(--moneybot-green), var(--moneybot-green-dark));
             color: white;
             border: none;
-            padding: 18px 32px;
-            font-size: 18px;
-            font-weight: 700;
-            border-radius: 16px;
+            padding: 20px 40px;
+            font-size: 20px;
+            font-weight: 800;
+            border-radius: 20px;
             cursor: pointer;
-            box-shadow: 
-                0 8px 24px rgba(0, 230, 118, 0.4),
-                inset 0 1px 0 rgba(255,255,255,0.2);
+            box-shadow: 0 10px 30px rgba(0, 230, 118, 0.4);
             transition: all 0.2s var(--ease-spring);
+            z-index: 100;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
-        .drop-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 
-                0 12px 32px rgba(0, 230, 118, 0.5),
-                inset 0 1px 0 rgba(255,255,255,0.2);
+            letter-spacing: 1px;
         }
         
         .drop-btn:active {
-            transform: scale(0.96);
-            box-shadow: 
-                0 4px 16px rgba(0, 230, 118, 0.3),
-                inset 0 1px 0 rgba(255,255,255,0.2);
+            transform: scale(0.95);
+            box-shadow: 0 5px 15px rgba(0, 230, 118, 0.3);
         }
         
-        /* Game Over Modal */
-        .modal {
-            position: fixed;
+        .start-screen, .game-over-screen {
+            position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.8);
-            backdrop-filter: blur(10px);
-            display: none;
+            display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            z-index: 1000;
-            padding: 20px;
+            background: linear-gradient(180deg, rgba(26,26,46,0.98) 0%, rgba(0,0,0,0.95) 100%);
+            backdrop-filter: blur(20px);
+            z-index: 200;
         }
         
-        .modal.show {
-            display: flex;
-            animation: fadeIn 0.3s ease;
+        .game-over-screen {
+            display: none;
         }
         
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+        .logo-container {
+            position: relative;
+            margin-bottom: 20px;
         }
         
-        .modal-content {
-            background: white;
-            border-radius: 24px;
-            padding: 32px;
-            text-align: center;
-            max-width: 320px;
-            width: 100%;
-            box-shadow: var(--shadow-lg);
-            animation: slideUp 0.4s var(--ease-spring);
+        .logo {
+            font-size: 80px;
+            filter: drop-shadow(0 10px 30px rgba(0, 230, 118, 0.4));
+            animation: float 3s ease-in-out infinite;
         }
         
-        @keyframes slideUp {
-            from { transform: translateY(50px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
         }
         
-        .modal-icon {
-            font-size: 64px;
-            margin-bottom: 16px;
-        }
-        
-        .modal-title {
-            font-size: 24px;
-            font-weight: 800;
+        .title {
+            font-size: 36px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #fff 0%, var(--moneybot-green) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
             margin-bottom: 8px;
-            color: var(--moneybot-text);
+            letter-spacing: -1px;
         }
         
-        .modal-stats {
-            background: var(--moneybot-gray);
+        .subtitle {
+            color: rgba(255,255,255,0.6);
+            font-size: 16px;
+            margin-bottom: 40px;
+            text-align: center;
+            padding: 0 40px;
+            line-height: 1.5;
+        }
+        
+        .high-score {
+            background: rgba(255,255,255,0.1);
+            padding: 16px 32px;
             border-radius: 16px;
-            padding: 20px;
-            margin: 20px 0;
+            margin-bottom: 30px;
+            text-align: center;
         }
         
-        .modal-stat {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 12px;
+        .high-score-label {
+            font-size: 12px;
+            color: rgba(255,255,255,0.5);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
         }
         
-        .modal-stat:last-child {
-            margin-bottom: 0;
-            padding-top: 12px;
-            border-top: 1px solid rgba(0,0,0,0.1);
+        .high-score-value {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--moneybot-gold);
         }
         
-        .modal-stat-label {
-            color: var(--moneybot-text-secondary);
-            font-size: 14px;
-        }
-        
-        .modal-stat-value {
-            font-weight: 700;
-            color: var(--moneybot-text);
-        }
-        
-        .modal-stat-value.highlight {
-            color: var(--moneybot-green);
-            font-size: 18px;
-        }
-        
-        .modal-btn {
-            width: 100%;
-            background: var(--moneybot-green);
+        .start-btn {
+            background: linear-gradient(135deg, var(--moneybot-green), var(--moneybot-green-dark));
             color: white;
             border: none;
-            padding: 16px;
-            font-size: 16px;
-            font-weight: 700;
-            border-radius: 12px;
+            padding: 22px 70px;
+            font-size: 22px;
+            font-weight: 800;
+            border-radius: 35px;
             cursor: pointer;
-            transition: all 0.2s var(--ease-out-expo);
+            box-shadow: 0 15px 40px rgba(0, 230, 118, 0.5);
+            transition: all 0.3s var(--ease-spring);
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
         
-        .modal-btn:active {
-            transform: scale(0.96);
+        .start-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 50px rgba(0, 230, 118, 0.6);
+        }
+        
+        .start-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .instructions {
+            margin-top: 40px;
+            display: flex;
+            gap: 30px;
+        }
+        
+        .instruction-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            color: rgba(255,255,255,0.5);
+            font-size: 13px;
+        }
+        
+        .instruction-icon {
+            font-size: 28px;
+        }
+        
+        .final-stats {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .final-stat {
+            background: rgba(255,255,255,0.1);
+            padding: 20px 30px;
+            border-radius: 16px;
+            text-align: center;
+            min-width: 100px;
+        }
+        
+        .final-stat-value {
+            font-size: 28px;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 4px;
+        }
+        
+        .final-stat-label {
+            font-size: 11px;
+            color: rgba(255,255,255,0.5);
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
     </style>
 </head>
 <body>
-    <div class="bg-gradient"></div>
-    
     <div class="app">
-        <header class="header">
-            <div class="header-logo">
-                <a href="../moneybot-official/" class="back-btn">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M19 12H5M12 19l-7-7 7-7"/>
-                    </svg>
-                </a>
-                <span class="header-title">Wealth Tower</span>
-            </div>
-            <div class="header-actions">
-                <button class="icon-btn" onclick="resetGame()">🔄</button>
-            </div>
-        </header>
+        <div class="header">
+            <a href="../moneybot-official/" class="back-btn">←</a>
+            <div class="score-display">$<span id="value">0</span></div>
+        </div>
         
-        <div class="stats-card">
-            <div class="stat-item">
+        <canvas id="gameCanvas"></canvas>
+        
+        <div class="stats-overlay">
+            <div class="stat-box">
                 <div class="stat-value" id="floors">0</div>
                 <div class="stat-label">Floors</div>
             </div>
-            <div class="stat-item">
-                <div class="stat-value" id="value">$0</div>
-                <div class="stat-label">Value</div>
-            </div>
-            <div class="stat-item">
+            <div class="stat-box">
                 <div class="stat-value" id="streak">0</div>
                 <div class="stat-label">Streak</div>
             </div>
         </div>
         
-        <div class="game-container">
-            <canvas id="game-canvas"></canvas>
-            <div class="perfect-overlay" id="perfect">PERFECT! 🎯</div>
-        </div>
+        <div class="perfect-text" id="perfectText">PERFECT! 🎯</div>
         
-        <div class="controls">
-            <button class="drop-btn" id="dropBtn" onclick="dropFloor()">Drop Floor</button>
-        </div>
-    </div>
-    
-    <div class="modal" id="gameOverModal">
-        <div class="modal-content">
-            <div class="modal-icon">🏢</div>
-            <div class="modal-title">Tower Complete!</div>
-            <div class="modal-stats">
-                <div class="modal-stat">
-                    <span class="modal-stat-label">Floors Built</span>
-                    <span class="modal-stat-value" id="modalFloors">0</span>
+        <button class="drop-btn" id="dropBtn" onclick="dropFloor()">DROP FLOOR</button>
+        
+        <div class="start-screen" id="startScreen">
+            <div class="logo-container">
+                <div class="logo">🏢</div>
+            </div>
+            <div class="title">Wealth Tower</div>
+            <div class="subtitle">Stack floors to build your wealth!<br>Time it perfectly for bonuses</div>
+            
+            <div class="high-score">
+                <div class="high-score-label">Best Tower</div>
+                <div class="high-score-value" id="highScore">0 floors</div>
+            </div>
+            
+            <button class="start-btn" onclick="startGame()">BUILD NOW</button>
+            
+            <div class="instructions">
+                <div class="instruction-item">
+                    <span class="instruction-icon">👆</span>
+                    <span>Tap to Drop</span>
                 </div>
-                <div class="modal-stat">
-                    <span class="modal-stat-label">Best Streak</span>
-                    <span class="modal-stat-value" id="modalStreak">0</span>
+                <div class="instruction-item">
+                    <span class="instruction-icon">🎯</span>
+                    <span>Perfect = Bonus</span>
                 </div>
-                <div class="modal-stat">
-                    <span class="modal-stat-label">Total Value</span>
-                    <span class="modal-stat-value highlight" id="modalValue">$0</span>
+                <div class="instruction-item">
+                    <span class="instruction-icon">🏗️</span>
+                    <span>Build Higher</span>
                 </div>
             </div>
-            <button class="modal-btn" onclick="closeModal()">Build Again</button>
+        </div>
+        
+        <div class="game-over-screen" id="gameOverScreen">
+            <div class="logo" style="font-size: 60px; margin-bottom: 10px;">🏗️</div>
+            <div class="title" style="font-size: 32px;">Tower Complete!</div>
+            
+            <div class="final-stats">
+                <div class="final-stat">
+                    <div class="final-stat-value" id="finalFloors">0</div>
+                    <div class="final-stat-label">Floors</div>
+                </div>
+                <div class="final-stat">
+                    <div class="final-stat-value" id="finalStreak">0</div>
+                    <div class="final-stat-label">Best Streak</div>
+                </div>
+                <div class="final-stat">
+                    <div class="final-stat-value" id="finalValue">$0</div>
+                    <div class="final-stat-label">Value</div>
+                </div>
+            </div>
+            
+            <button class="start-btn" onclick="restartGame()">BUILD AGAIN</button>
         </div>
     </div>
     
     <script>
-        const canvas = document.getElementById('game-canvas');
+        const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth > 430 ? 430 : window.innerWidth;
+        canvas.height = window.innerHeight;
         
         const FLOOR_HEIGHT = 36;
         const FLOOR_WIDTH = 180;
@@ -444,26 +420,28 @@
         let swingAngle = 0;
         let swingSpeed = 0.025;
         let score = 0;
-        let gameOver = false;
         let perfectStreak = 0;
         let bestStreak = 0;
+        let highScore = localStorage.getItem('wealthTowerHighScore') || 0;
+        let gameOver = false;
+        let gameRunning = false;
+        
+        document.getElementById('highScore').textContent = highScore + ' floors';
         
         function resize() {
-            const container = canvas.parentElement;
-            canvas.width = container.clientWidth;
-            canvas.height = container.clientHeight;
+            canvas.width = window.innerWidth > 430 ? 430 : window.innerWidth;
+            canvas.height = window.innerHeight;
         }
         
         function init() {
             resize();
             floors.push({ 
                 x: canvas.width/2 - FLOOR_WIDTH/2, 
-                y: canvas.height - 80, 
+                y: canvas.height - 100, 
                 width: FLOOR_WIDTH, 
                 color: COLORS[0] 
             });
             createNewFloor();
-            gameLoop();
         }
         
         function createNewFloor() {
@@ -473,7 +451,7 @@
         }
         
         function dropFloor() {
-            if (!swinging || gameOver) return;
+            if (!swinging || gameOver || !gameRunning) return;
             swinging = false;
             
             if (navigator.vibrate) navigator.vibrate(15);
@@ -483,7 +461,7 @@
             
             if (overlap <= 0) {
                 gameOver = true;
-                showGameOver();
+                endGame();
                 return;
             }
             
@@ -493,9 +471,13 @@
                 perfectStreak++;
                 if (perfectStreak > bestStreak) bestStreak = perfectStreak;
                 score += 1000 * perfectStreak;
-                document.getElementById('perfect').classList.add('show');
+                
+                const perfectText = document.getElementById('perfectText');
+                perfectText.textContent = perfectStreak > 1 ? `PERFECT x${perfectStreak}! 🎯` : 'PERFECT! 🎯';
+                perfectText.classList.add('show');
+                
                 if (navigator.vibrate) navigator.vibrate([30, 50, 30]);
-                setTimeout(() => document.getElementById('perfect').classList.remove('show'), 800);
+                setTimeout(() => perfectText.classList.remove('show'), 800);
             } else {
                 perfectStreak = 0;
                 currentFloor.width = overlap;
@@ -510,39 +492,35 @@
             
             updateDisplay();
             
-            if (floors.length < 50) {
+            if (floors.length < 100) {
                 setTimeout(createNewFloor, 400);
             } else {
-                setTimeout(showGameOver, 500);
+                setTimeout(endGame, 500);
             }
         }
         
         function updateDisplay() {
-            const floorsEl = document.getElementById('floors');
-            const valueEl = document.getElementById('value');
-            const streakEl = document.getElementById('streak');
-            
-            floorsEl.textContent = floors.length;
-            valueEl.textContent = '$' + score.toLocaleString();
-            streakEl.textContent = perfectStreak;
-            
-            floorsEl.classList.add('pulse');
-            setTimeout(() => floorsEl.classList.remove('pulse'), 300);
+            document.getElementById('floors').textContent = floors.length;
+            document.getElementById('value').textContent = score.toLocaleString();
+            document.getElementById('streak').textContent = perfectStreak;
         }
         
-        function showGameOver() {
-            document.getElementById('modalFloors').textContent = floors.length;
-            document.getElementById('modalStreak').textContent = bestStreak;
-            document.getElementById('modalValue').textContent = '$' + score.toLocaleString();
-            document.getElementById('gameOverModal').classList.add('show');
+        function endGame() {
+            gameRunning = false;
+            if (floors.length > highScore) {
+                highScore = floors.length;
+                localStorage.setItem('wealthTowerHighScore', highScore);
+            }
+            document.getElementById('finalFloors').textContent = floors.length;
+            document.getElementById('finalStreak').textContent = bestStreak;
+            document.getElementById('finalValue').textContent = '$' + score.toLocaleString();
+            document.getElementById('gameOverScreen').style.display = 'flex';
+            document.getElementById('highScore').textContent = highScore + ' floors';
         }
         
-        function closeModal() {
-            document.getElementById('gameOverModal').classList.remove('show');
-            resetGame();
-        }
-        
-        function resetGame() {
+        function startGame() {
+            document.getElementById('startScreen').style.display = 'none';
+            gameRunning = true;
             floors = [];
             score = 0;
             perfectStreak = 0;
@@ -550,12 +528,23 @@
             gameOver = false;
             init();
             updateDisplay();
+            gameLoop();
+        }
+        
+        function restartGame() {
+            document.getElementById('gameOverScreen').style.display = 'none';
+            startGame();
         }
         
         function gameLoop() {
-            if (gameOver) return;
+            if (!gameRunning) return;
             
-            ctx.fillStyle = '#0F172A';
+            // Clear with gradient
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, '#1a1a3e');
+            gradient.addColorStop(0.5, '#0f172a');
+            gradient.addColorStop(1, '#1e293b');
+            ctx.fillStyle = gradient;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
             // Draw grid lines
@@ -574,20 +563,20 @@
                 ctx.fillStyle = 'rgba(0,0,0,0.3)';
                 ctx.fillRect(floor.x + 4, floor.y + 4, floor.width, FLOOR_HEIGHT);
                 
-                // Floor body
-                const gradient = ctx.createLinearGradient(floor.x, floor.y, floor.x, floor.y + FLOOR_HEIGHT);
-                gradient.addColorStop(0, floor.color);
-                gradient.addColorStop(1, adjustColor(floor.color, -20));
-                ctx.fillStyle = gradient;
+                // Floor body with gradient
+                const floorGrad = ctx.createLinearGradient(floor.x, floor.y, floor.x, floor.y + FLOOR_HEIGHT);
+                floorGrad.addColorStop(0, floor.color);
+                floorGrad.addColorStop(1, adjustColor(floor.color, -30));
+                ctx.fillStyle = floorGrad;
                 ctx.fillRect(floor.x, floor.y, floor.width, FLOOR_HEIGHT);
                 
                 // Floor highlight
-                ctx.fillStyle = 'rgba(255,255,255,0.2)';
+                ctx.fillStyle = 'rgba(255,255,255,0.3)';
                 ctx.fillRect(floor.x, floor.y, floor.width, 3);
                 
                 // Floor number
                 ctx.fillStyle = 'rgba(255,255,255,0.9)';
-                ctx.font = 'bold 14px -apple-system, sans-serif';
+                ctx.font = 'bold 14px Inter, sans-serif';
                 ctx.textAlign = 'center';
                 ctx.fillText(i + 1, floor.x + floor.width/2, floor.y + FLOOR_HEIGHT/2 + 5);
             });
@@ -601,11 +590,11 @@
                 ctx.fillStyle = 'rgba(0,0,0,0.2)';
                 ctx.fillRect(currentFloor.x + 4, currentFloor.y + 4, currentFloor.width, FLOOR_HEIGHT);
                 
-                // Floor
-                const gradient = ctx.createLinearGradient(currentFloor.x, currentFloor.y, currentFloor.x, currentFloor.y + FLOOR_HEIGHT);
-                gradient.addColorStop(0, currentFloor.color);
-                gradient.addColorStop(1, adjustColor(currentFloor.color, -20));
-                ctx.fillStyle = gradient;
+                // Floor with gradient
+                const floorGrad = ctx.createLinearGradient(currentFloor.x, currentFloor.y, currentFloor.x, currentFloor.y + FLOOR_HEIGHT);
+                floorGrad.addColorStop(0, currentFloor.color);
+                floorGrad.addColorStop(1, adjustColor(currentFloor.color, -30));
+                ctx.fillStyle = floorGrad;
                 ctx.globalAlpha = 0.9;
                 ctx.fillRect(currentFloor.x, currentFloor.y, currentFloor.width, FLOOR_HEIGHT);
                 ctx.globalAlpha = 1;
@@ -633,10 +622,9 @@
         window.addEventListener('resize', resize);
         
         // Touch support
-        document.addEventListener('touchstart', (e) => {
-            if (e.target === canvas || e.target.closest('.game-container')) {
-                dropFloor();
-            }
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            dropFloor();
         });
         
         document.addEventListener('keydown', (e) => {
@@ -645,9 +633,6 @@
                 dropFloor();
             }
         });
-        
-        init();
-        updateDisplay();
     </script>
 </body>
 </html>
