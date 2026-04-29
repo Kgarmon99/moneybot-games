@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MoneyBot 3D Showcase | MoneyBot</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        :root {
+            --moneybot-green: #00E676;
+            --moneybot-green-dark: #00C853;
+            --moneybot-dark: #1A1A2E;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+            background: var(--moneybot-dark);
+            min-height: 100vh;
+            overflow: hidden;
+        }
+        
+        .app {
+            max-width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+        
+        .header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            background: linear-gradient(to bottom, rgba(26,26,46,0.9) 0%, transparent 100%);
+        }
+        
+        .back-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border: none;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 20px;
+            text-decoration: none;
+        }
+        
+        .header-title {
+            color: white;
+            font-weight: 700;
+            font-size: 18px;
+        }
+        
+        #canvas-container {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .controls-panel {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(26, 26, 46, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            z-index: 100;
+        }
+        
+        .bot-selector {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+            scrollbar-width: none;
+        }
+        
+        .bot-selector::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .bot-btn {
+            flex-shrink: 0;
+            width: 80px;
+            height: 80px;
+            border-radius: 16px;
+            border: 2px solid transparent;
+            background: rgba(255,255,255,0.1);
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+        
+        .bot-btn.active {
+            border-color: var(--moneybot-green);
+            background: rgba(0, 230, 118, 0.2);
+        }
+        
+        .bot-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .bot-icon {
+            font-size: 32px;
+        }
+        
+        .bot-name {
+            color: white;
+            font-size: 10px;
+            font-weight: 600;
+            text-align: center;
+        }
+        
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: var(--moneybot-green);
+            font-size: 24px;
+            font-weight: 700;
+            z-index: 50;
+        }
+        
+        .instructions {
+            position: absolute;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(255,255,255,0.6);
+            font-size: 14px;
+            text-align: center;
+            z-index: 50;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <div class="header">
+            <a href="../moneybot-official/" class="back-btn">←</a>
+            <div class="header-title">MoneyBot 3D Showcase</div>
+            <div style="width: 40px;"></div>
+        </div>
+        
+        <div class="instructions">Drag to rotate • Scroll to zoom<br>Select a MoneyBot below</div>
+        
+        <div class="loading" id="loading">Loading 3D Models...</div>
+        
+        <div id="canvas-container"></div>
+        
+        <div class="controls-panel">
+            <div class="bot-selector">
+                <button class="bot-btn active" onclick="loadBot('WarmPastel')">
+                    <div class="bot-icon">🤖</div>
+                    <div class="bot-name">Warm Pastel</div>
+                </button>
+                <button class="bot-btn" onclick="loadBot('PolkaDotBot')">
+                    <div class="bot-icon">⚫</div>
+                    <div class="bot-name">Polka Dot</div>
+                </button>
+                <button class="bot-btn" onclick="loadBot('ChromeBot')">
+                    <div class="bot-icon">🔘</div>
+                    <div class="bot-name">Chrome</div>
+                </button>
+                <button class="bot-btn" onclick="loadBot('SalmonBot')">
+                    <div class="bot-icon">🟠</div>
+                    <div class="bot-name">Salmon</div>
+                </button>
+                <button class="bot-btn" onclick="loadBot('WoodBot')">
+                    <div class="bot-icon">🪵</div>
+                    <div class="bot-name">Wood</div>
+                </button>
+                <button class="bot-btn" onclick="loadBot('CornyBot')">
+                    <div class="bot-icon">🌽</div>
+                    <div class="bot-name">Corny</div>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let scene, camera, renderer, controls, currentModel;
+        let currentBot = 'WarmPastel';
+        
+        function init() {
+            // Scene setup
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x1a1a2e);
+            scene.fog = new THREE.Fog(0x1a1a2e, 10, 50);
+            
+            // Camera
+            camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(0, 2, 5);
+            
+            // Renderer
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            document.getElementById('canvas-container').appendChild(renderer.domElement);
+            
+            // Controls
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.minDistance = 2;
+            controls.maxDistance = 10;
+            controls.maxPolarAngle = Math.PI / 2;
+            
+            // Lights
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+            scene.add(ambientLight);
+            
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight.position.set(5, 10, 7);
+            directionalLight.castShadow = true;
+            directionalLight.shadow.mapSize.width = 2048;
+            directionalLight.shadow.mapSize.height = 2048;
+            scene.add(directionalLight);
+            
+            const rimLight = new THREE.DirectionalLight(0x00e676, 0.5);
+            rimLight.position.set(-5, 5, -5);
+            scene.add(rimLight);
+            
+            // Ground
+            const groundGeometry = new THREE.PlaneGeometry(20, 20);
+            const groundMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0x0f0f1a,
+                roughness: 0.8,
+                metalness: 0.2
+            });
+            const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+            ground.rotation.x = -Math.PI / 2;
+            ground.receiveShadow = true;
+            scene.add(ground);
+            
+            // Grid
+            const gridHelper = new THREE.GridHelper(20, 20, 0x00e676, 0x1a1a3e);
+            gridHelper.position.y = 0.01;
+            scene.add(gridHelper);
+            
+            // Load initial bot
+            loadBot('WarmPastel');
+            
+            // Animation loop
+            animate();
+            
+            // Handle resize
+            window.addEventListener('resize', onWindowResize);
+        }
+        
+        function loadBot(botName) {
+            currentBot = botName;
+            
+            // Update UI
+            document.querySelectorAll('.bot-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.closest('.bot-btn').classList.add('active');
+            
+            // Show loading
+            document.getElementById('loading').style.display = 'block';
+            
+            // Remove current model
+            if (currentModel) {
+                scene.remove(currentModel);
+            }
+            
+            // Load new model
+            const loader = new THREE.GLTFLoader();
+            loader.load(
+                `../assets/3d-models/${botName}.glb`,
+                function(gltf) {
+                    currentModel = gltf.scene;
+                    
+                    // Center and scale model
+                    const box = new THREE.Box3().setFromObject(currentModel);
+                    const center = box.getCenter(new THREE.Vector3());
+                    const size = box.getSize(new THREE.Vector3());
+                    
+                    const maxDim = Math.max(size.x, size.y, size.z);
+                    const scale = 2 / maxDim;
+                    currentModel.scale.setScalar(scale);
+                    
+                    currentModel.position.y = 0;
+                    currentModel.position.x = -center.x * scale;
+                    currentModel.position.z = -center.z * scale;
+                    
+                    // Enable shadows
+                    currentModel.traverse((child) => {
+                        if (child.isMesh) {
+                            child.castShadow = true;
+                            child.receiveShadow = true;
+                        }
+                    });
+                    
+                    scene.add(currentModel);
+                    
+                    // Hide loading
+                    document.getElementById('loading').style.display = 'none';
+                    
+                    if (navigator.vibrate) navigator.vibrate(20);
+                },
+                function(xhr) {
+                    console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+                },
+                function(error) {
+                    console.error('Error loading model:', error);
+                    document.getElementById('loading').textContent = 'Error loading model';
+                }
+            );
+        }
+        
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            controls.update();
+            
+            // Rotate model slowly
+            if (currentModel) {
+                currentModel.rotation.y += 0.005;
+            }
+            
+            renderer.render(scene, camera);
+        }
+        
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+        
+        // Initialize
+        init();
+    </script>
+</body>
+</html>
