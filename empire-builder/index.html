@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Empire Builder | MoneyBot Gaming</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            user-select: none;
+        }
+        
+        :root {
+            --moneybot-green: #00E676;
+            --moneybot-green-light: #69F0AE;
+            --moneybot-green-dark: #00C853;
+            --moneybot-glow: rgba(0, 230, 118, 0.4);
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%);
+            min-height: 100vh;
+            overflow: hidden;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 230, 118, 0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 230, 118, 0.04) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        body::after {
+            content: '';
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, var(--moneybot-glow) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+            animation: pulse 4s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; transform: translate(-50%, -50%) scale(1); }
+            50% { opacity: 0.6; transform: translate(-50%, -50%) scale(1.2); }
+        }
+        
+        .app {
+            max-width: 430px;
+            margin: 0 auto;
+            min-height: 100vh;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        
+        .header-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .back-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            background: rgba(0, 230, 118, 0.1);
+            border: none;
+            color: var(--moneybot-green);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 20px;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        
+        .back-btn:active { transform: scale(0.95); }
+        
+        .header-title {
+            font-weight: 800;
+            font-size: 20px;
+            color: #1e293b;
+        }
+        
+        .score-pill {
+            background: linear-gradient(135deg, var(--moneybot-green), var(--moneybot-green-dark));
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 700;
+            font-size: 16px;
+            box-shadow: 0 4px 15px rgba(0, 230, 118, 0.3);
+        }
+        
+        .game-container {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .city-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 0 40px rgba(0, 230, 118, 0.2);
+        }
+        
+        .plot {
+            width: 70px;
+            height: 70px;
+            background: #334155;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+        
+        .plot:hover {
+            background: #475569;
+            transform: scale(1.05);
+        }
+        
+        .plot.built {
+            background: linear-gradient(135deg, var(--moneybot-green), var(--moneybot-green-dark));
+            border-color: var(--moneybot-green);
+            box-shadow: 0 0 20px rgba(0, 230, 118, 0.5);
+        }
+        
+        .build-menu {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .build-btn {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .build-btn:hover {
+            border-color: var(--moneybot-green);
+            transform: translateY(-2px);
+        }
+        
+        .build-btn.selected {
+            background: rgba(0, 230, 118, 0.1);
+            border-color: var(--moneybot-green);
+        }
+        
+        .build-btn .emoji {
+            font-size: 28px;
+        }
+        
+        .build-btn .cost {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--moneybot-green);
+        }
+        
+        .overlay-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            z-index: 200;
+            padding: 40px;
+        }
+        
+        .overlay-screen.hidden { display: none; }
+        
+        .game-icon {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, var(--moneybot-green), var(--moneybot-green-dark));
+            border-radius: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+            margin-bottom: 30px;
+            box-shadow: 0 0 40px rgba(0, 230, 118, 0.5);
+            animation: build 2s ease-in-out infinite;
+        }
+        
+        @keyframes build {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        .game-title {
+            font-size: 36px;
+            font-weight: 900;
+            color: #1e293b;
+            margin-bottom: 12px;
+        }
+        
+        .game-subtitle {
+            color: #64748b;
+            font-size: 17px;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+        
+        .stats-card {
+            background: white;
+            border-radius: 20px;
+            padding: 24px 40px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        
+        .stats-label {
+            font-size: 13px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+        
+        .stats-value {
+            font-size: 36px;
+            font-weight: 800;
+            color: var(--moneybot-green);
+        }
+        
+        .primary-btn {
+            background: linear-gradient(135deg, var(--moneybot-green), var(--moneybot-green-dark));
+            color: white;
+            border: none;
+            padding: 20px 60px;
+            font-size: 18px;
+            font-weight: 700;
+            border-radius: 16px;
+            cursor: pointer;
+            box-shadow: 0 0 30px rgba(0, 230, 118, 0.4);
+            transition: all 0.3s;
+            width: 100%;
+            max-width: 280px;
+        }
+        
+        .primary-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 40px rgba(0, 230, 118, 0.6);
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <div class="header">
+            <div class="header-logo">
+                <a href="../moneybot-official/" class="back-btn">←</a>
+                <span class="header-title">Empire Builder</span>
+            </div>
+            <div class="score-pill">$<span id="money">1000</span></div>
+        </div>
+        
+        <div class="game-container">
+            <div class="city-grid" id="grid"></div>
+            
+            <div class="build-menu">
+                <button class="build-btn selected" data-type="house" data-cost="100" data-income="10">
+                    <span class="emoji">🏠</span>
+                    <span class="cost">$100</span>
+                </button>
+                <button class="build-btn" data-type="shop" data-cost="250" data-income="25">
+                    <span class="emoji">🏪</span>
+                    <span class="cost">$250</span>
+                </button>
+                <button class="build-btn" data-type="factory" data-cost="500" data-income="50">
+                    <span class="emoji">🏭</span>
+                    <span class="cost">$500</span>
+                </button>
+                <button class="build-btn" data-type="bank" data-cost="1000" data-income="100">
+                    <span class="emoji">🏦</span>
+                    <span class="cost">$1000</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="overlay-screen" id="startScreen">
+        <div class="game-icon">🏗️</div>
+        <div class="game-title">Empire Builder</div>
+        <div class="game-subtitle">Build your financial empire!<br>Construct buildings to earn passive income</div>
+        
+        <div class="stats-card">
+            <div class="stats-label">Best Empire</div>
+            <div class="stats-value" id="highScore">$0</div>
+        </div>
+        
+        <button class="primary-btn" onclick="startGame()">Start Building</button>
+    </div>
+    
+    <div class="overlay-screen hidden" id="gameOverScreen">
+        <div class="game-icon" style="background: linear-gradient(135deg, #10b981, #059669);">👑</div>
+        <div class="game-title">Empire Complete!</div>
+        <div class="game-subtitle">Total Value: <span id="finalScore" style="color: var(--moneybot-green); font-weight: 800;">$0</span></div>
+        <button class="primary-btn" onclick="restartGame()">Build Again</button>
+    </div>
+    
+    <script>
+        let money = 1000;
+        let income = 0;
+        let grid = [];
+        let selectedBuilding = 'house';
+        let highScore = localStorage.getItem('empireBuilderHighScore') || 0;
+        let gameRunning = false;
+        let incomeInterval;
+        
+        document.getElementById('highScore').textContent = '$' + highScore;
+        
+        const buildings = {
+            house: { emoji: '🏠', cost: 100, income: 10 },
+            shop: { emoji: '🏪', cost: 250, income: 25 },
+            factory: { emoji: '🏭', cost: 500, income: 50 },
+            bank: { emoji: '🏦', cost: 1000, income: 100 }
+        };
+        
+        function initGrid() {
+            grid = Array(16).fill(null);
+            const gridEl = document.getElementById('grid');
+            gridEl.innerHTML = '';
+            
+            for (let i = 0; i < 16; i++) {
+                const plot = document.createElement('div');
+                plot.className = 'plot';
+                plot.dataset.index = i;
+                plot.onclick = () => build(i);
+                gridEl.appendChild(plot);
+            }
+        }
+        
+        function startGame() {
+            document.getElementById('startScreen').classList.add('hidden');
+            document.getElementById('gameOverScreen').classList.add('hidden');
+            gameRunning = true;
+            money = 1000;
+            income = 0;
+            initGrid();
+            updateMoney();
+            
+            incomeInterval = setInterval(() => {
+                if (gameRunning) {
+                    money += income;
+                    updateMoney();
+                }
+            }, 1000);
+        }
+        
+        function restartGame() {
+            clearInterval(incomeInterval);
+            startGame();
+        }
+        
+        function build(index) {
+            if (!gameRunning || grid[index]) return;
+            
+            const building = buildings[selectedBuilding];
+            if (money >= building.cost) {
+                money -= building.cost;
+                income += building.income;
+                grid[index] = selectedBuilding;
+                
+                const plot = document.querySelectorAll('.plot')[index];
+                plot.classList.add('built');
+                plot.textContent = building.emoji;
+                
+                updateMoney();
+                if (navigator.vibrate) navigator.vibrate(20);
+                
+                // Check if grid is full
+                if (grid.every(cell => cell !== null)) {
+                    setTimeout(gameOver, 500);
+                }
+            }
+        }
+        
+        function updateMoney() {
+            document.getElementById('money').textContent = Math.floor(money);
+        }
+        
+        function gameOver() {
+            gameRunning = false;
+            clearInterval(incomeInterval);
+            const totalValue = money + (income * 10);
+            if (totalValue > highScore) {
+                highScore = totalValue;
+                localStorage.setItem('empireBuilderHighScore', highScore);
+            }
+            document.getElementById('finalScore').textContent = '$' + Math.floor(totalValue);
+            document.getElementById('gameOverScreen').classList.remove('hidden');
+        }
+        
+        // Building selection
+        document.querySelectorAll('.build-btn').forEach(btn => {
+            btn.onclick = () => {
+                document.querySelectorAll('.build-btn').forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+                selectedBuilding = btn.dataset.type;
+            };
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Dollar Drop | MoneyBot Gaming</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: none;
+            user-select: none;
+        }
+        
+        :root {
+            --moneybot-green: #00E676;
+            --moneybot-green-light: #69F0AE;
+            --moneybot-green-dark: #00C853;
+            --moneybot-gold: #FBBF24;
+            --moneybot-glow: rgba(0, 230, 118, 0.4);
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%);
+            min-height: 100vh;
+            overflow: hidden;
+        }
+        
+        /* Grid Background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 230, 118, 0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 230, 118, 0.04) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        /* Green Glow Aura */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, var(--moneybot-glow) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+            animation: pulse 4s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; transform: translate(-50%, -50%) scale(1); }
+            50% { opacity: 0.6; transform: translate(-50%, -50%) scale(1.2); }
+        }
+        
+        .app {
+            max-width: 430px;
+            margin: 0 auto;
+            min-height: 100vh;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        
+        .header-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .back-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            background: rgba(0, 230, 118, 0.1);
+            border: none;
+            color: var(--moneybot-green);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 20px;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        
+        .back-btn:active { transform: scale(0.95); }
+        
+        .header-title {
+            font-weight: 800;
+            font-size: 20px;
+            color: #1e293b;
+        }
+        
+        .score-pill {
+            background: linear-gradient(135deg, var(--moneybot-green), var(--moneybot-green-dark));
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 700;
+            font-size: 16px;
+            box-shadow: 0 4px 15px rgba(0, 230, 118, 0.3);
+        }
+        
+        .game-area {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        #gameCanvas {
+            background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+            border-radius: 20px;
+            box-shadow: 0 0 40px rgba(0, 230, 118, 0.2);
+        }
+        
+        .overlay-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            z-index: 200;
+            padding: 40px;
+        }
+        
+        .overlay-screen.hidden { display: none; }
+        
+        .game-icon {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, var(--moneybot-green), var(--moneybot-green-dark));
+            border-radius: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+            margin-bottom: 30px;
+            box-shadow: 0 0 40px rgba(0, 230, 118, 0.5);
+            animation: drop 1s ease-in-out infinite;
+        }
+        
+        @keyframes drop {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(20px); }
+        }
+        
+        .game-title {
+            font-size: 36px;
+            font-weight: 900;
+            color: #1e293b;
+            margin-bottom: 12px;
+        }
+        
+        .game-subtitle {
+            color: #64748b;
+            font-size: 17px;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+        
+        .stats-card {
+            background: white;
+            border-radius: 20px;
+            padding: 24px 40px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        
+        .stats-label {
+            font-size: 13px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+        
+        .stats-value {
+            font-size: 36px;
+            font-weight: 800;
+            color: var(--moneybot-green);
+        }
+        
+        .primary-btn {
+            background: linear-gradient(135deg, var(--moneybot-green), var(--moneybot-green-dark));
+            color: white;
+            border: none;
+            padding: 20px 60px;
+            font-size: 18px;
+            font-weight: 700;
+            border-radius: 16px;
+            cursor: pointer;
+            box-shadow: 0 0 30px rgba(0, 230, 118, 0.4);
+            transition: all 0.3s;
+            width: 100%;
+            max-width: 280px;
+        }
+        
+        .primary-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 40px rgba(0, 230, 118, 0.6);
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <div class="header">
+            <div class="header-logo">
+                <a href="../moneybot-official/" class="back-btn">←</a>
+                <span class="header-title">Dollar Drop</span>
+            </div>
+            <div class="score-pill">$<span id="score">0</span></div>
+        </div>
+        
+        <div class="game-area">
+            <canvas id="gameCanvas" width="350" height="500"></canvas>
+        </div>
+    </div>
+    
+    <div class="overlay-screen" id="startScreen">
+        <div class="game-icon">💵</div>
+        <div class="game-title">Dollar Drop</div>
+        <div class="game-subtitle">Drop coins into targets!<br>Physics puzzle with money</div>
+        
+        <div class="stats-card">
+            <div class="stats-label">High Score</div>
+            <div class="stats-value" id="highScore">$0</div>
+        </div>
+        
+        <button class="primary-btn" onclick="startGame()">Start Dropping</button>
+    </div>
+    
+    <div class="overlay-screen hidden" id="gameOverScreen">
+        <div class="game-icon" style="background: linear-gradient(135deg, #ef4444, #dc2626);">❌</div>
+        <div class="game-title">Missed!</div>
+        <div class="game-subtitle">You earned $<span id="finalScore" style="color: var(--moneybot-green); font-weight: 800;">0</span></div>
+        <button class="primary-btn" onclick="restartGame()">Try Again</button>
+    </div>
+    
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        let gameRunning = false;
+        let score = 0;
+        let highScore = localStorage.getItem('dollarDropHighScore') || 0;
+        let coins = [];
+        let targets = [];
+        let obstacles = [];
+        let particles = [];
+        let gameLoop;
+        
+        document.getElementById('highScore').textContent = '$' + highScore;
+        
+        function initLevel() {
+            targets = [
+                { x: 60, y: 450, width: 60, height: 40, value: 10, color: '#00E676' },
+                { x: 175, y: 450, width: 60, height: 40, value: 25, color: '#FBBF24' },
+                { x: 290, y: 450, width: 60, height: 40, value: 50, color: '#EF4444' }
+            ];
+            
+            obstacles = [];
+            for (let i = 0; i < 3; i++) {
+                obstacles.push({
+                    x: 50 + i * 100,
+                    y: 250 + Math.random() * 100,
+                    width: 80,
+                    height: 15,
+                    angle: (Math.random() - 0.5) * 0.5
+                });
+            }
+        }
+        
+        function startGame() {
+            document.getElementById('startScreen').classList.add('hidden');
+            document.getElementById('gameOverScreen').classList.add('hidden');
+            gameRunning = true;
+            score = 0;
+            coins = [];
+            particles = [];
+            initLevel();
+            updateScore();
+            gameLoop = requestAnimationFrame(update);
+        }
+        
+        function restartGame() {
+            startGame();
+        }
+        
+        function spawnCoin(x) {
+            coins.push({
+                x: x,
+                y: 30,
+                vx: 0,
+                vy: 0,
+                radius: 15,
+                settled: false
+            });
+        }
+        
+        function update() {
+            if (!gameRunning) return;
+            
+            // Update coins with physics
+            coins.forEach(coin => {
+                if (coin.settled) return;
+                
+                // Gravity
+                coin.vy += 0.3;
+                
+                // Update position
+                coin.x += coin.vx;
+                coin.y += coin.vy;
+                
+                // Wall collisions
+                if (coin.x - coin.radius < 0) {
+                    coin.x = coin.radius;
+                    coin.vx *= -0.5;
+                }
+                if (coin.x + coin.radius > canvas.width) {
+                    coin.x = canvas.width - coin.radius;
+                    coin.vx *= -0.5;
+                }
+                
+                // Obstacle collisions
+                obstacles.forEach(obs => {
+                    if (coin.x > obs.x && coin.x < obs.x + obs.width &&
+                        coin.y + coin.radius > obs.y && coin.y - coin.radius < obs.y + obs.height) {
+                        coin.vy *= -0.6;
+                        coin.y = obs.y - coin.radius;
+                        coin.vx += Math.sin(obs.angle) * 2;
+                    }
+                });
+                
+                // Target collisions
+                targets.forEach(target => {
+                    if (!coin.settled &&
+                        coin.x > target.x && coin.x < target.x + target.width &&
+                        coin.y + coin.radius > target.y && coin.y - coin.radius < target.y + target.height) {
+                        coin.settled = true;
+                        score += target.value;
+                        
+                        // Particles
+                        for (let i = 0; i < 10; i++) {
+                            particles.push({
+                                x: coin.x,
+                                y: coin.y,
+                                vx: (Math.random() - 0.5) * 8,
+                                vy: (Math.random() - 0.5) * 8,
+                                life: 1,
+                                color: target.color
+                            });
+                        }
+                        
+                        if (navigator.vibrate) navigator.vibrate(20);
+                    }
+                });
+                
+                // Missed
+                if (coin.y > canvas.height) {
+                    gameOver();
+                }
+            });
+            
+            // Update particles
+            particles = particles.filter(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.life -= 0.03;
+                return p.life > 0;
+            });
+            
+            // Remove settled coins
+            coins = coins.filter(c => !c.settled);
+            
+            updateScore();
+            draw();
+            gameLoop = requestAnimationFrame(update);
+        }
+        
+        function gameOver() {
+            gameRunning = false;
+            cancelAnimationFrame(gameLoop);
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem('dollarDropHighScore', highScore);
+            }
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('gameOverScreen').classList.remove('hidden');
+        }
+        
+        function updateScore() {
+            document.getElementById('score').textContent = score;
+        }
+        
+        function draw() {
+            // Clear
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, '#0f172a');
+            gradient.addColorStop(1, '#1e293b');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw targets
+            targets.forEach(target => {
+                ctx.fillStyle = target.color;
+                ctx.fillRect(target.x, target.y, target.width, target.height);
+                
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 16px Inter';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('$' + target.value, target.x + target.width / 2, target.y + target.height / 2);
+            });
+            
+            // Draw obstacles
+            ctx.fillStyle = '#64748b';
+            obstacles.forEach(obs => {
+                ctx.save();
+                ctx.translate(obs.x + obs.width / 2, obs.y + obs.height / 2);
+                ctx.rotate(obs.angle);
+                ctx.fillRect(-obs.width / 2, -obs.height / 2, obs.width, obs.height);
+                ctx.restore();
+            });
+            
+            // Draw coins
+            ctx.font = '28px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            coins.forEach(coin => {
+                ctx.fillText('🪙', coin.x, coin.y);
+            });
+            
+            // Draw particles
+            particles.forEach(p => {
+                ctx.save();
+                ctx.globalAlpha = p.life;
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, 5, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            });
+        }
+        
+        // Controls
+        canvas.addEventListener('click', (e) => {
+            if (!gameRunning) return;
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            spawnCoin(x);
+            if (navigator.vibrate) navigator.vibrate(5);
+        });
+        
+        canvas.addEventListener('touchstart', (e) => {
+            if (!gameRunning) return;
+            const rect = canvas.getBoundingClientRect();
+            const x = e.touches[0].clientX - rect.left;
+            spawnCoin(x);
+            if (navigator.vibrate) navigator.vibrate(5);
+        });
+    </script>
+</body>
+</html>
