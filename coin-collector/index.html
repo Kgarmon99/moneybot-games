@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Coin Collector | MoneyBot</title>
+    <title>Coin Collector | MoneyBot Gaming</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
         
@@ -21,6 +21,7 @@
             --moneybot-green-dark: #00C853;
             --moneybot-dark: #1A1A2E;
             --moneybot-gray: #F5F5F7;
+            --moneybot-text: #1A1A2E;
         }
         
         body {
@@ -46,12 +47,13 @@
             justify-content: space-between;
             align-items: center;
             border-bottom: 1px solid rgba(255,255,255,0.1);
+            z-index: 100;
         }
         
         .back-btn {
-            width: 40px;
-            height: 40px;
-            border-radius: 12px;
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
             background: rgba(255,255,255,0.1);
             border: none;
             color: white;
@@ -59,8 +61,14 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            font-size: 20px;
+            font-size: 22px;
             text-decoration: none;
+            transition: all 0.2s;
+        }
+        
+        .back-btn:active {
+            background: rgba(255,255,255,0.2);
+            transform: scale(0.95);
         }
         
         .score-display {
@@ -69,7 +77,7 @@
             padding: 10px 20px;
             border-radius: 20px;
             color: var(--moneybot-green);
-            font-weight: 700;
+            font-weight: 800;
             font-size: 18px;
         }
         
@@ -78,40 +86,45 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px;
+            padding: 10px;
+            position: relative;
         }
         
         #gameCanvas {
             background: #0a0a1a;
-            border-radius: 16px;
-            box-shadow: 0 0 40px rgba(0, 230, 118, 0.2);
+            border-radius: 20px;
+            box-shadow: 0 0 50px rgba(0, 230, 118, 0.15);
+            max-width: 100%;
+            max-height: 70vh;
         }
         
         .controls {
-            padding: 20px;
+            padding: 15px 20px 25px;
             display: flex;
             justify-content: center;
-            gap: 20px;
+            gap: 15px;
+            background: rgba(26, 26, 46, 0.95);
         }
         
         .control-btn {
-            width: 60px;
-            height: 60px;
+            width: 65px;
+            height: 65px;
             border-radius: 50%;
             background: rgba(255,255,255,0.1);
             border: 2px solid rgba(0, 230, 118, 0.3);
             color: white;
-            font-size: 24px;
+            font-size: 28px;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.15s;
         }
         
         .control-btn:active {
             background: var(--moneybot-green);
-            transform: scale(0.95);
+            transform: scale(0.92);
+            border-color: var(--moneybot-green);
         }
         
         .start-screen, .game-over-screen {
@@ -124,8 +137,8 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            background: rgba(26, 26, 46, 0.95);
-            backdrop-filter: blur(10px);
+            background: rgba(26, 26, 46, 0.98);
+            backdrop-filter: blur(20px);
             z-index: 200;
         }
         
@@ -134,40 +147,58 @@
         }
         
         .logo {
-            font-size: 64px;
-            margin-bottom: 10px;
+            font-size: 80px;
+            margin-bottom: 15px;
+            filter: drop-shadow(0 10px 30px rgba(251, 191, 36, 0.4));
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
         }
         
         .title {
-            font-size: 32px;
-            font-weight: 800;
+            font-size: 38px;
+            font-weight: 900;
             color: white;
             margin-bottom: 10px;
+            letter-spacing: -1px;
         }
         
         .subtitle {
-            color: rgba(255,255,255,0.7);
-            font-size: 16px;
+            color: rgba(255,255,255,0.6);
+            font-size: 17px;
             margin-bottom: 40px;
             text-align: center;
             padding: 0 40px;
+            line-height: 1.5;
         }
         
         .start-btn {
             background: linear-gradient(135deg, var(--moneybot-green), var(--moneybot-green-dark));
             color: white;
             border: none;
-            padding: 20px 60px;
-            font-size: 20px;
-            font-weight: 700;
-            border-radius: 30px;
+            padding: 22px 70px;
+            font-size: 22px;
+            font-weight: 800;
+            border-radius: 35px;
             cursor: pointer;
-            box-shadow: 0 10px 30px rgba(0, 230, 118, 0.4);
-            transition: transform 0.2s;
+            box-shadow: 0 15px 40px rgba(0, 230, 118, 0.5);
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
         
         .start-btn:active {
             transform: scale(0.95);
+        }
+        
+        .final-score {
+            font-size: 56px;
+            font-weight: 900;
+            color: var(--moneybot-green);
+            margin-bottom: 10px;
         }
     </style>
 </head>
@@ -175,11 +206,11 @@
     <div class="app">
         <div class="header">
             <a href="../moneybot-official/" class="back-btn">←</a>
-            <div class="score-display">$<span id="score">0</span></div>
+            <div class="score-display">Score: <span id="score">0</span></div>
         </div>
         
         <div class="game-container">
-            <canvas id="gameCanvas" width="350" height="400"></canvas>
+            <canvas id="gameCanvas" width="340" height="440"></canvas>
         </div>
         
         <div class="controls">
@@ -200,7 +231,8 @@
     <div class="game-over-screen" id="gameOverScreen">
         <div class="logo">👻</div>
         <div class="title">Game Over!</div>
-        <div class="subtitle">You collected $<span id="finalScore">0</span></div>
+        <div class="final-score" id="finalScore">0</div>
+        <div class="subtitle">coins collected</div>
         <button class="start-btn" onclick="restartGame()">PLAY AGAIN</button>
     </div>
     
@@ -208,61 +240,67 @@
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         
-        const CELL_SIZE = 25;
-        const COLS = 14;
-        const ROWS = 16;
+        const CELL_SIZE = 20;
+        const COLS = 17;
+        const ROWS = 22;
         
-        let gameRunning = false;
-        let score = 0;
-        let player = { x: 7, y: 12, dir: 'left', nextDir: 'left' };
-        let ghosts = [];
-        let coins = [];
-        let walls = [];
-        let particles = [];
-        
-        // Simple maze layout
-        const maze = [
-            "##############",
-            "#............#",
-            "#.####.####.#",
-            "#.#........#.#",
-            "#.#.######.#.#",
-            "#............#",
-            "#.##.####.##.#",
-            "#....#..#....#",
-            "####.#..#.####",
-            "#............#",
-            "#.##########.#",
-            "#............#",
-            "#.####..####.#",
-            "#............#",
-            "##############"
+        // Simple maze - 1 = wall, 0 = coin, 2 = empty
+        const mazeLayout = [
+            "11111111111111111",
+            "10000001000000001",
+            "10111011101110101",
+            "10000000000000001",
+            "10111010111011101",
+            "10001000000000001",
+            "11101110111011101",
+            "10000000000000001",
+            "10111011101110101",
+            "10000000000000001",
+            "10111010111011101",
+            "10000000000000001",
+            "11101110111011101",
+            "10000000000000001",
+            "10111011101110101",
+            "10000000000000001",
+            "10111010111011101",
+            "10000000000000001",
+            "11101110111011101",
+            "10000000000000001",
+            "10111011101110101",
+            "10000000000000001",
+            "11111111111111111"
         ];
         
+        let board = [];
+        let player = { x: 1, y: 1, dir: 'right', nextDir: 'right' };
+        let ghosts = [];
+        let score = 0;
+        let gameRunning = false;
+        let gameInterval;
+        
         function initGame() {
-            walls = [];
-            coins = [];
-            ghosts = [];
-            particles = [];
+            board = [];
             score = 0;
-            player = { x: 7, y: 12, dir: 'left', nextDir: 'left' };
+            player = { x: 1, y: 1, dir: 'right', nextDir: 'right' };
             
             // Parse maze
             for (let row = 0; row < ROWS; row++) {
+                board[row] = [];
                 for (let col = 0; col < COLS; col++) {
-                    if (maze[row][col] === '#') {
-                        walls.push({ x: col, y: row });
-                    } else if (maze[row][col] === '.') {
-                        coins.push({ x: col, y: row, collected: false });
+                    const char = mazeLayout[row][col];
+                    if (char === '1') {
+                        board[row][col] = 'wall';
+                    } else if (char === '0') {
+                        board[row][col] = 'coin';
                     }
                 }
             }
             
             // Add ghosts
             ghosts = [
-                { x: 7, y: 3, dir: 'up', color: '#FF5252', emoji: '👻' },
-                { x: 6, y: 5, dir: 'right', color: '#FF9800', emoji: '👹' },
-                { x: 8, y: 5, dir: 'left', color: '#2196F3', emoji: '👺' }
+                { x: 15, y: 1, dir: 'left', color: '#FF5252' },
+                { x: 15, y: 20, dir: 'up', color: '#FF9800' },
+                { x: 1, y: 20, dir: 'right', color: '#2196F3' }
             ];
             
             document.getElementById('score').textContent = score;
@@ -273,7 +311,8 @@
             document.getElementById('gameOverScreen').style.display = 'none';
             initGame();
             gameRunning = true;
-            gameLoop();
+            gameInterval = setInterval(gameStep, 150);
+            draw();
         }
         
         function restartGame() {
@@ -282,16 +321,19 @@
         
         function gameOver() {
             gameRunning = false;
+            clearInterval(gameInterval);
             document.getElementById('finalScore').textContent = score;
             document.getElementById('gameOverScreen').style.display = 'flex';
         }
         
         function canMove(x, y) {
             if (x < 0 || x >= COLS || y < 0 || y >= ROWS) return false;
-            return !walls.some(w => w.x === x && w.y === y);
+            return board[y][x] !== 'wall';
         }
         
-        function update() {
+        function gameStep() {
+            if (!gameRunning) return;
+            
             // Update player direction
             if (player.nextDir !== player.dir) {
                 let nx = player.x;
@@ -319,33 +361,25 @@
             if (canMove(newX, newY)) {
                 player.x = newX;
                 player.y = newY;
-            }
-            
-            // Collect coins
-            coins.forEach(coin => {
-                if (!coin.collected && coin.x === player.x && coin.y === player.y) {
-                    coin.collected = true;
+                
+                // Collect coin
+                if (board[player.y][player.x] === 'coin') {
+                    board[player.y][player.x] = 'empty';
                     score += 10;
                     document.getElementById('score').textContent = score;
-                    
-                    // Particles
-                    for (let i = 0; i < 5; i++) {
-                        particles.push({
-                            x: coin.x * CELL_SIZE + CELL_SIZE/2,
-                            y: coin.y * CELL_SIZE + CELL_SIZE/2,
-                            vx: (Math.random() - 0.5) * 4,
-                            vy: (Math.random() - 0.5) * 4,
-                            life: 1,
-                            color: '#FFD700'
-                        });
-                    }
-                    
                     if (navigator.vibrate) navigator.vibrate(10);
                 }
-            });
+            }
             
             // Check win
-            if (coins.every(c => c.collected)) {
+            let coinsLeft = 0;
+            for (let row = 0; row < ROWS; row++) {
+                for (let col = 0; col < COLS; col++) {
+                    if (board[row][col] === 'coin') coinsLeft++;
+                }
+            }
+            
+            if (coinsLeft === 0) {
                 gameOver();
                 return;
             }
@@ -353,12 +387,20 @@
             // Move ghosts
             ghosts.forEach(ghost => {
                 const dirs = ['up', 'down', 'left', 'right'];
+                let moved = false;
                 
-                // Simple AI: try to move toward player
-                let bestDir = ghost.dir;
-                let minDist = Infinity;
+                // Try to move toward player
+                const dx = player.x - ghost.x;
+                const dy = player.y - ghost.y;
                 
-                dirs.forEach(dir => {
+                let preferredDirs = [];
+                if (Math.abs(dx) > Math.abs(dy)) {
+                    preferredDirs = dx > 0 ? ['right', 'up', 'down', 'left'] : ['left', 'up', 'down', 'right'];
+                } else {
+                    preferredDirs = dy > 0 ? ['down', 'left', 'right', 'up'] : ['up', 'left', 'right', 'down'];
+                }
+                
+                for (let dir of preferredDirs) {
                     let nx = ghost.x;
                     let ny = ghost.y;
                     
@@ -368,27 +410,12 @@
                     else if (dir === 'right') nx++;
                     
                     if (canMove(nx, ny)) {
-                        const dist = Math.abs(nx - player.x) + Math.abs(ny - player.y);
-                        if (dist < minDist) {
-                            minDist = dist;
-                            bestDir = dir;
-                        }
+                        ghost.x = nx;
+                        ghost.y = ny;
+                        ghost.dir = dir;
+                        moved = true;
+                        break;
                     }
-                });
-                
-                ghost.dir = bestDir;
-                
-                let nx = ghost.x;
-                let ny = ghost.y;
-                
-                if (ghost.dir === 'up') ny--;
-                else if (ghost.dir === 'down') ny++;
-                else if (ghost.dir === 'left') nx--;
-                else if (ghost.dir === 'right') nx++;
-                
-                if (canMove(nx, ny)) {
-                    ghost.x = nx;
-                    ghost.y = ny;
                 }
                 
                 // Check collision with player
@@ -397,68 +424,46 @@
                 }
             });
             
-            // Update particles
-            particles = particles.filter(p => {
-                p.x += p.vx;
-                p.y += p.vy;
-                p.life -= 0.05;
-                return p.life > 0;
-            });
+            draw();
         }
         
         function draw() {
+            // Clear
             ctx.fillStyle = '#0a0a1a';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
-            // Draw walls
-            ctx.fillStyle = '#1a1a3e';
-            walls.forEach(w => {
-                ctx.fillRect(w.x * CELL_SIZE, w.y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
-                ctx.strokeStyle = '#2a2a5e';
-                ctx.strokeRect(w.x * CELL_SIZE, w.y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
-            });
-            
-            // Draw coins
-            coins.forEach(coin => {
-                if (!coin.collected) {
-                    ctx.font = '16px Arial';
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'middle';
-                    ctx.fillText('🪙', coin.x * CELL_SIZE + CELL_SIZE/2, coin.y * CELL_SIZE + CELL_SIZE/2);
+            // Draw maze
+            for (let row = 0; row < ROWS; row++) {
+                for (let col = 0; col < COLS; col++) {
+                    const x = col * CELL_SIZE;
+                    const y = row * CELL_SIZE;
+                    
+                    if (board[row][col] === 'wall') {
+                        ctx.fillStyle = '#1e3a8a';
+                        ctx.fillRect(x, y, CELL_SIZE, CELL_SIZE);
+                        ctx.strokeStyle = '#3b82f6';
+                        ctx.lineWidth = 1;
+                        ctx.strokeRect(x, y, CELL_SIZE, CELL_SIZE);
+                    } else if (board[row][col] === 'coin') {
+                        ctx.font = '14px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText('🪙', x + CELL_SIZE/2, y + CELL_SIZE/2);
+                    }
                 }
-            });
+            }
             
             // Draw player
-            ctx.font = '22px Arial';
+            ctx.font = '18px Arial';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             ctx.fillText('😀', player.x * CELL_SIZE + CELL_SIZE/2, player.y * CELL_SIZE + CELL_SIZE/2);
             
             // Draw ghosts
             ghosts.forEach(ghost => {
-                ctx.font = '22px Arial';
-                ctx.fillText(ghost.emoji, ghost.x * CELL_SIZE + CELL_SIZE/2, ghost.y * CELL_SIZE + CELL_SIZE/2);
+                ctx.font = '18px Arial';
+                ctx.fillText('👻', ghost.x * CELL_SIZE + CELL_SIZE/2, ghost.y * CELL_SIZE + CELL_SIZE/2);
             });
-            
-            // Draw particles
-            particles.forEach(p => {
-                ctx.save();
-                ctx.globalAlpha = p.life;
-                ctx.fillStyle = p.color;
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.restore();
-            });
-        }
-        
-        function gameLoop() {
-            if (!gameRunning) return;
-            
-            update();
-            draw();
-            
-            setTimeout(() => requestAnimationFrame(gameLoop), 150);
         }
         
         // Controls
