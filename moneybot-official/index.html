@@ -32,25 +32,60 @@
         
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: var(--moneybot-gray);
+            background: #0a0a0f;
             min-height: 100vh;
-            color: var(--moneybot-text);
+            color: white;
         }
         
-        /* Clean Background - Only for hub page */
+        /* Dark Background with Grid - MoneyBot Style */
         .hub-page {
             position: relative;
-            background: linear-gradient(180deg, #F8FAFC 0%, #F1F5F9 100%);
+            background: #0a0a0f;
+        }
+        
+        .hub-page::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 230, 118, 0.08) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 230, 118, 0.08) 1px, transparent 1px);
+            background-size: 60px 60px;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .hub-page::after {
+            content: '';
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, rgba(0, 230, 118, 0.15) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+            animation: pulse 4s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 0.4; transform: translate(-50%, -50%) scale(1); }
+            50% { opacity: 0.7; transform: translate(-50%, -50%) scale(1.1); }
         }
         
         /* Header */
         .header {
-            background: white;
+            background: rgba(10, 10, 15, 0.9);
+            backdrop-filter: blur(20px);
             padding: 16px 24px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            box-shadow: var(--shadow-soft);
+            border-bottom: 1px solid rgba(0, 230, 118, 0.2);
             position: sticky;
             top: 0;
             z-index: 100;
@@ -63,23 +98,23 @@
         }
         
         .logo-icon {
-            width: 40px;
-            height: 40px;
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, var(--moneybot-green), var(--moneybot-green-dark));
             border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0, 230, 118, 0.3);
-        }
-        
-        .logo-icon img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            box-shadow: 0 0 20px rgba(0, 230, 118, 0.5);
         }
         
         .logo-text {
-            font-weight: 700;
-            font-size: 1.25rem;
-            color: var(--moneybot-text);
+            font-weight: 800;
+            font-size: 1.5rem;
+            background: linear-gradient(135deg, #fff 0%, var(--moneybot-green) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
         
         .user-menu {
@@ -114,6 +149,13 @@
             z-index: 1;
         }
         
+        .view-all {
+            color: var(--moneybot-green);
+            font-weight: 600;
+            font-size: 0.875rem;
+            text-decoration: none;
+        }
+        
         /* Welcome Section */
         .welcome {
             margin-bottom: 32px;
@@ -122,7 +164,7 @@
         .welcome-title {
             font-size: 2.5rem;
             font-weight: 900;
-            background: linear-gradient(135deg, var(--moneybot-text) 0%, var(--moneybot-green) 100%);
+            background: linear-gradient(135deg, #fff 0%, var(--moneybot-green) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             margin-bottom: 12px;
@@ -130,7 +172,7 @@
         }
         
         .welcome-subtitle {
-            color: var(--moneybot-text-secondary);
+            color: rgba(255, 255, 255, 0.7);
             font-size: 1rem;
         }
         
@@ -141,9 +183,10 @@
         
         .section-title {
             font-size: 1.125rem;
-            font-weight: 600;
+            font-weight: 700;
             margin-bottom: 16px;
-            color: var(--moneybot-text);
+            color: white;
+            text-shadow: 0 0 20px rgba(0, 230, 118, 0.3);
         }
         
         .actions-grid {
@@ -232,16 +275,17 @@
         }
         
         .game-card {
-            background: white;
+            background: rgba(30, 30, 40, 0.8);
             border-radius: 16px;
             overflow: hidden;
             transition: all 0.2s;
-            border: 1px solid #E5E7EB;
+            border: 1px solid rgba(0, 230, 118, 0.2);
+            backdrop-filter: blur(10px);
         }
         
         .game-card:hover {
             transform: translateY(-4px);
-            box-shadow: var(--shadow-strong);
+            box-shadow: 0 0 30px rgba(0, 230, 118, 0.3);
             border-color: var(--moneybot-green);
         }
         
@@ -307,15 +351,15 @@
         }
         
         .game-title {
-            font-weight: 600;
+            font-weight: 700;
             font-size: 1rem;
             margin-bottom: 6px;
-            color: var(--moneybot-text);
+            color: white;
         }
         
         .game-desc {
             font-size: 0.8125rem;
-            color: var(--moneybot-text-secondary);
+            color: rgba(255, 255, 255, 0.6);
             margin-bottom: 12px;
             line-height: 1.4;
         }
@@ -328,12 +372,12 @@
         
         .game-players {
             font-size: 0.75rem;
-            color: var(--moneybot-text-secondary);
+            color: rgba(255, 255, 255, 0.5);
         }
         
         .game-players span {
             color: var(--moneybot-green);
-            font-weight: 600;
+            font-weight: 700;
         }
         
         .play-btn {
