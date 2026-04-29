@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Market Racer | MoneyBot</title>
+    <title>Market Racer | MoneyBot Gaming</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
         
@@ -21,8 +21,7 @@
             --moneybot-green-light: #69F0AE;
             --moneybot-green-dark: #00C853;
             --moneybot-gold: #FBBF24;
-            --moneybot-red: #FF5252;
-            --moneybot-dark: #1A1A2E;
+            --moneybot-dark: #0F172A;
             --moneybot-gray: #F5F5F7;
             --moneybot-text: #1A1A2E;
             --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
@@ -34,7 +33,7 @@
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
-            background: linear-gradient(180deg, #1A1A2E 0%, #0F0F1A 100%);
+            background: var(--moneybot-dark);
             min-height: 100vh;
             overflow: hidden;
         }
@@ -56,7 +55,7 @@
             justify-content: space-between;
             align-items: center;
             z-index: 100;
-            background: linear-gradient(to bottom, rgba(26,26,46,0.9) 0%, transparent 100%);
+            background: linear-gradient(to bottom, rgba(15, 23, 42, 0.95) 0%, transparent 100%);
         }
         
         .back-btn {
@@ -73,7 +72,7 @@
             cursor: pointer;
             font-size: 22px;
             text-decoration: none;
-            transition: all 0.2s var(--ease-out-expo);
+            transition: all 0.2s;
         }
         
         .back-btn:active {
@@ -107,7 +106,7 @@
             gap: 6px;
             background: rgba(251, 191, 36, 0.2);
             border: 1px solid var(--moneybot-gold);
-            padding: 8px 16px;
+            padding: 6px 14px;
             border-radius: 20px;
             margin-top: 4px;
         }
@@ -138,7 +137,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(180deg, rgba(26,26,46,0.98) 0%, rgba(0,0,0,0.95) 100%);
+            background: linear-gradient(180deg, rgba(15, 23, 42, 0.98) 0%, rgba(0, 0, 0, 0.95) 100%);
             backdrop-filter: blur(20px);
             z-index: 200;
         }
@@ -147,13 +146,9 @@
             display: none;
         }
         
-        .logo-container {
-            position: relative;
-            margin-bottom: 20px;
-        }
-        
         .logo {
             font-size: 80px;
+            margin-bottom: 15px;
             filter: drop-shadow(0 10px 30px rgba(0, 230, 118, 0.4));
             animation: float 3s ease-in-out infinite;
         }
@@ -169,13 +164,13 @@
             background: linear-gradient(135deg, #fff 0%, var(--moneybot-green) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
             letter-spacing: -1px;
         }
         
         .subtitle {
-            color: rgba(255,255,255,0.6);
-            font-size: 16px;
+            color: rgba(255,255,255,0.7);
+            font-size: 17px;
             margin-bottom: 40px;
             text-align: center;
             padding: 0 40px;
@@ -214,13 +209,13 @@
             border-radius: 35px;
             cursor: pointer;
             box-shadow: 0 15px 40px rgba(0, 230, 118, 0.5);
-            transition: all 0.3s var(--ease-spring);
+            transition: all 0.3s;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
         
         .start-btn:hover {
-            transform: translateY(-2px);
+            transform: translateY(-3px);
             box-shadow: 0 20px 50px rgba(0, 230, 118, 0.6);
         }
         
@@ -246,58 +241,6 @@
         .instruction-icon {
             font-size: 28px;
         }
-        
-        .final-stats {
-            display: flex;
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-        
-        .final-stat {
-            background: rgba(255,255,255,0.1);
-            padding: 20px 30px;
-            border-radius: 16px;
-            text-align: center;
-            min-width: 100px;
-        }
-        
-        .final-stat-value {
-            font-size: 28px;
-            font-weight: 800;
-            color: white;
-            margin-bottom: 4px;
-        }
-        
-        .final-stat-label {
-            font-size: 11px;
-            color: rgba(255,255,255,0.5);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        
-        .combo-display {
-            position: absolute;
-            top: 100px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 42px;
-            font-weight: 900;
-            color: var(--moneybot-gold);
-            text-shadow: 0 0 30px rgba(251, 191, 36, 0.6);
-            opacity: 0;
-            pointer-events: none;
-            z-index: 50;
-        }
-        
-        .combo-display.show {
-            animation: comboAnim 1s ease-out forwards;
-        }
-        
-        @keyframes comboAnim {
-            0% { opacity: 0; transform: translateX(-50%) scale(0.3) rotate(-10deg); }
-            20% { opacity: 1; transform: translateX(-50%) scale(1.3) rotate(5deg); }
-            100% { opacity: 0; transform: translateX(-50%) scale(1) rotate(0deg) translateY(-80px); }
-        }
     </style>
 </head>
 <body>
@@ -316,12 +259,8 @@
         
         <canvas id="gameCanvas"></canvas>
         
-        <div class="combo-display" id="comboDisplay">COMBO x3!</div>
-        
         <div class="start-screen" id="startScreen">
-            <div class="logo-container">
-                <div class="logo">🏎️</div>
-            </div>
+            <div class="logo">🏎️</div>
             <div class="title">Market Racer</div>
             <div class="subtitle">Race through the markets!<br>Collect coins, avoid crashes</div>
             
@@ -330,40 +269,29 @@
                 <div class="high-score-value" id="highScore">0m</div>
             </div>
             
-            <button class="start-btn" onclick="startGame()">RACE NOW</button>
+            <button class="start-btn" onclick="startGame()">Race Now</button>
             
             <div class="instructions">
                 <div class="instruction-item">
                     <span class="instruction-icon">👈👉</span>
-                    <span>Swipe to Switch</span>
+                    <span>Swipe</span>
                 </div>
                 <div class="instruction-item">
                     <span class="instruction-icon">🪙</span>
-                    <span>Collect Coins</span>
+                    <span>Collect</span>
                 </div>
                 <div class="instruction-item">
-                    <span class="instruction-icon">⚠️</span>
-                    <span>Avoid Crashes</span>
+                    <span class="instruction-icon">🐻</span>
+                    <span>Avoid</span>
                 </div>
             </div>
         </div>
         
         <div class="game-over-screen" id="gameOverScreen">
             <div class="logo" style="font-size: 60px; margin-bottom: 10px;">💥</div>
-            <div class="title" style="font-size: 32px;">CRASH!</div>
-            
-            <div class="final-stats">
-                <div class="final-stat">
-                    <div class="final-stat-value"><span id="finalScore">0</span>m</div>
-                    <div class="final-stat-label">Distance</div>
-                </div>
-                <div class="final-stat">
-                    <div class="final-stat-value" id="finalCoins">0</div>
-                    <div class="final-stat-label">Coins</div>
-                </div>
-            </div>
-            
-            <button class="start-btn" onclick="restartGame()">RACE AGAIN</button>
+            <div class="title" style="font-size: 32px;">Crash!</div>
+            <div class="subtitle">You raced <span id="finalScore">0</span>m</div>
+            <button class="start-btn" onclick="restartGame()">Race Again</button>
         </div>
     </div>
     
@@ -377,21 +305,13 @@
         let score = 0;
         let coins = 0;
         let highScore = localStorage.getItem('marketRacerHighScore') || 0;
-        let speed = 8;
-        let player = { 
-            lane: 1, 
-            x: canvas.width / 2, 
-            y: canvas.height - 180,
-            targetX: canvas.width / 2,
-            angle: 0
-        };
+        let speed = 5;
+        let player = { lane: 1, x: canvas.width / 2, y: canvas.height - 150 };
         let coinItems = [];
         let obstacles = [];
         let particles = [];
         let lanes = [canvas.width * 0.25, canvas.width * 0.5, canvas.width * 0.75];
         let groundOffset = 0;
-        let combo = 0;
-        let lastCoinLane = -1;
         
         document.getElementById('highScore').textContent = highScore + 'm';
         
@@ -400,15 +320,11 @@
             gameRunning = true;
             score = 0;
             coins = 0;
-            speed = 8;
+            speed = 5;
             player.lane = 1;
-            player.x = lanes[1];
-            player.targetX = lanes[1];
             coinItems = [];
             obstacles = [];
             particles = [];
-            combo = 0;
-            updateUI();
             gameLoop();
         }
         
@@ -424,83 +340,60 @@
                 localStorage.setItem('marketRacerHighScore', highScore);
             }
             document.getElementById('finalScore').textContent = Math.floor(score);
-            document.getElementById('finalCoins').textContent = coins;
             document.getElementById('gameOverScreen').style.display = 'flex';
-            document.getElementById('highScore').textContent = highScore + 'm';
         }
         
         function update() {
             score += speed / 10;
-            speed += 0.005;
-            groundOffset = (groundOffset + speed) % 60;
+            speed += 0.01;
+            groundOffset = (groundOffset + speed) % 40;
             
-            // Smooth lane transition with tilt
-            const diff = player.targetX - player.x;
-            player.x += diff * 0.15;
-            player.angle = diff * 0.002;
-            
-            // Spawn coins in patterns
-            if (Math.random() < 0.04) {
-                const lane = Math.floor(Math.random() * 3);
-                if (lastCoinLane === lane && Math.random() < 0.7) {
-                    combo++;
-                    if (combo > 2) {
-                        const comboEl = document.getElementById('comboDisplay');
-                        comboEl.textContent = `COMBO x${combo}!`;
-                        comboEl.classList.add('show');
-                        setTimeout(() => comboEl.classList.remove('show'), 1000);
-                    }
-                } else {
-                    combo = 1;
-                }
-                lastCoinLane = lane;
-                
+            // Spawn coins
+            if (Math.random() < 0.03) {
                 coinItems.push({
-                    lane: lane,
+                    lane: Math.floor(Math.random() * 3),
                     y: -50,
-                    collected: false,
-                    value: 10 * combo
+                    collected: false
                 });
             }
             
             // Spawn obstacles
             if (Math.random() < 0.025) {
-                const lane = Math.floor(Math.random() * 3);
                 obstacles.push({
-                    lane: lane,
-                    y: -100,
-                    type: Math.random() < 0.5 ? 'barrier' : 'oil'
+                    lane: Math.floor(Math.random() * 3),
+                    y: -50,
+                    type: Math.random() < 0.5 ? 'bear' : 'barrier'
                 });
             }
+            
+            // Update player position
+            player.x += (lanes[player.lane] - player.x) * 0.15;
             
             // Update coins
             coinItems = coinItems.filter(coin => {
                 coin.y += speed;
                 
-                if (!coin.collected && coin.lane === player.lane && 
-                    Math.abs(coin.y - player.y) < 50) {
+                if (!coin.collected && coin.lane === player.lane && Math.abs(coin.y - player.y) < 50) {
                     coin.collected = true;
-                    coins += coin.value;
-                    score += coin.value;
+                    coins++;
+                    score += 50;
                     
-                    // Sparkle particles
-                    for (let i = 0; i < 8; i++) {
+                    // Particles
+                    for (let i = 0; i < 5; i++) {
                         particles.push({
                             x: lanes[coin.lane],
                             y: coin.y,
-                            vx: (Math.random() - 0.5) * 8,
-                            vy: (Math.random() - 0.5) * 8,
+                            vx: (Math.random() - 0.5) * 6,
+                            vy: (Math.random() - 0.5) * 6,
                             life: 1,
-                            color: '#FBBF24',
-                            size: Math.random() * 4 + 2
+                            color: '#FBBF24'
                         });
                     }
                     
                     if (navigator.vibrate) navigator.vibrate(10);
-                    return false;
                 }
                 
-                return coin.y < canvas.height + 50;
+                return coin.y < canvas.height + 50 && !coin.collected;
             });
             
             // Update obstacles
@@ -511,120 +404,78 @@
                     gameOver();
                 }
                 
-                return obs.y < canvas.height + 100;
+                return obs.y < canvas.height + 50;
             });
             
             // Update particles
             particles = particles.filter(p => {
                 p.x += p.vx;
                 p.y += p.vy;
-                p.vy += 0.3;
-                p.life -= 0.03;
+                p.life -= 0.05;
                 return p.life > 0;
             });
             
-            updateUI();
+            document.getElementById('score').textContent = Math.floor(score);
+            document.getElementById('coins').textContent = coins;
         }
         
         function draw() {
-            // Sky gradient
-            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-            gradient.addColorStop(0, '#1a1a3e');
-            gradient.addColorStop(0.5, '#0f172a');
-            gradient.addColorStop(1, '#1e293b');
-            ctx.fillStyle = gradient;
+            // Clear with trail effect
+            ctx.fillStyle = '#0F172A';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
-            // City skyline (parallax)
-            ctx.fillStyle = 'rgba(30, 41, 59, 0.8)';
-            for (let i = 0; i < 12; i++) {
-                const x = (i * 60 - score * 0.3) % (canvas.width + 100);
-                const height = 80 + Math.sin(i * 234) * 40;
-                ctx.fillRect(x, canvas.height - 250 - height, 50, height);
-                
-                // Building windows
-                ctx.fillStyle = 'rgba(251, 191, 36, 0.3)';
-                for (let wy = 0; wy < height - 20; wy += 25) {
-                    if (Math.random() > 0.3) {
-                        ctx.fillRect(x + 10, canvas.height - 250 - height + wy + 10, 8, 12);
-                        ctx.fillRect(x + 28, canvas.height - 250 - height + wy + 10, 8, 12);
-                    }
-                }
-                ctx.fillStyle = 'rgba(30, 41, 59, 0.8)';
+            // Draw background buildings
+            ctx.fillStyle = 'rgba(30, 41, 59, 0.5)';
+            for (let i = 0; i < 10; i++) {
+                const x = (i * 150 - score * 0.2) % (canvas.width + 200) - 100;
+                const height = 100 + Math.sin(i * 123) * 50;
+                ctx.fillRect(x, canvas.height - 100 - height, 80, height);
             }
             
-            // Ground/road
-            ctx.fillStyle = '#0f172a';
-            ctx.fillRect(0, canvas.height - 150, canvas.width, 150);
+            // Draw ground
+            ctx.fillStyle = '#1E293B';
+            ctx.fillRect(0, canvas.height - 100, canvas.width, 100);
             
-            // Road lanes with glow
-            ctx.strokeStyle = 'rgba(0, 230, 118, 0.2)';
+            // Lane markers
+            ctx.strokeStyle = 'rgba(0, 230, 118, 0.3)';
             ctx.lineWidth = 2;
-            lanes.forEach((lane, i) => {
+            ctx.setLineDash([20, 20]);
+            lanes.forEach(lane => {
                 ctx.beginPath();
-                ctx.moveTo(lane, canvas.height - 150);
+                ctx.moveTo(lane, 0);
                 ctx.lineTo(lane, canvas.height);
                 ctx.stroke();
             });
+            ctx.setLineDash([]);
             
-            // Moving track lines
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
-            ctx.lineWidth = 3;
-            for (let i = -60; i < canvas.width + 60; i += 60) {
-                const x = i - groundOffset;
+            // Moving grid on ground
+            groundOffset = (groundOffset + speed) % 40;
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+            ctx.lineWidth = 1;
+            for (let i = -40; i < canvas.width + 40; i += 40) {
                 ctx.beginPath();
-                ctx.moveTo(x, canvas.height - 150);
-                ctx.lineTo(x - 30, canvas.height);
+                ctx.moveTo(i - groundOffset, canvas.height - 100);
+                ctx.lineTo(i - groundOffset - 20, canvas.height);
                 ctx.stroke();
             }
             
-            // Draw coins with glow
+            // Draw player
+            ctx.font = '50px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('🏎️', player.x, player.y);
+            
+            // Draw coins
             coinItems.forEach(coin => {
-                const x = lanes[coin.lane];
-                const y = coin.y;
-                
-                // Glow
-                ctx.shadowColor = '#FBBF24';
-                ctx.shadowBlur = 20;
-                ctx.font = '32px Arial';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillText('🪙', x, y);
-                ctx.shadowBlur = 0;
+                ctx.font = '35px Arial';
+                ctx.fillText('🪙', lanes[coin.lane], coin.y);
             });
             
             // Draw obstacles
             obstacles.forEach(obs => {
-                const x = lanes[obs.lane];
-                const y = obs.y;
-                
-                ctx.font = '50px Arial';
-                if (obs.type === 'barrier') {
-                    ctx.fillText('🚧', x, y);
-                } else {
-                    ctx.fillText('📉', x, y);
-                }
+                ctx.font = '40px Arial';
+                ctx.fillText(obs.type === 'bear' ? '🐻' : '🚧', lanes[obs.lane], obs.y);
             });
-            
-            // Draw player car with tilt
-            const playerX = player.x;
-            const playerY = player.y;
-            
-            // Shadow
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
-            ctx.beginPath();
-            ctx.ellipse(playerX, playerY + 45, 25, 10, 0, 0, Math.PI * 2);
-            ctx.fill();
-            
-            // Car with rotation
-            ctx.save();
-            ctx.translate(playerX, playerY);
-            ctx.rotate(player.angle);
-            ctx.font = '55px Arial';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText('🏎️', 0, 0);
-            ctx.restore();
             
             // Draw particles
             particles.forEach(p => {
@@ -632,15 +483,10 @@
                 ctx.globalAlpha = p.life;
                 ctx.fillStyle = p.color;
                 ctx.beginPath();
-                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
                 ctx.fill();
                 ctx.restore();
             });
-        }
-        
-        function updateUI() {
-            document.getElementById('score').textContent = Math.floor(score);
-            document.getElementById('coins').textContent = coins;
         }
         
         function gameLoop() {
@@ -654,22 +500,13 @@
         
         // Controls
         function moveLeft() {
-            if (player.lane > 0) {
-                player.lane--;
-                player.targetX = lanes[player.lane];
-                if (navigator.vibrate) navigator.vibrate(5);
-            }
+            if (player.lane > 0) player.lane--;
         }
         
         function moveRight() {
-            if (player.lane < 2) {
-                player.lane++;
-                player.targetX = lanes[player.lane];
-                if (navigator.vibrate) navigator.vibrate(5);
-            }
+            if (player.lane < 2) player.lane++;
         }
         
-        // Keyboard controls
         document.addEventListener('keydown', (e) => {
             if (!gameRunning) return;
             if (e.key === 'ArrowLeft') moveLeft();
@@ -678,22 +515,15 @@
         
         // Touch controls
         let touchStartX = 0;
-        let touchStartY = 0;
-        
         document.addEventListener('touchstart', (e) => {
             touchStartX = e.touches[0].clientX;
-            touchStartY = e.touches[0].clientY;
         });
         
         document.addEventListener('touchend', (e) => {
             if (!gameRunning) return;
-            const dx = e.changedTouches[0].clientX - touchStartX;
-            const dy = e.changedTouches[0].clientY - touchStartY;
-            
-            if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50) {
-                if (dx > 0) moveRight();
-                else moveLeft();
-            }
+            const touchEndX = e.changedTouches[0].clientX;
+            if (touchEndX < touchStartX - 50) moveLeft();
+            if (touchEndX > touchStartX + 50) moveRight();
         });
     </script>
 </body>
