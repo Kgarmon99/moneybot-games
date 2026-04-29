@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Tax Tetris | MoneyBot Gaming</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            user-select: none;
+        }
+        
+        :root {
+            --moneybot-green: #00E676;
+            --moneybot-green-light: #69F0AE;
+            --moneybot-green-dark: #00C853;
+            --moneybot-glow: rgba(0, 230, 118, 0.4);
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%);
+            min-height: 100vh;
+            overflow: hidden;
+        }
+        
+        /* Grid Background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 230, 118, 0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 230, 118, 0.04) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        /* Green Glow Aura */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, var(--moneybot-glow) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+            animation: pulse 4s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; transform: translate(-50%, -50%) scale(1); }
+            50% { opacity: 0.6; transform: translate(-50%, -50%) scale(1.2); }
+        }
+        
+        .app {
+            max-width: 430px;
+            margin: 0 auto;
+            min-height: 100vh;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        
+        .header-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .back-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            background: rgba(0, 230, 118, 0.1);
+            border: none;
+            color: var(--moneybot-green);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 20px;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        
+        .back-btn:active { transform: scale(0.95); }
+        
+        .header-title {
+            font-weight: 800;
+            font-size: 20px;
+            color: #1e293b;
+        }
+        
+        .score-pill {
+            background: linear-gradient(135deg, var(--moneybot-green), var(--moneybot-green-dark));
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 700;
+            font-size: 16px;
+            box-shadow: 0 4px 15px rgba(0, 230, 118, 0.3);
+        }
+        
+        .game-container {
+            flex: 1;
+            display: flex;
+            padding: 20px;
+            gap: 15px;
+        }
+        
+        .game-board {
+            flex: 1;
+            background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+            border-radius: 16px;
+            box-shadow: 0 0 40px rgba(0, 230, 118, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+        }
+        
+        #gameCanvas {
+            display: block;
+        }
+        
+        .side-panel {
+            width: 80px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .next-piece-box {
+            background: white;
+            border-radius: 16px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        
+        .next-label {
+            font-size: 11px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+        
+        #nextCanvas {
+            display: block;
+            margin: 0 auto;
+        }
+        
+        .overlay-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            z-index: 200;
+            padding: 40px;
+        }
+        
+        .overlay-screen.hidden { display: none; }
+        
+        .game-icon {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, var(--moneybot-green), var(--moneybot-green-dark));
+            border-radius: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+            margin-bottom: 30px;
+            box-shadow: 0 0 40px rgba(0, 230, 118, 0.5);
+            animation: rotate 3s linear infinite;
+        }
+        
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .game-title {
+            font-size: 36px;
+            font-weight: 900;
+            color: #1e293b;
+            margin-bottom: 12px;
+        }
+        
+        .game-subtitle {
+            color: #64748b;
+            font-size: 17px;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+        
+        .stats-card {
+            background: white;
+            border-radius: 20px;
+            padding: 24px 40px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        
+        .stats-label {
+            font-size: 13px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+        
+        .stats-value {
+            font-size: 36px;
+            font-weight: 800;
+            color: var(--moneybot-green);
+        }
+        
+        .primary-btn {
+            background: linear-gradient(135deg, var(--moneybot-green), var(--moneybot-green-dark));
+            color: white;
+            border: none;
+            padding: 20px 60px;
+            font-size: 18px;
+            font-weight: 700;
+            border-radius: 16px;
+            cursor: pointer;
+            box-shadow: 0 0 30px rgba(0, 230, 118, 0.4);
+            transition: all 0.3s;
+            width: 100%;
+            max-width: 280px;
+        }
+        
+        .primary-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 40px rgba(0, 230, 118, 0.6);
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <div class="header">
+            <div class="header-logo">
+                <a href="../moneybot-official/" class="back-btn">←</a>
+                <span class="header-title">Tax Tetris</span>
+            </div>
+            <div class="score-pill"><span id="score">0</span></div>
+        </div>
+        
+        <div class="game-container">
+            <div class="game-board">
+                <canvas id="gameCanvas" width="240" height="400"></canvas>
+            </div>
+            <div class="side-panel">
+                <div class="next-piece-box">
+                    <div class="next-label">Next</div>
+                    <canvas id="nextCanvas" width="60" height="60"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="overlay-screen" id="startScreen">
+        <div class="game-icon">📋</div>
+        <div class="game-title">Tax Tetris</div>
+        <div class="game-subtitle">Stack tax forms and deductions!<br>Clear lines to maximize refund</div>
+        
+        <div class="stats-card">
+            <div class="stats-label">High Score</div>
+            <div class="stats-value" id="highScore">0</div>
+        </div>
+        
+        <button class="primary-btn" onclick="startGame()">Start Filing</button>
+    </div>
+    
+    <div class="overlay-screen hidden" id="gameOverScreen">
+        <div class="game-icon" style="background: linear-gradient(135deg, #ef4444, #dc2626);">❌</div>
+        <div class="game-title">Audit!</div>
+        <div class="game-subtitle">Score: <span id="finalScore" style="color: var(--moneybot-green); font-weight: 800;">0</span></div>
+        <button class="primary-btn" onclick="restartGame()">File Again</button>
+    </div>
+    
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const nextCanvas = document.getElementById('nextCanvas');
+        const nextCtx = nextCanvas.getContext('2d');
+        
+        const COLS = 10;
+        const ROWS = 20;
+        const BLOCK_SIZE = 24;
+        
+        const SHAPES = [
+            [[1,1,1,1]], // I - W2
+            [[1,1],[1,1]], // O - 1099
+            [[0,1,0],[1,1,1]], // T - Schedule C
+            [[1,0,0],[1,1,1]], // L - Schedule A
+            [[0,0,1],[1,1,1]], // J - Schedule D
+            [[0,1,1],[1,1,0]], // S - Form 1040
+            [[1,1,0],[0,1,1]]  // Z - Form 1099
+        ];
+        
+        const COLORS = ['#00E676', '#3B82F6', '#F59E0B', '#EF4444', '#8B5CF6', '#10B981', '#EC4899'];
+        const FORM_NAMES = ['W2', '1099', 'Sch C', 'Sch A', 'Sch D', '1040', '1099'];
+        
+        let board = [];
+        let currentPiece = null;
+        let nextPiece = null;
+        let score = 0;
+        let highScore = localStorage.getItem('taxTetrisHighScore') || 0;
+        let gameRunning = false;
+        let dropCounter = 0;
+        let dropInterval = 1000;
+        let lastTime = 0;
+        
+        document.getElementById('highScore').textContent = highScore;
+        
+        function createPiece() {
+            const typeId = Math.floor(Math.random() * SHAPES.length);
+            return {
+                shape: SHAPES[typeId],
+                color: COLORS[typeId],
+                name: FORM_NAMES[typeId],
+                x: Math.floor(COLS / 2) - Math.floor(SHAPES[typeId][0].length / 2),
+                y: 0
+            };
+        }
+        
+        function initBoard() {
+            board = Array(ROWS).fill().map(() => Array(COLS).fill(0));
+        }
+        
+        function startGame() {
+            document.getElementById('startScreen').classList.add('hidden');
+            document.getElementById('gameOverScreen').classList.add('hidden');
+            gameRunning = true;
+            score = 0;
+            initBoard();
+            currentPiece = createPiece();
+            nextPiece = createPiece();
+            dropInterval = 1000;
+            updateScore();
+            drawNext();
+            requestAnimationFrame(update);
+        }
+        
+        function restartGame() {
+            startGame();
+        }
+        
+        function rotate(piece) {
+            const rotated = piece.shape[0].map((_, i) =>
+                piece.shape.map(row => row[i]).reverse()
+            );
+            return { ...piece, shape: rotated };
+        }
+        
+        function isValidMove(piece, dx, dy) {
+            for (let y = 0; y < piece.shape.length; y++) {
+                for (let x = 0; x < piece.shape[y].length; x++) {
+                    if (piece.shape[y][x]) {
+                        const newX = piece.x + x + dx;
+                        const newY = piece.y + y + dy;
+                        if (newX < 0 || newX >= COLS || newY >= ROWS) return false;
+                        if (newY >= 0 && board[newY][newX]) return false;
+                    }
+                }
+            }
+            return true;
+        }
+        
+        function mergePiece() {
+            currentPiece.shape.forEach((row, y) => {
+                row.forEach((value, x) => {
+                    if (value) {
+                        const boardY = currentPiece.y + y;
+                        if (boardY >= 0) {
+                            board[boardY][currentPiece.x + x] = currentPiece.color;
+                        }
+                    }
+                });
+            });
+        }
+        
+        function clearLines() {
+            let linesCleared = 0;
+            for (let y = ROWS - 1; y >= 0; y--) {
+                if (board[y].every(cell => cell !== 0)) {
+                    board.splice(y, 1);
+                    board.unshift(Array(COLS).fill(0));
+                    linesCleared++;
+                    y++;
+                }
+            }
+            if (linesCleared > 0) {
+                score += linesCleared * 100 * linesCleared;
+                dropInterval = Math.max(200, 1000 - Math.floor(score / 500) * 50);
+                if (navigator.vibrate) navigator.vibrate([20, 10, 20]);
+            }
+        }
+        
+        function gameOver() {
+            gameRunning = false;
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem('taxTetrisHighScore', highScore);
+            }
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('gameOverScreen').classList.remove('hidden');
+        }
+        
+        function update(time = 0) {
+            if (!gameRunning) return;
+            
+            const deltaTime = time - lastTime;
+            lastTime = time;
+            dropCounter += deltaTime;
+            
+            if (dropCounter > dropInterval) {
+                if (isValidMove(currentPiece, 0, 1)) {
+                    currentPiece.y++;
+                } else {
+                    mergePiece();
+                    clearLines();
+                    currentPiece = nextPiece;
+                    nextPiece = createPiece();
+                    drawNext();
+                    if (!isValidMove(currentPiece, 0, 0)) {
+                        gameOver();
+                        return;
+                    }
+                }
+                dropCounter = 0;
+            }
+            
+            draw();
+            updateScore();
+            requestAnimationFrame(update);
+        }
+        
+        function draw() {
+            // Clear board
+            ctx.fillStyle = '#0f172a';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw grid
+            ctx.strokeStyle = 'rgba(0, 230, 118, 0.1)';
+            ctx.lineWidth = 1;
+            for (let x = 0; x <= COLS; x++) {
+                ctx.beginPath();
+                ctx.moveTo(x * BLOCK_SIZE, 0);
+                ctx.lineTo(x * BLOCK_SIZE, canvas.height);
+                ctx.stroke();
+            }
+            for (let y = 0; y <= ROWS; y++) {
+                ctx.beginPath();
+                ctx.moveTo(0, y * BLOCK_SIZE);
+                ctx.lineTo(canvas.width, y * BLOCK_SIZE);
+                ctx.stroke();
+            }
+            
+            // Draw board
+            board.forEach((row, y) => {
+                row.forEach((color, x) => {
+                    if (color) {
+                        ctx.fillStyle = color;
+                        ctx.fillRect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE - 2, BLOCK_SIZE - 2);
+                        ctx.fillStyle = 'rgba(255,255,255,0.3)';
+                        ctx.fillRect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE - 2, 3);
+                    }
+                });
+            });
+            
+            // Draw current piece
+            if (currentPiece) {
+                ctx.fillStyle = currentPiece.color;
+                currentPiece.shape.forEach((row, y) => {
+                    row.forEach((value, x) => {
+                        if (value) {
+                            const px = (currentPiece.x + x) * BLOCK_SIZE;
+                            const py = (currentPiece.y + y) * BLOCK_SIZE;
+                            ctx.fillRect(px, py, BLOCK_SIZE - 2, BLOCK_SIZE - 2);
+                            ctx.fillStyle = 'rgba(255,255,255,0.3)';
+                            ctx.fillRect(px, py, BLOCK_SIZE - 2, 3);
+                            ctx.fillStyle = currentPiece.color;
+                        }
+                    });
+                });
+            }
+        }
+        
+        function drawNext() {
+            nextCtx.fillStyle = '#f1f5f9';
+            nextCtx.fillRect(0, 0, nextCanvas.width, nextCanvas.height);
+            
+            if (nextPiece) {
+                const blockSize = 15;
+                const offsetX = (nextCanvas.width - nextPiece.shape[0].length * blockSize) / 2;
+                const offsetY = (nextCanvas.height - nextPiece.shape.length * blockSize) / 2;
+                
+                nextCtx.fillStyle = nextPiece.color;
+                nextPiece.shape.forEach((row, y) => {
+                    row.forEach((value, x) => {
+                        if (value) {
+                            nextCtx.fillRect(
+                                offsetX + x * blockSize,
+                                offsetY + y * blockSize,
+                                blockSize - 2,
+                                blockSize - 2
+                            );
+                        }
+                    });
+                });
+            }
+        }
+        
+        function updateScore() {
+            document.getElementById('score').textContent = score;
+        }
+        
+        // Controls
+        document.addEventListener('keydown', (e) => {
+            if (!gameRunning) return;
+            
+            switch(e.key) {
+                case 'ArrowLeft':
+                    if (isValidMove(currentPiece, -1, 0)) currentPiece.x--;
+                    break;
+                case 'ArrowRight':
+                    if (isValidMove(currentPiece, 1, 0)) currentPiece.x++;
+                    break;
+                case 'ArrowDown':
+                    if (isValidMove(currentPiece, 0, 1)) currentPiece.y++;
+                    break;
+                case 'ArrowUp':
+                    const rotated = rotate(currentPiece);
+                    if (isValidMove(rotated, 0, 0)) currentPiece = rotated;
+                    break;
+            }
+        });
+        
+        // Touch controls
+        let touchStartX = 0;
+        let touchStartY = 0;
+        
+        canvas.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+        });
+        
+        canvas.addEventListener('touchend', (e) => {
+            if (!gameRunning) return;
+            const touchEndX = e.changedTouches[0].clientX;
+            const touchEndY = e.changedTouches[0].clientY;
+            
+            const diffX = touchEndX - touchStartX;
+            const diffY = touchEndY - touchStartY;
+            
+            if (Math.abs(diffX) > Math.abs(diffY)) {
+                if (diffX > 30) {
+                    if (isValidMove(currentPiece, 1, 0)) currentPiece.x++;
+                } else if (diffX < -30) {
+                    if (isValidMove(currentPiece, -1, 0)) currentPiece.x--;
+                }
+            } else {
+                if (diffY > 30) {
+                    if (isValidMove(currentPiece, 0, 1)) currentPiece.y++;
+                } else if (diffY < -30) {
+                    const rotated = rotate(currentPiece);
+                    if (isValidMove(rotated, 0, 0)) currentPiece = rotated;
+                }
+            }
+        });
+    </script>
+</body>
+</html>

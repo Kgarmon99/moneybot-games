@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Fiscal Frogger | MoneyBot Gaming</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: none;
+            user-select: none;
+        }
+        
+        :root {
+            --moneybot-green: #00E676;
+            --moneybot-green-light: #69F0AE;
+            --moneybot-green-dark: #00C853;
+            --moneybot-glow: rgba(0, 230, 118, 0.4);
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%);
+            min-height: 100vh;
+            overflow: hidden;
+        }
+        
+        /* Grid Background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 230, 118, 0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 230, 118, 0.04) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        /* Green Glow Aura */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, var(--moneybot-glow) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+            animation: pulse 4s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; transform: translate(-50%, -50%) scale(1); }
+            50% { opacity: 0.6; transform: translate(-50%, -50%) scale(1.2); }
+        }
+        
+        .app {
+            max-width: 430px;
+            margin: 0 auto;
+            min-height: 100vh;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        
+        .header-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .back-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            background: rgba(0, 230, 118, 0.1);
+            border: none;
+            color: var(--moneybot-green);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 20px;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        
+        .back-btn:active { transform: scale(0.95); }
+        
+        .header-title {
+            font-weight: 800;
+            font-size: 20px;
+            color: #1e293b;
+        }
+        
+        .score-pill {
+            background: linear-gradient(135deg, var(--moneybot-green), var(--moneybot-green-dark));
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 700;
+            font-size: 16px;
+            box-shadow: 0 4px 15px rgba(0, 230, 118, 0.3);
+        }
+        
+        .game-area {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        #gameCanvas {
+            background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+            border-radius: 20px;
+            box-shadow: 0 0 40px rgba(0, 230, 118, 0.2);
+        }
+        
+        .overlay-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            z-index: 200;
+            padding: 40px;
+        }
+        
+        .overlay-screen.hidden { display: none; }
+        
+        .game-icon {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, var(--moneybot-green), var(--moneybot-green-dark));
+            border-radius: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+            margin-bottom: 30px;
+            box-shadow: 0 0 40px rgba(0, 230, 118, 0.5);
+            animation: hop 0.8s ease-in-out infinite;
+        }
+        
+        @keyframes hop {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+        
+        .game-title {
+            font-size: 36px;
+            font-weight: 900;
+            color: #1e293b;
+            margin-bottom: 12px;
+        }
+        
+        .game-subtitle {
+            color: #64748b;
+            font-size: 17px;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+        
+        .stats-card {
+            background: white;
+            border-radius: 20px;
+            padding: 24px 40px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        
+        .stats-label {
+            font-size: 13px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+        
+        .stats-value {
+            font-size: 36px;
+            font-weight: 800;
+            color: var(--moneybot-green);
+        }
+        
+        .primary-btn {
+            background: linear-gradient(135deg, var(--moneybot-green), var(--moneybot-green-dark));
+            color: white;
+            border: none;
+            padding: 20px 60px;
+            font-size: 18px;
+            font-weight: 700;
+            border-radius: 16px;
+            cursor: pointer;
+            box-shadow: 0 0 30px rgba(0, 230, 118, 0.4);
+            transition: all 0.3s;
+            width: 100%;
+            max-width: 280px;
+        }
+        
+        .primary-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 40px rgba(0, 230, 118, 0.6);
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <div class="header">
+            <div class="header-logo">
+                <a href="../moneybot-official/" class="back-btn">←</a>
+                <span class="header-title">Fiscal Frogger</span>
+            </div>
+            <div class="score-pill">Level <span id="level">1</span></div>
+        </div>
+        
+        <div class="game-area">
+            <canvas id="gameCanvas" width="350" height="500"></canvas>
+        </div>
+    </div>
+    
+    <div class="overlay-screen" id="startScreen">
+        <div class="game-icon">🐸</div>
+        <div class="game-title">Fiscal Frogger</div>
+        <div class="game-subtitle">Cross the financial highway!<br>Avoid debt trucks and tax cars</div>
+        
+        <div class="stats-card">
+            <div class="stats-label">Best Level</div>
+            <div class="stats-value" id="highScore">1</div>
+        </div>
+        
+        <button class="primary-btn" onclick="startGame()">Hop In</button>
+    </div>
+    
+    <div class="overlay-screen hidden" id="gameOverScreen">
+        <div class="game-icon" style="background: linear-gradient(135deg, #ef4444, #dc2626);">💥</div>
+        <div class="game-title">Splat!</div>
+        <div class="game-subtitle">Reached Level <span id="finalScore" style="color: var(--moneybot-green); font-weight: 800;">1</span></div>
+        <button class="primary-btn" onclick="restartGame()">Try Again</button>
+    </div>
+    
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        let gameRunning = false;
+        let level = 1;
+        let highScore = localStorage.getItem('fiscalFroggerHighScore') || 1;
+        let player = { x: 175, y: 450, size: 25 };
+        let lanes = [];
+        let particles = [];
+        
+        document.getElementById('highScore').textContent = highScore;
+        
+        function initLanes() {
+            lanes = [];
+            const vehicleTypes = [
+                { emoji: '🚗', speed: 2, direction: 1 },
+                { emoji: '🚕', speed: 3, direction: -1 },
+                { emoji: '🚙', speed: 2.5, direction: 1 },
+                { emoji: '🏎️', speed: 4, direction: -1 },
+                { emoji: '🚓', speed: 3.5, direction: 1 },
+                { emoji: '🚑', speed: 2, direction: -1 }
+            ];
+            
+            for (let i = 0; i < 6; i++) {
+                const type = vehicleTypes[i];
+                lanes.push({
+                    y: 380 - i * 55,
+                    vehicles: [],
+                    speed: type.speed + (level * 0.3),
+                    direction: type.direction,
+                    emoji: type.emoji,
+                    spawnTimer: 0
+                });
+            }
+        }
+        
+        function startGame() {
+            document.getElementById('startScreen').classList.add('hidden');
+            document.getElementById('gameOverScreen').classList.add('hidden');
+            gameRunning = true;
+            level = 1;
+            player.x = 175;
+            player.y = 450;
+            particles = [];
+            initLanes();
+            gameLoop();
+        }
+        
+        function restartGame() {
+            startGame();
+        }
+        
+        function update() {
+            if (!gameRunning) return;
+            
+            // Spawn vehicles
+            lanes.forEach(lane => {
+                lane.spawnTimer++;
+                if (lane.spawnTimer > 60 + Math.random() * 60) {
+                    lane.vehicles.push({
+                        x: lane.direction === 1 ? -40 : canvas.width + 40,
+                        y: lane.y
+                    });
+                    lane.spawnTimer = 0;
+                }
+                
+                // Move vehicles
+                lane.vehicles = lane.vehicles.filter(v => {
+                    v.x += lane.speed * lane.direction;
+                    return v.x > -60 && v.x < canvas.width + 60;
+                });
+            });
+            
+            // Check collisions
+            lanes.forEach(lane => {
+                lane.vehicles.forEach(v => {
+                    if (Math.abs(player.x - v.x) < 30 && Math.abs(player.y - v.y) < 25) {
+                        gameOver();
+                    }
+                });
+            });
+            
+            // Check win
+            if (player.y < 50) {
+                level++;
+                player.x = 175;
+                player.y = 450;
+                initLanes();
+                
+                // Level up particles
+                for (let i = 0; i < 20; i++) {
+                    particles.push({
+                        x: player.x,
+                        y: player.y,
+                        vx: (Math.random() - 0.5) * 10,
+                        vy: (Math.random() - 0.5) * 10,
+                        life: 1,
+                        color: '#00E676'
+                    });
+                }
+                
+                if (navigator.vibrate) navigator.vibrate([30, 20, 30]);
+            }
+            
+            // Update particles
+            particles = particles.filter(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.life -= 0.03;
+                return p.life > 0;
+            });
+            
+            document.getElementById('level').textContent = level;
+            draw();
+            requestAnimationFrame(update);
+        }
+        
+        function gameOver() {
+            gameRunning = false;
+            if (level > highScore) {
+                highScore = level;
+                localStorage.setItem('fiscalFroggerHighScore', highScore);
+            }
+            document.getElementById('finalScore').textContent = level;
+            document.getElementById('gameOverScreen').classList.remove('hidden');
+        }
+        
+        function draw() {
+            // Clear
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, '#065f46');
+            gradient.addColorStop(0.15, '#0f172a');
+            gradient.addColorStop(0.85, '#0f172a');
+            gradient.addColorStop(1, '#065f46');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw lanes
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+            ctx.setLineDash([20, 20]);
+            for (let i = 0; i < 7; i++) {
+                ctx.beginPath();
+                ctx.moveTo(0, 60 + i * 55);
+                ctx.lineTo(canvas.width, 60 + i * 55);
+                ctx.stroke();
+            }
+            ctx.setLineDash([]);
+            
+            // Draw safe zones
+            ctx.fillStyle = '#065f46';
+            ctx.fillRect(0, 0, canvas.width, 50);
+            ctx.fillRect(0, 420, canvas.width, 80);
+            
+            // Draw goal
+            ctx.font = '30px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('🏦', canvas.width / 2, 30);
+            
+            // Draw start
+            ctx.fillText('🏠', canvas.width / 2, 465);
+            
+            // Draw vehicles
+            lanes.forEach(lane => {
+                ctx.font = '32px Arial';
+                lane.vehicles.forEach(v => {
+                    ctx.fillText(lane.emoji, v.x, v.y);
+                });
+            });
+            
+            // Draw player (frog)
+            ctx.font = '28px Arial';
+            ctx.fillText('🐸', player.x, player.y);
+            
+            // Draw particles
+            particles.forEach(p => {
+                ctx.save();
+                ctx.globalAlpha = p.life;
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, 5, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            });
+        }
+        
+        // Controls
+        document.addEventListener('keydown', (e) => {
+            if (!gameRunning) return;
+            const step = 55;
+            if (e.key === 'ArrowUp') player.y -= step;
+            if (e.key === 'ArrowDown') player.y += step;
+            if (e.key === 'ArrowLeft') player.x = Math.max(20, player.x - step);
+            if (e.key === 'ArrowRight') player.x = Math.min(canvas.width - 20, player.x + step);
+            if (navigator.vibrate) navigator.vibrate(10);
+        });
+        
+        // Touch controls
+        let touchStartX = 0;
+        let touchStartY = 0;
+        
+        canvas.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+        });
+        
+        canvas.addEventListener('touchend', (e) => {
+            if (!gameRunning) return;
+            const touchEndX = e.changedTouches[0].clientX;
+            const touchEndY = e.changedTouches[0].clientY;
+            
+            const diffX = touchEndX - touchStartX;
+            const diffY = touchEndY - touchStartY;
+            const step = 55;
+            
+            if (Math.abs(diffX) > Math.abs(diffY)) {
+                if (diffX > 30) player.x = Math.min(canvas.width - 20, player.x + step);
+                else if (diffX < -30) player.x = Math.max(20, player.x - step);
+            } else {
+                if (diffY > 30) player.y += step;
+                else if (diffY < -30) player.y -= step;
+            }
+            if (navigator.vibrate) navigator.vibrate(10);
+        });
+        
+        function gameLoop() {
+            if (gameRunning) update();
+        }
+    </script>
+</body>
+</html>
