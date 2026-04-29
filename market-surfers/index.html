@@ -18,17 +18,11 @@
         
         :root {
             --moneybot-green: #00E676;
-            --moneybot-green-light: #69F0AE;
             --moneybot-green-dark: #00C853;
             --moneybot-gold: #FBBF24;
             --moneybot-dark: #0F172A;
             --moneybot-gray: #F5F5F7;
             --moneybot-text: #1A1A2E;
-            --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
-            --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
-            --shadow-lg: 0 12px 40px rgba(0,0,0,0.12);
-            --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
-            --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
         }
         
         body {
@@ -59,35 +53,109 @@
         }
         
         .back-btn {
-            width: 40px;
-            height: 40px;
-            border-radius: 12px;
-            background: rgba(255,255,255,0.1);
-            backdrop-filter: blur(10px);
-            border: none;
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.1);
             color: white;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            font-size: 20px;
+            font-size: 22px;
             text-decoration: none;
+            transition: all 0.2s;
+        }
+        
+        .back-btn:active {
+            transform: scale(0.95);
+            background: rgba(255,255,255,0.25);
+        }
+        
+        .score-container {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+        
+        .score-label {
+            font-size: 11px;
+            color: rgba(255,255,255,0.6);
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
         
         .score-display {
-            background: rgba(0, 230, 118, 0.2);
-            border: 1px solid var(--moneybot-green);
-            padding: 10px 20px;
+            font-size: 28px;
+            font-weight: 800;
+            color: white;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        
+        .coin-display {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(251, 191, 36, 0.2);
+            border: 1px solid var(--moneybot-gold);
+            padding: 8px 16px;
             border-radius: 20px;
-            color: var(--moneybot-green);
+            margin-top: 4px;
+        }
+        
+        .coin-icon {
+            font-size: 16px;
+        }
+        
+        .coin-value {
             font-weight: 700;
-            font-size: 18px;
+            color: var(--moneybot-gold);
+            font-size: 16px;
         }
         
         #gameCanvas {
             display: block;
             width: 100%;
             height: 100vh;
+        }
+        
+        .ui-layer {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 20px;
+            background: linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 100%);
+            pointer-events: none;
+        }
+        
+        .power-ups {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 80px;
+        }
+        
+        .power-up {
+            width: 50px;
+            height: 50px;
+            border-radius: 14px;
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            opacity: 0.5;
+        }
+        
+        .power-up.active {
+            opacity: 1;
+            background: rgba(0, 230, 118, 0.3);
+            border-color: var(--moneybot-green);
+            box-shadow: 0 0 20px rgba(0, 230, 118, 0.4);
         }
         
         .start-screen, .game-over-screen {
@@ -100,8 +168,8 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            background: rgba(15, 23, 42, 0.95);
-            backdrop-filter: blur(10px);
+            background: linear-gradient(180deg, rgba(15, 23, 42, 0.98) 0%, rgba(0, 0, 0, 0.95) 100%);
+            backdrop-filter: blur(20px);
             z-index: 200;
         }
         
@@ -109,37 +177,81 @@
             display: none;
         }
         
+        .logo-container {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        
         .logo {
-            font-size: 64px;
-            margin-bottom: 10px;
+            font-size: 80px;
+            filter: drop-shadow(0 10px 30px rgba(0, 230, 118, 0.4));
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
         }
         
         .title {
-            font-size: 32px;
-            font-weight: 800;
-            color: white;
-            margin-bottom: 10px;
+            font-size: 36px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #fff 0%, var(--moneybot-green) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+            letter-spacing: -1px;
         }
         
         .subtitle {
-            color: rgba(255,255,255,0.7);
+            color: rgba(255,255,255,0.6);
             font-size: 16px;
             margin-bottom: 40px;
             text-align: center;
             padding: 0 40px;
+            line-height: 1.5;
+        }
+        
+        .high-score {
+            background: rgba(255,255,255,0.1);
+            padding: 16px 32px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .high-score-label {
+            font-size: 12px;
+            color: rgba(255,255,255,0.5);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+        
+        .high-score-value {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--moneybot-gold);
         }
         
         .start-btn {
             background: linear-gradient(135deg, var(--moneybot-green), var(--moneybot-green-dark));
             color: white;
             border: none;
-            padding: 20px 60px;
-            font-size: 20px;
-            font-weight: 700;
-            border-radius: 30px;
+            padding: 22px 70px;
+            font-size: 22px;
+            font-weight: 800;
+            border-radius: 35px;
             cursor: pointer;
-            box-shadow: 0 10px 30px rgba(0, 230, 118, 0.4);
-            transition: transform 0.2s;
+            box-shadow: 0 15px 40px rgba(0, 230, 118, 0.5);
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .start-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 50px rgba(0, 230, 118, 0.6);
         }
         
         .start-btn:active {
@@ -147,41 +259,74 @@
         }
         
         .instructions {
-            margin-top: 30px;
-            color: rgba(255,255,255,0.5);
-            text-align: center;
-            font-size: 14px;
+            margin-top: 40px;
+            display: flex;
+            gap: 30px;
         }
         
-        .controls {
+        .instruction-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            color: rgba(255,255,255,0.5);
+            font-size: 13px;
+        }
+        
+        .instruction-icon {
+            font-size: 28px;
+        }
+        
+        .final-stats {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .final-stat {
+            background: rgba(255,255,255,0.1);
+            padding: 20px 30px;
+            border-radius: 16px;
+            text-align: center;
+            min-width: 100px;
+        }
+        
+        .final-stat-value {
+            font-size: 28px;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 4px;
+        }
+        
+        .final-stat-label {
+            font-size: 11px;
+            color: rgba(255,255,255,0.5);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .combo-display {
             position: absolute;
-            bottom: 30px;
+            top: 100px;
             left: 50%;
             transform: translateX(-50%);
-            display: flex;
-            gap: 15px;
-            z-index: 100;
+            font-size: 42px;
+            font-weight: 900;
+            color: var(--moneybot-gold);
+            text-shadow: 0 0 30px rgba(251, 191, 36, 0.6);
+            opacity: 0;
+            pointer-events: none;
+            z-index: 50;
         }
         
-        .control-btn {
-            width: 70px;
-            height: 70px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.1);
-            border: 2px solid rgba(255,255,255,0.3);
-            color: white;
-            font-size: 28px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.2s;
-            backdrop-filter: blur(10px);
+        .combo-display.show {
+            animation: comboAnim 1s ease-out forwards;
         }
         
-        .control-btn:active {
-            background: var(--moneybot-green);
-            transform: scale(0.95);
+        @keyframes comboAnim {
+            0% { opacity: 0; transform: translateX(-50%) scale(0.3) rotate(-10deg); }
+            20% { opacity: 1; transform: translateX(-50%) scale(1.3) rotate(5deg); }
+            100% { opacity: 0; transform: translateX(-50%) scale(1) rotate(0deg) translateY(-80px); }
         }
     </style>
 </head>
@@ -189,30 +334,66 @@
     <div class="app">
         <div class="header">
             <a href="../moneybot-official/" class="back-btn">←</a>
-            <div class="score-display"><span id="score">0</span>m</div>
+            <div class="score-container">
+                <div class="score-label">Distance</div>
+                <div class="score-display"><span id="score">0</span>m</div>
+                <div class="coin-display">
+                    <span class="coin-icon">🪙</span>
+                    <span class="coin-value" id="coins">0</span>
+                </div>
+            </div>
         </div>
         
         <canvas id="gameCanvas"></canvas>
         
-        <div class="controls">
-            <button class="control-btn" id="leftBtn">←</button>
-            <button class="control-btn" id="jumpBtn">↑</button>
-            <button class="control-btn" id="rightBtn">→</button>
-        </div>
+        <div class="combo-display" id="comboDisplay">COMBO x3!</div>
         
         <div class="start-screen" id="startScreen">
-            <div class="logo">🏃</div>
+            <div class="logo-container">
+                <div class="logo">🏃</div>
+            </div>
             <div class="title">Market Surfers</div>
-            <div class="subtitle">Dodge the bears, collect the bulls!<br>Run as far as you can</div>
-            <button class="start-btn" onclick="startGame()">START RUNNING</button>
-            <div class="instructions">Swipe to move • Jump over obstacles<br>Collect coins • Avoid crashes</div>
+            <div class="subtitle">Surf the market waves!<br>Dodge bears, collect coins & power-ups</div>
+            
+            <div class="high-score">
+                <div class="high-score-label">Best Run</div>
+                <div class="high-score-value" id="highScore">0m</div>
+            </div>
+            
+            <button class="start-btn" onclick="startGame()">Play Now</button>
+            
+            <div class="instructions">
+                <div class="instruction-item">
+                    <span class="instruction-icon">👈👉</span>
+                    <span>Swipe</span>
+                </div>
+                <div class="instruction-item">
+                    <span class="instruction-icon">👆</span>
+                    <span>Jump</span>
+                </div>
+                <div class="instruction-item">
+                    <span class="instruction-icon">👇</span>
+                    <span>Roll</span>
+                </div>
+            </div>
         </div>
         
         <div class="game-over-screen" id="gameOverScreen">
-            <div class="logo">💥</div>
-            <div class="title">Market Crash!</div>
-            <div class="subtitle">You ran <span id="finalScore">0</span>m</div>
-            <button class="start-btn" onclick="restartGame()">RUN AGAIN</button>
+            <div class="logo" style="font-size: 60px; margin-bottom: 10px;">💥</div>
+            <div class="title" style="font-size: 32px;">Market Crash!</div>
+            
+            <div class="final-stats">
+                <div class="final-stat">
+                    <div class="final-stat-value"><span id="finalScore">0</span>m</div>
+                    <div class="final-stat-label">Distance</div>
+                </div>
+                <div class="final-stat">
+                    <div class="final-stat-value" id="finalCoins">0</div>
+                    <div class="final-stat-label">Coins</div>
+                </div>
+            </div>
+            
+            <button class="start-btn" onclick="restartGame()">Run Again</button>
         </div>
     </div>
     
@@ -224,23 +405,49 @@
         
         let gameRunning = false;
         let score = 0;
+        let coins = 0;
+        let highScore = localStorage.getItem('marketSurfersHighScore') || 0;
         let speed = 8;
-        let player = { lane: 1, y: canvas.height - 200, jumping: false, jumpHeight: 0 };
-        let coins = [];
+        let player = { 
+            lane: 1, 
+            x: canvas.width / 2, 
+            y: canvas.height - 180,
+            targetX: canvas.width / 2,
+            jumping: false,
+            jumpHeight: 0,
+            rolling: false,
+            invincible: false
+        };
+        let coinItems = [];
         let obstacles = [];
+        let powerUps = [];
+        let particles = [];
         let lanes = [canvas.width * 0.25, canvas.width * 0.5, canvas.width * 0.75];
         let groundOffset = 0;
+        let combo = 0;
+        let lastCoinLane = -1;
+        
+        document.getElementById('highScore').textContent = highScore + 'm';
         
         function startGame() {
             document.getElementById('startScreen').style.display = 'none';
             gameRunning = true;
             score = 0;
+            coins = 0;
             speed = 8;
             player.lane = 1;
+            player.x = lanes[1];
+            player.targetX = lanes[1];
             player.jumping = false;
             player.jumpHeight = 0;
-            coins = [];
+            player.rolling = false;
+            player.invincible = false;
+            coinItems = [];
             obstacles = [];
+            powerUps = [];
+            particles = [];
+            combo = 0;
+            updateUI();
             gameLoop();
         }
         
@@ -251,143 +458,305 @@
         
         function gameOver() {
             gameRunning = false;
+            if (score > highScore) {
+                highScore = Math.floor(score);
+                localStorage.setItem('marketSurfersHighScore', highScore);
+            }
             document.getElementById('finalScore').textContent = Math.floor(score);
+            document.getElementById('finalCoins').textContent = coins;
             document.getElementById('gameOverScreen').style.display = 'flex';
+            document.getElementById('highScore').textContent = highScore + 'm';
         }
         
         function update() {
             score += speed / 10;
-            speed += 0.01;
-            groundOffset = (groundOffset + speed) % 40;
+            speed += 0.005;
+            groundOffset = (groundOffset + speed) % 60;
             
-            // Spawn coins
-            if (Math.random() < 0.03) {
-                coins.push({
-                    lane: Math.floor(Math.random() * 3),
+            // Smooth lane transition
+            player.x += (player.targetX - player.x) * 0.15;
+            
+            // Spawn coins in patterns
+            if (Math.random() < 0.04) {
+                const lane = Math.floor(Math.random() * 3);
+                // Create coin lines for combos
+                if (lastCoinLane === lane && Math.random() < 0.7) {
+                    combo++;
+                    if (combo > 2) {
+                        const comboEl = document.getElementById('comboDisplay');
+                        comboEl.textContent = `COMBO x${combo}!`;
+                        comboEl.classList.add('show');
+                        setTimeout(() => comboEl.classList.remove('show'), 1000);
+                    }
+                } else {
+                    combo = 1;
+                }
+                lastCoinLane = lane;
+                
+                coinItems.push({
+                    lane: lane,
                     y: -50,
-                    collected: false
+                    collected: false,
+                    value: 10 * combo
                 });
             }
             
             // Spawn obstacles
-            if (Math.random() < 0.02) {
+            if (Math.random() < 0.025) {
+                const lane = Math.floor(Math.random() * 3);
+                const type = Math.random() < 0.6 ? 'barrier' : (Math.random() < 0.5 ? 'train' : 'low');
                 obstacles.push({
-                    lane: Math.floor(Math.random() * 3),
-                    y: -50,
-                    type: Math.random() < 0.5 ? 'bear' : 'barrier'
+                    lane: lane,
+                    y: -100,
+                    type: type
                 });
             }
             
-            // Update player position
-            const targetX = lanes[player.lane];
-            const currentX = lanes[player.lane];
+            // Spawn power-ups
+            if (Math.random() < 0.005) {
+                powerUps.push({
+                    lane: Math.floor(Math.random() * 3),
+                    y: -50,
+                    type: Math.random() < 0.5 ? 'magnet' : 'jetpack',
+                    collected: false
+                });
+            }
             
             // Jump physics
             if (player.jumping) {
-                player.jumpHeight += 15;
-                if (player.jumpHeight > 100) {
+                player.jumpHeight += 12;
+                if (player.jumpHeight > 120) {
                     player.jumping = false;
                 }
             } else if (player.jumpHeight > 0) {
-                player.jumpHeight -= 15;
+                player.jumpHeight -= 12;
+            }
+            
+            // Roll timer
+            if (player.rolling) {
+                setTimeout(() => { player.rolling = false; }, 800);
             }
             
             // Update coins
-            coins = coins.filter(coin => {
+            coinItems = coinItems.filter(coin => {
                 coin.y += speed;
                 
+                const playerY = player.y - player.jumpHeight;
                 if (!coin.collected && coin.lane === player.lane && 
-                    Math.abs(coin.y - (player.y - player.jumpHeight)) < 60) {
+                    Math.abs(coin.y - playerY) < 50) {
                     coin.collected = true;
-                    score += 50;
+                    coins += coin.value;
+                    score += coin.value;
+                    
+                    // Sparkle particles
+                    for (let i = 0; i < 8; i++) {
+                        particles.push({
+                            x: lanes[coin.lane],
+                            y: coin.y,
+                            vx: (Math.random() - 0.5) * 8,
+                            vy: (Math.random() - 0.5) * 8,
+                            life: 1,
+                            color: '#FBBF24',
+                            size: Math.random() * 4 + 2
+                        });
+                    }
+                    
                     if (navigator.vibrate) navigator.vibrate(10);
+                    return false;
                 }
                 
-                return coin.y < canvas.height + 50 && !coin.collected;
+                return coin.y < canvas.height + 50;
+            });
+            
+            // Update power-ups
+            powerUps = powerUps.filter(p => {
+                p.y += speed;
+                
+                const playerY = player.y - player.jumpHeight;
+                if (!p.collected && p.lane === player.lane && 
+                    Math.abs(p.y - playerY) < 50) {
+                    p.collected = true;
+                    if (p.type === 'jetpack') {
+                        player.invincible = true;
+                        setTimeout(() => player.invincible = false, 5000);
+                    }
+                    return false;
+                }
+                
+                return p.y < canvas.height + 50;
             });
             
             // Update obstacles
             obstacles = obstacles.filter(obs => {
                 obs.y += speed;
                 
-                if (obs.lane === player.lane && 
-                    Math.abs(obs.y - (player.y - player.jumpHeight)) < 60 &&
-                    player.jumpHeight < 50) {
+                const playerY = player.y - player.jumpHeight;
+                const canHit = !player.invincible && 
+                    !(player.jumping && obs.type !== 'train') && 
+                    !(player.rolling && obs.type === 'low');
+                
+                if (canHit && obs.lane === player.lane && 
+                    Math.abs(obs.y - playerY) < 60) {
                     gameOver();
                 }
                 
-                return obs.y < canvas.height + 50;
+                return obs.y < canvas.height + 100;
             });
             
-            document.getElementById('score').textContent = Math.floor(score);
+            // Update particles
+            particles = particles.filter(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += 0.3;
+                p.life -= 0.03;
+                return p.life > 0;
+            });
+            
+            updateUI();
         }
         
         function draw() {
-            // Clear
-            ctx.fillStyle = '#0F172A';
+            // Sky gradient
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, '#1a1a3e');
+            gradient.addColorStop(0.5, '#0f172a');
+            gradient.addColorStop(1, '#1e293b');
+            ctx.fillStyle = gradient;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
-            // Draw parallax buildings
-            ctx.fillStyle = 'rgba(30, 41, 59, 0.5)';
-            for (let i = 0; i < 8; i++) {
-                const x = (i * 80 - score * 0.5) % (canvas.width + 100);
-                const height = 100 + Math.sin(i * 123) * 50;
-                ctx.fillRect(x, canvas.height - 200 - height, 60, height);
+            // City skyline (parallax)
+            ctx.fillStyle = 'rgba(30, 41, 59, 0.8)';
+            for (let i = 0; i < 12; i++) {
+                const x = (i * 60 - score * 0.3) % (canvas.width + 100);
+                const height = 80 + Math.sin(i * 234) * 40;
+                ctx.fillRect(x, canvas.height - 250 - height, 50, height);
+                
+                // Building windows
+                ctx.fillStyle = 'rgba(251, 191, 36, 0.3)';
+                for (let wy = 0; wy < height - 20; wy += 25) {
+                    if (Math.random() > 0.3) {
+                        ctx.fillRect(x + 10, canvas.height - 250 - height + wy + 10, 8, 12);
+                        ctx.fillRect(x + 28, canvas.height - 250 - height + wy + 10, 8, 12);
+                    }
+                }
+                ctx.fillStyle = 'rgba(30, 41, 59, 0.8)';
             }
             
-            // Draw ground
-            ctx.fillStyle = '#1E293B';
-            ctx.fillRect(0, canvas.height - 100, canvas.width, 100);
+            // Ground/track
+            ctx.fillStyle = '#0f172a';
+            ctx.fillRect(0, canvas.height - 150, canvas.width, 150);
             
-            // Draw lane markers
-            ctx.strokeStyle = 'rgba(0, 230, 118, 0.3)';
+            // Track lanes
+            ctx.strokeStyle = 'rgba(0, 230, 118, 0.2)';
             ctx.lineWidth = 2;
-            ctx.setLineDash([20, 20]);
-            lanes.forEach(lane => {
+            lanes.forEach((lane, i) => {
                 ctx.beginPath();
-                ctx.moveTo(lane, 0);
+                ctx.moveTo(lane, canvas.height - 150);
                 ctx.lineTo(lane, canvas.height);
                 ctx.stroke();
             });
-            ctx.setLineDash([]);
             
-            // Draw moving ground lines
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
-            ctx.lineWidth = 2;
-            for (let i = -40; i < canvas.width + 40; i += 40) {
+            // Moving track lines
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+            ctx.lineWidth = 3;
+            for (let i = -60; i < canvas.width + 60; i += 60) {
+                const x = i - groundOffset;
                 ctx.beginPath();
-                ctx.moveTo(i - groundOffset, canvas.height - 100);
-                ctx.lineTo(i - groundOffset - 20, canvas.height);
+                ctx.moveTo(x, canvas.height - 150);
+                ctx.lineTo(x - 30, canvas.height);
                 ctx.stroke();
             }
             
-            // Draw player
-            const playerX = lanes[player.lane];
-            const playerY = player.y - player.jumpHeight;
+            // Draw coins with glow
+            coinItems.forEach(coin => {
+                const x = lanes[coin.lane];
+                const y = coin.y;
+                
+                // Glow
+                ctx.shadowColor = '#FBBF24';
+                ctx.shadowBlur = 20;
+                ctx.font = '32px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('🪙', x, y);
+                ctx.shadowBlur = 0;
+            });
             
-            // Shadow
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
-            ctx.beginPath();
-            ctx.ellipse(playerX, player.y + 40, 20, 8, 0, 0, Math.PI * 2);
-            ctx.fill();
-            
-            // Player body
-            ctx.font = '50px Arial';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText('🏃', playerX, playerY);
-            
-            // Draw coins
-            coins.forEach(coin => {
-                ctx.font = '35px Arial';
-                ctx.fillText('🪙', lanes[coin.lane], coin.y);
+            // Draw power-ups
+            powerUps.forEach(p => {
+                if (!p.collected) {
+                    const x = lanes[p.lane];
+                    const y = p.y;
+                    ctx.font = '36px Arial';
+                    ctx.fillText(p.type === 'magnet' ? '🧲' : '🚀', x, y);
+                }
             });
             
             // Draw obstacles
             obstacles.forEach(obs => {
-                ctx.font = '40px Arial';
-                ctx.fillText(obs.type === 'bear' ? '🐻' : '🚧', lanes[obs.lane], obs.y);
+                const x = lanes[obs.lane];
+                const y = obs.y;
+                
+                ctx.font = '50px Arial';
+                if (obs.type === 'barrier') {
+                    ctx.fillText('🚧', x, y);
+                } else if (obs.type === 'train') {
+                    ctx.fillText('🚂', x, y);
+                } else if (obs.type === 'low') {
+                    ctx.fillText('🐻', x, y);
+                }
             });
+            
+            // Draw player
+            const playerX = player.x;
+            const playerY = player.y - player.jumpHeight;
+            
+            // Invincibility glow
+            if (player.invincible) {
+                ctx.shadowColor = '#00E676';
+                ctx.shadowBlur = 30;
+            }
+            
+            // Shadow
+            if (!player.jumping) {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+                ctx.beginPath();
+                ctx.ellipse(playerX, player.y + 45, 25, 10, 0, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            
+            // Player character
+            ctx.font = player.rolling ? '40px Arial' : '55px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            if (player.rolling) {
+                ctx.save();
+                ctx.translate(playerX, playerY + 20);
+                ctx.rotate(Date.now() / 100);
+                ctx.fillText('🏃', 0, 0);
+                ctx.restore();
+            } else {
+                ctx.fillText(player.invincible ? '🚀' : '🏃', playerX, playerY);
+            }
+            
+            ctx.shadowBlur = 0;
+            
+            // Draw particles
+            particles.forEach(p => {
+                ctx.save();
+                ctx.globalAlpha = p.life;
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            });
+        }
+        
+        function updateUI() {
+            document.getElementById('score').textContent = Math.floor(score);
+            document.getElementById('coins').textContent = coins;
         }
         
         function gameLoop() {
@@ -401,29 +770,39 @@
         
         // Controls
         function moveLeft() {
-            if (player.lane > 0) player.lane--;
+            if (player.lane > 0) {
+                player.lane--;
+                player.targetX = lanes[player.lane];
+            }
         }
         
         function moveRight() {
-            if (player.lane < 2) player.lane++;
+            if (player.lane < 2) {
+                player.lane++;
+                player.targetX = lanes[player.lane];
+            }
         }
         
         function jump() {
-            if (!player.jumping && player.jumpHeight === 0) {
+            if (!player.jumping && player.jumpHeight === 0 && !player.rolling) {
                 player.jumping = true;
             }
         }
         
+        function roll() {
+            if (!player.rolling && !player.jumping) {
+                player.rolling = true;
+            }
+        }
+        
+        // Keyboard controls
         document.addEventListener('keydown', (e) => {
             if (!gameRunning) return;
             if (e.key === 'ArrowLeft') moveLeft();
             if (e.key === 'ArrowRight') moveRight();
-            if (e.key === 'ArrowUp' || e.key === ' ') jump();
+            if (e.key === 'ArrowUp') jump();
+            if (e.key === 'ArrowDown') roll();
         });
-        
-        document.getElementById('leftBtn').addEventListener('click', moveLeft);
-        document.getElementById('rightBtn').addEventListener('click', moveRight);
-        document.getElementById('jumpBtn').addEventListener('click', jump);
         
         // Touch controls
         let touchStartX = 0;
@@ -444,6 +823,7 @@
                 else if (dx < -50) moveLeft();
             } else {
                 if (dy < -50) jump();
+                else if (dy > 50) roll();
             }
         });
     </script>
