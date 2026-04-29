@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Savings Snake | MoneyBot Gaming</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
         
         * {
             margin: 0;
@@ -23,13 +23,30 @@
             --moneybot-gold: #FBBF24;
             --moneybot-dark: #0F172A;
             --moneybot-gray: #F5F5F7;
+            --glass-bg: rgba(255, 255, 255, 0.85);
+            --glass-border: rgba(255, 255, 255, 0.3);
         }
         
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
-            background: var(--moneybot-dark);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%);
             min-height: 100vh;
             overflow: hidden;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 230, 118, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 230, 118, 0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+            pointer-events: none;
+            z-index: 0;
         }
         
         .app {
@@ -37,62 +54,74 @@
             margin: 0 auto;
             min-height: 100vh;
             position: relative;
+            z-index: 1;
             display: flex;
             flex-direction: column;
         }
         
         .header {
-            background: rgba(15, 23, 42, 0.95);
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
             padding: 16px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             z-index: 100;
+            border-bottom: 1px solid var(--glass-border);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        
+        .header-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
         
         .back-btn {
             width: 44px;
             height: 44px;
             border-radius: 14px;
-            background: rgba(255,255,255,0.15);
-            border: 1px solid rgba(255,255,255,0.1);
-            color: white;
+            background: rgba(0, 230, 118, 0.1);
+            border: none;
+            color: var(--moneybot-green);
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            font-size: 22px;
+            font-size: 20px;
             text-decoration: none;
-            transition: all 0.2s;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        .back-btn:hover {
+            background: rgba(0, 230, 118, 0.2);
+            transform: scale(1.05);
         }
         
         .back-btn:active {
             transform: scale(0.95);
-            background: rgba(255,255,255,0.25);
         }
         
-        .score-container {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-        }
-        
-        .score-label {
-            font-size: 11px;
-            color: rgba(255,255,255,0.6);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        
-        .score-display {
-            font-size: 28px;
+        .header-title {
             font-weight: 800;
-            color: var(--moneybot-green);
+            font-size: 20px;
+            color: #1e293b;
+            letter-spacing: -0.3px;
+        }
+        
+        .score-pill {
+            background: linear-gradient(135deg, var(--moneybot-green), var(--moneybot-green-dark));
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 700;
+            font-size: 16px;
+            box-shadow: 0 4px 15px rgba(0, 230, 118, 0.3);
         }
         
         .game-area {
             flex: 1;
-            position: relative;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -100,13 +129,13 @@
         }
         
         #gameCanvas {
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            border-radius: 16px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
         }
         
-        .start-screen, .game-over-screen {
-            position: absolute;
+        .overlay-screen {
+            position: fixed;
             top: 0;
             left: 0;
             width: 100%;
@@ -115,91 +144,108 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(180deg, rgba(15, 23, 42, 0.98) 0%, rgba(0, 0, 0, 0.95) 100%);
+            background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
             z-index: 200;
+            padding: 40px;
         }
         
-        .game-over-screen {
+        .overlay-screen.hidden {
             display: none;
         }
         
-        .logo {
-            font-size: 80px;
-            margin-bottom: 15px;
+        .game-icon {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, var(--moneybot-green), var(--moneybot-green-dark));
+            border-radius: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 60px rgba(0, 230, 118, 0.4);
             animation: slither 2s ease-in-out infinite;
         }
         
         @keyframes slither {
             0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-10px); }
-            75% { transform: translateX(10px); }
+            25% { transform: translateX(-8px); }
+            75% { transform: translateX(8px); }
         }
         
-        .title {
+        .game-title {
             font-size: 36px;
             font-weight: 900;
-            background: linear-gradient(135deg, var(--moneybot-green) 0%, var(--moneybot-green-light) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 10px;
+            color: #1e293b;
+            margin-bottom: 12px;
+            letter-spacing: -1px;
         }
         
-        .subtitle {
-            color: rgba(255,255,255,0.7);
+        .game-subtitle {
+            color: #64748b;
             font-size: 17px;
             margin-bottom: 40px;
             text-align: center;
-            padding: 0 40px;
+            line-height: 1.5;
         }
         
-        .high-score {
-            background: rgba(255,255,255,0.1);
-            padding: 16px 32px;
-            border-radius: 16px;
+        .stats-card {
+            background: white;
+            border-radius: 20px;
+            padding: 24px 40px;
             margin-bottom: 30px;
             text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
         }
         
-        .high-score-label {
-            font-size: 12px;
-            color: rgba(255,255,255,0.5);
+        .stats-label {
+            font-size: 13px;
+            color: #94a3b8;
             text-transform: uppercase;
             letter-spacing: 1px;
+            margin-bottom: 8px;
         }
         
-        .high-score-value {
-            font-size: 32px;
+        .stats-value {
+            font-size: 36px;
             font-weight: 800;
-            color: var(--moneybot-gold);
+            color: var(--moneybot-green);
         }
         
-        .start-btn {
+        .primary-btn {
             background: linear-gradient(135deg, var(--moneybot-green), var(--moneybot-green-dark));
             color: white;
             border: none;
-            padding: 22px 70px;
-            font-size: 22px;
-            font-weight: 800;
-            border-radius: 35px;
+            padding: 20px 60px;
+            font-size: 18px;
+            font-weight: 700;
+            border-radius: 16px;
             cursor: pointer;
-            box-shadow: 0 15px 40px rgba(0, 230, 118, 0.5);
-            transition: all 0.3s;
+            box-shadow: 0 10px 30px rgba(0, 230, 118, 0.4);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            width: 100%;
+            max-width: 280px;
         }
         
-        .start-btn:active {
-            transform: scale(0.95);
+        .primary-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(0, 230, 118, 0.5);
+        }
+        
+        .primary-btn:active {
+            transform: scale(0.98);
         }
     </style>
 </head>
 <body>
     <div class="app">
         <div class="header">
-            <a href="../moneybot-official/" class="back-btn">←</a>
-            <div class="score-container">
-                <div class="score-label">Savings</div>
-                <div class="score-display">$<span id="score">0</span></div>
+            <div class="header-logo">
+                <a href="../moneybot-official/" class="back-btn">←</a>
+                <span class="header-title">Savings Snake</span>
             </div>
+            <div class="score-pill">$<span id="score">0</span></div>
         </div>
         
         <div class="game-area">
@@ -207,24 +253,24 @@
         </div>
     </div>
     
-    <div class="start-screen" id="startScreen">
-        <div class="logo">🐍</div>
-        <div class="title">Savings Snake</div>
-        <div class="subtitle">Collect coins, avoid debt traps!<br>Grow your savings</div>
+    <div class="overlay-screen" id="startScreen">
+        <div class="game-icon">🐍</div>
+        <div class="game-title">Savings Snake</div>
+        <div class="game-subtitle">Collect coins, avoid debt traps!<br>Grow your savings</div>
         
-        <div class="high-score">
-            <div class="high-score-label">Best Savings</div>
-            <div class="high-score-value" id="highScore">$0</div>
+        <div class="stats-card">
+            <div class="stats-label">Best Savings</div>
+            <div class="stats-value" id="highScore">$0</div>
         </div>
         
-        <button class="start-btn" onclick="startGame()">Start Saving</button>
+        <button class="primary-btn" onclick="startGame()">Start Saving</button>
     </div>
     
-    <div class="game-over-screen" id="gameOverScreen">
-        <div class="logo">💸</div>
-        <div class="title" style="font-size: 32px;">Debt Trap!</div>
-        <div class="subtitle">You saved $<span id="finalScore">0</span></div>
-        <button class="start-btn" onclick="restartGame()">Save Again</button>
+    <div class="overlay-screen hidden" id="gameOverScreen">
+        <div class="game-icon" style="background: linear-gradient(135deg, #ef4444, #dc2626);">💸</div>
+        <div class="game-title">Debt Trap!</div>
+        <div class="game-subtitle">You saved <span id="finalScore" style="color: var(--moneybot-green); font-weight: 800;">$0</span></div>
+        <button class="primary-btn" onclick="restartGame()">Save Again</button>
     </div>
     
     <script>
@@ -237,33 +283,39 @@
         let gameRunning = false;
         let score = 0;
         let highScore = localStorage.getItem('savingsSnakeHighScore') || 0;
-        let snake = [{x: 10, y: 10}];
+        let snake = [{x: 7, y: 7}];
         let food = {x: 15, y: 15, type: 'coin'};
         let obstacles = [];
-        let dx = 0;
+        let dx = 1;
         let dy = 0;
         let gameLoop;
         
         document.getElementById('highScore').textContent = '$' + highScore;
         
+        function initObstacles() {
+            obstacles = [];
+            for (let i = 0; i < 3; i++) {
+                let obs;
+                do {
+                    obs = {
+                        x: Math.floor(Math.random() * tileCount),
+                        y: Math.floor(Math.random() * tileCount)
+                    };
+                } while (snake.some(s => s.x === obs.x && s.y === obs.y) || 
+                         (food.x === obs.x && food.y === obs.y));
+                obstacles.push(obs);
+            }
+        }
+        
         function startGame() {
-            document.getElementById('startScreen').style.display = 'none';
-            document.getElementById('gameOverScreen').style.display = 'none';
+            document.getElementById('startScreen').classList.add('hidden');
+            document.getElementById('gameOverScreen').classList.add('hidden');
             gameRunning = true;
             score = 0;
             snake = [{x: 7, y: 7}];
             dx = 1;
             dy = 0;
-            obstacles = [];
-            
-            // Add obstacles
-            for (let i = 0; i < 3; i++) {
-                obstacles.push({
-                    x: Math.floor(Math.random() * tileCount),
-                    y: Math.floor(Math.random() * tileCount)
-                });
-            }
-            
+            initObstacles();
             placeFood();
             updateScore();
             gameLoop = setInterval(update, 100);
@@ -274,9 +326,16 @@
         }
         
         function placeFood() {
-            food.x = Math.floor(Math.random() * tileCount);
-            food.y = Math.floor(Math.random() * tileCount);
-            food.type = Math.random() > 0.2 ? 'coin' : 'bill';
+            let newFood;
+            do {
+                newFood = {
+                    x: Math.floor(Math.random() * tileCount),
+                    y: Math.floor(Math.random() * tileCount),
+                    type: Math.random() > 0.2 ? 'coin' : 'bill'
+                };
+            } while (snake.some(s => s.x === newFood.x && s.y === newFood.y) ||
+                     obstacles.some(o => o.x === newFood.x && o.y === newFood.y));
+            food = newFood;
         }
         
         function update() {
@@ -310,10 +369,16 @@
                 
                 // Add new obstacle every 50 points
                 if (score % 50 === 0 && obstacles.length < 8) {
-                    obstacles.push({
-                        x: Math.floor(Math.random() * tileCount),
-                        y: Math.floor(Math.random() * tileCount)
-                    });
+                    let newObs;
+                    do {
+                        newObs = {
+                            x: Math.floor(Math.random() * tileCount),
+                            y: Math.floor(Math.random() * tileCount)
+                        };
+                    } while (snake.some(s => s.x === newObs.x && s.y === newObs.y) ||
+                             (food.x === newObs.x && food.y === newObs.y) ||
+                             obstacles.some(o => o.x === newObs.x && o.y === newObs.y));
+                    obstacles.push(newObs);
                 }
             } else {
                 snake.pop();
@@ -330,8 +395,8 @@
                 highScore = score;
                 localStorage.setItem('savingsSnakeHighScore', highScore);
             }
-            document.getElementById('finalScore').textContent = score;
-            document.getElementById('gameOverScreen').style.display = 'flex';
+            document.getElementById('finalScore').textContent = '$' + score;
+            document.getElementById('gameOverScreen').classList.remove('hidden');
         }
         
         function updateScore() {
@@ -339,14 +404,17 @@
         }
         
         function draw() {
-            // Clear
-            ctx.fillStyle = '#1a1a2e';
+            // Clear with gradient
+            const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+            gradient.addColorStop(0, '#0f172a');
+            gradient.addColorStop(1, '#1e293b');
+            ctx.fillStyle = gradient;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
             // Draw grid
-            ctx.strokeStyle = 'rgba(0, 230, 118, 0.1)';
+            ctx.strokeStyle = 'rgba(0, 230, 118, 0.08)';
             ctx.lineWidth = 1;
-            for (let i = 0; i < tileCount; i++) {
+            for (let i = 0; i <= tileCount; i++) {
                 ctx.beginPath();
                 ctx.moveTo(i * gridSize, 0);
                 ctx.lineTo(i * gridSize, canvas.height);
@@ -371,14 +439,39 @@
             
             // Draw snake
             snake.forEach((segment, i) => {
-                ctx.fillStyle = i === 0 ? '#00E676' : '#00C853';
-                ctx.fillRect(segment.x * gridSize + 2, segment.y * gridSize + 2, gridSize - 4, gridSize - 4);
+                const x = segment.x * gridSize;
+                const y = segment.y * gridSize;
+                
+                // Snake body with gradient
+                const bodyGradient = ctx.createLinearGradient(x, y, x + gridSize, y + gridSize);
+                if (i === 0) {
+                    bodyGradient.addColorStop(0, '#00E676');
+                    bodyGradient.addColorStop(1, '#00C853');
+                } else {
+                    bodyGradient.addColorStop(0, '#00C853');
+                    bodyGradient.addColorStop(1, '#00A843');
+                }
+                
+                ctx.fillStyle = bodyGradient;
+                ctx.fillRect(x + 2, y + 2, gridSize - 4, gridSize - 4);
+                
+                // Rounded corners
+                ctx.beginPath();
+                ctx.roundRect(x + 2, y + 2, gridSize - 4, gridSize - 4, 6);
+                ctx.fill();
                 
                 // Eyes on head
                 if (i === 0) {
                     ctx.fillStyle = 'white';
-                    ctx.fillRect(segment.x * gridSize + 6, segment.y * gridSize + 8, 4, 4);
-                    ctx.fillRect(segment.x * gridSize + 15, segment.y * gridSize + 8, 4, 4);
+                    ctx.beginPath();
+                    ctx.arc(x + 8, y + 9, 3, 0, Math.PI * 2);
+                    ctx.arc(x + 17, y + 9, 3, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.fillStyle = '#1e293b';
+                    ctx.beginPath();
+                    ctx.arc(x + 8, y + 9, 1.5, 0, Math.PI * 2);
+                    ctx.arc(x + 17, y + 9, 1.5, 0, Math.PI * 2);
+                    ctx.fill();
                 }
             });
         }
