@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Diversification Drop | MoneyBot</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
         
         * {
             margin: 0;
@@ -21,11 +21,10 @@
             --moneybot-green-light: #69F0AE;
             --moneybot-green-dark: #00C853;
             --moneybot-gold: #FBBF24;
-            --moneybot-purple: #8B5CF6;
+            --moneybot-red: #FF5252;
             --moneybot-dark: #1A1A2E;
             --moneybot-gray: #F5F5F7;
             --moneybot-text: #1A1A2E;
-            --moneybot-text-secondary: #6B7280;
             --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
             --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
             --shadow-lg: 0 12px 40px rgba(0,0,0,0.12);
@@ -34,7 +33,7 @@
         }
         
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
             background: var(--moneybot-gray);
             min-height: 100vh;
             color: var(--moneybot-text);
@@ -42,7 +41,6 @@
             -webkit-font-smoothing: antialiased;
         }
         
-        /* Animated Background */
         .bg-gradient {
             position: fixed;
             top: 0;
@@ -57,7 +55,6 @@
             z-index: 0;
         }
         
-        /* App Container */
         .app {
             position: relative;
             z-index: 1;
@@ -65,12 +62,8 @@
             margin: 0 auto;
             min-height: 100vh;
             background: var(--moneybot-gray);
-            display: flex;
-            flex-direction: column;
-            padding-bottom: 20px;
         }
         
-        /* Header */
         .header {
             background: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(20px) saturate(180%);
@@ -111,8 +104,16 @@
             transform: translateX(-2px);
         }
         
-        .back-btn:active {
-            transform: scale(0.92);
+        .back-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+        
+        .header-logo img {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            object-fit: cover;
         }
         
         .header-title {
@@ -121,90 +122,50 @@
             letter-spacing: -0.3px;
         }
         
-        .header-actions {
-            display: flex;
-            gap: 8px;
+        .balance-card {
+            background: linear-gradient(135deg, var(--moneybot-green) 0%, var(--moneybot-green-dark) 100%);
+            margin: 20px;
+            padding: 24px;
+            border-radius: 24px;
+            color: white;
+            box-shadow: 0 20px 40px rgba(0, 230, 118, 0.3);
         }
         
-        .icon-btn {
-            width: 36px;
-            height: 36px;
-            border-radius: 10px;
-            border: none;
-            background: rgba(0, 230, 118, 0.1);
-            color: var(--moneybot-green);
-            font-size: 18px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.2s var(--ease-out-expo);
-        }
-        
-        .icon-btn:active {
-            transform: scale(0.92);
-            background: rgba(0, 230, 118, 0.2);
-        }
-        
-        /* Stats Card */
-        .stats-card {
-            background: white;
-            margin: 16px 20px;
-            padding: 20px;
-            border-radius: 20px;
-            display: flex;
-            justify-content: space-around;
-            box-shadow: var(--shadow-md);
-            gap: 16px;
-        }
-        
-        .stat-item {
-            text-align: center;
-            flex: 1;
-        }
-        
-        .stat-value {
-            font-weight: 800;
-            font-size: 28px;
-            color: var(--moneybot-green);
-            margin-bottom: 4px;
-            transition: all 0.3s var(--ease-spring);
-        }
-        
-        .stat-value.pulse {
-            transform: scale(1.2);
-        }
-        
-        .stat-label {
-            font-size: 12px;
-            color: var(--moneybot-text-secondary);
+        .balance-label {
+            font-size: 13px;
+            opacity: 0.9;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            font-weight: 600;
+            margin-bottom: 8px;
         }
         
-        /* Game Container */
+        .balance-amount {
+            font-size: 36px;
+            font-weight: 800;
+            letter-spacing: -1px;
+        }
+        
         .game-container {
-            background: linear-gradient(180deg, #1A1A2E 0%, #0F172A 100%);
             margin: 0 20px 20px;
+            background: white;
             border-radius: 24px;
-            overflow: hidden;
-            box-shadow: var(--shadow-lg);
-            position: relative;
+            padding: 20px;
+            box-shadow: var(--shadow-md);
         }
         
-        #game-canvas {
-            display: block;
+        #gameCanvas {
             width: 100%;
+            height: 400px;
+            border-radius: 16px;
+            background: linear-gradient(180deg, #1A1A2E 0%, #0F172A 100%);
         }
         
-        /* Multiplier Legend */
-        .legend {
+        .multiplier-legend {
             display: flex;
-            justify-content: center;
-            gap: 12px;
-            margin: 0 20px 20px;
+            gap: 8px;
+            margin-top: 16px;
             flex-wrap: wrap;
+            justify-content: center;
         }
         
         .legend-item {
@@ -213,200 +174,77 @@
             gap: 6px;
             font-size: 12px;
             color: var(--moneybot-text-secondary);
-            background: white;
-            padding: 8px 12px;
+            background: rgba(0,0,0,0.05);
+            padding: 6px 12px;
             border-radius: 20px;
-            box-shadow: var(--shadow-sm);
         }
         
         .legend-color {
-            width: 14px;
-            height: 14px;
-            border-radius: 4px;
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
         }
         
-        /* Controls */
         .controls {
-            padding: 0 20px;
-            display: flex;
-            gap: 12px;
+            margin: 0 20px 20px;
         }
         
         .drop-btn {
-            flex: 1;
-            background: linear-gradient(135deg, var(--moneybot-green) 0%, var(--moneybot-green-dark) 100%);
+            width: 100%;
+            background: linear-gradient(135deg, var(--moneybot-green), var(--moneybot-green-dark));
             color: white;
             border: none;
-            padding: 18px 32px;
-            font-size: 18px;
-            font-weight: 700;
+            padding: 18px;
             border-radius: 16px;
+            font-weight: 700;
+            font-size: 18px;
             cursor: pointer;
-            box-shadow: 
-                0 8px 24px rgba(0, 230, 118, 0.4),
-                inset 0 1px 0 rgba(255,255,255,0.2);
-            transition: all 0.2s var(--ease-spring);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            transition: all 0.2s var(--ease-out-expo);
+            box-shadow: 0 8px 20px rgba(0, 230, 118, 0.3);
         }
         
         .drop-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 
-                0 12px 32px rgba(0, 230, 118, 0.5),
-                inset 0 1px 0 rgba(255,255,255,0.2);
+            box-shadow: 0 12px 30px rgba(0, 230, 118, 0.4);
         }
         
         .drop-btn:active {
-            transform: scale(0.96);
+            transform: scale(0.98);
         }
         
         .drop-btn:disabled {
             background: #CBD5E1;
             cursor: not-allowed;
-            box-shadow: none;
             transform: none;
+            box-shadow: none;
         }
         
-        .new-game-btn {
-            background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
-            color: white;
-            border: none;
-            padding: 18px 24px;
-            font-size: 16px;
-            font-weight: 700;
-            border-radius: 16px;
-            cursor: pointer;
-            box-shadow: 0 8px 24px rgba(59, 130, 246, 0.4);
-            transition: all 0.2s var(--ease-spring);
+        .stats-row {
+            display: flex;
+            gap: 12px;
+            margin: 0 20px 20px;
         }
         
-        .new-game-btn:active {
-            transform: scale(0.96);
-        }
-        
-        /* Result Popup */
-        .result-popup {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+        .stat-card {
+            flex: 1;
             background: white;
-            padding: 24px 32px;
-            border-radius: 20px;
-            box-shadow: var(--shadow-lg);
+            border-radius: 16px;
+            padding: 16px;
             text-align: center;
-            opacity: 0;
-            pointer-events: none;
-            z-index: 50;
+            box-shadow: var(--shadow-sm);
         }
         
-        .result-popup.show {
-            animation: resultPop 1.5s ease forwards;
-        }
-        
-        @keyframes resultPop {
-            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
-            20% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
-            80% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-            100% { opacity: 0; transform: translate(-50%, -40%) scale(0.9); }
-        }
-        
-        .result-multiplier {
-            font-size: 36px;
-            font-weight: 800;
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
             color: var(--moneybot-green);
             margin-bottom: 4px;
         }
         
-        .result-amount {
-            font-size: 18px;
-            font-weight: 600;
-            color: var(--moneybot-text);
-        }
-        
-        /* Game Over Modal */
-        .modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.8);
-            backdrop-filter: blur(10px);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            padding: 20px;
-        }
-        
-        .modal.show {
-            display: flex;
-            animation: fadeIn 0.3s ease;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        
-        .modal-content {
-            background: white;
-            border-radius: 24px;
-            padding: 32px;
-            text-align: center;
-            max-width: 320px;
-            width: 100%;
-            box-shadow: var(--shadow-lg);
-            animation: slideUp 0.4s var(--ease-spring);
-        }
-        
-        @keyframes slideUp {
-            from { transform: translateY(50px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-        
-        .modal-icon {
-            font-size: 64px;
-            margin-bottom: 16px;
-        }
-        
-        .modal-title {
-            font-size: 24px;
-            font-weight: 800;
-            margin-bottom: 8px;
-            color: var(--moneybot-text);
-        }
-        
-        .modal-subtitle {
-            font-size: 15px;
+        .stat-label {
+            font-size: 12px;
             color: var(--moneybot-text-secondary);
-            margin-bottom: 24px;
-        }
-        
-        .modal-balance {
-            font-size: 42px;
-            font-weight: 800;
-            color: var(--moneybot-green);
-            margin-bottom: 24px;
-        }
-        
-        .modal-btn {
-            width: 100%;
-            background: var(--moneybot-green);
-            color: white;
-            border: none;
-            padding: 16px;
-            font-size: 16px;
-            font-weight: 700;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.2s var(--ease-out-expo);
-        }
-        
-        .modal-btn:active {
-            transform: scale(0.96);
+            text-transform: uppercase;
         }
     </style>
 </head>
@@ -417,83 +255,70 @@
         <header class="header">
             <div class="header-logo">
                 <a href="../moneybot-official/" class="back-btn">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M19 12H5M12 19l-7-7 7-7"/>
                     </svg>
                 </a>
                 <span class="header-title">Diversification Drop</span>
             </div>
-            <div class="header-actions">
-                <button class="icon-btn" onclick="newGame()">🔄</button>
-            </div>
         </header>
         
-        <div class="stats-card">
-            <div class="stat-item">
-                <div class="stat-value" id="balance">$1000</div>
-                <div class="stat-label">Balance</div>
-            </div>
-            <div class="stat-item">
+        <div class="balance-card">
+            <div class="balance-label">Portfolio Value</div>
+            <div class="balance-amount" id="balance">$1,000</div>
+        </div>
+        
+        <div class="stats-row">
+            <div class="stat-card">
                 <div class="stat-value" id="drops">5</div>
                 <div class="stat-label">Drops Left</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="multiplier">0x</div>
+                <div class="stat-label">Last Multiplier</div>
             </div>
         </div>
         
         <div class="game-container">
-            <canvas id="game-canvas" width="350" height="500"></canvas>
-            <div class="result-popup" id="resultPopup">
-                <div class="result-multiplier" id="resultMultiplier">2x</div>
-                <div class="result-amount" id="resultAmount">+$200</div>
-            </div>
-        </div>
-        
-        <div class="legend">
-            <div class="legend-item">
-                <div class="legend-color" style="background: #EF4444;"></div>
-                <span>0.5x</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color" style="background: #F59E0B;"></div>
-                <span>1x</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color" style="background: #00E676;"></div>
-                <span>2x</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color" style="background: #8B5CF6;"></div>
-                <span>5x</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color" style="background: #FBBF24;"></div>
-                <span>10x</span>
+            <canvas id="gameCanvas" width="350" height="400"></canvas>
+            
+            <div class="multiplier-legend">
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #EF4444;"></div>
+                    <span>0.5x Safe</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #F59E0B;"></div>
+                    <span>1x Balanced</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #22C55E;"></div>
+                    <span>2x Growth</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #8B5CF6;"></div>
+                    <span>5x Aggressive</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #FBBF24;"></div>
+                    <span>10x Moonshot</span>
+                </div>
             </div>
         </div>
         
         <div class="controls">
-            <button class="drop-btn" id="dropBtn" onclick="dropCoin()">Drop Coin</button>
-            <button class="new-game-btn" onclick="newGame()">New Game</button>
-        </div>
-    </div>
-    
-    <div class="modal" id="gameOverModal">
-        <div class="modal-content">
-            <div class="modal-icon">🎲</div>
-            <div class="modal-title">Game Complete!</div>
-            <div class="modal-subtitle">Your portfolio diversification results</div>
-            <div class="modal-balance" id="modalBalance">$0</div>
-            <button class="modal-btn" onclick="closeModal()">Play Again</button>
+            <button class="drop-btn" id="dropBtn" onclick="dropCoin()">DROP COIN ($100)</button>
         </div>
     </div>
     
     <script>
-        const canvas = document.getElementById('game-canvas');
+        const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         
-        const PEG_RADIUS = 5;
+        const PEG_RADIUS = 6;
         const COIN_RADIUS = 12;
         const MULTIPLIERS = [0.5, 0.5, 1, 1, 2, 2, 5, 10];
-        const MULTIPLIER_COLORS = ['#EF4444', '#EF4444', '#F59E0B', '#F59E0B', '#00E676', '#00E676', '#8B5CF6', '#FBBF24'];
+        const MULTIPLIER_COLORS = ['#EF4444', '#EF4444', '#F59E0B', '#F59E0B', '#22C55E', '#22C55E', '#8B5CF6', '#FBBF24'];
         
         let balance = 1000;
         let dropsLeft = 5;
@@ -503,28 +328,24 @@
         
         function initPegs() {
             pegs = [];
-            for (let row = 3; row < 13; row++) {
+            for (let row = 3; row < 15; row++) {
                 for (let col = 0; col < 9; col++) {
-                    const x = 35 + col * 40 + (row % 2) * 20;
-                    const y = 40 + row * 32;
-                    if (x > 25 && x < 325) pegs.push({ x, y });
+                    const x = 40 + col * 35 + (row % 2) * 17;
+                    const y = 40 + row * 25;
+                    if (x > 20 && x < 330) pegs.push({ x, y });
                 }
             }
         }
         
         function draw() {
-            // Background
-            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-            gradient.addColorStop(0, '#1A1A2E');
-            gradient.addColorStop(1, '#0F172A');
-            ctx.fillStyle = gradient;
+            ctx.fillStyle = '#0F172A';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
             // Draw pegs with glow
             pegs.forEach(peg => {
                 ctx.shadowColor = 'rgba(0, 230, 118, 0.5)';
-                ctx.shadowBlur = 8;
-                ctx.fillStyle = '#00E676';
+                ctx.shadowBlur = 10;
+                ctx.fillStyle = '#64748B';
                 ctx.beginPath();
                 ctx.arc(peg.x, peg.y, PEG_RADIUS, 0, Math.PI * 2);
                 ctx.fill();
@@ -534,49 +355,28 @@
             // Draw multiplier slots
             const slotWidth = canvas.width / MULTIPLIERS.length;
             MULTIPLIERS.forEach((mult, i) => {
-                const x = i * slotWidth;
-                const y = canvas.height - 50;
-                
-                // Slot background
                 ctx.fillStyle = MULTIPLIER_COLORS[i];
-                ctx.fillRect(x, y, slotWidth, 50);
+                ctx.fillRect(i * slotWidth, canvas.height - 50, slotWidth, 50);
                 
-                // Slot highlight
-                ctx.fillStyle = 'rgba(255,255,255,0.2)';
-                ctx.fillRect(x, y, slotWidth, 3);
-                
-                // Multiplier text
                 ctx.fillStyle = 'white';
-                ctx.font = 'bold 14px -apple-system, sans-serif';
+                ctx.font = 'bold 12px Inter';
                 ctx.textAlign = 'center';
-                ctx.fillText(mult + 'x', x + slotWidth/2, y + 30);
+                ctx.fillText(mult + 'x', i * slotWidth + slotWidth/2, canvas.height - 20);
             });
             
-            // Draw coin
+            // Draw coin with glow
             if (coin) {
-                // Coin glow
                 ctx.shadowColor = '#FBBF24';
                 ctx.shadowBlur = 20;
-                
-                // Coin body
                 ctx.fillStyle = '#FBBF24';
                 ctx.beginPath();
                 ctx.arc(coin.x, coin.y, COIN_RADIUS, 0, Math.PI * 2);
                 ctx.fill();
                 
-                ctx.shadowBlur = 0;
-                
-                // Inner shine
-                ctx.fillStyle = '#FDE68A';
-                ctx.beginPath();
-                ctx.arc(coin.x - 3, coin.y - 3, 6, 0, Math.PI * 2);
-                ctx.fill();
-                
-                // $ symbol
                 ctx.fillStyle = '#92400E';
-                ctx.font = 'bold 12px -apple-system, sans-serif';
-                ctx.textAlign = 'center';
-                ctx.fillText('$', coin.x, coin.y + 4);
+                ctx.font = 'bold 10px Inter';
+                ctx.fillText('$', coin.x, coin.y + 3);
+                ctx.shadowBlur = 0;
             }
         }
         
@@ -586,28 +386,21 @@
             animating = true;
             balance -= 100;
             dropsLeft--;
-            updateDisplay();
-            if (navigator.vibrate) navigator.vibrate(20);
+            updateUI();
             
             coin = { 
-                x: canvas.width/2 + (Math.random() - 0.5) * 60, 
+                x: canvas.width / 2 + (Math.random() - 0.5) * 60, 
                 y: 20, 
                 vx: 0, 
-                vy: 0,
-                trail: []
+                vy: 2 
             };
             
             function animate() {
                 if (!coin) return;
                 
-                // Physics
-                coin.vy += 0.4;
+                coin.vy += 0.3;
                 coin.x += coin.vx;
                 coin.y += coin.vy;
-                
-                // Trail effect
-                coin.trail.push({ x: coin.x, y: coin.y });
-                if (coin.trail.length > 8) coin.trail.shift();
                 
                 // Bounce off pegs
                 pegs.forEach(peg => {
@@ -618,32 +411,20 @@
                         const angle = Math.atan2(dy, dx);
                         coin.vx = Math.cos(angle) * 3;
                         coin.vy = Math.abs(Math.sin(angle)) * 2;
+                        
                         if (navigator.vibrate) navigator.vibrate(5);
                     }
                 });
                 
                 // Wall bounce
-                if (coin.x < COIN_RADIUS) {
-                    coin.vx = Math.abs(coin.vx) * 0.8;
-                    coin.x = COIN_RADIUS;
-                } else if (coin.x > canvas.width - COIN_RADIUS) {
-                    coin.vx = -Math.abs(coin.vx) * 0.8;
-                    coin.x = canvas.width - COIN_RADIUS;
+                if (coin.x < COIN_RADIUS || coin.x > canvas.width - COIN_RADIUS) {
+                    coin.vx *= -0.8;
+                    coin.x = Math.max(COIN_RADIUS, Math.min(canvas.width - COIN_RADIUS, coin.x));
                 }
                 
                 draw();
                 
-                // Draw trail
-                coin.trail.forEach((pos, i) => {
-                    ctx.globalAlpha = i / coin.trail.length * 0.5;
-                    ctx.fillStyle = '#FBBF24';
-                    ctx.beginPath();
-                    ctx.arc(pos.x, pos.y, COIN_RADIUS * (i/coin.trail.length), 0, Math.PI * 2);
-                    ctx.fill();
-                });
-                ctx.globalAlpha = 1;
-                
-                if (coin.y < canvas.height - 60) {
+                if (coin.y < canvas.height - 50) {
                     requestAnimationFrame(animate);
                 } else {
                     // Landed
@@ -652,72 +433,44 @@
                     const win = Math.floor(100 * multiplier);
                     balance += win;
                     
-                    // Show result popup
-                    const popup = document.getElementById('resultPopup');
-                    document.getElementById('resultMultiplier').textContent = multiplier + 'x';
-                    document.getElementById('resultAmount').textContent = '+$' + win;
-                    popup.classList.add('show');
-                    
-                    if (navigator.vibrate) navigator.vibrate([30, 50, 30]);
+                    document.getElementById('multiplier').textContent = multiplier + 'x';
                     
                     setTimeout(() => {
-                        popup.classList.remove('show');
                         coin = null;
                         animating = false;
-                        updateDisplay();
-                        if (dropsLeft === 0) endGame();
-                    }, 1200);
+                        updateUI();
+                        
+                        if (dropsLeft === 0) {
+                            setTimeout(() => {
+                                alert(`Game Over! Final Balance: $${balance}`);
+                                resetGame();
+                            }, 500);
+                        }
+                    }, 100);
                 }
             }
             
             animate();
         }
         
-        function updateDisplay() {
-            const balanceEl = document.getElementById('balance');
-            const dropsEl = document.getElementById('drops');
-            
-            balanceEl.textContent = '$' + balance.toLocaleString();
-            dropsEl.textContent = dropsLeft;
-            
-            document.getElementById('dropBtn').disabled = dropsLeft <= 0 || balance < 100;
-            
-            if (balance > parseInt(balanceEl.dataset.value || 0)) {
-                balanceEl.classList.add('pulse');
-                setTimeout(() => balanceEl.classList.remove('pulse'), 300);
-            }
-            balanceEl.dataset.value = balance;
-        }
-        
-        function endGame() {
-            document.getElementById('modalBalance').textContent = '$' + balance.toLocaleString();
-            document.getElementById('gameOverModal').classList.add('show');
-        }
-        
-        function closeModal() {
-            document.getElementById('gameOverModal').classList.remove('show');
-            newGame();
-        }
-        
-        function newGame() {
+        function resetGame() {
             balance = 1000;
             dropsLeft = 5;
             coin = null;
             animating = false;
-            updateDisplay();
-            draw();
+            updateUI();
         }
         
-        // Touch to drop
-        canvas.addEventListener('click', dropCoin);
-        canvas.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            dropCoin();
-        });
+        function updateUI() {
+            document.getElementById('balance').textContent = '$' + balance.toLocaleString();
+            document.getElementById('drops').textContent = dropsLeft;
+            document.getElementById('dropBtn').disabled = dropsLeft <= 0 || balance < 100;
+            document.getElementById('dropBtn').textContent = dropsLeft <= 0 ? 'GAME OVER' : `DROP COIN ($100)`;
+        }
         
         initPegs();
         draw();
-        updateDisplay();
+        updateUI();
     </script>
 </body>
 </html>
