@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Money Invaders | MoneyBot Gaming</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: none;
+            user-select: none;
+        }
+        
+        :root {
+            --moneybot-green: #00E676;
+            --moneybot-green-light: #69F0AE;
+            --moneybot-green-dark: #00C853;
+            --moneybot-gold: #FBBF24;
+            --moneybot-dark: #0F172A;
+            --moneybot-gray: #F5F5F7;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+            background: var(--moneybot-dark);
+            min-height: 100vh;
+            overflow: hidden;
+        }
+        
+        .app {
+            max-width: 430px;
+            margin: 0 auto;
+            min-height: 100vh;
+            position: relative;
+        }
+        
+        .header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            background: linear-gradient(to bottom, rgba(15, 23, 42, 0.95) 0%, transparent 100%);
+        }
+        
+        .back-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 22px;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        
+        .back-btn:active {
+            transform: scale(0.95);
+            background: rgba(255,255,255,0.25);
+        }
+        
+        .score-container {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+        
+        .score-label {
+            font-size: 11px;
+            color: rgba(255,255,255,0.6);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .score-display {
+            font-size: 28px;
+            font-weight: 800;
+            color: white;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        
+        #gameCanvas {
+            display: block;
+            width: 100%;
+            height: 100vh;
+        }
+        
+        .start-screen, .game-over-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(180deg, rgba(15, 23, 42, 0.98) 0%, rgba(0, 0, 0, 0.95) 100%);
+            backdrop-filter: blur(20px);
+            z-index: 200;
+        }
+        
+        .game-over-screen {
+            display: none;
+        }
+        
+        .logo {
+            font-size: 80px;
+            margin-bottom: 15px;
+            filter: drop-shadow(0 10px 30px rgba(0, 230, 118, 0.4));
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .title {
+            font-size: 36px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #fff 0%, var(--moneybot-green) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+            letter-spacing: -1px;
+        }
+        
+        .subtitle {
+            color: rgba(255,255,255,0.7);
+            font-size: 17px;
+            margin-bottom: 40px;
+            text-align: center;
+            padding: 0 40px;
+            line-height: 1.5;
+        }
+        
+        .high-score {
+            background: rgba(255,255,255,0.1);
+            padding: 16px 32px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .high-score-label {
+            font-size: 12px;
+            color: rgba(255,255,255,0.5);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+        
+        .high-score-value {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--moneybot-gold);
+        }
+        
+        .start-btn {
+            background: linear-gradient(135deg, var(--moneybot-green), var(--moneybot-green-dark));
+            color: white;
+            border: none;
+            padding: 22px 70px;
+            font-size: 22px;
+            font-weight: 800;
+            border-radius: 35px;
+            cursor: pointer;
+            box-shadow: 0 15px 40px rgba(0, 230, 118, 0.5);
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .start-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 20px 50px rgba(0, 230, 118, 0.6);
+        }
+        
+        .start-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .instructions {
+            margin-top: 40px;
+            display: flex;
+            gap: 30px;
+        }
+        
+        .instruction-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            color: rgba(255,255,255,0.5);
+            font-size: 13px;
+        }
+        
+        .instruction-icon {
+            font-size: 28px;
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <div class="header">
+            <a href="../moneybot-official/" class="back-btn">←</a>
+            <div class="score-container">
+                <div class="score-label">Score</div>
+                <div class="score-display"><span id="score">0</span></div>
+            </div>
+        </div>
+        
+        <canvas id="gameCanvas"></canvas>
+        
+        <div class="start-screen" id="startScreen">
+            <div class="logo">👾</div>
+            <div class="title">Money Invaders</div>
+            <div class="subtitle">Defend your wealth!<br>Shoot down debt aliens</div>
+            
+            <div class="high-score">
+                <div class="high-score-label">High Score</div>
+                <div class="high-score-value" id="highScore">0</div>
+            </div>
+            
+            <button class="start-btn" onclick="startGame()">Play Now</button>
+            
+            <div class="instructions">
+                <div class="instruction-item">
+                    <span class="instruction-icon">👈👉</span>
+                    <span>Move</span>
+                </div>
+                <div class="instruction-item">
+                    <span class="instruction-icon">🔫</span>
+                    <span>Shoot</span>
+                </div>
+                <div class="instruction-item">
+                    <span class="instruction-icon">💀</span>
+                    <span>Avoid</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="game-over-screen" id="gameOverScreen">
+            <div class="logo" style="font-size: 60px; margin-bottom: 10px;">💥</div>
+            <div class="title" style="font-size: 32px;">Game Over!</div>
+            <div class="subtitle">Final Score: <span id="finalScore">0</span></div>
+            <button class="start-btn" onclick="restartGame()">Play Again</button>
+        </div>
+    </div>
+    
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth > 430 ? 430 : window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        let gameRunning = false;
+        let score = 0;
+        let highScore = localStorage.getItem('moneyInvadersHighScore') || 0;
+        let player = { x: canvas.width / 2, y: canvas.height - 100, width: 50, height: 40 };
+        let bullets = [];
+        let enemies = [];
+        let particles = [];
+        let enemyDirection = 1;
+        let enemySpeed = 0.5;
+        let enemyDrop = 20;
+        
+        document.getElementById('highScore').textContent = highScore;
+        
+        function startGame() {
+            document.getElementById('startScreen').style.display = 'none';
+            gameRunning = true;
+            score = 0;
+            player.x = canvas.width / 2;
+            bullets = [];
+            enemies = [];
+            particles = [];
+            enemySpeed = 0.5;
+            
+            // Create enemy grid
+            for (let row = 0; row < 4; row++) {
+                for (let col = 0; col < 8; col++) {
+                    enemies.push({
+                        x: 40 + col * 45,
+                        y: 80 + row * 45,
+                        width: 35,
+                        height: 30,
+                        type: row,
+                        emoji: ['💸', '💳', '📉', '💀'][row]
+                    });
+                }
+            }
+            
+            gameLoop();
+        }
+        
+        function restartGame() {
+            document.getElementById('gameOverScreen').style.display = 'none';
+            startGame();
+        }
+        
+        function gameOver() {
+            gameRunning = false;
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem('moneyInvadersHighScore', highScore);
+            }
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('gameOverScreen').style.display = 'flex';
+        }
+        
+        function update() {
+            // Move bullets
+            bullets = bullets.filter(bullet => {
+                bullet.y -= 8;
+                return bullet.y > 0;
+            });
+            
+            // Move enemies
+            let hitEdge = false;
+            enemies.forEach(enemy => {
+                enemy.x += enemySpeed * enemyDirection;
+                if (enemy.x <= 20 || enemy.x >= canvas.width - 20) {
+                    hitEdge = true;
+                }
+            });
+            
+            if (hitEdge) {
+                enemyDirection *= -1;
+                enemies.forEach(enemy => {
+                    enemy.y += enemyDrop;
+                });
+            }
+            
+            // Check bullet-enemy collisions
+            bullets.forEach((bullet, bIdx) => {
+                enemies.forEach((enemy, eIdx) => {
+                    if (bullet.x > enemy.x - enemy.width/2 && 
+                        bullet.x < enemy.x + enemy.width/2 &&
+                        bullet.y > enemy.y - enemy.height/2 && 
+                        bullet.y < enemy.y + enemy.height/2) {
+                        
+                        // Create particles
+                        for (let i = 0; i < 8; i++) {
+                            particles.push({
+                                x: enemy.x,
+                                y: enemy.y,
+                                vx: (Math.random() - 0.5) * 8,
+                                vy: (Math.random() - 0.5) * 8,
+                                life: 1,
+                                color: '#00E676'
+                            });
+                        }
+                        
+                        enemies.splice(eIdx, 1);
+                        bullets.splice(bIdx, 1);
+                        score += 10;
+                        enemySpeed += 0.02;
+                        
+                        if (navigator.vibrate) navigator.vibrate(10);
+                    }
+                });
+            });
+            
+            // Check game over
+            enemies.forEach(enemy => {
+                if (enemy.y > player.y - 30) {
+                    gameOver();
+                }
+            });
+            
+            // Update particles
+            particles = particles.filter(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.life -= 0.05;
+                return p.life > 0;
+            });
+            
+            // Win wave
+            if (enemies.length === 0) {
+                score += 100;
+                // New wave
+                for (let row = 0; row < 4; row++) {
+                    for (let col = 0; col < 8; col++) {
+                        enemies.push({
+                            x: 40 + col * 45,
+                            y: 80 + row * 45,
+                            width: 35,
+                            height: 30,
+                            type: row,
+                            emoji: ['💸', '💳', '📉', '💀'][row]
+                        });
+                    }
+                }
+                enemySpeed += 0.3;
+            }
+            
+            document.getElementById('score').textContent = score;
+        }
+        
+        function draw() {
+            // Clear
+            ctx.fillStyle = '#0F172A';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw stars
+            ctx.fillStyle = 'white';
+            for (let i = 0; i < 50; i++) {
+                const x = (i * 73 + Date.now() * 0.01) % canvas.width;
+                const y = (i * 37) % (canvas.height / 2);
+                ctx.fillRect(x, y, 2, 2);
+            }
+            
+            // Draw player
+            ctx.font = '40px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('🤖', player.x, player.y);
+            
+            // Draw bullets
+            ctx.fillStyle = '#00E676';
+            bullets.forEach(bullet => {
+                ctx.fillRect(bullet.x - 3, bullet.y - 8, 6, 16);
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = '#00E676';
+                ctx.fillRect(bullet.x - 3, bullet.y - 8, 6, 16);
+                ctx.shadowBlur = 0;
+            });
+            
+            // Draw enemies
+            enemies.forEach(enemy => {
+                ctx.font = '30px Arial';
+                ctx.fillText(enemy.emoji, enemy.x, enemy.y);
+            });
+            
+            // Draw particles
+            particles.forEach(p => {
+                ctx.save();
+                ctx.globalAlpha = p.life;
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            });
+        }
+        
+        function gameLoop() {
+            if (!gameRunning) return;
+            
+            update();
+            draw();
+            
+            requestAnimationFrame(gameLoop);
+        }
+        
+        // Controls
+        let touchStartX = 0;
+        let playerStartX = 0;
+        
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+            playerStartX = player.x;
+        });
+        
+        document.addEventListener('touchmove', (e) => {
+            if (!gameRunning) return;
+            const touchX = e.touches[0].clientX;
+            const diff = touchX - touchStartX;
+            player.x = Math.max(30, Math.min(canvas.width - 30, playerStartX + diff));
+        });
+        
+        document.addEventListener('touchend', (e) => {
+            if (!gameRunning) return;
+            bullets.push({ x: player.x, y: player.y - 30 });
+            if (navigator.vibrate) navigator.vibrate(5);
+        });
+        
+        document.addEventListener('keydown', (e) => {
+            if (!gameRunning) return;
+            if (e.key === 'ArrowLeft') player.x = Math.max(30, player.x - 20);
+            if (e.key === 'ArrowRight') player.x = Math.min(canvas.width - 30, player.x + 20);
+            if (e.key === ' ') {
+                bullets.push({ x: player.x, y: player.y - 30 });
+                if (navigator.vibrate) navigator.vibrate(5);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Budget Breakout | MoneyBot Gaming</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: none;
+            user-select: none;
+        }
+        
+        :root {
+            --moneybot-green: #00E676;
+            --moneybot-green-light: #69F0AE;
+            --moneybot-green-dark: #00C853;
+            --moneybot-gold: #FBBF24;
+            --moneybot-dark: #0F172A;
+            --moneybot-gray: #F5F5F7;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+            background: var(--moneybot-dark);
+            min-height: 100vh;
+            overflow: hidden;
+        }
+        
+        .app {
+            max-width: 430px;
+            margin: 0 auto;
+            min-height: 100vh;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            background: rgba(15, 23, 42, 0.95);
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+        }
+        
+        .back-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 22px;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        
+        .back-btn:active {
+            transform: scale(0.95);
+            background: rgba(255,255,255,0.25);
+        }
+        
+        .score-container {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+        
+        .score-label {
+            font-size: 11px;
+            color: rgba(255,255,255,0.6);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .score-display {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--moneybot-green);
+        }
+        
+        .game-area {
+            flex: 1;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+        }
+        
+        #gameCanvas {
+            background: linear-gradient(180deg, #1a1a2e 0%, #0f172a 100%);
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+        }
+        
+        .start-screen, .game-over-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(180deg, rgba(15, 23, 42, 0.98) 0%, rgba(0, 0, 0, 0.95) 100%);
+            backdrop-filter: blur(20px);
+            z-index: 200;
+        }
+        
+        .game-over-screen {
+            display: none;
+        }
+        
+        .logo {
+            font-size: 80px;
+            margin-bottom: 15px;
+            animation: bounce 1s ease-in-out infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+        
+        .title {
+            font-size: 36px;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--moneybot-green) 0%, var(--moneybot-green-light) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: rgba(255,255,255,0.7);
+            font-size: 17px;
+            margin-bottom: 40px;
+            text-align: center;
+            padding: 0 40px;
+        }
+        
+        .high-score {
+            background: rgba(255,255,255,0.1);
+            padding: 16px 32px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .high-score-label {
+            font-size: 12px;
+            color: rgba(255,255,255,0.5);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .high-score-value {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--moneybot-gold);
+        }
+        
+        .start-btn {
+            background: linear-gradient(135deg, var(--moneybot-green), var(--moneybot-green-dark));
+            color: white;
+            border: none;
+            padding: 22px 70px;
+            font-size: 22px;
+            font-weight: 800;
+            border-radius: 35px;
+            cursor: pointer;
+            box-shadow: 0 15px 40px rgba(0, 230, 118, 0.5);
+            transition: all 0.3s;
+        }
+        
+        .start-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .lives {
+            display: flex;
+            gap: 5px;
+            margin-top: 5px;
+        }
+        
+        .life {
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <div class="header">
+            <a href="../moneybot-official/" class="back-btn">←</a>
+            <div class="score-container">
+                <div class="score-label">Budget Saved</div>
+                <div class="score-display">$<span id="score">0</span></div>
+                <div class="lives" id="lives">
+                    <span class="life">❤️</span>
+                    <span class="life">❤️</span>
+                    <span class="life">❤️</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="game-area">
+            <canvas id="gameCanvas" width="400" height="500"></canvas>
+        </div>
+    </div>
+    
+    <div class="start-screen" id="startScreen">
+        <div class="logo">🧱</div>
+        <div class="title">Budget Breakout</div>
+        <div class="subtitle">Break expense blocks!<br>Save your budget</div>
+        
+        <div class="high-score">
+            <div class="high-score-label">Best Budget</div>
+            <div class="high-score-value" id="highScore">$0</div>
+        </div>
+        
+        <button class="start-btn" onclick="startGame()">Break Out</button>
+    </div>
+    
+    <div class="game-over-screen" id="gameOverScreen">
+        <div class="logo">💸</div>
+        <div class="title" style="font-size: 32px;">Budget Busted!</div>
+        <div class="subtitle">You saved $<span id="finalScore">0</span></div>
+        <button class="start-btn" onclick="restartGame()">Try Again</button>
+    </div>
+    
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        let gameRunning = false;
+        let score = 0;
+        let highScore = localStorage.getItem('budgetBreakoutHighScore') || 0;
+        let lives = 3;
+        let paddle = { x: 150, y: 460, width: 100, height: 15 };
+        let ball = { x: 200, y: 300, dx: 4, dy: -4, radius: 8 };
+        let bricks = [];
+        let particles = [];
+        let gameLoop;
+        
+        document.getElementById('highScore').textContent = '$' + highScore;
+        
+        const expenseTypes = [
+            { emoji: '🍔', color: '#EF4444', value: 10 },
+            { emoji: '🛍️', color: '#F59E0B', value: 15 },
+            { emoji: '🎮', color: '#8B5CF6', value: 20 },
+            { emoji: '☕', color: '#10B981', value: 5 },
+            { emoji: '🚗', color: '#3B82F6', value: 25 }
+        ];
+        
+        function initBricks() {
+            bricks = [];
+            const rows = 5;
+            const cols = 8;
+            const brickWidth = 42;
+            const brickHeight = 25;
+            const padding = 5;
+            const offsetTop = 60;
+            const offsetLeft = 15;
+            
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    bricks.push({
+                        x: offsetLeft + c * (brickWidth + padding),
+                        y: offsetTop + r * (brickHeight + padding),
+                        width: brickWidth,
+                        height: brickHeight,
+                        type: expenseTypes[r],
+                        active: true
+                    });
+                }
+            }
+        }
+        
+        function startGame() {
+            document.getElementById('startScreen').style.display = 'none';
+            document.getElementById('gameOverScreen').style.display = 'none';
+            gameRunning = true;
+            score = 0;
+            lives = 3;
+            paddle.x = 150;
+            ball.x = 200;
+            ball.y = 300;
+            ball.dx = 4;
+            ball.dy = -4;
+            particles = [];
+            
+            initBricks();
+            updateUI();
+            gameLoop = requestAnimationFrame(update);
+        }
+        
+        function restartGame() {
+            startGame();
+        }
+        
+        function update() {
+            if (!gameRunning) return;
+            
+            // Move ball
+            ball.x += ball.dx;
+            ball.y += ball.dy;
+            
+            // Wall collisions
+            if (ball.x + ball.radius > canvas.width || ball.x - ball.radius < 0) {
+                ball.dx = -ball.dx;
+            }
+            if (ball.y - ball.radius < 0) {
+                ball.dy = -ball.dy;
+            }
+            
+            // Paddle collision
+            if (ball.y + ball.radius > paddle.y &&
+                ball.y - ball.radius < paddle.y + paddle.height &&
+                ball.x > paddle.x &&
+                ball.x < paddle.x + paddle.width) {
+                ball.dy = -ball.dy;
+                ball.dx = (ball.x - (paddle.x + paddle.width / 2)) / 10;
+                if (navigator.vibrate) navigator.vibrate(10);
+            }
+            
+            // Brick collisions
+            bricks.forEach(brick => {
+                if (brick.active &&
+                    ball.x > brick.x &&
+                    ball.x < brick.x + brick.width &&
+                    ball.y > brick.y &&
+                    ball.y < brick.y + brick.height) {
+                    
+                    brick.active = false;
+                    ball.dy = -ball.dy;
+                    score += brick.type.value;
+                    
+                    // Create particles
+                    for (let i = 0; i < 6; i++) {
+                        particles.push({
+                            x: brick.x + brick.width / 2,
+                            y: brick.y + brick.height / 2,
+                            vx: (Math.random() - 0.5) * 6,
+                            vy: (Math.random() - 0.5) * 6,
+                            life: 1,
+                            color: brick.type.color
+                        });
+                    }
+                    
+                    if (navigator.vibrate) navigator.vibrate(15);
+                }
+            });
+            
+            // Ball out
+            if (ball.y > canvas.height) {
+                lives--;
+                if (lives <= 0) {
+                    gameOver();
+                    return;
+                }
+                ball.x = 200;
+                ball.y = 300;
+                ball.dy = -4;
+            }
+            
+            // Win level
+            if (bricks.every(b => !b.active)) {
+                score += 100;
+                initBricks();
+                ball.dx *= 1.1;
+                ball.dy *= 1.1;
+            }
+            
+            // Update particles
+            particles = particles.filter(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.life -= 0.03;
+                return p.life > 0;
+            });
+            
+            updateUI();
+            draw();
+            gameLoop = requestAnimationFrame(update);
+        }
+        
+        function gameOver() {
+            gameRunning = false;
+            cancelAnimationFrame(gameLoop);
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem('budgetBreakoutHighScore', highScore);
+            }
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('gameOverScreen').style.display = 'flex';
+        }
+        
+        function updateUI() {
+            document.getElementById('score').textContent = score;
+            const livesEl = document.getElementById('lives');
+            livesEl.innerHTML = '';
+            for (let i = 0; i < lives; i++) {
+                livesEl.innerHTML += '<span class="life">❤️</span>';
+            }
+        }
+        
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw bricks
+            bricks.forEach(brick => {
+                if (brick.active) {
+                    ctx.fillStyle = brick.type.color;
+                    ctx.fillRect(brick.x, brick.y, brick.width, brick.height);
+                    ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+                    ctx.strokeRect(brick.x, brick.y, brick.width, brick.height);
+                    
+                    ctx.font = '16px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(brick.type.emoji, brick.x + brick.width / 2, brick.y + brick.height / 2);
+                }
+            });
+            
+            // Draw paddle
+            ctx.fillStyle = '#00E676';
+            ctx.fillRect(paddle.x, paddle.y, paddle.width, paddle.height);
+            ctx.fillStyle = '#00C853';
+            ctx.fillRect(paddle.x, paddle.y + paddle.height - 3, paddle.width, 3);
+            
+            // Draw ball
+            ctx.beginPath();
+            ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+            ctx.fillStyle = '#FBBF24';
+            ctx.fill();
+            ctx.closePath();
+            
+            // Ball glow
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = '#FBBF24';
+            ctx.beginPath();
+            ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+            
+            // Draw particles
+            particles.forEach(p => {
+                ctx.save();
+                ctx.globalAlpha = p.life;
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            });
+        }
+        
+        // Controls
+        canvas.addEventListener('touchmove', (e) => {
+            if (!gameRunning) return;
+            const rect = canvas.getBoundingClientRect();
+            const touchX = e.touches[0].clientX - rect.left;
+            paddle.x = Math.max(0, Math.min(canvas.width - paddle.width, touchX - paddle.width / 2));
+        });
+        
+        canvas.addEventListener('mousemove', (e) => {
+            if (!gameRunning) return;
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            paddle.x = Math.max(0, Math.min(canvas.width - paddle.width, mouseX - paddle.width / 2));
+        });
+        
+        document.addEventListener('keydown', (e) => {
+            if (!gameRunning) return;
+            if (e.key === 'ArrowLeft') paddle.x = Math.max(0, paddle.x - 20);
+            if (e.key === 'ArrowRight') paddle.x = Math.min(canvas.width - paddle.width, paddle.x + 20);
+        });
+    </script>
+</body>
+</html>
