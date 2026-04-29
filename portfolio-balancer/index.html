@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Portfolio Balancer | MoneyBot</title>
+    <title>Portfolio Balancer | MoneyBot Gaming</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
         
@@ -33,113 +33,141 @@
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
-            background: linear-gradient(180deg, #1A1A2E 0%, #0F0F1A 100%);
+            background: var(--moneybot-gray);
             min-height: 100vh;
-            overflow: hidden;
+            color: var(--moneybot-text);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        .bg-gradient {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(ellipse at 20% 20%, rgba(0, 230, 118, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(0, 230, 118, 0.05) 0%, transparent 50%),
+                var(--moneybot-gray);
+            pointer-events: none;
+            z-index: 0;
         }
         
         .app {
+            position: relative;
+            z-index: 1;
             max-width: 430px;
             margin: 0 auto;
             min-height: 100vh;
-            position: relative;
-            display: flex;
-            flex-direction: column;
+            background: var(--moneybot-gray);
         }
         
         .header {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
             padding: 16px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            position: sticky;
+            top: 0;
             z-index: 100;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+        
+        .header-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
         
         .back-btn {
             width: 44px;
             height: 44px;
             border-radius: 14px;
-            background: rgba(255,255,255,0.15);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255,255,255,0.1);
-            color: white;
+            border: none;
+            background: rgba(0, 230, 118, 0.1);
+            color: var(--moneybot-green);
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            font-size: 22px;
-            text-decoration: none;
             transition: all 0.2s var(--ease-out-expo);
+            text-decoration: none;
+            font-size: 22px;
         }
         
         .back-btn:active {
             transform: scale(0.95);
-            background: rgba(255,255,255,0.25);
+            background: rgba(0, 230, 118, 0.2);
+        }
+        
+        .header-title {
+            font-weight: 800;
+            font-size: 20px;
+            letter-spacing: -0.3px;
         }
         
         .score-display {
-            background: rgba(0, 230, 118, 0.2);
-            border: 1px solid var(--moneybot-green);
+            background: linear-gradient(135deg, var(--moneybot-green), var(--moneybot-green-dark));
+            color: white;
             padding: 10px 20px;
-            border-radius: 20px;
-            color: var(--moneybot-green);
-            font-weight: 700;
+            border-radius: 25px;
+            font-weight: 800;
             font-size: 18px;
+            box-shadow: 0 4px 15px rgba(0, 230, 118, 0.4);
         }
         
         .game-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            padding: 0 20px 20px;
+            padding: 20px;
         }
         
-        .level-card {
-            background: rgba(255,255,255,0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.1);
+        .level-info {
+            background: white;
             border-radius: 20px;
-            padding: 20px;
-            margin-bottom: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow-md);
             text-align: center;
         }
         
         .level-label {
             font-size: 13px;
-            color: rgba(255,255,255,0.6);
+            color: var(--moneybot-text-secondary);
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            margin-bottom: 4px;
+            margin-bottom: 6px;
         }
         
         .level-number {
-            font-size: 36px;
-            font-weight: 800;
+            font-size: 42px;
+            font-weight: 900;
             color: var(--moneybot-green);
-            margin-bottom: 12px;
+            margin-bottom: 16px;
         }
         
         .progress-bar {
-            height: 8px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 4px;
+            height: 10px;
+            background: #E5E7EB;
+            border-radius: 5px;
             overflow: hidden;
         }
         
         .progress-fill {
             height: 100%;
             background: linear-gradient(90deg, var(--moneybot-green), var(--moneybot-green-light));
-            border-radius: 4px;
+            border-radius: 5px;
             transition: width 0.5s var(--ease-out-expo);
         }
         
         .game-board {
-            background: rgba(255,255,255,0.05);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.1);
+            background: white;
             border-radius: 24px;
             padding: 16px;
-            margin-bottom: 16px;
+            box-shadow: var(--shadow-md);
+            margin-bottom: 20px;
         }
         
         .grid {
@@ -156,27 +184,14 @@
             justify-content: center;
             font-size: 28px;
             cursor: pointer;
-            transition: all 0.2s var(--ease-spring);
+            transition: all 0.15s var(--ease-spring);
             position: relative;
             overflow: hidden;
-            background: rgba(255,255,255,0.1);
-        }
-        
-        .tile::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 50%);
-            opacity: 0;
-            transition: opacity 0.2s;
-        }
-        
-        .tile:hover::before {
-            opacity: 1;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
         
         .tile:active {
-            transform: scale(0.9);
+            transform: scale(0.92);
         }
         
         .tile.selected {
@@ -205,24 +220,24 @@
         .power-ups {
             display: flex;
             gap: 12px;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
         }
         
         .power-up {
             flex: 1;
-            background: rgba(255,255,255,0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.1);
+            background: white;
             border-radius: 16px;
             padding: 16px;
             text-align: center;
+            box-shadow: var(--shadow-sm);
             cursor: pointer;
             transition: all 0.2s var(--ease-out-expo);
+            border: 2px solid transparent;
         }
         
         .power-up:hover {
             transform: translateY(-2px);
-            background: rgba(255,255,255,0.15);
+            box-shadow: var(--shadow-md);
             border-color: var(--moneybot-green);
         }
         
@@ -236,15 +251,14 @@
         }
         
         .power-up-name {
-            font-weight: 600;
+            font-weight: 700;
             font-size: 13px;
-            color: white;
             margin-bottom: 4px;
         }
         
         .power-up-count {
             font-size: 12px;
-            color: rgba(255,255,255,0.6);
+            color: var(--moneybot-text-secondary);
         }
         
         .combo-display {
@@ -252,10 +266,10 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            font-size: 48px;
-            font-weight: 800;
-            color: var(--moneybot-gold);
-            text-shadow: 0 0 30px rgba(251, 191, 36, 0.6);
+            font-size: 52px;
+            font-weight: 900;
+            color: var(--moneybot-green);
+            text-shadow: 0 0 30px rgba(0, 230, 118, 0.6);
             pointer-events: none;
             opacity: 0;
             z-index: 1000;
@@ -268,120 +282,24 @@
         @keyframes comboAnim {
             0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
             20% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
-            100% { opacity: 0; transform: translate(-50%, -70%) scale(1); }
-        }
-        
-        .start-screen, .game-over-screen {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(180deg, rgba(26,26,46,0.98) 0%, rgba(0,0,0,0.95) 100%);
-            backdrop-filter: blur(20px);
-            z-index: 200;
-        }
-        
-        .game-over-screen {
-            display: none;
-        }
-        
-        .logo {
-            font-size: 80px;
-            filter: drop-shadow(0 10px 30px rgba(0, 230, 118, 0.4));
-            animation: float 3s ease-in-out infinite;
-            margin-bottom: 20px;
-        }
-        
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-        
-        .title {
-            font-size: 36px;
-            font-weight: 900;
-            background: linear-gradient(135deg, #fff 0%, var(--moneybot-green) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 8px;
-            letter-spacing: -1px;
-        }
-        
-        .subtitle {
-            color: rgba(255,255,255,0.6);
-            font-size: 16px;
-            margin-bottom: 40px;
-            text-align: center;
-            padding: 0 40px;
-            line-height: 1.5;
-        }
-        
-        .start-btn {
-            background: linear-gradient(135deg, var(--moneybot-green), var(--moneybot-green-dark));
-            color: white;
-            border: none;
-            padding: 22px 70px;
-            font-size: 22px;
-            font-weight: 800;
-            border-radius: 35px;
-            cursor: pointer;
-            box-shadow: 0 15px 40px rgba(0, 230, 118, 0.5);
-            transition: all 0.3s var(--ease-spring);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        
-        .start-btn:active {
-            transform: scale(0.95);
-        }
-        
-        .instructions {
-            margin-top: 40px;
-            display: flex;
-            gap: 30px;
-        }
-        
-        .instruction-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
-            color: rgba(255,255,255,0.5);
-            font-size: 13px;
-        }
-        
-        .instruction-icon {
-            font-size: 28px;
-        }
-        
-        .final-score {
-            font-size: 64px;
-            font-weight: 800;
-            color: var(--moneybot-gold);
-            margin-bottom: 8px;
-        }
-        
-        .final-score-label {
-            font-size: 14px;
-            color: rgba(255,255,255,0.6);
-            margin-bottom: 30px;
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(1) translateY(-100px); }
         }
     </style>
 </head>
 <body>
+    <div class="bg-gradient"></div>
+    
     <div class="app">
-        <div class="header">
-            <a href="../moneybot-official/" class="back-btn">←</a>
+        <header class="header">
+            <div class="header-logo">
+                <a href="../moneybot-official/" class="back-btn">←</a>
+                <span class="header-title">Portfolio Balancer</span>
+            </div>
             <div class="score-display">Score: <span id="score">0</span></div>
-        </div>
+        </header>
         
-        <div class="game-container" id="gameContainer">
-            <div class="level-card">
+        <div class="game-container">
+            <div class="level-info">
                 <div class="level-label">Current Level</div>
                 <div class="level-number" id="level">1</div>
                 <div class="progress-bar">
@@ -411,39 +329,9 @@
                 </div>
             </div>
         </div>
-        
-        <div class="combo-display" id="comboDisplay">COMBO x3!</div>
-        
-        <div class="start-screen" id="startScreen">
-            <div class="logo">📊</div>
-            <div class="title">Portfolio Balancer</div>
-            <div class="subtitle">Match 3+ assets to balance your portfolio!<br>Swap adjacent tiles to create matches</div>
-            
-            <button class="start-btn" onclick="startGame()">PLAY NOW</button>
-            
-            <div class="instructions">
-                <div class="instruction-item">
-                    <span class="instruction-icon">👆</span>
-                    <span>Select & Swap</span>
-                </div>
-                <div class="instruction-item">
-                    <span class="instruction-icon">3️⃣</span>
-                    <span>Match 3+</span>
-                </div>
-                <div class="instruction-item">
-                    <span class="instruction-icon">⚡</span>
-                    <span>Use Power-ups</span>
-                </div>
-            </div>
-        </div>
-        
-        <div class="game-over-screen" id="gameOverScreen">
-            <div class="logo" style="font-size: 60px; margin-bottom: 10px;">🎉</div>
-            <div class="final-score" id="finalScore">0</div>
-            <div class="final-score-label">Final Score</div>
-            <button class="start-btn" onclick="restartGame()">PLAY AGAIN</button>
-        </div>
     </div>
+    
+    <div class="combo-display" id="comboDisplay">COMBO x3!</div>
     
     <script>
         const assets = ['💵', '📈', '📜', '₿', '🥇', '🏢'];
@@ -454,7 +342,6 @@
         let level = 1;
         let combo = 0;
         let powerUps = { shuffle: 3, hint: 3, bomb: 2 };
-        let gameRunning = false;
         
         function initGrid() {
             grid = [];
@@ -465,37 +352,7 @@
                     matched: false
                 });
             }
-            // Ensure no initial matches
-            while (hasMatches()) {
-                for (let i = 0; i < 36; i++) {
-                    grid[i].type = Math.floor(Math.random() * 6);
-                }
-            }
             renderGrid();
-        }
-        
-        function hasMatches() {
-            // Check horizontal
-            for (let row = 0; row < 6; row++) {
-                for (let col = 0; col < 4; col++) {
-                    const idx = row * 6 + col;
-                    const type = grid[idx].type;
-                    if (grid[idx + 1].type === type && grid[idx + 2].type === type) {
-                        return true;
-                    }
-                }
-            }
-            // Check vertical
-            for (let col = 0; col < 6; col++) {
-                for (let row = 0; row < 4; row++) {
-                    const idx = row * 6 + col;
-                    const type = grid[idx].type;
-                    if (grid[idx + 6].type === type && grid[idx + 12].type === type) {
-                        return true;
-                    }
-                }
-            }
-            return false;
         }
         
         function renderGrid() {
@@ -510,7 +367,7 @@
         }
         
         function selectTile(index) {
-            if (!gameRunning || grid[index].matched) return;
+            if (grid[index].matched) return;
             
             if (selectedTile === null) {
                 selectedTile = index;
@@ -531,8 +388,6 @@
                     const temp = grid[selectedTile].type;
                     grid[selectedTile].type = grid[index].type;
                     grid[index].type = temp;
-                    
-                    if (navigator.vibrate) navigator.vibrate(10);
                     
                     // Check matches
                     setTimeout(() => checkMatches(), 100);
@@ -617,29 +472,27 @@
         }
         
         function usePowerUp(type) {
-            if (!gameRunning || powerUps[type] <= 0) return;
-            
-            powerUps[type]--;
-            updateUI();
-            
-            if (type === 'shuffle') {
-                grid.forEach(tile => {
-                    tile.type = Math.floor(Math.random() * 6);
-                    tile.matched = false;
-                });
-                renderGrid();
-                if (navigator.vibrate) navigator.vibrate(30);
-            } else if (type === 'hint') {
-                // Highlight a possible match
-                alert('Hint: Look for 3 matching assets in a row!');
-            } else if (type === 'bomb') {
-                // Clear random tiles
-                for (let i = 0; i < 6; i++) {
-                    const idx = Math.floor(Math.random() * 36);
-                    grid[idx].matched = true;
+            if (powerUps[type] > 0) {
+                powerUps[type]--;
+                updateUI();
+                
+                if (type === 'shuffle') {
+                    grid.forEach(tile => {
+                        tile.type = Math.floor(Math.random() * 6);
+                        tile.matched = false;
+                    });
+                    renderGrid();
+                } else if (type === 'hint') {
+                    alert('Look for 3 matching assets in a row!');
+                } else if (type === 'bomb') {
+                    for (let i = 0; i < 6; i++) {
+                        const idx = Math.floor(Math.random() * 36);
+                        grid[idx].matched = true;
+                    }
+                    renderGrid();
+                    setTimeout(() => refillGrid(), 300);
                 }
-                renderGrid();
-                setTimeout(() => refillGrid(), 300);
+                
                 if (navigator.vibrate) navigator.vibrate(30);
             }
         }
@@ -651,22 +504,6 @@
             document.getElementById('shuffleCount').textContent = powerUps.shuffle + ' left';
             document.getElementById('hintCount').textContent = powerUps.hint + ' left';
             document.getElementById('bombCount').textContent = powerUps.bomb + ' left';
-        }
-        
-        function startGame() {
-            document.getElementById('startScreen').style.display = 'none';
-            gameRunning = true;
-            score = 0;
-            level = 1;
-            combo = 0;
-            powerUps = { shuffle: 3, hint: 3, bomb: 2 };
-            initGrid();
-            updateUI();
-        }
-        
-        function restartGame() {
-            document.getElementById('gameOverScreen').style.display = 'none';
-            startGame();
         }
         
         // Init
