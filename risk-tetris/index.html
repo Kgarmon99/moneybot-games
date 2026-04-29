@@ -3,76 +3,584 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Risk Management - Tetris Style</title>
+    <title>Risk Management | MoneyBot</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; touch-action: none; user-select: none; }
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
-        :root { --mb-green: #22C55E; --mb-gold: #FBBF24; --mb-dark: #0F172A; }
-        body { font-family: 'Inter', sans-serif; background: linear-gradient(180deg, #F8FAFC 0%, #E2E8F0 100%); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 20px; }
-        h1 { color: var(--mb-dark); font-size: 1.8rem; font-weight: 800; margin-bottom: 10px; text-align: center; }
-        .subtitle { color: #64748B; margin-bottom: 15px; text-align: center; font-size: 0.9rem; }
-        #game-container { display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap; justify-content: center; }
-        canvas { background: #0F172A; border-radius: 10px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
-        .side-panel { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); min-width: 150px; }
-        .stat { margin-bottom: 15px; text-align: center; }
-        .stat-value { font-size: 1.5rem; font-weight: 700; color: var(--mb-green); }
-        .stat-label { font-size: 0.75rem; color: #64748B; text-transform: uppercase; }
-        .next-piece { width: 100px; height: 100px; background: #0F172A; border-radius: 8px; margin: 10px auto; display: flex; align-items: center; justify-content: center; }
-        .controls-info { margin-top: 15px; font-size: 0.8rem; color: #64748B; line-height: 1.6; }
-        .btn { background: linear-gradient(135deg, var(--mb-green), #16A34A); color: white; border: none; padding: 12px 30px; font-size: 1rem; font-weight: 700; border-radius: 25px; cursor: pointer; width: 100%; margin-top: 10px; }
-        .risk-meter { margin-top: 15px; }
-        .risk-bar { height: 20px; background: #E2E8F0; border-radius: 10px; overflow: hidden; margin-top: 5px; }
-        .risk-fill { height: 100%; background: linear-gradient(90deg, #22C55E, #FBBF24, #EF4444); width: 0%; transition: width 0.3s; }
+        @import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;500;600;700;800&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            user-select: none;
+        }
+        
+        :root {
+            --moneybot-green: #00E676;
+            --moneybot-green-light: #69F0AE;
+            --moneybot-green-dark: #00C853;
+            --moneybot-gold: #FBBF24;
+            --moneybot-red: #EF4444;
+            --moneybot-dark: #1A1A2E;
+            --moneybot-gray: #F5F5F7;
+            --moneybot-text: #1A1A2E;
+            --moneybot-text-secondary: #6B7280;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+            --shadow-lg: 0 12px 40px rgba(0,0,0,0.12);
+            --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+            --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', sans-serif;
+            background: var(--moneybot-gray);
+            min-height: 100vh;
+            color: var(--moneybot-text);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        /* Animated Background */
+        .bg-gradient {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(ellipse at 20% 20%, rgba(0, 230, 118, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(0, 230, 118, 0.05) 0%, transparent 50%),
+                var(--moneybot-gray);
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        /* App Container */
+        .app {
+            position: relative;
+            z-index: 1;
+            max-width: 430px;
+            margin: 0 auto;
+            min-height: 100vh;
+            background: var(--moneybot-gray);
+            display: flex;
+            flex-direction: column;
+            padding-bottom: 20px;
+        }
+        
+        /* Header */
+        .header {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+        
+        .header-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .back-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            border: none;
+            background: rgba(0, 230, 118, 0.1);
+            color: var(--moneybot-green);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s var(--ease-out-expo);
+            text-decoration: none;
+        }
+        
+        .back-btn:hover {
+            background: rgba(0, 230, 118, 0.2);
+            transform: translateX(-2px);
+        }
+        
+        .back-btn:active {
+            transform: scale(0.92);
+        }
+        
+        .header-title {
+            font-weight: 700;
+            font-size: 17px;
+            letter-spacing: -0.3px;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .icon-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            border: none;
+            background: rgba(0, 230, 118, 0.1);
+            color: var(--moneybot-green);
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s var(--ease-out-expo);
+        }
+        
+        .icon-btn:active {
+            transform: scale(0.92);
+            background: rgba(0, 230, 118, 0.2);
+        }
+        
+        /* Score Card */
+        .score-card {
+            background: linear-gradient(135deg, var(--moneybot-green) 0%, var(--moneybot-green-dark) 100%);
+            margin: 16px 20px;
+            padding: 24px;
+            border-radius: 24px;
+            color: white;
+            box-shadow: 
+                0 20px 40px rgba(0, 230, 118, 0.3),
+                inset 0 1px 0 rgba(255,255,255,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .score-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+            animation: shimmer 8s infinite linear;
+        }
+        
+        @keyframes shimmer {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .score-label {
+            font-size: 13px;
+            font-weight: 500;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .score-value {
+            font-size: 42px;
+            font-weight: 800;
+            letter-spacing: -1px;
+            margin: 8px 0;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .score-stats {
+            display: flex;
+            gap: 24px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .score-stat {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            opacity: 0.9;
+        }
+        
+        /* Risk Meter */
+        .risk-section {
+            background: white;
+            margin: 0 20px 16px;
+            padding: 16px 20px;
+            border-radius: 16px;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .risk-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .risk-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--moneybot-text);
+        }
+        
+        .risk-value {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--moneybot-green);
+        }
+        
+        .risk-bar {
+            height: 12px;
+            background: #E5E7EB;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        
+        .risk-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--moneybot-green) 0%, var(--moneybot-gold) 50%, var(--moneybot-red) 100%);
+            border-radius: 6px;
+            transition: width 0.5s var(--ease-out-expo);
+        }
+        
+        /* Game Container */
+        .game-wrapper {
+            display: flex;
+            gap: 12px;
+            margin: 0 20px 20px;
+            align-items: flex-start;
+        }
+        
+        .game-container {
+            flex: 1;
+            background: #1A1A2E;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+        }
+        
+        #game-canvas {
+            display: block;
+            width: 100%;
+        }
+        
+        /* Side Panel */
+        .side-panel {
+            width: 90px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .next-piece-card {
+            background: white;
+            border-radius: 16px;
+            padding: 12px;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .next-piece-label {
+            font-size: 11px;
+            color: var(--moneybot-text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        
+        .next-piece-display {
+            width: 60px;
+            height: 60px;
+            background: #1A1A2E;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin: 0 auto;
+        }
+        
+        .lines-card {
+            background: white;
+            border-radius: 16px;
+            padding: 12px;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .lines-label {
+            font-size: 11px;
+            color: var(--moneybot-text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+            font-weight: 600;
+        }
+        
+        .lines-value {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--moneybot-green);
+        }
+        
+        /* Controls */
+        .controls-section {
+            padding: 0 20px;
+        }
+        
+        .new-game-btn {
+            width: 100%;
+            background: linear-gradient(135deg, var(--moneybot-green) 0%, var(--moneybot-green-dark) 100%);
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            font-size: 16px;
+            font-weight: 700;
+            border-radius: 16px;
+            cursor: pointer;
+            box-shadow: 
+                0 8px 24px rgba(0, 230, 118, 0.4),
+                inset 0 1px 0 rgba(255,255,255,0.2);
+            transition: all 0.2s var(--ease-spring);
+            margin-bottom: 16px;
+        }
+        
+        .new-game-btn:active {
+            transform: scale(0.96);
+        }
+        
+        /* Touch Controls */
+        .touch-controls {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+        
+        .control-btn {
+            background: white;
+            border: none;
+            border-radius: 12px;
+            padding: 16px;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.15s var(--ease-out-expo);
+        }
+        
+        .control-btn:active {
+            background: var(--moneybot-green);
+            transform: scale(0.95);
+        }
+        
+        .control-btn.rotate {
+            grid-column: 2;
+        }
+        
+        .control-btn.left {
+            grid-column: 1;
+            grid-row: 2;
+        }
+        
+        .control-btn.down {
+            grid-column: 2;
+            grid-row: 2;
+        }
+        
+        .control-btn.right {
+            grid-column: 3;
+            grid-row: 2;
+        }
+        
+        /* Game Over Modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(10px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+        
+        .modal.show {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 24px;
+            padding: 32px;
+            text-align: center;
+            max-width: 320px;
+            width: 100%;
+            box-shadow: var(--shadow-lg);
+            animation: slideUp 0.4s var(--ease-spring);
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .modal-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+        }
+        
+        .modal-title {
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 8px;
+            color: var(--moneybot-text);
+        }
+        
+        .modal-subtitle {
+            font-size: 15px;
+            color: var(--moneybot-text-secondary);
+            margin-bottom: 24px;
+        }
+        
+        .modal-score {
+            font-size: 42px;
+            font-weight: 800;
+            color: var(--moneybot-green);
+            margin-bottom: 24px;
+        }
+        
+        .modal-btn {
+            width: 100%;
+            background: var(--moneybot-green);
+            color: white;
+            border: none;
+            padding: 16px;
+            font-size: 16px;
+            font-weight: 700;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s var(--ease-out-expo);
+        }
+        
+        .modal-btn:active {
+            transform: scale(0.96);
+        }
     </style>
 </head>
 <body>
-    <h1>⚠️ Risk Management Tetris</h1>
-    <p class="subtitle">Balance risk vs reward! Clear lines to reduce portfolio risk.</p>
-    <div id="game-container">
-        <canvas id="canvas" width="300" height="600"></canvas>
-        <div class="side-panel">
-            <div class="stat">
-                <div class="stat-value" id="score">0</div>
-                <div class="stat-label">Portfolio Value</div>
+    <div class="bg-gradient"></div>
+    
+    <div class="app">
+        <header class="header">
+            <div class="header-logo">
+                <a href="../moneybot-official/" class="back-btn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M19 12H5M12 19l-7-7 7-7"/>
+                    </svg>
+                </a>
+                <span class="header-title">Risk Management</span>
             </div>
-            <div class="stat">
-                <div class="stat-value" id="lines">0</div>
-                <div class="stat-label">Lines Cleared</div>
+            <div class="header-actions">
+                <button class="icon-btn" onclick="newGame()">🔄</button>
             </div>
-            <div class="stat">
-                <div class="stat-label">Next Asset</div>
-                <div class="next-piece" id="nextPiece"></div>
-            </div>
-            <div class="risk-meter">
-                <div class="stat-label">Risk Level</div>
-                <div class="risk-bar">
-                    <div class="risk-fill" id="riskFill"></div>
+        </header>
+        
+        <div class="score-card">
+            <div class="score-label">Portfolio Value</div>
+            <div class="score-value" id="score">0</div>
+            <div class="score-stats">
+                <div class="score-stat">
+                    <span>📈</span>
+                    <span>Manage Risk</span>
                 </div>
             </div>
-            <button class="btn" onclick="newGame()">NEW GAME</button>
-            <div class="controls-info">
-                ← → : Move<br>
-                ↑ : Rotate<br>
-                ↓ : Soft Drop<br>
-                Space : Hard Drop
+        </div>
+        
+        <div class="risk-section">
+            <div class="risk-header">
+                <span class="risk-label">Risk Level</span>
+                <span class="risk-value" id="riskText">Low</span>
+            </div>
+            <div class="risk-bar">
+                <div class="risk-fill" id="riskFill" style="width: 0%"></div>
+            </div>
+        </div>
+        
+        <div class="game-wrapper">
+            <div class="game-container">
+                <canvas id="game-canvas" width="220" height="440"></canvas>
+            </div>
+            
+            <div class="side-panel">
+                <div class="next-piece-card">
+                    <div class="next-piece-label">Next</div>
+                    <div class="next-piece-display" id="nextPiece">📊</div>
+                </div>
+                <div class="lines-card">
+                    <div class="lines-label">Lines</div>
+                    <div class="lines-value" id="lines">0</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="controls-section">
+            <button class="new-game-btn" onclick="newGame()">New Game</button>
+            
+            <div class="touch-controls">
+                <button class="control-btn rotate" onclick="rotate()">↻</button>
+                <button class="control-btn left" onclick="move(-1, 0)">←</button>
+                <button class="control-btn down" onclick="move(0, 1)">↓</button>
+                <button class="control-btn right" onclick="move(1, 0)">→</button>
             </div>
         </div>
     </div>
+    
+    <div class="modal" id="gameOverModal">
+        <div class="modal-content">
+            <div class="modal-icon">📉</div>
+            <div class="modal-title">Portfolio Collapsed!</div>
+            <div class="modal-subtitle">Risk level exceeded capacity</div>
+            <div class="modal-score" id="finalScore">0</div>
+            <button class="modal-btn" onclick="closeModal()">Try Again</button>
+        </div>
+    </div>
+    
     <script>
-        const canvas = document.getElementById('canvas');
+        const canvas = document.getElementById('game-canvas');
         const ctx = canvas.getContext('2d');
         const COLS = 10;
         const ROWS = 20;
-        const BLOCK_SIZE = 30;
+        const BLOCK_SIZE = 22;
         
         const ASSETS = {
-            I: { shape: [[1,1,1,1]], color: '#22C55E', name: 'Cash' },
-            O: { shape: [[1,1],[1,1]], color: '#3B82F6', name: 'Bonds' },
-            T: { shape: [[0,1,0],[1,1,1]], color: '#8B5CF6', name: 'Crypto' },
-            S: { shape: [[0,1,1],[1,1,0]], color: '#F59E0B', name: 'Gold' },
-            Z: { shape: [[1,1,0],[0,1,1]], color: '#EF4444', name: 'Stocks' },
-            J: { shape: [[1,0,0],[1,1,1]], color: '#14B8A6', name: 'Real Estate' },
-            L: { shape: [[0,0,1],[1,1,1]], color: '#F97316', name: 'Commodities' }
+            I: { shape: [[1,1,1,1]], color: '#00E676', name: 'Cash', icon: '💵' },
+            O: { shape: [[1,1],[1,1]], color: '#3B82F6', name: 'Bonds', icon: '📜' },
+            T: { shape: [[0,1,0],[1,1,1]], color: '#8B5CF6', name: 'Crypto', icon: '₿' },
+            S: { shape: [[0,1,1],[1,1,0]], color: '#F59E0B', name: 'Gold', icon: '🥇' },
+            Z: { shape: [[1,1,0],[0,1,1]], color: '#EF4444', name: 'Stocks', icon: '📈' },
+            J: { shape: [[1,0,0],[1,1,1]], color: '#14B8A6', name: 'Real Estate', icon: '🏠' },
+            L: { shape: [[0,0,1],[1,1,1]], color: '#F97316', name: 'Commodities', icon: '🛢️' }
         };
         
         let board = Array(ROWS).fill().map(() => Array(COLS).fill(0));
@@ -98,11 +606,12 @@
         }
         
         function draw() {
+            // Background
             ctx.fillStyle = '#0F172A';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
-            // Draw grid lines
-            ctx.strokeStyle = '#1E293B';
+            // Grid lines
+            ctx.strokeStyle = 'rgba(0, 230, 118, 0.1)';
             ctx.lineWidth = 1;
             for (let i = 0; i <= COLS; i++) {
                 ctx.beginPath();
@@ -121,33 +630,48 @@
             for (let r = 0; r < ROWS; r++) {
                 for (let c = 0; c < COLS; c++) {
                     if (board[r][c]) {
-                        ctx.fillStyle = board[r][c];
-                        ctx.fillRect(c * BLOCK_SIZE, r * BLOCK_SIZE, BLOCK_SIZE - 2, BLOCK_SIZE - 2);
+                        drawBlock(c * BLOCK_SIZE, r * BLOCK_SIZE, board[r][c]);
                     }
                 }
             }
             
             // Draw current piece
             if (currentPiece) {
-                ctx.fillStyle = currentPiece.color;
                 currentPiece.shape.forEach((row, y) => {
                     row.forEach((value, x) => {
                         if (value) {
-                            ctx.fillRect((currentPiece.x + x) * BLOCK_SIZE, (currentPiece.y + y) * BLOCK_SIZE, BLOCK_SIZE - 2, BLOCK_SIZE - 2);
+                            drawBlock(
+                                (currentPiece.x + x) * BLOCK_SIZE,
+                                (currentPiece.y + y) * BLOCK_SIZE,
+                                currentPiece.color
+                            );
                         }
                     });
                 });
             }
         }
         
+        function drawBlock(x, y, color) {
+            // Glow
+            ctx.shadowColor = color;
+            ctx.shadowBlur = 10;
+            
+            // Block
+            ctx.fillStyle = color;
+            ctx.fillRect(x + 1, y + 1, BLOCK_SIZE - 2, BLOCK_SIZE - 2);
+            
+            ctx.shadowBlur = 0;
+            
+            // Highlight
+            ctx.fillStyle = 'rgba(255,255,255,0.3)';
+            ctx.fillRect(x + 1, y + 1, BLOCK_SIZE - 2, 3);
+        }
+        
         function drawNextPiece() {
             const nextDiv = document.getElementById('nextPiece');
-            nextDiv.innerHTML = '';
             const asset = ASSETS[nextPieceType];
+            nextDiv.textContent = asset.icon;
             nextDiv.style.color = asset.color;
-            nextDiv.style.fontSize = '0.8rem';
-            nextDiv.style.textAlign = 'center';
-            nextDiv.innerHTML = `<div style="font-size: 2rem;">${asset.shape.map(row => row.map(c => c ? '█' : ' ').join('')).join('<br>')}</div><div style="margin-top: 5px;">${asset.name}</div>`;
         }
         
         function collision(piece, offsetX = 0, offsetY = 0) {
@@ -169,14 +693,31 @@
                     }
                 });
             });
+            if (navigator.vibrate) navigator.vibrate(10);
         }
         
         function rotate() {
-            const rotated = currentPiece.shape[0].map((_, i) => currentPiece.shape.map(row => row[i]).reverse());
+            if (gameOver) return;
+            const rotated = currentPiece.shape[0].map((_, i) => 
+                currentPiece.shape.map(row => row[i]).reverse()
+            );
             const previousShape = currentPiece.shape;
             currentPiece.shape = rotated;
             if (collision(currentPiece)) {
                 currentPiece.shape = previousShape;
+            } else {
+                if (navigator.vibrate) navigator.vibrate(10);
+            }
+        }
+        
+        function move(dx, dy) {
+            if (gameOver) return;
+            if (dx !== 0 && !collision(currentPiece, dx, 0)) {
+                currentPiece.x += dx;
+                if (navigator.vibrate) navigator.vibrate(5);
+            }
+            if (dy > 0 && !collision(currentPiece, 0, dy)) {
+                currentPiece.y += dy;
             }
         }
         
@@ -193,6 +734,7 @@
             if (linesCleared > 0) {
                 lines += linesCleared;
                 score += linesCleared * 100 * linesCleared;
+                if (navigator.vibrate) navigator.vibrate([20, 30, 20]);
                 updateDisplay();
             }
         }
@@ -220,24 +762,47 @@
         }
         
         function spawnPiece() {
-            currentPiece = randomPiece();
-            currentPiece.type = nextPieceType;
-            currentPiece.shape = ASSETS[nextPieceType].shape;
-            currentPiece.color = ASSETS[nextPieceType].color;
+            if (nextPieceType === null) {
+                nextPieceType = Object.keys(ASSETS)[Math.floor(Math.random() * Object.keys(ASSETS).length)];
+            }
+            
+            currentPiece = {
+                type: nextPieceType,
+                shape: ASSETS[nextPieceType].shape,
+                color: ASSETS[nextPieceType].color,
+                x: Math.floor(COLS / 2) - Math.floor(ASSETS[nextPieceType].shape[0].length / 2),
+                y: 0
+            };
+            
             nextPieceType = Object.keys(ASSETS)[Math.floor(Math.random() * Object.keys(ASSETS).length)];
             drawNextPiece();
             
             if (collision(currentPiece)) {
                 gameOver = true;
-                alert(`Portfolio Collapsed! Score: ${score}`);
+                if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+                document.getElementById('finalScore').textContent = score.toLocaleString();
+                document.getElementById('gameOverModal').classList.add('show');
             }
         }
         
         function updateDisplay() {
             document.getElementById('score').textContent = score.toLocaleString();
             document.getElementById('lines').textContent = lines;
-            const risk = Math.min(100, (lines * 5) + (score / 1000));
+            
+            const risk = Math.min(100, (lines * 5) + (score / 2000));
             document.getElementById('riskFill').style.width = risk + '%';
+            
+            const riskText = document.getElementById('riskText');
+            if (risk < 30) {
+                riskText.textContent = 'Low';
+                riskText.style.color = '#00E676';
+            } else if (risk < 60) {
+                riskText.textContent = 'Moderate';
+                riskText.style.color = '#FBBF24';
+            } else {
+                riskText.textContent = 'High';
+                riskText.style.color = '#EF4444';
+            }
         }
         
         function newGame() {
@@ -245,17 +810,25 @@
             score = 0;
             lines = 0;
             gameOver = false;
-            nextPieceType = Object.keys(ASSETS)[Math.floor(Math.random() * Object.keys(ASSETS).length)];
+            nextPieceType = null;
+            dropInterval = 1000;
+            document.getElementById('gameOverModal').classList.remove('show');
             spawnPiece();
             updateDisplay();
             update();
         }
         
+        function closeModal() {
+            document.getElementById('gameOverModal').classList.remove('show');
+            newGame();
+        }
+        
+        // Keyboard controls
         document.addEventListener('keydown', (e) => {
             if (gameOver) return;
-            if (e.key === 'ArrowLeft' && !collision(currentPiece, -1, 0)) currentPiece.x--;
-            if (e.key === 'ArrowRight' && !collision(currentPiece, 1, 0)) currentPiece.x++;
-            if (e.key === 'ArrowDown' && !collision(currentPiece, 0, 1)) currentPiece.y++;
+            if (e.key === 'ArrowLeft') move(-1, 0);
+            if (e.key === 'ArrowRight') move(1, 0);
+            if (e.key === 'ArrowDown') move(0, 1);
             if (e.key === 'ArrowUp') rotate();
             if (e.key === ' ') {
                 while (!collision(currentPiece, 0, 1)) currentPiece.y++;
