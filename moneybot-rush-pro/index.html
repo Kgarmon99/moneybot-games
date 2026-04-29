@@ -3,1036 +3,703 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MoneyBot Investment Tycoon 📈</title>
+    <title>Investment Tycoon | MoneyBot</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;500;600;700;800&display=swap');
         
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
             touch-action: manipulation;
-            -webkit-touch-callout: none;
-            -webkit-user-select: none;
-            user-select: none;
         }
         
         :root {
-            --mb-green: #22C55E;
-            --mb-green-dark: #16A34A;
-            --mb-gold: #FBBF24;
-            --mb-dark: #0F172A;
-            --mb-gray: #64748B;
-            --mb-light: #F8FAFC;
-            --mb-border: #E2E8F0;
+            --moneybot-green: #00E676;
+            --moneybot-green-light: #69F0AE;
+            --moneybot-green-dark: #00C853;
+            --moneybot-dark: #1A1A2E;
+            --moneybot-gray: #F5F5F7;
+            --moneybot-text: #1A1A2E;
+            --moneybot-text-secondary: #6B7280;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+            --shadow-lg: 0 12px 40px rgba(0,0,0,0.12);
+            --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+            --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
         }
         
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: linear-gradient(180deg, var(--mb-light) 0%, #E2E8F0 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', sans-serif;
+            background: var(--moneybot-gray);
             min-height: 100vh;
+            color: var(--moneybot-text);
             overflow-x: hidden;
-            color: var(--mb-dark);
+            -webkit-font-smoothing: antialiased;
         }
         
-        /* Grid Background */
-        body::before {
-            content: '';
+        /* Animated Background */
+        .bg-gradient {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-image: 
-                linear-gradient(rgba(34, 197, 94, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(34, 197, 94, 0.03) 1px, transparent 1px);
-            background-size: 50px 50px;
+            background: 
+                radial-gradient(ellipse at 20% 20%, rgba(0, 230, 118, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(0, 230, 118, 0.05) 0%, transparent 50%),
+                var(--moneybot-gray);
             pointer-events: none;
             z-index: 0;
         }
         
-        .screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 100;
-            background: linear-gradient(180deg, var(--mb-light) 0%, #E2E8F0 100%);
-            transition: opacity 0.3s;
-        }
-        
-        .screen.hidden {
-            opacity: 0;
-            pointer-events: none;
+        /* App Container */
+        .app {
+            position: relative;
+            z-index: 1;
+            max-width: 430px;
+            margin: 0 auto;
+            min-height: 100vh;
+            background: var(--moneybot-gray);
         }
         
         /* Header */
-        .game-header {
-            background: white;
-            padding: 15px 20px;
+        .header {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            padding: 16px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid var(--mb-border);
             position: sticky;
             top: 0;
-            z-index: 10;
+            z-index: 100;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
         }
         
-        .logo {
+        .header-logo {
             display: flex;
             align-items: center;
             gap: 10px;
         }
         
-        .logo-img {
-            width: 40px;
-            height: 40px;
-            border-radius: 10px;
+        .header-logo img {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            object-fit: cover;
         }
         
-        .logo-text {
+        .header-title {
             font-weight: 700;
-            font-size: 1.2rem;
-            color: var(--mb-dark);
+            font-size: 17px;
+            letter-spacing: -0.3px;
         }
         
-        .level-badge {
-            background: linear-gradient(135deg, var(--mb-green), var(--mb-green-dark));
+        .header-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .icon-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            border: none;
+            background: rgba(0, 230, 118, 0.1);
+            color: var(--moneybot-green);
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s var(--ease-out-expo);
+        }
+        
+        .icon-btn:active {
+            transform: scale(0.92);
+            background: rgba(0, 230, 118, 0.2);
+        }
+        
+        /* Main Balance Card */
+        .balance-card {
+            background: linear-gradient(135deg, var(--moneybot-green) 0%, var(--moneybot-green-dark) 100%);
+            margin: 20px;
+            padding: 28px;
+            border-radius: 24px;
             color: white;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 0.85rem;
+            box-shadow: 
+                0 20px 40px rgba(0, 230, 118, 0.3),
+                inset 0 1px 0 rgba(255,255,255,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .balance-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+            animation: shimmer 8s infinite linear;
+        }
+        
+        @keyframes shimmer {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .balance-label {
+            font-size: 14px;
+            font-weight: 500;
+            opacity: 0.9;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .balance-amount {
+            font-size: 42px;
+            font-weight: 800;
+            letter-spacing: -1px;
+            margin-bottom: 16px;
+            font-feature-settings: 'tnum';
+        }
+        
+        .balance-stats {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .balance-stat {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
             font-weight: 600;
         }
         
-        /* Main Stats Bar */
-        .stats-bar {
+        .balance-stat.positive {
+            color: rgba(255,255,255,0.9);
+        }
+        
+        /* Click Area */
+        .click-area {
+            margin: 0 20px 20px;
             background: white;
-            margin: 15px;
-            padding: 20px;
-            border-radius: 20px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-        }
-        
-        .stat-item {
+            border-radius: 24px;
+            padding: 32px;
             text-align: center;
+            box-shadow: var(--shadow-md);
+            cursor: pointer;
+            transition: all 0.3s var(--ease-spring);
+            position: relative;
+            overflow: hidden;
         }
         
-        .stat-label {
-            font-size: 0.75rem;
-            color: var(--mb-gray);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 5px;
+        .click-area:active {
+            transform: scale(0.98);
+            box-shadow: var(--shadow-sm);
         }
         
-        .stat-value {
-            font-size: 1.8rem;
+        .click-coin {
+            width: 140px;
+            height: 140px;
+            background: linear-gradient(135deg, var(--moneybot-green) 0%, var(--moneybot-green-dark) 100%);
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+            box-shadow: 
+                0 20px 40px rgba(0, 230, 118, 0.4),
+                inset 0 -4px 0 rgba(0,0,0,0.1),
+                inset 0 4px 0 rgba(255,255,255,0.2);
+            transition: all 0.2s var(--ease-spring);
+            position: relative;
+        }
+        
+        .click-coin::before {
+            content: '';
+            position: absolute;
+            inset: 8px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+        }
+        
+        .click-area:active .click-coin {
+            transform: scale(0.95);
+            box-shadow: 
+                0 10px 20px rgba(0, 230, 118, 0.3),
+                inset 0 -2px 0 rgba(0,0,0,0.1);
+        }
+        
+        .click-text {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--moneybot-text);
+            margin-bottom: 6px;
+        }
+        
+        .click-subtext {
+            font-size: 14px;
+            color: var(--moneybot-text-secondary);
+        }
+        
+        /* Floating Numbers */
+        .floating-number {
+            position: fixed;
+            font-size: 24px;
             font-weight: 800;
-            color: var(--mb-dark);
+            color: var(--moneybot-green);
+            pointer-events: none;
+            animation: floatUp 1s var(--ease-out-expo) forwards;
+            z-index: 1000;
+            text-shadow: 0 2px 10px rgba(0, 230, 118, 0.3);
         }
         
-        .stat-value.cash { color: var(--mb-green); }
-        .stat-value.portfolio { color: var(--mb-gold); }
-        .stat-value.income { color: #3B82F6; }
+        @keyframes floatUp {
+            0% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-100px) scale(1.3);
+            }
+        }
         
-        /* Investment Grid */
-        .investment-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
+        /* Section */
+        .section {
+            margin: 0 20px 20px;
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding: 0 4px;
+        }
+        
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+        }
+        
+        .section-action {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--moneybot-green);
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+        
+        /* Investment Cards */
+        .investment-list {
+            display: flex;
+            flex-direction: column;
             gap: 12px;
-            padding: 0 15px 15px;
         }
         
         .investment-card {
             background: white;
             border-radius: 16px;
-            padding: 15px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            border: 2px solid transparent;
-            transition: all 0.2s;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.2s var(--ease-out-expo);
             cursor: pointer;
-            position: relative;
-            overflow: hidden;
         }
         
         .investment-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            transform: translateX(4px);
+            box-shadow: var(--shadow-md);
         }
         
         .investment-card:active {
             transform: scale(0.98);
         }
         
-        .investment-card.locked {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        
-        .investment-card.locked::after {
-            content: '🔒';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 2rem;
-        }
-        
         .investment-icon {
-            width: 50px;
-            height: 50px;
-            background: linear-gradient(135deg, var(--mb-green), var(--mb-green-dark));
+            width: 48px;
+            height: 48px;
             border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.8rem;
-            margin-bottom: 10px;
+            font-size: 24px;
+            background: rgba(0, 230, 118, 0.1);
         }
         
-        .investment-name {
-            font-weight: 700;
-            font-size: 0.95rem;
-            margin-bottom: 5px;
-        }
-        
-        .investment-return {
-            font-size: 0.8rem;
-            color: var(--mb-gray);
-            margin-bottom: 8px;
-        }
-        
-        .investment-cost {
-            font-weight: 700;
-            color: var(--mb-green);
-            font-size: 1.1rem;
-        }
-        
-        .investment-owned {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: var(--mb-green);
-            color: white;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 700;
-        }
-        
-        /* Passive Income Bar */
-        .income-bar {
-            background: linear-gradient(90deg, var(--mb-green), var(--mb-green-dark));
-            color: white;
-            padding: 12px 20px;
-            margin: 0 15px 15px;
-            border-radius: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .income-label {
-            font-size: 0.9rem;
-            opacity: 0.9;
-        }
-        
-        .income-value {
-            font-size: 1.3rem;
-            font-weight: 700;
-        }
-        
-        /* Upgrades Panel */
-        .upgrades-panel {
-            background: white;
-            margin: 0 15px 15px;
-            padding: 15px;
-            border-radius: 16px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        }
-        
-        .panel-title {
-            font-weight: 700;
-            font-size: 1rem;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .upgrade-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 0;
-            border-bottom: 1px solid var(--mb-border);
-        }
-        
-        .upgrade-item:last-child {
-            border-bottom: none;
-        }
-        
-        .upgrade-info {
+        .investment-info {
             flex: 1;
         }
         
-        .upgrade-name {
+        .investment-name {
             font-weight: 600;
-            font-size: 0.9rem;
-            margin-bottom: 3px;
+            font-size: 16px;
+            margin-bottom: 2px;
         }
         
-        .upgrade-desc {
-            font-size: 0.75rem;
-            color: var(--mb-gray);
+        .investment-return {
+            font-size: 13px;
+            color: var(--moneybot-text-secondary);
         }
         
+        .investment-owned {
+            text-align: right;
+        }
+        
+        .investment-count {
+            font-weight: 700;
+            font-size: 18px;
+            color: var(--moneybot-green);
+        }
+        
+        .investment-label {
+            font-size: 12px;
+            color: var(--moneybot-text-secondary);
+        }
+        
+        /* Upgrade Button */
         .upgrade-btn {
-            background: var(--mb-green);
+            background: var(--moneybot-green);
             color: white;
             border: none;
-            padding: 8px 16px;
-            border-radius: 8px;
+            padding: 10px 18px;
+            border-radius: 10px;
             font-weight: 600;
-            font-size: 0.85rem;
+            font-size: 14px;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.2s var(--ease-out-expo);
+            white-space: nowrap;
         }
         
         .upgrade-btn:hover {
-            background: var(--mb-green-dark);
+            background: var(--moneybot-green-dark);
+            transform: scale(1.05);
+        }
+        
+        .upgrade-btn:active {
+            transform: scale(0.95);
         }
         
         .upgrade-btn:disabled {
-            background: var(--mb-border);
+            background: #E5E7EB;
+            color: #9CA3AF;
             cursor: not-allowed;
+            transform: none;
         }
         
-        /* Progress Section */
-        .progress-section {
+        /* Stats Bar */
+        .stats-bar {
             background: white;
-            margin: 0 15px 15px;
-            padding: 15px;
+            margin: 0 20px 20px;
+            padding: 16px 20px;
             border-radius: 16px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        }
-        
-        .progress-header {
             display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
+            justify-content: space-around;
+            box-shadow: var(--shadow-sm);
         }
         
-        .progress-title {
-            font-weight: 600;
-            font-size: 0.9rem;
-        }
-        
-        .progress-value {
-            font-weight: 700;
-            color: var(--mb-green);
-        }
-        
-        .progress-bar {
-            height: 10px;
-            background: var(--mb-border);
-            border-radius: 5px;
-            overflow: hidden;
-        }
-        
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--mb-green), var(--mb-green-dark));
-            border-radius: 5px;
-            transition: width 0.3s;
-        }
-        
-        /* Achievements */
-        .achievements {
-            background: white;
-            margin: 0 15px 15px;
-            padding: 15px;
-            border-radius: 16px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        }
-        
-        .achievement-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-            margin-top: 10px;
-        }
-        
-        .achievement {
-            aspect-ratio: 1;
-            background: var(--mb-border);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            opacity: 0.4;
-            transition: all 0.3s;
-        }
-        
-        .achievement.unlocked {
-            background: linear-gradient(135deg, var(--mb-gold), #F59E0B);
-            opacity: 1;
-            box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4);
-        }
-        
-        /* Start Screen */
-        .start-content {
+        .stat-item {
             text-align: center;
-            max-width: 400px;
-            padding: 20px;
         }
         
-        .mascot-container {
-            position: relative;
-            display: inline-block;
-            margin-bottom: 20px;
+        .stat-value {
+            font-weight: 700;
+            font-size: 20px;
+            color: var(--moneybot-text);
+            margin-bottom: 2px;
         }
         
-        .mascot-glow {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 250px;
-            height: 250px;
-            background: radial-gradient(circle, rgba(34, 197, 94, 0.2) 0%, transparent 70%);
+        .stat-label {
+            font-size: 12px;
+            color: var(--moneybot-text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        
+        /* Progress Ring */
+        .progress-ring {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            background: white;
             border-radius: 50%;
-            animation: pulse 3s ease-in-out infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.5; }
-            50% { transform: translate(-50%, -50%) scale(1.1); opacity: 0.8; }
-        }
-        
-        .mascot {
-            width: 200px;
-            height: 200px;
-            position: relative;
-            z-index: 2;
-            animation: float 3s ease-in-out infinite;
-        }
-        
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-        
-        h1 {
-            font-size: 2rem;
-            font-weight: 800;
-            margin-bottom: 10px;
-            color: var(--mb-dark);
-        }
-        
-        .subtitle {
-            color: var(--mb-gray);
-            margin-bottom: 30px;
-            font-size: 1.1rem;
-        }
-        
-        .feature-list {
-            text-align: left;
-            margin: 20px 0;
-            padding: 20px;
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-        }
-        
-        .feature-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 12px;
-            font-size: 0.95rem;
-        }
-        
-        .feature-item:last-child {
-            margin-bottom: 0;
-        }
-        
-        .feature-icon {
-            width: 32px;
-            height: 32px;
-            background: linear-gradient(135deg, var(--mb-green), var(--mb-green-dark));
-            border-radius: 8px;
+            box-shadow: var(--shadow-lg);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1rem;
-        }
-        
-        .start-btn {
-            background: linear-gradient(135deg, var(--mb-green), var(--mb-green-dark));
-            color: white;
-            border: none;
-            padding: 18px 50px;
-            font-size: 1.2rem;
-            font-weight: 700;
-            border-radius: 50px;
             cursor: pointer;
-            box-shadow: 0 8px 25px rgba(34, 197, 94, 0.4);
-            transition: all 0.3s;
-            width: 100%;
+            transition: all 0.3s var(--ease-spring);
         }
         
-        .start-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 30px rgba(34, 197, 94, 0.5);
+        .progress-ring:hover {
+            transform: scale(1.1);
         }
         
-        /* Tutorial Overlay */
-        .tutorial-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.7);
-            z-index: 200;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s;
+        .progress-ring svg {
+            transform: rotate(-90deg);
         }
         
-        .tutorial-overlay.active {
-            opacity: 1;
-            pointer-events: auto;
+        .progress-ring circle {
+            fill: none;
+            stroke-width: 4;
         }
         
-        .tutorial-card {
-            background: white;
-            padding: 25px;
-            border-radius: 20px;
-            max-width: 350px;
-            margin: 20px;
-            text-align: center;
+        .progress-ring .bg {
+            stroke: #E5E7EB;
         }
         
-        .tutorial-icon {
-            font-size: 3rem;
-            margin-bottom: 15px;
+        .progress-ring .progress {
+            stroke: var(--moneybot-green);
+            stroke-linecap: round;
+            transition: stroke-dashoffset 0.5s var(--ease-out-expo);
         }
         
-        .tutorial-title {
+        .progress-text {
+            position: absolute;
             font-weight: 700;
-            font-size: 1.3rem;
-            margin-bottom: 10px;
-        }
-        
-        .tutorial-text {
-            color: var(--mb-gray);
-            margin-bottom: 20px;
-            line-height: 1.5;
-        }
-        
-        .tutorial-btn {
-            background: var(--mb-green);
-            color: white;
-            border: none;
-            padding: 12px 30px;
-            border-radius: 25px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-        
-        /* Animations */
-        @keyframes earn {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.2); }
-            100% { transform: scale(1); }
-        }
-        
-        .earning {
-            animation: earn 0.3s;
-        }
-        
-        .floating-text {
-            position: fixed;
-            font-weight: 700;
-            font-size: 1.2rem;
-            color: var(--mb-green);
-            pointer-events: none;
-            animation: floatUp 1s ease-out forwards;
-            z-index: 1000;
-        }
-        
-        @keyframes floatUp {
-            0% { opacity: 1; transform: translateY(0); }
-            100% { opacity: 0; transform: translateY(-50px); }
+            font-size: 14px;
+            color: var(--moneybot-green);
         }
     </style>
 </head>
 <body>
-    <!-- Start Screen -->
-    <div id="start-screen" class="screen">
-        <div class="start-content">
-            <div class="mascot-container">
-                <div class="mascot-glow"></div>
-                <img src="../moneybot-mascot-3d.jpg" alt="MoneyBot" class="mascot">
-            </div>
-            <h1>MoneyBot Investment Tycoon</h1>
-            <p class="subtitle">Build your financial empire one click at a time!</p>
-            
-            <div class="feature-list">
-                <div class="feature-item">
-                    <div class="feature-icon">📈</div>
-                    <span>Invest in diverse assets with real returns</span>
-                </div>
-                <div class="feature-item">
-                    <div class="feature-icon">⚡</div>
-                    <span>Upgrade your earning potential</span>
-                </div>
-                <div class="feature-item">
-                    <div class="feature-icon">🏆</div>
-                    <span>Unlock achievements & level up</span>
-                </div>
-                <div class="feature-item">
-                    <div class="feature-icon">💡</div>
-                    <span>Learn real financial concepts</span>
-                </div>
-            </div>
-            
-            <button class="start-btn" onclick="startGame()">Start Building Wealth 💰</button>
-        </div>
-    </div>
+    <div class="bg-gradient"></div>
     
-    <!-- Tutorial Overlay -->
-    <div id="tutorial" class="tutorial-overlay">
-        <div class="tutorial-card">
-            <div class="tutorial-icon" id="tutorial-icon">👋</div>
-            <div class="tutorial-title" id="tutorial-title">Welcome!</div>
-            <div class="tutorial-text" id="tutorial-text">Tap investments to buy them and generate passive income!</div>
-            <button class="tutorial-btn" onclick="nextTutorial()">Got it!</button>
-        </div>
-    </div>
-    
-    <!-- Main Game -->
-    <div id="game-container" style="display: none;">
-        <!-- Header -->
-        <div class="game-header">
-            <div class="logo">
-                <span class="logo-text">💰 MoneyBot Tycoon</span>
+    <div class="app">
+        <header class="header">
+            <div class="header-logo">
+                <img src="../moneybot-official/assets/logo.jpg" alt="MoneyBot">
+                <span class="header-title">Investment Tycoon</span>
             </div>
-            <div class="level-badge">Level <span id="level">1</span></div>
+            <div class="header-actions">
+                <button class="icon-btn" onclick="showAchievements()">🏆</button>
+                <button class="icon-btn" onclick="showSettings()">⚙️</button>
+            </div>
+        </header>
+        
+        <div class="balance-card">
+            <div class="balance-label">Total Portfolio Value</div>
+            <div class="balance-amount" id="balance">$0</div>
+            <div class="balance-stats">
+                <div class="balance-stat positive">
+                    <span>📈</span>
+                    <span id="perSecond">+$0/sec</span>
+                </div>
+                <div class="balance-stat positive">
+                    <span>💰</span>
+                    <span id="perClick">+$1/click</span>
+                </div>
+            </div>
         </div>
         
-        <!-- Stats Bar -->
+        <div class="click-area" id="clickArea">
+            <div class="click-coin">💵</div>
+            <div class="click-text">Tap to Invest</div>
+            <div class="click-subtext">Every click earns money</div>
+        </div>
+        
         <div class="stats-bar">
             <div class="stat-item">
-                <div class="stat-label">💵 Cash</div>
-                <div class="stat-value cash" id="cash">$0</div>
+                <div class="stat-value" id="totalClicks">0</div>
+                <div class="stat-label">Clicks</div>
             </div>
             <div class="stat-item">
-                <div class="stat-label">📊 Portfolio</div>
-                <div class="stat-value portfolio" id="portfolio">$0</div>
+                <div class="stat-value" id="level">1</div>
+                <div class="stat-label">Level</div>
             </div>
             <div class="stat-item">
-                <div class="stat-label">💰 Net Worth</div>
-                <div class="stat-value" id="networth">$0</div>
+                <div class="stat-value" id="achievements">0</div>
+                <div class="stat-label">Badges</div>
             </div>
         </div>
         
-        <!-- Passive Income Bar -->
-        <div class="income-bar" onclick="manualEarn(event)">
-            <span class="income-label">💸 Passive Income (tap to boost!)</span>
-            <span class="income-value" id="income">+$0/sec</span>
-        </div>
-        
-        <!-- Investment Grid -->
-        <div class="investment-grid" id="investment-grid">
-            <!-- Generated by JS -->
-        </div>
-        
-        <!-- Upgrades Panel -->
-        <div class="upgrades-panel">
-            <div class="panel-title">⚡ Upgrades</div>
-            <div id="upgrades-list">
-                <!-- Generated by JS -->
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">Investments</h2>
+                <button class="section-action" onclick="showAllInvestments()">View All</button>
+            </div>
+            <div class="investment-list" id="investmentList">
+                <!-- Investments populated by JS -->
             </div>
         </div>
         
-        <!-- Progress Section -->
-        <div class="progress-section">
-            <div class="progress-header">
-                <span class="progress-title">📈 Progress to Level <span id="next-level">2</span></span>
-                <span class="progress-value" id="progress-text">0%</span>
-            </div>
-            <div class="progress-bar">
-                <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
-            </div>
-        </div>
-        
-        <!-- Achievements -->
-        <div class="achievements">
-            <div class="panel-title">🏆 Achievements</div>
-            <div class="achievement-grid" id="achievement-grid">
-                <!-- Generated by JS -->
-            </div>
+        <div class="progress-ring" onclick="showProgress()">
+            <svg width="48" height="48">
+                <circle class="bg" cx="24" cy="24" r="20"></circle>
+                <circle class="progress" cx="24" cy="24" r="20" 
+                    stroke-dasharray="125.6" 
+                    stroke-dashoffset="125.6"
+                    id="progressCircle"></circle>
+            </svg>
+            <span class="progress-text" id="progressPercent">0%</span>
         </div>
     </div>
-
+    
     <script>
         // Game State
-        let gameState = {
+        let state = {
             cash: 0,
-            portfolio: 0,
-            income: 0,
+            totalClicks: 0,
+            perClick: 1,
+            perSecond: 0,
             level: 1,
             xp: 0,
-            xpToNext: 100,
-            investments: {},
-            upgrades: {},
+            xpNeeded: 100,
             achievements: [],
-            startTime: Date.now()
+            investments: [
+                { id: 'savings', name: 'Savings Account', icon: '🏦', return: 1, cost: 50, owned: 0 },
+                { id: 'stocks', name: 'Stock Portfolio', icon: '📈', return: 5, cost: 250, owned: 0 },
+                { id: 'realEstate', name: 'Real Estate', icon: '🏢', return: 25, cost: 1000, owned: 0 },
+                { id: 'crypto', name: 'Crypto Mining', icon: '₿', return: 100, cost: 5000, owned: 0 },
+                { id: 'business', name: 'Business Empire', icon: '🏭', return: 500, cost: 25000, owned: 0 }
+            ]
         };
         
-        // Investment Types
-        const investments = [
-            { id: 'savings', name: 'Savings Account', icon: '🏦', cost: 10, return: 1, desc: 'Safe & steady 1% return' },
-            { id: 'bonds', name: 'Government Bonds', icon: '📜', cost: 50, return: 3, desc: 'Reliable 3% interest' },
-            { id: 'stocks', name: 'Index Funds', icon: '📈', cost: 200, return: 8, desc: 'Market average 8% growth' },
-            { id: 'realestate', name: 'Real Estate', icon: '🏠', cost: 1000, return: 25, desc: 'Property rentals 25% yield' },
-            { id: 'business', name: 'Small Business', icon: '🏪', cost: 5000, return: 80, desc: 'Entrepreneurship 80% profit' },
-            { id: 'crypto', name: 'Crypto Assets', icon: '₿', cost: 20000, return: 200, desc: 'High risk, high reward' }
-        ];
-        
-        // Upgrades
-        const upgradesList = [
-            { id: 'click', name: 'Click Power', desc: 'Double your manual earnings', cost: 100, multiplier: 2 },
-            { id: 'auto', name: 'Auto-Investor', desc: '10% faster passive income', cost: 500, multiplier: 1.1 },
-            { id: 'bonus', name: 'Lucky Bonus', desc: 'Random bonus every minute', cost: 2000, multiplier: 1 },
-            { id: 'compound', name: 'Compound Interest', desc: 'All returns increased by 25%', cost: 10000, multiplier: 1.25 }
-        ];
-        
-        // Achievements
-        const achievements = [
-            { id: 'first', name: 'First Steps', icon: '👣', condition: () => gameState.cash >= 100 },
-            { id: 'investor', name: 'Investor', icon: '📊', condition: () => Object.values(gameState.investments).reduce((a,b) => a+b, 0) >= 5 },
-            { id: 'thousand', name: 'Thousandaire', icon: '💵', condition: () => gameState.networth >= 1000 },
-            { id: 'million', name: 'Millionaire', icon: '💰', condition: () => gameState.networth >= 1000000 },
-            { id: 'diversified', name: 'Diversified', icon: '🌈', condition: () => Object.keys(gameState.investments).length >= 4 },
-            { id: 'upgrade', name: 'Upgrader', icon: '⚡', condition: () => Object.keys(gameState.upgrades).length >= 2 },
-            { id: 'passive', name: 'Passive Pro', icon: '📈', condition: () => gameState.income >= 1000 },
-            { id: 'time', name: 'Time Investor', icon: '⏰', condition: () => (Date.now() - gameState.startTime) > 300000 }
-        ];
-        
-        // Tutorial Steps
-        let tutorialStep = 0;
-        const tutorialSteps = [
-            { icon: '👋', title: 'Welcome!', text: 'Tap investments to buy them and generate passive income!' },
-            { icon: '💡', title: 'Smart Investing', text: 'Diversify across different assets for steady growth.' },
-            { icon: '⚡', title: 'Power Up', text: 'Buy upgrades to boost your earning potential!' },
-            { icon: '🏆', title: 'Achievements', text: 'Unlock achievements as you build your empire!' }
-        ];
-        
-        function startGame() {
-            document.getElementById('start-screen').classList.add('hidden');
-            document.getElementById('game-container').style.display = 'block';
-            
-            // Initialize investments
-            investments.forEach(inv => {
-                gameState.investments[inv.id] = 0;
-            });
-            
-            // Give starting cash
-            gameState.cash = 50;
-            
-            // Show tutorial for first time
-            if (!localStorage.getItem('tycoon-tutorial')) {
-                document.getElementById('tutorial').classList.add('active');
-            }
-            
-            renderInvestments();
-            renderUpgrades();
-            renderAchievements();
-            updateDisplay();
-            
-            // Start passive income loop
-            setInterval(passiveIncome, 1000);
-            
-            // Check achievements loop
-            setInterval(checkAchievements, 1000);
-            
-            // Save loop
-            setInterval(saveGame, 5000);
-            
-            // Load saved game
-            loadGame();
-        }
-        
-        function nextTutorial() {
-            tutorialStep++;
-            if (tutorialStep >= tutorialSteps.length) {
-                document.getElementById('tutorial').classList.remove('active');
-                localStorage.setItem('tycoon-tutorial', 'done');
-            } else {
-                const step = tutorialSteps[tutorialStep];
-                document.getElementById('tutorial-icon').textContent = step.icon;
-                document.getElementById('tutorial-title').textContent = step.title;
-                document.getElementById('tutorial-text').textContent = step.text;
-            }
-        }
-        
-        function renderInvestments() {
-            const grid = document.getElementById('investment-grid');
-            grid.innerHTML = '';
-            
-            investments.forEach(inv => {
-                const owned = gameState.investments[inv.id] || 0;
-                const canAfford = gameState.cash >= inv.cost;
-                
-                const card = document.createElement('div');
-                card.className = `investment-card ${!canAfford && owned === 0 ? 'locked' : ''}`;
-                card.onclick = () => buyInvestment(inv.id);
-                
-                card.innerHTML = `
-                    <div class="investment-icon">${inv.icon}</div>
-                    <div class="investment-name">${inv.name}</div>
-                    <div class="investment-return">${inv.desc}</div>
-                    <div class="investment-cost">$${formatNumber(inv.cost)}</div>
-                    ${owned > 0 ? `<div class="investment-owned">${owned} owned</div>` : ''}
-                `;
-                
-                grid.appendChild(card);
-            });
-        }
-        
-        function renderUpgrades() {
-            const list = document.getElementById('upgrades-list');
-            list.innerHTML = '';
-            
-            upgradesList.forEach(upgrade => {
-                const owned = gameState.upgrades[upgrade.id] || 0;
-                const canAfford = gameState.cash >= upgrade.cost;
-                
-                const item = document.createElement('div');
-                item.className = 'upgrade-item';
-                item.innerHTML = `
-                    <div class="upgrade-info">
-                        <div class="upgrade-name">${upgrade.name}</div>
-                        <div class="upgrade-desc">${upgrade.desc}</div>
-                    </div>
-                    <button class="upgrade-btn" onclick="buyUpgrade('${upgrade.id}')" ${!canAfford ? 'disabled' : ''}>
-                        $${formatNumber(upgrade.cost)}
-                    </button>
-                `;
-                
-                list.appendChild(item);
-            });
-        }
-        
-        function renderAchievements() {
-            const grid = document.getElementById('achievement-grid');
-            grid.innerHTML = '';
-            
-            achievements.forEach(ach => {
-                const unlocked = gameState.achievements.includes(ach.id);
-                
-                const div = document.createElement('div');
-                div.className = `achievement ${unlocked ? 'unlocked' : ''}`;
-                div.title = ach.name;
-                div.textContent = ach.icon;
-                
-                grid.appendChild(div);
-            });
-        }
-        
-        function buyInvestment(id) {
-            const inv = investments.find(i => i.id === id);
-            if (gameState.cash >= inv.cost) {
-                gameState.cash -= inv.cost;
-                gameState.investments[id]++;
-                gameState.income += inv.return;
-                
-                // Increase cost
-                inv.cost = Math.floor(inv.cost * 1.15);
-                
-                // Add XP
-                addXP(10);
-                
-                // Visual feedback
-                showFloatingText(`+$${inv.return}/sec`, event.clientX, event.clientY);
-                
-                renderInvestments();
-                updateDisplay();
-                saveGame();
-            }
-        }
-        
-        function buyUpgrade(id) {
-            const upgrade = upgradesList.find(u => u.id === id);
-            if (gameState.cash >= upgrade.cost) {
-                gameState.cash -= upgrade.cost;
-                gameState.upgrades[id] = (gameState.upgrades[id] || 0) + 1;
-                
-                // Apply upgrade effects
-                if (id === 'compound') {
-                    gameState.income = Math.floor(gameState.income * upgrade.multiplier);
-                }
-                
-                // Increase cost
-                upgrade.cost = Math.floor(upgrade.cost * 2);
-                
-                addXP(25);
-                renderUpgrades();
-                updateDisplay();
-                saveGame();
-            }
-        }
-        
-        function manualEarn(event) {
-            let amount = 1;
-            if (gameState.upgrades.click) {
-                amount *= Math.pow(2, gameState.upgrades.click);
-            }
-            
-            gameState.cash += amount;
-            addXP(1);
-            
-            showFloatingText(`+$${amount}`, event.clientX, event.clientY);
-            updateDisplay();
-        }
-        
-        function passiveIncome() {
-            let income = gameState.income;
-            
-            if (gameState.upgrades.auto) {
-                income *= Math.pow(1.1, gameState.upgrades.auto);
-            }
-            
-            gameState.cash += income;
-            gameState.portfolio += income;
-            
-            // Random bonus
-            if (gameState.upgrades.bonus && Math.random() < 0.1) {
-                const bonus = Math.floor(income * 5);
-                gameState.cash += bonus;
-                showFloatingText(`🎉 Bonus +$${bonus}!`, window.innerWidth/2, window.innerHeight/2);
-            }
-            
-            updateDisplay();
-        }
-        
-        function addXP(amount) {
-            gameState.xp += amount;
-            if (gameState.xp >= gameState.xpToNext) {
-                levelUp();
-            }
-            updateDisplay();
-        }
-        
-        function levelUp() {
-            gameState.level++;
-            gameState.xp -= gameState.xpToNext;
-            gameState.xpToNext = Math.floor(gameState.xpToNext * 1.5);
-            
-            showFloatingText(`🎉 Level ${gameState.level}!`, window.innerWidth/2, window.innerHeight/2);
-            
-            // Bonus for leveling
-            gameState.cash += gameState.level * 100;
-        }
-        
-        function checkAchievements() {
-            achievements.forEach(ach => {
-                if (!gameState.achievements.includes(ach.id) && ach.condition()) {
-                    gameState.achievements.push(ach.id);
-                    showFloatingText(`🏆 ${ach.name} unlocked!`, window.innerWidth/2, window.innerHeight/2);
-                    renderAchievements();
-                    saveGame();
-                }
-            });
-        }
-        
-        function updateDisplay() {
-            document.getElementById('cash').textContent = '$' + formatNumber(gameState.cash);
-            document.getElementById('portfolio').textContent = '$' + formatNumber(gameState.portfolio);
-            document.getElementById('networth').textContent = '$' + formatNumber(gameState.cash + gameState.portfolio);
-            document.getElementById('income').textContent = '+$' + formatNumber(gameState.income) + '/sec';
-            document.getElementById('level').textContent = gameState.level;
-            document.getElementById('next-level').textContent = gameState.level + 1;
-            
-            const progress = (gameState.xp / gameState.xpToNext) * 100;
-            document.getElementById('progress-fill').style.width = progress + '%';
-            document.getElementById('progress-text').textContent = Math.floor(progress) + '%';
-        }
-        
-        function showFloatingText(text, x, y) {
-            const el = document.createElement('div');
-            el.className = 'floating-text';
-            el.textContent = text;
-            el.style.left = x + 'px';
-            el.style.top = y + 'px';
-            document.body.appendChild(el);
-            setTimeout(() => el.remove(), 1000);
-        }
-        
-        function formatNumber(num) {
-            if (num >= 1e9) return (num / 1e9).toFixed(1) + 'B';
-            if (num >= 1e6) return (num / 1e6).toFixed(1) + 'M';
-            if (num >= 1e3) return (num / 1e3).toFixed(1) + 'K';
-            return num.toString();
-        }
-        
-        function saveGame() {
-            try {
-                localStorage.setItem('tycoon-save', JSON.stringify(gameState));
-            } catch (e) {}
-        }
-        
+        // Load saved game
         function loadGame() {
-            try {
-                const saved = localStorage.getItem('tycoon-save');
-                if (saved) {
-                    const parsed = JSON.parse(saved);
-                    // Merge saved state
-                    Object.assign(gameState, parsed);
-                    renderInvestments();
-                    renderUpgrades();
-                    renderAchievements();
-                    updateDisplay();
-                }
-            } catch (e) {}
+            const saved = localStorage.getItem('investmentTycoon');
+            if (saved) {
+                const loaded = JSON.parse(saved);
+                state = { ...state, ...loaded };
+            }
+            updateUI();
+            renderInvestments();
         }
         
-        // Passive income calculation for offline time
-        window.addEventListener('beforeunload', () => {
-            localStorage.setItem('tycoon-last-save', Date.now().toString());
+        // Save game
+        function saveGame() {
+            localStorage.setItem('investmentTycoon', JSON.stringify(state));
+        }
+        
+        // Format currency
+        function formatMoney(amount) {
+            if (amount >= 1e12) return '$' + (amount / 1e12).toFixed(2) + 'T';
+            if (amount >= 1e9) return '$' + (amount / 1e9).toFixed(2) + 'B';
+            if (amount >= 1e6) return '$' + (amount / 1e6).toFixed(2) + 'M';
+            if (amount >= 1e3) return '$' + (amount / 1e3).toFixed(2) + 'K';
+            return '$' + Math.floor(amount).toLocaleString();
+        }
+        
+        // Update UI
+        function updateUI() {
+            document.getElementById('balance').textContent = formatMoney(state.cash);
+            document.getElementById('perSecond').textContent = '+' + formatMoney(state.perSecond) + '/sec';
+            document.getElementById('perClick').textContent = '+' + formatMoney(state.perClick) + '/click';
+            document.getElementById('totalClicks').textContent = state.totalClicks.toLocaleString();
+            document.getElementById('level').textContent = state.level;
+            document.getElementById('achievements').textContent = state.achievements.length;
+            
+            // Update progress ring
+            const progress = (state.xp / state.xpNeeded) * 100;
+            const circle = document.getElementById('progressCircle');
+            const circumference = 2 * Math.PI * 20;
+            const offset = circumference - (progress / 100) * circumference;
+            circle.style.strokeDashoffset = offset;
+            document.getElementById('progressPercent').textContent = Math.floor(progress) + '%';
+        }
+        
+        // Render investments
+        function renderInvestments() {
+            const list = document.getElementById('investmentList');
+            list.innerHTML = state.investments.map(inv => `
+                <div class="investment-card" onclick="buyInvestment('${inv.id}')">
+                    <div class="investment-icon">${inv.icon}</div>
+                    <div class="investment-info">
+                        <div class="investment-name">${inv.name}</div>
+                        <div class="investment-return">+${formatMoney(inv.return)}/sec</div>
+                    </div>
+                    <div class="investment-owned">
+                        <div class="investment-count">${inv.owned}</div>
+                        <div class="investment-label">owned</div>
+                    </div>
+                    <button class="upgrade-btn" ${state.cash < inv.cost ? 'disabled' : ''}>
+                        ${formatMoney(inv.cost)}
+                    </button>
+                </div>
+            `).join('');
+        }
+        
+        // Click handler
+        document.getElementById('clickArea').addEventListener('click', function(e) {
+            state.cash += state.perClick;
+            state.totalClicks++;
+            state.xp += 1;
+            
+            // Floating number
+            const float = document.createElement('div');
+            float.className = 'floating-number';
+            float.textContent = '+' + formatMoney(state.perClick);
+            float.style.left = e.clientX + 'px';
+            float.style.top = e.clientY + 'px';
+            document.body.appendChild(float);
+            setTimeout(() => float.remove(), 1000);
+            
+            // Haptic feedback
+            if (navigator.vibrate) navigator.vibrate(10);
+            
+            // Check level up
+            if (state.xp >= state.xpNeeded) {
+                state.level++;
+                state.xp = 0;
+                state.xpNeeded = Math.floor(state.xpNeeded * 1.5);
+            }
+            
+            updateUI();
+            renderInvestments();
+            saveGame();
         });
         
-        // Calculate offline earnings on load
-        window.addEventListener('load', () => {
-            const lastSave = localStorage.getItem('tycoon-last-save');
-            if (lastSave) {
-                const offlineTime = (Date.now() - parseInt(lastSave)) / 1000;
-                if (offlineTime > 10 && gameState.income > 0) {
-                    const offlineEarnings = Math.floor(gameState.income * Math.min(offlineTime, 3600));
-                    gameState.cash += offlineEarnings;
-                    gameState.portfolio += offlineEarnings;
-                    showFloatingText(`💤 Offline earnings: +$${formatNumber(offlineEarnings)}`, window.innerWidth/2, 100);
-                }
+        // Buy investment
+        function buyInvestment(id) {
+            const inv = state.investments.find(i => i.id === id);
+            if (inv && state.cash >= inv.cost) {
+                state.cash -= inv.cost;
+                inv.owned++;
+                inv.cost = Math.floor(inv.cost * 1.15);
+                state.perSecond += inv.return;
+                
+                if (navigator.vibrate) navigator.vibrate(20);
+                
+                updateUI();
+                renderInvestments();
+                saveGame();
             }
-        });
+        }
+        
+        // Passive income
+        setInterval(() => {
+            if (state.perSecond > 0) {
+                state.cash += state.perSecond;
+                updateUI();
+                renderInvestments();
+                saveGame();
+            }
+        }, 1000);
+        
+        // Placeholder functions
+        function showAchievements() { alert('Achievements coming soon!'); }
+        function showSettings() { alert('Settings coming soon!'); }
+        function showAllInvestments() { alert('All investments view coming soon!'); }
+        function showProgress() { alert('Progress details coming soon!'); }
+        
+        // Initialize
+        loadGame();
     </script>
 </body>
 </html>
