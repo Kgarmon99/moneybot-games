@@ -107,6 +107,13 @@
             justify-content: center;
             font-size: 28px;
             box-shadow: 0 0 20px rgba(0, 230, 118, 0.5);
+            overflow: hidden;
+        }
+        
+        .logo-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
         
         .logo-text {
@@ -306,10 +313,11 @@
             object-fit: cover;
             object-position: center center;
             transition: transform 0.3s ease;
+            max-height: 180px;
         }
         
         .game-preview .game-emoji {
-            font-size: 80px;
+            font-size: 60px;
             filter: drop-shadow(0 10px 30px rgba(0, 230, 118, 0.3));
             animation: float 3s ease-in-out infinite;
         }
@@ -493,7 +501,7 @@
 <body class="hub-page">
     <header class="header">
         <div class="logo">
-            <div class="logo-icon"><img src="assets/logo.jpg" alt="MoneyBot"></div>
+            <div class="logo-icon">🤖</div>
             <div class="logo-text">MoneyBot Gaming</div>
         </div>
         <div class="user-menu">
@@ -528,8 +536,8 @@
             <div class="games-grid">
                 <!-- FEATURED GAME: Budget Slice -->
                 <div class="game-card" style="grid-column: 1 / -1; border: 2px solid var(--moneybot-green);">
-                    <div class="game-preview" style="height: 240px; background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);">
-                        <img src="../assets/thumbnails/budget-slice.png" alt="Budget Slice" style="width: 100%; height: 100%; object-fit: cover; object-position: center 20%;">
+                    <div class="game-preview" style="height: 200px; background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);">
+                        <span class="game-emoji">⚔️</span>
                         <span class="game-badge" style="background: linear-gradient(135deg, #FBBF24, #D97706); font-size: 12px; padding: 6px 14px;">⭐ FEATURED</span>
                     </div>
                     <div class="game-info">
@@ -544,7 +552,7 @@
                 
                 <div class="game-card">
                     <div class="game-preview">
-                        <img src="../assets/thumbnails/investment-tycoon.png" alt="Investment Tycoon">
+                        <span class="game-emoji">🏦</span>
                         <span class="game-badge">Popular</span>
                     </div>
                     <div class="game-info">
@@ -559,7 +567,7 @@
                 
                 <div class="game-card">
                     <div class="game-preview">
-                        <img src="../assets/thumbnails/portfolio-balancer.png" alt="Portfolio Balancer">
+                        <span class="game-emoji">🍬</span>
                     </div>
                     <div class="game-info">
                         <div class="game-title">Portfolio Balancer</div>
@@ -573,7 +581,7 @@
                 
                 <div class="game-card">
                     <div class="game-preview">
-                        <img src="../assets/thumbnails/wealth-tower.png" alt="Wealth Tower">
+                        <span class="game-emoji">🏢</span>
                     </div>
                     <div class="game-info">
                         <div class="game-title">Wealth Tower</div>
@@ -587,7 +595,7 @@
                 
                 <div class="game-card">
                     <div class="game-preview">
-                        <img src="../assets/thumbnails/financial-wordle.png" alt="Financial Wordle">
+                        <span class="game-emoji">📝</span>
                         <span class="game-badge">New</span>
                     </div>
                     <div class="game-info">
@@ -602,7 +610,7 @@
                 
                 <div class="game-card">
                     <div class="game-preview">
-                        <img src="../assets/thumbnails/market-racer.png" alt="Market Racer">
+                        <span class="game-emoji">🏎️</span>
                     </div>
                     <div class="game-info">
                         <div class="game-title">Market Racer</div>
@@ -616,7 +624,7 @@
                 
                 <div class="game-card">
                     <div class="game-preview">
-                        <img src="../assets/thumbnails/compound-2048.png" alt="Compound 2048">
+                        <span class="game-emoji">🔢</span>
                     </div>
                     <div class="game-info">
                         <div class="game-title">Compound 2048</div>
@@ -630,7 +638,7 @@
                 
                 <div class="game-card">
                     <div class="game-preview">
-                        <img src="../assets/thumbnails/diversification-drop.png" alt="Diversification Drop">
+                        <span class="game-emoji">🎲</span>
                     </div>
                     <div class="game-info">
                         <div class="game-title">Diversification Drop</div>
@@ -644,7 +652,7 @@
                 
                 <div class="game-card">
                     <div class="game-preview">
-                        <img src="../assets/thumbnails/risk-tetris.png" alt="Risk Tetris">
+                        <span class="game-emoji">🧩</span>
                     </div>
                     <div class="game-info">
                         <div class="game-title">Risk Tetris</div>
@@ -658,7 +666,7 @@
                 
                 <div class="game-card">
                     <div class="game-preview">
-                        <img src="../assets/thumbnails/market-surfers.png" alt="Market Surfers">
+                        <span class="game-emoji">🏄</span>
                         <span class="game-badge">Hot</span>
                     </div>
                     <div class="game-info">
@@ -673,7 +681,7 @@
                 
                 <div class="game-card">
                     <div class="game-preview">
-                        <img src="../assets/thumbnails/budget-slice.png" alt="Budget Slice">
+                        <span class="game-emoji">⚔️</span>
                         <span class="game-badge">NEW</span>
                     </div>
                     <div class="game-info">
@@ -688,7 +696,7 @@
                 
                 <div class="game-card">
                     <div class="game-preview">
-                        <img src="../assets/thumbnails/debt-destroyer.png" alt="Debt Destroyer">
+                        <span class="game-emoji">💣</span>
                         <span class="game-badge">NEW</span>
                     </div>
                     <div class="game-info">
@@ -703,7 +711,7 @@
                 
                 <div class="game-card">
                     <div class="game-preview">
-                        <img src="../assets/thumbnails/coin-collector.png" alt="Coin Collector">
+                        <span class="game-emoji">🟡</span>
                         <span class="game-badge">NEW</span>
                     </div>
                     <div class="game-info">
@@ -718,7 +726,7 @@
                 
                 <div class="game-card">
                     <div class="game-preview">
-                        <img src="../assets/thumbnails/investment-tycoon.png" alt="MoneyBot 3D Showcase">
+                        <span class="game-emoji">🤖</span>
                         <span class="game-badge" style="background: linear-gradient(135deg, #8B5CF6, #EC4899);">3D</span>
                     </div>
                     <div class="game-info">
@@ -930,7 +938,7 @@
         </section>
     </div>
     
-    <div class="mascot" onclick="showMascotMessage()"><img src="assets/mascot.jpg" alt="MoneyBot" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;"></div>
+    <div class="mascot" onclick="showMascotMessage()">🤖</div>
     
     <footer class="footer">
         <p><span class="footer-brand">MoneyBot Gaming</span> — Play. Learn. Earn.</p>
