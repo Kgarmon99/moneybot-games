@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Budget Sudoku | MoneyBot Gaming</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            user-select: none;
+        }
+        
+        :root {
+            --moneybot-green: #00E676;
+            --moneybot-green-light: #69F0AE;
+            --moneybot-green-dark: #00C853;
+            --moneybot-glow: rgba(0, 230, 118, 0.4);
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%);
+            min-height: 100vh;
+            overflow: hidden;
+        }
+        
+        /* Grid Background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 230, 118, 0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 230, 118, 0.04) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        /* Green Glow Aura */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, var(--moneybot-glow) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+            animation: pulse 4s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; transform: translate(-50%, -50%) scale(1); }
+            50% { opacity: 0.6; transform: translate(-50%, -50%) scale(1.2); }
+        }
+        
+        .app {
+            max-width: 430px;
+            margin: 0 auto;
+            min-height: 100vh;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        
+        .header-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .back-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            background: rgba(0, 230, 118, 0.1);
+            border: none;
+            color: var(--moneybot-green);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 20px;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        
+        .back-btn:active { transform: scale(0.95); }
+        
+        .header-title {
+            font-weight: 800;
+            font-size: 20px;
+            color: #1e293b;
+        }
+        
+        .timer-pill {
+            background: linear-gradient(135deg, var(--moneybot-green), var(--moneybot-green-dark));
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 700;
+            font-size: 16px;
+            box-shadow: 0 4px 15px rgba(0, 230, 118, 0.3);
+        }
+        
+        .game-container {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .game-board {
+            background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+            border-radius: 20px;
+            padding: 15px;
+            box-shadow: 0 0 40px rgba(0, 230, 118, 0.2);
+        }
+        
+        .sudoku-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 3px;
+            background: #334155;
+            padding: 3px;
+            border-radius: 8px;
+        }
+        
+        .cell {
+            width: 60px;
+            height: 60px;
+            background: #1e293b;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: 700;
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .cell:hover {
+            background: #334155;
+        }
+        
+        .cell.selected {
+            background: var(--moneybot-green);
+            color: #0f172a;
+            box-shadow: 0 0 20px rgba(0, 230, 118, 0.5);
+        }
+        
+        .cell.fixed {
+            background: #334155;
+            color: #94a3b8;
+            cursor: default;
+        }
+        
+        .cell.error {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .number-pad {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .number-btn {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--moneybot-green), var(--moneybot-green-dark));
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 24px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 15px rgba(0, 230, 118, 0.3);
+        }
+        
+        .number-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 230, 118, 0.4);
+        }
+        
+        .number-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .overlay-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            z-index: 200;
+            padding: 40px;
+        }
+        
+        .overlay-screen.hidden { display: none; }
+        
+        .game-icon {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, var(--moneybot-green), var(--moneybot-green-dark));
+            border-radius: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+            margin-bottom: 30px;
+            box-shadow: 0 0 40px rgba(0, 230, 118, 0.5);
+        }
+        
+        .game-title {
+            font-size: 36px;
+            font-weight: 900;
+            color: #1e293b;
+            margin-bottom: 12px;
+        }
+        
+        .game-subtitle {
+            color: #64748b;
+            font-size: 17px;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+        
+        .primary-btn {
+            background: linear-gradient(135deg, var(--moneybot-green), var(--moneybot-green-dark));
+            color: white;
+            border: none;
+            padding: 20px 60px;
+            font-size: 18px;
+            font-weight: 700;
+            border-radius: 16px;
+            cursor: pointer;
+            box-shadow: 0 0 30px rgba(0, 230, 118, 0.4);
+            transition: all 0.3s;
+            width: 100%;
+            max-width: 280px;
+        }
+        
+        .primary-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 40px rgba(0, 230, 118, 0.6);
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <div class="header">
+            <div class="header-logo">
+                <a href="../moneybot-official/" class="back-btn">←</a>
+                <span class="header-title">Budget Sudoku</span>
+            </div>
+            <div class="timer-pill"><span id="timer">00:00</span></div>
+        </div>
+        
+        <div class="game-container">
+            <div class="game-board">
+                <div class="sudoku-grid" id="grid"></div>
+            </div>
+            <div class="number-pad">
+                <button class="number-btn" onclick="enterNumber(1)">1</button>
+                <button class="number-btn" onclick="enterNumber(2)">2</button>
+                <button class="number-btn" onclick="enterNumber(3)">3</button>
+                <button class="number-btn" onclick="enterNumber(4)">4</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="overlay-screen" id="startScreen">
+        <div class="game-icon">🔢</div>
+        <div class="game-title">Budget Sudoku</div>
+        <div class="game-subtitle">Balance your budget categories!<br>Fill the grid with spending amounts</div>
+        <button class="primary-btn" onclick="startGame()">Start Puzzle</button>
+    </div>
+    
+    <div class="overlay-screen hidden" id="gameOverScreen">
+        <div class="game-icon" style="background: linear-gradient(135deg, #10b981, #059669);">🎉</div>
+        <div class="game-title">Balanced!</div>
+        <div class="game-subtitle">Time: <span id="finalTime" style="color: var(--moneybot-green); font-weight: 800;">00:00</span></div>
+        <button class="primary-btn" onclick="restartGame()">New Budget</button>
+    </div>
+    
+    <script>
+        let grid = [];
+        let solution = [];
+        let selectedCell = null;
+        let startTime = null;
+        let timerInterval = null;
+        let gameRunning = false;
+        
+        function generateSolution() {
+            const base = [1, 2, 3, 4];
+            solution = [
+                [1, 2, 3, 4],
+                [3, 4, 1, 2],
+                [2, 1, 4, 3],
+                [4, 3, 2, 1]
+            ];
+            
+            // Shuffle rows within bands
+            for (let band = 0; band < 2; band++) {
+                const rows = [band * 2, band * 2 + 1];
+                if (Math.random() > 0.5) {
+                    [solution[rows[0]], solution[rows[1]]] = [solution[rows[1]], solution[rows[0]]];
+                }
+            }
+            
+            // Shuffle columns within stacks
+            for (let stack = 0; stack < 2; stack++) {
+                if (Math.random() > 0.5) {
+                    for (let row = 0; row < 4; row++) {
+                        [solution[row][stack * 2], solution[row][stack * 2 + 1]] = 
+                        [solution[row][stack * 2 + 1], solution[row][stack * 2]];
+                    }
+                }
+            }
+        }
+        
+        function createPuzzle() {
+            generateSolution();
+            grid = solution.map(row => [...row]);
+            
+            // Remove numbers to create puzzle
+            const cellsToRemove = 8;
+            let removed = 0;
+            while (removed < cellsToRemove) {
+                const row = Math.floor(Math.random() * 4);
+                const col = Math.floor(Math.random() * 4);
+                if (grid[row][col] !== 0) {
+                    grid[row][col] = 0;
+                    removed++;
+                }
+            }
+        }
+        
+        function renderGrid() {
+            const gridEl = document.getElementById('grid');
+            gridEl.innerHTML = '';
+            
+            for (let row = 0; row < 4; row++) {
+                for (let col = 0; col < 4; col++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.dataset.row = row;
+                    cell.dataset.col = col;
+                    
+                    if (grid[row][col] !== 0) {
+                        cell.textContent = grid[row][col];
+                        cell.classList.add('fixed');
+                    } else {
+                        cell.onclick = () => selectCell(row, col);
+                    }
+                    
+                    gridEl.appendChild(cell);
+                }
+            }
+        }
+        
+        function selectCell(row, col) {
+            if (!gameRunning) return;
+            
+            document.querySelectorAll('.cell').forEach(c => c.classList.remove('selected'));
+            selectedCell = { row, col };
+            
+            const cells = document.querySelectorAll('.cell');
+            cells[row * 4 + col].classList.add('selected');
+        }
+        
+        function enterNumber(num) {
+            if (!gameRunning || !selectedCell) return;
+            
+            const { row, col } = selectedCell;
+            grid[row][col] = num;
+            
+            const cells = document.querySelectorAll('.cell');
+            const cell = cells[row * 4 + col];
+            cell.textContent = num;
+            cell.classList.remove('selected');
+            
+            if (num !== solution[row][col]) {
+                cell.classList.add('error');
+                setTimeout(() => cell.classList.remove('error'), 500);
+            }
+            
+            selectedCell = null;
+            
+            if (navigator.vibrate) navigator.vibrate(10);
+            
+            checkWin();
+        }
+        
+        function checkWin() {
+            for (let row = 0; row < 4; row++) {
+                for (let col = 0; col < 4; col++) {
+                    if (grid[row][col] !== solution[row][col]) return;
+                }
+            }
+            
+            gameOver();
+        }
+        
+        function startTimer() {
+            startTime = Date.now();
+            timerInterval = setInterval(() => {
+                const elapsed = Math.floor((Date.now() - startTime) / 1000);
+                const minutes = Math.floor(elapsed / 60).toString().padStart(2, '0');
+                const seconds = (elapsed % 60).toString().padStart(2, '0');
+                document.getElementById('timer').textContent = `${minutes}:${seconds}`;
+            }, 1000);
+        }
+        
+        function stopTimer() {
+            clearInterval(timerInterval);
+        }
+        
+        function startGame() {
+            document.getElementById('startScreen').classList.add('hidden');
+            document.getElementById('gameOverScreen').classList.add('hidden');
+            gameRunning = true;
+            createPuzzle();
+            renderGrid();
+            startTimer();
+        }
+        
+        function restartGame() {
+            startGame();
+        }
+        
+        function gameOver() {
+            gameRunning = false;
+            stopTimer();
+            document.getElementById('finalTime').textContent = document.getElementById('timer').textContent;
+            document.getElementById('gameOverScreen').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
