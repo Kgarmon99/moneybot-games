@@ -3,150 +3,200 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Market Surfers - Subway Surfers Style</title>
+    <title>Market Surfers | MoneyBot</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;500;600;700;800&display=swap');
         
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
             touch-action: none;
             user-select: none;
         }
         
         :root {
-            --mb-green: #00E676;
-            --mb-green-dark: #00C853;
-            --mb-gold: #FBBF24;
-            --mb-dark: #0F172A;
+            --moneybot-green: #00E676;
+            --moneybot-green-light: #69F0AE;
+            --moneybot-green-dark: #00C853;
+            --moneybot-gold: #FBBF24;
+            --moneybot-dark: #1A1A2E;
+            --moneybot-gray: #F5F5F7;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+            --shadow-lg: 0 12px 40px rgba(0,0,0,0.12);
+            --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+            --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
         }
         
         body {
-            font-family: 'Inter', sans-serif;
-            background: #0F172A;
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', sans-serif;
+            background: var(--moneybot-dark);
+            min-height: 100vh;
+            color: white;
             overflow: hidden;
+            -webkit-font-smoothing: antialiased;
         }
         
-        #game-container {
+        /* App Container */
+        .app {
             position: relative;
-            width: 100vw;
-            height: 100vh;
+            max-width: 430px;
+            margin: 0 auto;
+            min-height: 100vh;
+            background: var(--moneybot-dark);
+            display: flex;
+            flex-direction: column;
         }
         
-        canvas {
-            display: block;
-        }
-        
-        .ui {
+        /* Header */
+        .header {
+            background: rgba(26, 26, 46, 0.9);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             position: absolute;
             top: 0;
             left: 0;
-            width: 100%;
-            padding: 20px;
-            display: flex;
-            justify-content: space-between;
-            pointer-events: none;
-            z-index: 10;
+            right: 0;
+            z-index: 100;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
         }
         
-        .score-display {
-            background: rgba(0, 230, 118, 0.2);
-            border: 2px solid var(--mb-green);
-            padding: 12px 24px;
-            border-radius: 50px;
-            color: white;
-            font-weight: 800;
-            font-size: 1.2rem;
-            backdrop-filter: blur(10px);
-        }
-        
-        .coin-display {
-            background: rgba(251, 191, 36, 0.2);
-            border: 2px solid var(--mb-gold);
-            padding: 12px 24px;
-            border-radius: 50px;
-            color: var(--mb-gold);
-            font-weight: 800;
-            font-size: 1.2rem;
-            backdrop-filter: blur(10px);
+        .header-logo {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 12px;
         }
         
-        .controls {
-            position: absolute;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 15px;
-            z-index: 10;
-        }
-        
-        .control-btn {
-            width: 70px;
-            height: 70px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            color: white;
-            font-size: 1.8rem;
+        .back-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            border: none;
+            background: rgba(0, 230, 118, 0.15);
+            color: var(--moneybot-green);
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: all 0.2s;
-            backdrop-filter: blur(10px);
+            transition: all 0.2s var(--ease-out-expo);
+            text-decoration: none;
         }
         
-        .control-btn:active {
-            background: var(--mb-green);
-            transform: scale(0.95);
+        .back-btn:hover {
+            background: rgba(0, 230, 118, 0.25);
+            transform: translateX(-2px);
         }
         
+        .back-btn:active {
+            transform: scale(0.92);
+        }
+        
+        .header-title {
+            font-weight: 700;
+            font-size: 17px;
+            letter-spacing: -0.3px;
+            color: white;
+        }
+        
+        .header-stats {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .stat-badge {
+            background: rgba(0, 230, 118, 0.15);
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--moneybot-green);
+            border: 1px solid rgba(0, 230, 118, 0.3);
+        }
+        
+        .stat-badge.coins {
+            background: rgba(251, 191, 36, 0.15);
+            color: var(--moneybot-gold);
+            border-color: rgba(251, 191, 36, 0.3);
+        }
+        
+        /* Game Container */
+        .game-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        #game-canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+        
+        /* Start Screen */
         .start-screen {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(180deg, rgba(15, 23, 42, 0.95) 0%, rgba(0, 0, 0, 0.98) 100%);
+            background: linear-gradient(180deg, rgba(26, 26, 46, 0.95) 0%, rgba(0,0,0,0.98) 100%);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            z-index: 100;
+            z-index: 200;
+            padding: 40px 20px;
         }
         
-        .logo {
-            font-size: 3.5rem;
-            font-weight: 900;
-            background: linear-gradient(135deg, var(--mb-green), var(--mb-gold));
+        .start-screen.hidden {
+            display: none;
+        }
+        
+        .game-logo {
+            font-size: 80px;
+            margin-bottom: 20px;
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .game-title {
+            font-size: 36px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--moneybot-green), var(--moneybot-gold));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
             text-align: center;
         }
         
-        .subtitle {
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 1.1rem;
+        .game-subtitle {
+            color: rgba(255,255,255,0.6);
+            font-size: 16px;
             margin-bottom: 40px;
+            text-align: center;
         }
         
         .start-btn {
-            background: linear-gradient(135deg, var(--mb-green), var(--mb-green-dark));
+            background: linear-gradient(135deg, var(--moneybot-green) 0%, var(--moneybot-green-dark) 100%);
             color: white;
             border: none;
             padding: 20px 60px;
-            font-size: 1.3rem;
+            font-size: 18px;
             font-weight: 700;
             border-radius: 50px;
             cursor: pointer;
             box-shadow: 0 10px 40px rgba(0, 230, 118, 0.4);
-            transition: all 0.3s;
+            transition: all 0.3s var(--ease-spring);
         }
         
         .start-btn:hover {
@@ -154,134 +204,250 @@
             box-shadow: 0 15px 50px rgba(0, 230, 118, 0.5);
         }
         
-        .instructions {
-            margin-top: 30px;
-            color: rgba(255, 255, 255, 0.5);
-            text-align: center;
-            font-size: 0.9rem;
+        .start-btn:active {
+            transform: scale(0.96);
         }
         
+        .instructions {
+            margin-top: 40px;
+            text-align: center;
+            color: rgba(255,255,255,0.5);
+            font-size: 14px;
+            line-height: 1.8;
+        }
+        
+        .instruction-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        
+        /* Game Over Screen */
         .game-over {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.9);
+            background: rgba(0,0,0,0.9);
+            backdrop-filter: blur(10px);
             display: none;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            z-index: 100;
+            z-index: 300;
+            padding: 40px 20px;
         }
         
         .game-over.show {
             display: flex;
+            animation: fadeIn 0.3s ease;
         }
         
-        .game-over-title {
-            font-size: 3rem;
-            font-weight: 900;
-            color: #EF4444;
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .crash-icon {
+            font-size: 80px;
             margin-bottom: 20px;
+            animation: shake 0.5s ease;
         }
         
-        .final-score {
-            font-size: 2rem;
-            color: white;
-            margin-bottom: 10px;
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
         }
         
-        .final-coins {
-            font-size: 1.5rem;
-            color: var(--mb-gold);
+        .crash-title {
+            font-size: 28px;
+            font-weight: 800;
+            color: #EF4444;
             margin-bottom: 30px;
         }
         
+        .final-stats {
+            background: rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 24px 32px;
+            margin-bottom: 30px;
+            display: flex;
+            gap: 40px;
+        }
+        
+        .final-stat {
+            text-align: center;
+        }
+        
+        .final-stat-value {
+            font-size: 32px;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 4px;
+        }
+        
+        .final-stat-value.coins {
+            color: var(--moneybot-gold);
+        }
+        
+        .final-stat-label {
+            font-size: 12px;
+            color: rgba(255,255,255,0.6);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
         .restart-btn {
-            background: var(--mb-green);
+            background: var(--moneybot-green);
             color: white;
             border: none;
-            padding: 15px 40px;
-            font-size: 1.1rem;
+            padding: 16px 48px;
+            font-size: 16px;
             font-weight: 700;
             border-radius: 50px;
             cursor: pointer;
+            transition: all 0.2s var(--ease-out-expo);
+        }
+        
+        .restart-btn:active {
+            transform: scale(0.96);
+        }
+        
+        /* Touch Controls */
+        .touch-controls {
+            position: absolute;
+            bottom: 30px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 40px;
+            pointer-events: none;
+            z-index: 50;
+        }
+        
+        .touch-area {
+            width: 80px;
+            height: 80px;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            pointer-events: auto;
+            transition: all 0.2s;
+        }
+        
+        .touch-area:active {
+            background: rgba(0, 230, 118, 0.3);
+            border-color: var(--moneybot-green);
+            transform: scale(0.95);
         }
     </style>
 </head>
 <body>
-    <div id="game-container">
-        <canvas id="canvas"></canvas>
-        
-        <div class="ui">
-            <div class="score-display">Score: <span id="score">0</span></div>
-            <div class="coin-display">🪙 <span id="coins">0</span></div>
-        </div>
-        
-        <div class="controls">
-            <div class="control-btn" id="leftBtn">←</div>
-            <div class="control-btn" id="jumpBtn">↑</div>
-            <div class="control-btn" id="rightBtn">→</div>
-        </div>
-        
-        <div class="start-screen" id="startScreen">
-            <div class="logo">MARKET SURFERS</div>
-            <div class="subtitle">Dodge the bears, collect the bulls!</div>
-            <button class="start-btn" onclick="startGame()">START RUNNING</button>
-            <div class="instructions">
-                Swipe or use arrow keys to move<br>
-                Jump over obstacles, collect coins
+    <div class="app">
+        <header class="header">
+            <div class="header-logo">
+                <a href="../moneybot-official/" class="back-btn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M19 12H5M12 19l-7-7 7-7"/>
+                    </svg>
+                </a>
+                <span class="header-title">Market Surfers</span>
             </div>
-        </div>
+            <div class="header-stats">
+                <div class="stat-badge"><span id="score">0</span></div>
+                <div class="stat-badge coins">🪙 <span id="coins">0</span></div>
+            </div>
+        </header>
         
-        <div class="game-over" id="gameOver">
-            <div class="game-over-title">MARKET CRASH!</div>
-            <div class="final-score">Score: <span id="finalScore">0</span></div>
-            <div class="final-coins">🪙 <span id="finalCoins">0</span></div>
-            <button class="restart-btn" onclick="restartGame()">RUN AGAIN</button>
+        <div class="game-container">
+            <canvas id="game-canvas"></canvas>
+            
+            <div class="start-screen" id="startScreen">
+                <div class="game-logo">🏄</div>
+                <div class="game-title">Market Surfers</div>
+                <div class="game-subtitle">Ride the market waves!</div>
+                <button class="start-btn" onclick="startGame()">START SURFING</button>
+                <div class="instructions">
+                    <div class="instruction-item">← → Swipe to switch lanes</div>
+                    <div class="instruction-item">🪙 Collect coins</div>
+                    <div class="instruction-item">🐻 Dodge the bears</div>
+                </div>
+            </div>
+            
+            <div class="game-over" id="gameOver">
+                <div class="crash-icon">💥</div>
+                <div class="crash-title">WIPEOUT!</div>
+                <div class="final-stats">
+                    <div class="final-stat">
+                        <div class="final-stat-value" id="finalScore">0</div>
+                        <div class="final-stat-label">Score</div>
+                    </div>
+                    <div class="final-stat">
+                        <div class="final-stat-value coins" id="finalCoins">0</div>
+                        <div class="final-stat-label">Coins</div>
+                    </div>
+                </div>
+                <button class="restart-btn" onclick="restartGame()">SURF AGAIN</button>
+            </div>
+            
+            <div class="touch-controls" id="touchControls" style="display: none;">
+                <div class="touch-area" onclick="moveLane(-1)">←</div>
+                <div class="touch-area" onclick="moveLane(1)">→</div>
+            </div>
         </div>
     </div>
     
     <script>
-        const canvas = document.getElementById('canvas');
+        const canvas = document.getElementById('game-canvas');
         const ctx = canvas.getContext('2d');
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
         
-        // Game state
         let gameRunning = false;
         let score = 0;
         let coins = 0;
         let speed = 8;
         let frame = 0;
         
-        // Player
-        const player = {
-            lane: 1, // 0 = left, 1 = center, 2 = right
-            y: canvas.height - 200,
+        let player = {
+            lane: 1,
+            y: 0,
             width: 50,
             height: 80,
             jumping: false,
             jumpHeight: 0,
             jumpVelocity: 0,
-            targetX: canvas.width / 2,
-            currentX: canvas.width / 2
+            targetX: 0,
+            currentX: 0
         };
         
-        const lanes = [canvas.width * 0.25, canvas.width * 0.5, canvas.width * 0.75];
-        
-        // Game objects
+        let lanes = [];
         let obstacles = [];
         let coinItems = [];
         let particles = [];
-        
-        // Ground scrolling
         let groundOffset = 0;
         
+        function resize() {
+            const container = canvas.parentElement;
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+            lanes = [canvas.width * 0.25, canvas.width * 0.5, canvas.width * 0.75];
+            player.y = canvas.height - 180;
+            player.targetX = lanes[1];
+            player.currentX = lanes[1];
+        }
+        
         function startGame() {
-            document.getElementById('startScreen').style.display = 'none';
             gameRunning = true;
+            document.getElementById('startScreen').classList.add('hidden');
+            document.getElementById('touchControls').style.display = 'flex';
             resetGame();
             gameLoop();
         }
@@ -291,9 +457,6 @@
             coins = 0;
             speed = 8;
             player.lane = 1;
-            player.y = canvas.height - 200;
-            player.jumping = false;
-            player.jumpHeight = 0;
             player.targetX = lanes[1];
             player.currentX = lanes[1];
             obstacles = [];
@@ -317,135 +480,177 @@
                 particles.push({
                     x: x,
                     y: y,
-                    vx: (Math.random() - 0.5) * 10,
-                    vy: (Math.random() - 0.5) * 10,
+                    vx: (Math.random() - 0.5) * 8,
+                    vy: (Math.random() - 0.5) * 8,
                     life: 1,
                     color: color
                 });
             }
         }
         
+        function drawGround() {
+            // Sky gradient
+            const skyGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            skyGradient.addColorStop(0, '#1A1A2E');
+            skyGradient.addColorStop(0.5, '#2D2D44');
+            skyGradient.addColorStop(1, '#0F172A');
+            ctx.fillStyle = skyGradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Moving grid lines (market chart effect)
+            ctx.strokeStyle = 'rgba(0, 230, 118, 0.15)';
+            ctx.lineWidth = 1;
+            groundOffset = (groundOffset + speed * 0.5) % 40;
+            
+            // Vertical grid
+            for (let i = -40; i < canvas.width + 40; i += 40) {
+                ctx.beginPath();
+                ctx.moveTo(i - groundOffset, 0);
+                ctx.lineTo(i - groundOffset - 20, canvas.height);
+                ctx.stroke();
+            }
+            
+            // Horizontal grid
+            for (let i = 0; i < canvas.height; i += 40) {
+                const y = (i + groundOffset * 2) % canvas.height;
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+            }
+            
+            // Lane markers
+            ctx.strokeStyle = 'rgba(0, 230, 118, 0.3)';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([20, 20]);
+            lanes.forEach(lane => {
+                ctx.beginPath();
+                ctx.moveTo(lane, 0);
+                ctx.lineTo(lane, canvas.height);
+                ctx.stroke();
+            });
+            ctx.setLineDash([]);
+        }
+        
         function drawPlayer() {
             // Smooth lane transition
             player.currentX += (player.targetX - player.currentX) * 0.15;
             
-            const x = player.currentX - player.width / 2;
-            const y = player.y - player.jumpHeight;
+            const x = player.currentX - player.width/2;
+            const y = player.y;
             
             // Shadow
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+            ctx.fillStyle = 'rgba(0,0,0,0.4)';
             ctx.beginPath();
-            ctx.ellipse(player.currentX, player.y + player.height - 5, 20, 8, 0, 0, Math.PI * 2);
+            ctx.ellipse(player.currentX, y + player.height - 5, 25, 10, 0, 0, Math.PI * 2);
             ctx.fill();
             
-            // Body (MoneyBot character)
-            ctx.fillStyle = '#00E676';
+            // Surfer body (MoneyBot style)
+            const bodyGradient = ctx.createLinearGradient(x, y, x, y + player.height);
+            bodyGradient.addColorStop(0, '#00E676');
+            bodyGradient.addColorStop(1, '#00C853');
+            ctx.fillStyle = bodyGradient;
             ctx.fillRect(x, y, player.width, player.height);
             
             // Head
-            ctx.fillStyle = '#00C853';
+            ctx.fillStyle = '#69F0AE';
             ctx.fillRect(x + 5, y - 20, player.width - 10, 25);
             
             // Eyes
             ctx.fillStyle = 'white';
             ctx.fillRect(x + 12, y - 15, 10, 10);
             ctx.fillRect(x + 28, y - 15, 10, 10);
-            ctx.fillStyle = '#0F172A';
+            ctx.fillStyle = '#1A1A2E';
             ctx.fillRect(x + 15, y - 12, 4, 4);
             ctx.fillRect(x + 31, y - 12, 4, 4);
             
-            // Running animation
-            const legOffset = Math.sin(frame * 0.3) * 10;
-            ctx.fillStyle = '#00C853';
-            ctx.fillRect(x + 5, y + player.height, 15, 20 + legOffset);
-            ctx.fillRect(x + 30, y + player.height, 15, 20 - legOffset);
-        }
-        
-        function drawGround() {
-            // Moving ground
-            ctx.fillStyle = '#1E293B';
-            ctx.fillRect(0, canvas.height - 100, canvas.width, 100);
+            // Surfboard
+            ctx.fillStyle = '#FBBF24';
+            ctx.beginPath();
+            ctx.ellipse(player.currentX, y + player.height + 15, 35, 8, 0, 0, Math.PI * 2);
+            ctx.fill();
             
-            // Lane markers
-            ctx.strokeStyle = 'rgba(0, 230, 118, 0.3)';
+            // Glow effect
+            ctx.shadowColor = '#00E676';
+            ctx.shadowBlur = 20;
+            ctx.strokeStyle = '#00E676';
             ctx.lineWidth = 2;
-            lanes.forEach(lane => {
-                ctx.beginPath();
-                ctx.setLineDash([20, 20]);
-                ctx.moveTo(lane, canvas.height - 100);
-                ctx.lineTo(lane, canvas.height);
-                ctx.stroke();
-            });
-            ctx.setLineDash([]);
-            
-            // Moving grid on ground
-            groundOffset = (groundOffset + speed) % 40;
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
-            ctx.lineWidth = 1;
-            for (let i = -40; i < canvas.width + 40; i += 40) {
-                ctx.beginPath();
-                ctx.moveTo(i - groundOffset, canvas.height - 100);
-                ctx.lineTo(i - groundOffset - 20, canvas.height);
-                ctx.stroke();
-            }
-        }
-        
-        function drawObstacles() {
-            obstacles.forEach(obs => {
-                const x = lanes[obs.lane] - 30;
-                const y = obs.y;
-                
-                if (obs.type === 'bear') {
-                    // Bear market obstacle (red bear)
-                    ctx.fillStyle = '#EF4444';
-                    ctx.beginPath();
-                    ctx.arc(x + 30, y + 30, 30, 0, Math.PI * 2);
-                    ctx.fill();
-                    // Bear face
-                    ctx.fillStyle = '#7F1D1D';
-                    ctx.fillRect(x + 15, y + 20, 10, 5);
-                    ctx.fillRect(x + 35, y + 20, 10, 5);
-                    ctx.fillRect(x + 25, y + 35, 10, 5);
-                    ctx.fillStyle = 'white';
-                    ctx.font = 'bold 16px Inter';
-                    ctx.fillText('🐻', x + 18, y + 50);
-                } else if (obs.type === 'barrier') {
-                    // Barrier
-                    ctx.fillStyle = '#F59E0B';
-                    ctx.fillRect(x, y, 60, 60);
-                    ctx.fillStyle = '#92400E';
-                    ctx.fillRect(x + 10, y + 10, 40, 40);
-                    ctx.fillStyle = '#FBBF24';
-                    ctx.font = 'bold 20px Inter';
-                    ctx.fillText('!', x + 25, y + 45);
-                }
-            });
+            ctx.strokeRect(x - 2, y - 2, player.width + 4, player.height + 4);
+            ctx.shadowBlur = 0;
         }
         
         function drawCoins() {
-            coinItems.forEach(coin => {
-                const x = lanes[coin.lane];
-                const y = coin.y;
+            coinItems = coinItems.filter(coin => {
+                coin.y += speed;
                 
-                // Rotating coin effect
-                const scale = 0.8 + Math.sin(frame * 0.1 + coin.offset) * 0.2;
+                // Collision
+                if (!coin.collected && 
+                    Math.abs(coin.x - player.currentX) < 40 && 
+                    Math.abs(coin.y - player.y - player.height/2) < 50) {
+                    coin.collected = true;
+                    coins += 1;
+                    createParticle(coin.x, coin.y, '#FBBF24');
+                    if (navigator.vibrate) navigator.vibrate(20);
+                    updateUI();
+                }
                 
-                ctx.fillStyle = '#FBBF24';
+                if (!coin.collected) {
+                    // Glow
+                    ctx.shadowColor = '#FBBF24';
+                    ctx.shadowBlur = 15;
+                    
+                    ctx.fillStyle = '#FBBF24';
+                    ctx.beginPath();
+                    ctx.arc(coin.x, coin.y, 18, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    ctx.shadowBlur = 0;
+                    
+                    // Inner
+                    ctx.fillStyle = '#FDE68A';
+                    ctx.beginPath();
+                    ctx.arc(coin.x - 3, coin.y - 3, 10, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    // $ symbol
+                    ctx.fillStyle = '#92400E';
+                    ctx.font = 'bold 16px -apple-system, sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('$', coin.x, coin.y + 5);
+                }
+                
+                return coin.y < canvas.height + 50 && !coin.collected;
+            });
+        }
+        
+        function drawObstacles() {
+            obstacles = obstacles.filter(obs => {
+                obs.y += speed;
+                
+                // Collision
+                if (obs.lane === player.lane && 
+                    Math.abs(obs.y - player.y - player.height/2) < 50) {
+                    gameOver();
+                    return false;
+                }
+                
+                // Draw bear obstacle
+                ctx.fillStyle = '#EF4444';
                 ctx.beginPath();
-                ctx.ellipse(x, y + 20, 20 * scale, 20, 0, 0, Math.PI * 2);
+                ctx.arc(obs.x, obs.y, 30, 0, Math.PI * 2);
                 ctx.fill();
                 
-                // Shine
-                ctx.fillStyle = '#FDE68A';
+                ctx.fillStyle = '#7F1D1D';
                 ctx.beginPath();
-                ctx.ellipse(x - 5, y + 15, 8 * scale, 8, 0, 0, Math.PI * 2);
+                ctx.arc(obs.x, obs.y, 20, 0, Math.PI * 2);
                 ctx.fill();
                 
-                // $ symbol
-                ctx.fillStyle = '#92400E';
-                ctx.font = 'bold 16px Inter';
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 24px -apple-system, sans-serif';
                 ctx.textAlign = 'center';
-                ctx.fillText('$', x, y + 26);
+                ctx.fillText('🐻', obs.x, obs.y + 8);
+                
+                return obs.y < canvas.height + 50;
             });
         }
         
@@ -453,8 +658,8 @@
             particles = particles.filter(p => {
                 p.x += p.vx;
                 p.y += p.vy;
-                p.vy += 0.5;
-                p.life -= 0.02;
+                p.vy += 0.3;
+                p.life -= 0.03;
                 
                 if (p.life > 0) {
                     ctx.globalAlpha = p.life;
@@ -467,89 +672,29 @@
             });
         }
         
-        function updateGame() {
+        function gameLoop() {
+            if (!gameRunning) return;
+            
             frame++;
             score += speed / 10;
             
-            // Spawn obstacles
-            if (frame % 60 === 0 && Math.random() < 0.7) {
-                obstacles.push({
-                    lane: Math.floor(Math.random() * 3),
-                    y: -100,
-                    type: Math.random() < 0.5 ? 'bear' : 'barrier'
-                });
-            }
-            
             // Spawn coins
-            if (frame % 40 === 0 && Math.random() < 0.8) {
+            if (frame % 40 === 0 && Math.random() < 0.7) {
                 coinItems.push({
-                    lane: Math.floor(Math.random() * 3),
-                    y: -100,
-                    offset: Math.random() * Math.PI * 2
+                    x: lanes[Math.floor(Math.random() * 3)],
+                    y: -50,
+                    collected: false
                 });
             }
             
-            // Update obstacles
-            obstacles = obstacles.filter(obs => {
-                obs.y += speed;
-                
-                // Collision detection
-                if (obs.lane === player.lane && 
-                    obs.y > player.y - player.height && 
-                    obs.y < player.y + player.height &&
-                    player.jumpHeight < 50) {
-                    gameOver();
-                }
-                
-                return obs.y < canvas.height + 100;
-            });
-            
-            // Update coins
-            coinItems = coinItems.filter(coin => {
-                coin.y += speed;
-                
-                // Collection detection
-                if (coin.lane === player.lane && 
-                    Math.abs(coin.y - player.y) < 60) {
-                    coins++;
-                    createParticle(lanes[coin.lane], coin.y, '#FBBF24');
-                    updateUI();
-                    return false;
-                }
-                
-                return coin.y < canvas.height + 100;
-            });
-            
-            // Increase speed gradually
-            if (frame % 300 === 0) {
-                speed += 0.5;
-            }
-            
-            // Jump physics
-            if (player.jumping) {
-                player.jumpHeight += player.jumpVelocity;
-                player.jumpVelocity -= 1.5;
-                
-                if (player.jumpHeight <= 0) {
-                    player.jumpHeight = 0;
-                    player.jumping = false;
-                }
-            }
-            
-            updateUI();
-        }
-        
-        function draw() {
-            // Clear with trail effect
-            ctx.fillStyle = 'rgba(15, 23, 42, 0.3)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
-            // Draw background buildings (parallax)
-            ctx.fillStyle = 'rgba(30, 41, 59, 0.5)';
-            for (let i = 0; i < 10; i++) {
-                const x = (i * 150 - frame * speed * 0.2) % (canvas.width + 200) - 100;
-                const height = 100 + Math.sin(i * 123) * 50;
-                ctx.fillRect(x, canvas.height - 100 - height, 80, height);
+            // Spawn obstacles
+            if (frame % 60 === 0 && Math.random() < 0.6) {
+                const lane = Math.floor(Math.random() * 3);
+                obstacles.push({
+                    lane: lane,
+                    x: lanes[lane],
+                    y: -50
+                });
             }
             
             drawGround();
@@ -557,85 +702,53 @@
             drawObstacles();
             drawPlayer();
             drawParticles();
-        }
-        
-        function gameLoop() {
-            if (!gameRunning) return;
             
-            updateGame();
-            draw();
+            speed += 0.005;
+            updateUI();
             
             requestAnimationFrame(gameLoop);
         }
         
+        function moveLane(direction) {
+            if (!gameRunning) return;
+            const newLane = player.lane + direction;
+            if (newLane >= 0 && newLane < 3) {
+                player.lane = newLane;
+                player.targetX = lanes[newLane];
+                if (navigator.vibrate) navigator.vibrate(10);
+            }
+        }
+        
         function gameOver() {
             gameRunning = false;
+            if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
             document.getElementById('finalScore').textContent = Math.floor(score);
             document.getElementById('finalCoins').textContent = coins;
             document.getElementById('gameOver').classList.add('show');
+            document.getElementById('touchControls').style.display = 'none';
         }
         
         // Controls
-        function moveLeft() {
-            if (player.lane > 0) player.lane--;
-            player.targetX = lanes[player.lane];
-        }
-        
-        function moveRight() {
-            if (player.lane < 2) player.lane++;
-            player.targetX = lanes[player.lane];
-        }
-        
-        function jump() {
-            if (!player.jumping) {
-                player.jumping = true;
-                player.jumpVelocity = 20;
-            }
-        }
-        
-        // Event listeners
         document.addEventListener('keydown', (e) => {
-            if (!gameRunning) return;
-            if (e.key === 'ArrowLeft') moveLeft();
-            if (e.key === 'ArrowRight') moveRight();
-            if (e.key === 'ArrowUp' || e.key === ' ') jump();
+            if (e.key === 'ArrowLeft') moveLane(-1);
+            if (e.key === 'ArrowRight') moveLane(1);
         });
         
-        document.getElementById('leftBtn').addEventListener('click', moveLeft);
-        document.getElementById('rightBtn').addEventListener('click', moveRight);
-        document.getElementById('jumpBtn').addEventListener('click', jump);
-        
-        // Touch controls
         let touchStartX = 0;
-        let touchStartY = 0;
-        
         document.addEventListener('touchstart', (e) => {
             touchStartX = e.touches[0].clientX;
-            touchStartY = e.touches[0].clientY;
         });
         
         document.addEventListener('touchend', (e) => {
-            if (!gameRunning) return;
-            const dx = e.changedTouches[0].clientX - touchStartX;
-            const dy = e.changedTouches[0].clientY - touchStartY;
-            
-            if (Math.abs(dx) > Math.abs(dy)) {
-                if (dx > 50) moveRight();
-                else if (dx < -50) moveLeft();
-            } else {
-                if (dy < -50) jump();
+            const touchEndX = e.changedTouches[0].clientX;
+            const diff = touchEndX - touchStartX;
+            if (Math.abs(diff) > 50) {
+                moveLane(diff > 0 ? 1 : -1);
             }
         });
         
-        // Resize handler
-        window.addEventListener('resize', () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-            player.y = canvas.height - 200;
-            lanes[0] = canvas.width * 0.25;
-            lanes[1] = canvas.width * 0.5;
-            lanes[2] = canvas.width * 0.75;
-        });
+        window.addEventListener('resize', resize);
+        resize();
     </script>
 </body>
 </html>
