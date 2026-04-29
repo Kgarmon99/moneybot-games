@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Cash Dash | MoneyBot Gaming</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: none; user-select: none; }
+        :root { --moneybot-green: #00E676; --moneybot-green-light: #69F0AE; --moneybot-green-dark: #00C853; --moneybot-glow: rgba(0, 230, 118, 0.4); }
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%); min-height: 100vh; overflow: hidden; }
+        body::before { content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-image: linear-gradient(rgba(0, 230, 118, 0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 230, 118, 0.04) 1px, transparent 1px); background-size: 50px 50px; pointer-events: none; z-index: 0; }
+        body::after { content: ''; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 600px; height: 600px; background: radial-gradient(circle, var(--moneybot-glow) 0%, transparent 70%); pointer-events: none; z-index: 0; animation: pulse 4s ease-in-out infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 0.3; transform: translate(-50%, -50%) scale(1); } 50% { opacity: 0.6; transform: translate(-50%, -50%) scale(1.2); } }
+        .app { max-width: 430px; margin: 0 auto; min-height: 100vh; position: relative; z-index: 1; display: flex; flex-direction: column; }
+        .header { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; z-index: 100; border-bottom: 1px solid rgba(255, 255, 255, 0.3); box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .header-logo { display: flex; align-items: center; gap: 12px; }
+        .back-btn { width: 44px; height: 44px; border-radius: 14px; background: rgba(0, 230, 118, 0.1); border: none; color: var(--moneybot-green); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 20px; text-decoration: none; transition: all 0.2s; }
+        .back-btn:active { transform: scale(0.95); }
+        .header-title { font-weight: 800; font-size: 20px; color: #1e293b; }
+        .score-pill { background: linear-gradient(135deg, var(--moneybot-green), var(--moneybot-green-dark)); color: white; padding: 10px 20px; border-radius: 25px; font-weight: 700; font-size: 16px; box-shadow: 0 4px 15px rgba(0, 230, 118, 0.3); }
+        .game-area { flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        #gameCanvas { background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%); border-radius: 20px; box-shadow: 0 0 40px rgba(0, 230, 118, 0.2); }
+        .overlay-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(20px); z-index: 200; padding: 40px; }
+        .overlay-screen.hidden { display: none; }
+        .game-icon { width: 120px; height: 120px; background: linear-gradient(135deg, var(--moneybot-green), var(--moneybot-green-dark)); border-radius: 32px; display: flex; align-items: center; justify-content: center; font-size: 60px; margin-bottom: 30px; box-shadow: 0 0 40px rgba(0, 230, 118, 0.5); animation: dash 0.5s ease-in-out infinite; }
+        @keyframes dash { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(10px); } }
+        .game-title { font-size: 36px; font-weight: 900; color: #1e293b; margin-bottom: 12px; }
+        .game-subtitle { color: #64748b; font-size: 17px; margin-bottom: 40px; text-align: center; }
+        .stats-card { background: white; border-radius: 20px; padding: 24px 40px; margin-bottom: 30px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+        .stats-label { font-size: 13px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+        .stats-value { font-size: 36px; font-weight: 800; color: var(--moneybot-green); }
+        .primary-btn { background: linear-gradient(135deg, var(--moneybot-green), var(--moneybot-green-dark)); color: white; border: none; padding: 20px 60px; font-size: 18px; font-weight: 700; border-radius: 16px; cursor: pointer; box-shadow: 0 0 30px rgba(0, 230, 118, 0.4); transition: all 0.3s; width: 100%; max-width: 280px; }
+        .primary-btn:hover { transform: translateY(-2px); box-shadow: 0 0 40px rgba(0, 230, 118, 0.6); }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <div class="header">
+            <div class="header-logo">
+                <a href="../moneybot-official/" class="back-btn">←</a>
+                <span class="header-title">Cash Dash</span>
+            </div>
+            <div class="score-pill">$<span id="score">0</span></div>
+        </div>
+        <div class="game-area">
+            <canvas id="gameCanvas" width="350" height="500"></canvas>
+        </div>
+    </div>
+    <div class="overlay-screen" id="startScreen">
+        <div class="game-icon">💨</div>
+        <div class="game-title">Cash Dash</div>
+        <div class="game-subtitle">Dash for cash!<br>Collect paychecks, avoid bills</div>
+        <div class="stats-card">
+            <div class="stats-label">Best Run</div>
+            <div class="stats-value" id="highScore">$0</div>
+        </div>
+        <button class="primary-btn" onclick="startGame()">Start Dashing</button>
+    </div>
+    <div class="overlay-screen hidden" id="gameOverScreen">
+        <div class="game-icon" style="background: linear-gradient(135deg, #ef4444, #dc2626);">💸</div>
+        <div class="game-title">Out of Cash!</div>
+        <div class="game-subtitle">You collected $<span id="finalScore" style="color: var(--moneybot-green); font-weight: 800;">0</span></div>
+        <button class="primary-btn" onclick="restartGame()">Dash Again</button>
+    </div>
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        let gameRunning = false;
+        let score = 0;
+        let highScore = localStorage.getItem('cashDashHighScore') || 0;
+        let player = { x: 175, y: 400, lane: 1, width: 40, height: 60 };
+        let items = [];
+        let speed = 5;
+        let particles = [];
+        let gameLoop;
+        document.getElementById('highScore').textContent = '$' + highScore;
+        const lanes = [70, 175, 280];
+        function startGame() {
+            document.getElementById('startScreen').classList.add('hidden');
+            document.getElementById('gameOverScreen').classList.add('hidden');
+            gameRunning = true;
+            score = 0;
+            player.lane = 1;
+            items = [];
+            speed = 5;
+            particles = [];
+            updateScore();
+            gameLoop = requestAnimationFrame(update);
+        }
+        function restartGame() {
+            startGame();
+        }
+        function update() {
+            if (!gameRunning) return;
+            score += Math.floor(speed / 2);
+            speed += 0.01;
+            if (Math.random() < 0.03) {
+                const type = Math.random() > 0.3 ? 'cash' : 'bill';
+                items.push({
+                    x: lanes[Math.floor(Math.random() * 3)],
+                    y: -50,
+                    type: type,
+                    value: type === 'cash' ? 50 + Math.floor(Math.random() * 100) : -100
+                });
+            }
+            items = items.filter(item => {
+                item.y += speed;
+                if (Math.abs(item.x - lanes[player.lane]) < 30 && Math.abs(item.y - player.y) < 40) {
+                    score += item.value;
+                    if (item.value > 0) {
+                        for (let i = 0; i < 5; i++) {
+                            particles.push({ x: item.x, y: item.y, vx: (Math.random() - 0.5) * 6, vy: (Math.random() - 0.5) * 6, life: 1, color: '#00E676' });
+                        }
+                        if (navigator.vibrate) navigator.vibrate(10);
+                    } else {
+                        if (navigator.vibrate) navigator.vibrate(30);
+                    }
+                    return false;
+                }
+                return item.y < canvas.height + 50;
+            });
+            particles = particles.filter(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.life -= 0.05;
+                return p.life > 0;
+            });
+            if (score < 0) {
+                gameOver();
+                return;
+            }
+            updateScore();
+            draw();
+            gameLoop = requestAnimationFrame(update);
+        }
+        function gameOver() {
+            gameRunning = false;
+            cancelAnimationFrame(gameLoop);
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem('cashDashHighScore', highScore);
+            }
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('gameOverScreen').classList.remove('hidden');
+        }
+        function updateScore() {
+            document.getElementById('score').textContent = score;
+        }
+        function draw() {
+            ctx.fillStyle = '#0f172a';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.strokeStyle = 'rgba(0, 230, 118, 0.2)';
+            ctx.setLineDash([20, 20]);
+            lanes.forEach(lane => {
+                ctx.beginPath();
+                ctx.moveTo(lane, 0);
+                ctx.lineTo(lane, canvas.height);
+                ctx.stroke();
+            });
+            ctx.setLineDash([]);
+            const offset = (Date.now() * speed * 0.1) % 40;
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+            for (let i = -40; i < canvas.height; i += 40) {
+                ctx.beginPath();
+                ctx.moveTo(0, i + offset);
+                ctx.lineTo(canvas.width, i + offset);
+                ctx.stroke();
+            }
+            ctx.font = '45px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('🏃', lanes[player.lane], player.y);
+            items.forEach(item => {
+                ctx.font = '35px Arial';
+                ctx.fillText(item.type === 'cash' ? '💵' : '📄', item.x, item.y);
+            });
+            particles.forEach(p => {
+                ctx.save();
+                ctx.globalAlpha = p.life;
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            });
+        }
+        document.addEventListener('keydown', (e) => {
+            if (!gameRunning) return;
+            if (e.key === 'ArrowLeft' && player.lane > 0) player.lane--;
+            if (e.key === 'ArrowRight' && player.lane < 2) player.lane++;
+        });
+        let touchStartX = 0;
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+        });
+        document.addEventListener('touchend', (e) => {
+            if (!gameRunning) return;
+            const touchEndX = e.changedTouches[0].clientX;
+            const diff = touchEndX - touchStartX;
+            if (diff > 50 && player.lane < 2) player.lane++;
+            if (diff < -50 && player.lane > 0) player.lane--;
+        });
+    </script>
+</body>
+</html>

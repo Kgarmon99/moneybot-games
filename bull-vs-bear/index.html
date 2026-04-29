@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Bull vs Bear | MoneyBot Gaming</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: none;
+            user-select: none;
+        }
+        
+        :root {
+            --moneybot-green: #00E676;
+            --moneybot-green-light: #69F0AE;
+            --moneybot-green-dark: #00C853;
+            --moneybot-glow: rgba(0, 230, 118, 0.4);
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%);
+            min-height: 100vh;
+            overflow: hidden;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 230, 118, 0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 230, 118, 0.04) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        body::after {
+            content: '';
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, var(--moneybot-glow) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+            animation: pulse 4s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; transform: translate(-50%, -50%) scale(1); }
+            50% { opacity: 0.6; transform: translate(-50%, -50%) scale(1.2); }
+        }
+        
+        .app {
+            max-width: 430px;
+            margin: 0 auto;
+            min-height: 100vh;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        
+        .header-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .back-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            background: rgba(0, 230, 118, 0.1);
+            border: none;
+            color: var(--moneybot-green);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 20px;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        
+        .back-btn:active { transform: scale(0.95); }
+        
+        .header-title {
+            font-weight: 800;
+            font-size: 20px;
+            color: #1e293b;
+        }
+        
+        .score-pill {
+            background: linear-gradient(135deg, var(--moneybot-green), var(--moneybot-green-dark));
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 700;
+            font-size: 16px;
+            box-shadow: 0 4px 15px rgba(0, 230, 118, 0.3);
+        }
+        
+        .game-area {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        #gameCanvas {
+            background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+            border-radius: 20px;
+            box-shadow: 0 0 40px rgba(0, 230, 118, 0.2);
+        }
+        
+        .overlay-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            z-index: 200;
+            padding: 40px;
+        }
+        
+        .overlay-screen.hidden { display: none; }
+        
+        .game-icon {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, var(--moneybot-green), var(--moneybot-green-dark));
+            border-radius: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+            margin-bottom: 30px;
+            box-shadow: 0 0 40px rgba(0, 230, 118, 0.5);
+            animation: fight 1s ease-in-out infinite;
+        }
+        
+        @keyframes fight {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        .game-title {
+            font-size: 36px;
+            font-weight: 900;
+            color: #1e293b;
+            margin-bottom: 12px;
+        }
+        
+        .game-subtitle {
+            color: #64748b;
+            font-size: 17px;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+        
+        .stats-card {
+            background: white;
+            border-radius: 20px;
+            padding: 24px 40px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        
+        .stats-label {
+            font-size: 13px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+        
+        .stats-value {
+            font-size: 36px;
+            font-weight: 800;
+            color: var(--moneybot-green);
+        }
+        
+        .primary-btn {
+            background: linear-gradient(135deg, var(--moneybot-green), var(--moneybot-green-dark));
+            color: white;
+            border: none;
+            padding: 20px 60px;
+            font-size: 18px;
+            font-weight: 700;
+            border-radius: 16px;
+            cursor: pointer;
+            box-shadow: 0 0 30px rgba(0, 230, 118, 0.4);
+            transition: all 0.3s;
+            width: 100%;
+            max-width: 280px;
+        }
+        
+        .primary-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 40px rgba(0, 230, 118, 0.6);
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <div class="header">
+            <div class="header-logo">
+                <a href="../moneybot-official/" class="back-btn">←</a>
+                <span class="header-title">Bull vs Bear</span>
+            </div>
+            <div class="score-pill"><span id="wins">0</span> Wins</div>
+        </div>
+        
+        <div class="game-area">
+            <canvas id="gameCanvas" width="350" height="500"></canvas>
+        </div>
+    </div>
+    
+    <div class="overlay-screen" id="startScreen">
+        <div class="game-icon">🐂</div>
+        <div class="game-title">Bull vs Bear</div>
+        <div class="game-subtitle">Battle for market dominance!<br>Tap to attack, dodge the bear</div>
+        
+        <div class="stats-card">
+            <div class="stats-label">Best Streak</div>
+            <div class="stats-value" id="highScore">0</div>
+        </div>
+        
+        <button class="primary-btn" onclick="startGame()">Start Battle</button>
+    </div>
+    
+    <div class="overlay-screen hidden" id="gameOverScreen">
+        <div class="game-icon" style="background: linear-gradient(135deg, #8B4513, #654321);">🐻</div>
+        <div class="game-title">Bear Wins!</div>
+        <div class="game-subtitle">You won <span id="finalScore" style="color: var(--moneybot-green); font-weight: 800;">0</span> battles</div>
+        <button class="primary-btn" onclick="restartGame()">Fight Again</button>
+    </div>
+    
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        let gameRunning = false;
+        let wins = 0;
+        let highScore = localStorage.getItem('bullVsBearHighScore') || 0;
+        let player = { x: 175, y: 400, size: 30, health: 100 };
+        let enemy = { x: 175, y: 100, size: 30, health: 100 };
+        let playerAttacking = false;
+        let enemyAttacking = false;
+        let particles = [];
+        let gameLoop;
+        
+        document.getElementById('highScore').textContent = highScore;
+        
+        function startGame() {
+            document.getElementById('startScreen').classList.add('hidden');
+            document.getElementById('gameOverScreen').classList.add('hidden');
+            gameRunning = true;
+            wins = 0;
+            resetBattle();
+            updateScore();
+            gameLoop = requestAnimationFrame(update);
+        }
+        
+        function restartGame() {
+            startGame();
+        }
+        
+        function resetBattle() {
+            player.x = 175;
+            player.y = 400;
+            player.health = 100;
+            enemy.x = 175;
+            enemy.y = 100;
+            enemy.health = 100;
+            playerAttacking = false;
+            enemyAttacking = false;
+            particles = [];
+        }
+        
+        function update() {
+            if (!gameRunning) return;
+            
+            // Enemy AI
+            if (!enemyAttacking && Math.random() < 0.02) {
+                enemyAttacking = true;
+                setTimeout(() => {
+                    enemyAttacking = false;
+                    // Check hit
+                    if (Math.abs(enemy.x - player.x) < 50) {
+                        player.health -= 10;
+                        createParticles(player.x, player.y, '#ef4444');
+                        if (navigator.vibrate) navigator.vibrate(20);
+                    }
+                }, 300);
+            }
+            
+            // Move enemy towards player
+            if (!enemyAttacking) {
+                enemy.x += (player.x - enemy.x) * 0.02;
+            } else {
+                enemy.y += 10;
+                setTimeout(() => {
+                    enemy.y = 100;
+                }, 300);
+            }
+            
+            // Check win/loss
+            if (enemy.health <= 0) {
+                wins++;
+                createParticles(enemy.x, enemy.y, '#00E676');
+                resetBattle();
+                if (navigator.vibrate) navigator.vibrate([30, 20, 30]);
+            }
+            
+            if (player.health <= 0) {
+                gameOver();
+                return;
+            }
+            
+            // Update particles
+            particles = particles.filter(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.life -= 0.05;
+                return p.life > 0;
+            });
+            
+            updateScore();
+            draw();
+            gameLoop = requestAnimationFrame(update);
+        }
+        
+        function createParticles(x, y, color) {
+            for (let i = 0; i < 10; i++) {
+                particles.push({
+                    x: x,
+                    y: y,
+                    vx: (Math.random() - 0.5) * 10,
+                    vy: (Math.random() - 0.5) * 10,
+                    life: 1,
+                    color: color
+                });
+            }
+        }
+        
+        function gameOver() {
+            gameRunning = false;
+            cancelAnimationFrame(gameLoop);
+            if (wins > highScore) {
+                highScore = wins;
+                localStorage.setItem('bullVsBearHighScore', highScore);
+            }
+            document.getElementById('finalScore').textContent = wins;
+            document.getElementById('gameOverScreen').classList.remove('hidden');
+        }
+        
+        function updateScore() {
+            document.getElementById('wins').textContent = wins;
+        }
+        
+        function draw() {
+            // Clear
+            ctx.fillStyle = '#0f172a';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw arena
+            ctx.strokeStyle = 'rgba(0, 230, 118, 0.2)';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(20, 20, canvas.width - 40, canvas.height - 40);
+            
+            // Draw health bars
+            ctx.fillStyle = '#334155';
+            ctx.fillRect(50, 30, 100, 10);
+            ctx.fillStyle = '#00E676';
+            ctx.fillRect(50, 30, player.health, 10);
+            
+            ctx.fillStyle = '#334155';
+            ctx.fillRect(200, 30, 100, 10);
+            ctx.fillStyle = '#ef4444';
+            ctx.fillRect(200, 30, enemy.health, 10);
+            
+            // Draw player (Bull)
+            ctx.font = '40px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('🐂', player.x, player.y);
+            
+            // Draw enemy (Bear)
+            ctx.fillText('🐻', enemy.x, enemy.y);
+            
+            // Draw attack effects
+            if (playerAttacking) {
+                ctx.strokeStyle = '#00E676';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(player.x, player.y - 30);
+                ctx.lineTo(enemy.x, enemy.y + 30);
+                ctx.stroke();
+            }
+            
+            if (enemyAttacking) {
+                ctx.strokeStyle = '#ef4444';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(enemy.x, enemy.y + 30);
+                ctx.lineTo(player.x, player.y - 30);
+                ctx.stroke();
+            }
+            
+            // Draw particles
+            particles.forEach(p => {
+                ctx.save();
+                ctx.globalAlpha = p.life;
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, 5, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            });
+        }
+        
+        // Controls
+        canvas.addEventListener('touchstart', (e) => {
+            if (!gameRunning) return;
+            const rect = canvas.getBoundingClientRect();
+            const touchX = e.touches[0].clientX - rect.left;
+            player.x = Math.max(40, Math.min(310, touchX));
+            
+            // Attack
+            playerAttacking = true;
+            setTimeout(() => {
+                playerAttacking = false;
+                // Check hit
+                if (Math.abs(player.x - enemy.x) < 50) {
+                    enemy.health -= 10;
+                    createParticles(enemy.x, enemy.y, '#FBBF24');
+                    if (navigator.vibrate) navigator.vibrate(10);
+                }
+            }, 300);
+        });
+        
+        canvas.addEventListener('mousemove', (e) => {
+            if (!gameRunning) return;
+            const rect = canvas.getBoundingClientRect();
+            player.x = Math.max(40, Math.min(310, e.clientX - rect.left));
+        });
+        
+        canvas.addEventListener('click', () => {
+            if (!gameRunning) return;
+            playerAttacking = true;
+            setTimeout(() => {
+                playerAttacking = false;
+                if (Math.abs(player.x - enemy.x) < 50) {
+                    enemy.health -= 10;
+                    createParticles(enemy.x, enemy.y, '#FBBF24');
+                    if (navigator.vibrate) navigator.vibrate(10);
+                }
+            }, 300);
+        });
+    </script>
+</body>
+</html>
