@@ -21,7 +21,8 @@
             --moneybot-green-light: #69F0AE;
             --moneybot-green-dark: #00C853;
             --moneybot-gold: #FBBF24;
-            --moneybot-dark: #0F172A;
+            --moneybot-red: #FF5252;
+            --moneybot-dark: #1A1A2E;
             --moneybot-gray: #F5F5F7;
             --moneybot-text: #1A1A2E;
             --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
@@ -33,7 +34,7 @@
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
-            background: var(--moneybot-dark);
+            background: linear-gradient(180deg, #1A1A2E 0%, #0F0F1A 100%);
             min-height: 100vh;
             overflow: hidden;
         }
@@ -55,33 +56,70 @@
             justify-content: space-between;
             align-items: center;
             z-index: 100;
-            background: linear-gradient(to bottom, rgba(15, 23, 42, 0.9) 0%, transparent 100%);
+            background: linear-gradient(to bottom, rgba(26,26,46,0.9) 0%, transparent 100%);
         }
         
         .back-btn {
-            width: 40px;
-            height: 40px;
-            border-radius: 12px;
-            background: rgba(255,255,255,0.1);
-            backdrop-filter: blur(10px);
-            border: none;
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.1);
             color: white;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            font-size: 20px;
+            font-size: 22px;
             text-decoration: none;
+            transition: all 0.2s var(--ease-out-expo);
+        }
+        
+        .back-btn:active {
+            transform: scale(0.95);
+            background: rgba(255,255,255,0.25);
+        }
+        
+        .score-container {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+        
+        .score-label {
+            font-size: 11px;
+            color: rgba(255,255,255,0.6);
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
         
         .score-display {
-            background: rgba(0, 230, 118, 0.2);
-            border: 1px solid var(--moneybot-green);
-            padding: 10px 20px;
+            font-size: 28px;
+            font-weight: 800;
+            color: white;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        
+        .coin-display {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(251, 191, 36, 0.2);
+            border: 1px solid var(--moneybot-gold);
+            padding: 8px 16px;
             border-radius: 20px;
-            color: var(--moneybot-green);
+            margin-top: 4px;
+        }
+        
+        .coin-icon {
+            font-size: 16px;
+        }
+        
+        .coin-value {
             font-weight: 700;
-            font-size: 18px;
+            color: var(--moneybot-gold);
+            font-size: 16px;
         }
         
         #gameCanvas {
@@ -100,8 +138,8 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            background: rgba(15, 23, 42, 0.95);
-            backdrop-filter: blur(10px);
+            background: linear-gradient(180deg, rgba(26,26,46,0.98) 0%, rgba(0,0,0,0.95) 100%);
+            backdrop-filter: blur(20px);
             z-index: 200;
         }
         
@@ -109,37 +147,81 @@
             display: none;
         }
         
+        .logo-container {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        
         .logo {
-            font-size: 64px;
-            margin-bottom: 10px;
+            font-size: 80px;
+            filter: drop-shadow(0 10px 30px rgba(0, 230, 118, 0.4));
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
         }
         
         .title {
-            font-size: 32px;
-            font-weight: 800;
-            color: white;
-            margin-bottom: 10px;
+            font-size: 36px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #fff 0%, var(--moneybot-green) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+            letter-spacing: -1px;
         }
         
         .subtitle {
-            color: rgba(255,255,255,0.7);
+            color: rgba(255,255,255,0.6);
             font-size: 16px;
             margin-bottom: 40px;
             text-align: center;
             padding: 0 40px;
+            line-height: 1.5;
+        }
+        
+        .high-score {
+            background: rgba(255,255,255,0.1);
+            padding: 16px 32px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .high-score-label {
+            font-size: 12px;
+            color: rgba(255,255,255,0.5);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+        
+        .high-score-value {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--moneybot-gold);
         }
         
         .start-btn {
             background: linear-gradient(135deg, var(--moneybot-green), var(--moneybot-green-dark));
             color: white;
             border: none;
-            padding: 20px 60px;
-            font-size: 20px;
-            font-weight: 700;
-            border-radius: 30px;
+            padding: 22px 70px;
+            font-size: 22px;
+            font-weight: 800;
+            border-radius: 35px;
             cursor: pointer;
-            box-shadow: 0 10px 30px rgba(0, 230, 118, 0.4);
-            transition: transform 0.2s;
+            box-shadow: 0 15px 40px rgba(0, 230, 118, 0.5);
+            transition: all 0.3s var(--ease-spring);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .start-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 50px rgba(0, 230, 118, 0.6);
         }
         
         .start-btn:active {
@@ -147,10 +229,74 @@
         }
         
         .instructions {
-            margin-top: 30px;
+            margin-top: 40px;
+            display: flex;
+            gap: 30px;
+        }
+        
+        .instruction-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
             color: rgba(255,255,255,0.5);
+            font-size: 13px;
+        }
+        
+        .instruction-icon {
+            font-size: 28px;
+        }
+        
+        .final-stats {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .final-stat {
+            background: rgba(255,255,255,0.1);
+            padding: 20px 30px;
+            border-radius: 16px;
             text-align: center;
-            font-size: 14px;
+            min-width: 100px;
+        }
+        
+        .final-stat-value {
+            font-size: 28px;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 4px;
+        }
+        
+        .final-stat-label {
+            font-size: 11px;
+            color: rgba(255,255,255,0.5);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .combo-display {
+            position: absolute;
+            top: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 42px;
+            font-weight: 900;
+            color: var(--moneybot-gold);
+            text-shadow: 0 0 30px rgba(251, 191, 36, 0.6);
+            opacity: 0;
+            pointer-events: none;
+            z-index: 50;
+        }
+        
+        .combo-display.show {
+            animation: comboAnim 1s ease-out forwards;
+        }
+        
+        @keyframes comboAnim {
+            0% { opacity: 0; transform: translateX(-50%) scale(0.3) rotate(-10deg); }
+            20% { opacity: 1; transform: translateX(-50%) scale(1.3) rotate(5deg); }
+            100% { opacity: 0; transform: translateX(-50%) scale(1) rotate(0deg) translateY(-80px); }
         }
     </style>
 </head>
@@ -158,23 +304,65 @@
     <div class="app">
         <div class="header">
             <a href="../moneybot-official/" class="back-btn">←</a>
-            <div class="score-display"><span id="score">0</span>m</div>
+            <div class="score-container">
+                <div class="score-label">Distance</div>
+                <div class="score-display"><span id="score">0</span>m</div>
+                <div class="coin-display">
+                    <span class="coin-icon">🪙</span>
+                    <span class="coin-value" id="coins">0</span>
+                </div>
+            </div>
         </div>
         
         <canvas id="gameCanvas"></canvas>
         
+        <div class="combo-display" id="comboDisplay">COMBO x3!</div>
+        
         <div class="start-screen" id="startScreen">
-            <div class="logo">🏎️</div>
+            <div class="logo-container">
+                <div class="logo">🏎️</div>
+            </div>
             <div class="title">Market Racer</div>
             <div class="subtitle">Race through the markets!<br>Collect coins, avoid crashes</div>
+            
+            <div class="high-score">
+                <div class="high-score-label">Best Run</div>
+                <div class="high-score-value" id="highScore">0m</div>
+            </div>
+            
             <button class="start-btn" onclick="startGame()">RACE NOW</button>
-            <div class="instructions">Swipe left/right to change lanes<br>Tap to boost</div>
+            
+            <div class="instructions">
+                <div class="instruction-item">
+                    <span class="instruction-icon">👈👉</span>
+                    <span>Swipe to Switch</span>
+                </div>
+                <div class="instruction-item">
+                    <span class="instruction-icon">🪙</span>
+                    <span>Collect Coins</span>
+                </div>
+                <div class="instruction-item">
+                    <span class="instruction-icon">⚠️</span>
+                    <span>Avoid Crashes</span>
+                </div>
+            </div>
         </div>
         
         <div class="game-over-screen" id="gameOverScreen">
-            <div class="logo">💥</div>
-            <div class="title">Crash!</div>
-            <div class="subtitle">You raced <span id="finalScore">0</span>m</div>
+            <div class="logo" style="font-size: 60px; margin-bottom: 10px;">💥</div>
+            <div class="title" style="font-size: 32px;">CRASH!</div>
+            
+            <div class="final-stats">
+                <div class="final-stat">
+                    <div class="final-stat-value"><span id="finalScore">0</span>m</div>
+                    <div class="final-stat-label">Distance</div>
+                </div>
+                <div class="final-stat">
+                    <div class="final-stat-value" id="finalCoins">0</div>
+                    <div class="final-stat-label">Coins</div>
+                </div>
+            </div>
+            
             <button class="start-btn" onclick="restartGame()">RACE AGAIN</button>
         </div>
     </div>
@@ -187,22 +375,40 @@
         
         let gameRunning = false;
         let score = 0;
-        let speed = 5;
-        let player = { lane: 1, x: canvas.width / 2, y: canvas.height - 150 };
-        let coins = [];
+        let coins = 0;
+        let highScore = localStorage.getItem('marketRacerHighScore') || 0;
+        let speed = 8;
+        let player = { 
+            lane: 1, 
+            x: canvas.width / 2, 
+            y: canvas.height - 180,
+            targetX: canvas.width / 2,
+            angle: 0
+        };
+        let coinItems = [];
         let obstacles = [];
         let particles = [];
         let lanes = [canvas.width * 0.25, canvas.width * 0.5, canvas.width * 0.75];
+        let groundOffset = 0;
+        let combo = 0;
+        let lastCoinLane = -1;
+        
+        document.getElementById('highScore').textContent = highScore + 'm';
         
         function startGame() {
             document.getElementById('startScreen').style.display = 'none';
             gameRunning = true;
             score = 0;
-            speed = 5;
+            coins = 0;
+            speed = 8;
             player.lane = 1;
-            coins = [];
+            player.x = lanes[1];
+            player.targetX = lanes[1];
+            coinItems = [];
             obstacles = [];
             particles = [];
+            combo = 0;
+            updateUI();
             gameLoop();
         }
         
@@ -213,42 +419,88 @@
         
         function gameOver() {
             gameRunning = false;
+            if (score > highScore) {
+                highScore = Math.floor(score);
+                localStorage.setItem('marketRacerHighScore', highScore);
+            }
             document.getElementById('finalScore').textContent = Math.floor(score);
+            document.getElementById('finalCoins').textContent = coins;
             document.getElementById('gameOverScreen').style.display = 'flex';
+            document.getElementById('highScore').textContent = highScore + 'm';
         }
         
         function update() {
             score += speed / 10;
-            speed += 0.01;
+            speed += 0.005;
+            groundOffset = (groundOffset + speed) % 60;
             
-            // Spawn coins
-            if (Math.random() < 0.02) {
-                coins.push({
-                    lane: Math.floor(Math.random() * 3),
+            // Smooth lane transition with tilt
+            const diff = player.targetX - player.x;
+            player.x += diff * 0.15;
+            player.angle = diff * 0.002;
+            
+            // Spawn coins in patterns
+            if (Math.random() < 0.04) {
+                const lane = Math.floor(Math.random() * 3);
+                if (lastCoinLane === lane && Math.random() < 0.7) {
+                    combo++;
+                    if (combo > 2) {
+                        const comboEl = document.getElementById('comboDisplay');
+                        comboEl.textContent = `COMBO x${combo}!`;
+                        comboEl.classList.add('show');
+                        setTimeout(() => comboEl.classList.remove('show'), 1000);
+                    }
+                } else {
+                    combo = 1;
+                }
+                lastCoinLane = lane;
+                
+                coinItems.push({
+                    lane: lane,
                     y: -50,
-                    collected: false
+                    collected: false,
+                    value: 10 * combo
                 });
             }
             
             // Spawn obstacles
-            if (Math.random() < 0.015) {
+            if (Math.random() < 0.025) {
+                const lane = Math.floor(Math.random() * 3);
                 obstacles.push({
-                    lane: Math.floor(Math.random() * 3),
-                    y: -50
+                    lane: lane,
+                    y: -100,
+                    type: Math.random() < 0.5 ? 'barrier' : 'oil'
                 });
             }
             
             // Update coins
-            coins = coins.filter(coin => {
+            coinItems = coinItems.filter(coin => {
                 coin.y += speed;
                 
-                if (!coin.collected && coin.lane === player.lane && Math.abs(coin.y - player.y) < 50) {
+                if (!coin.collected && coin.lane === player.lane && 
+                    Math.abs(coin.y - player.y) < 50) {
                     coin.collected = true;
-                    score += 50;
+                    coins += coin.value;
+                    score += coin.value;
+                    
+                    // Sparkle particles
+                    for (let i = 0; i < 8; i++) {
+                        particles.push({
+                            x: lanes[coin.lane],
+                            y: coin.y,
+                            vx: (Math.random() - 0.5) * 8,
+                            vy: (Math.random() - 0.5) * 8,
+                            life: 1,
+                            color: '#FBBF24',
+                            size: Math.random() * 4 + 2
+                        });
+                    }
+                    
                     if (navigator.vibrate) navigator.vibrate(10);
+                    return false;
                 }
                 
-                return coin.y < canvas.height + 50 && !coin.collected;
+                return coin.y < canvas.height + 50;
             });
             
             // Update obstacles
@@ -259,51 +511,136 @@
                     gameOver();
                 }
                 
-                return obs.y < canvas.height + 50;
+                return obs.y < canvas.height + 100;
             });
             
-            document.getElementById('score').textContent = Math.floor(score);
+            // Update particles
+            particles = particles.filter(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += 0.3;
+                p.life -= 0.03;
+                return p.life > 0;
+            });
+            
+            updateUI();
         }
         
         function draw() {
-            // Clear
-            ctx.fillStyle = '#0F172A';
+            // Sky gradient
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, '#1a1a3e');
+            gradient.addColorStop(0.5, '#0f172a');
+            gradient.addColorStop(1, '#1e293b');
+            ctx.fillStyle = gradient;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
-            // Draw road
-            ctx.fillStyle = '#1E293B';
-            ctx.fillRect(0, canvas.height - 100, canvas.width, 100);
+            // City skyline (parallax)
+            ctx.fillStyle = 'rgba(30, 41, 59, 0.8)';
+            for (let i = 0; i < 12; i++) {
+                const x = (i * 60 - score * 0.3) % (canvas.width + 100);
+                const height = 80 + Math.sin(i * 234) * 40;
+                ctx.fillRect(x, canvas.height - 250 - height, 50, height);
+                
+                // Building windows
+                ctx.fillStyle = 'rgba(251, 191, 36, 0.3)';
+                for (let wy = 0; wy < height - 20; wy += 25) {
+                    if (Math.random() > 0.3) {
+                        ctx.fillRect(x + 10, canvas.height - 250 - height + wy + 10, 8, 12);
+                        ctx.fillRect(x + 28, canvas.height - 250 - height + wy + 10, 8, 12);
+                    }
+                }
+                ctx.fillStyle = 'rgba(30, 41, 59, 0.8)';
+            }
             
-            // Draw lanes
-            ctx.strokeStyle = 'rgba(0, 230, 118, 0.3)';
+            // Ground/road
+            ctx.fillStyle = '#0f172a';
+            ctx.fillRect(0, canvas.height - 150, canvas.width, 150);
+            
+            // Road lanes with glow
+            ctx.strokeStyle = 'rgba(0, 230, 118, 0.2)';
             ctx.lineWidth = 2;
-            ctx.setLineDash([20, 20]);
-            lanes.forEach(lane => {
+            lanes.forEach((lane, i) => {
                 ctx.beginPath();
-                ctx.moveTo(lane, 0);
+                ctx.moveTo(lane, canvas.height - 150);
                 ctx.lineTo(lane, canvas.height);
                 ctx.stroke();
             });
-            ctx.setLineDash([]);
             
-            // Draw player
-            player.x += (lanes[player.lane] - player.x) * 0.1;
-            ctx.font = '50px Arial';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText('🏎️', player.x, player.y);
+            // Moving track lines
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+            ctx.lineWidth = 3;
+            for (let i = -60; i < canvas.width + 60; i += 60) {
+                const x = i - groundOffset;
+                ctx.beginPath();
+                ctx.moveTo(x, canvas.height - 150);
+                ctx.lineTo(x - 30, canvas.height);
+                ctx.stroke();
+            }
             
-            // Draw coins
-            coins.forEach(coin => {
-                ctx.font = '35px Arial';
-                ctx.fillText('🪙', lanes[coin.lane], coin.y);
+            // Draw coins with glow
+            coinItems.forEach(coin => {
+                const x = lanes[coin.lane];
+                const y = coin.y;
+                
+                // Glow
+                ctx.shadowColor = '#FBBF24';
+                ctx.shadowBlur = 20;
+                ctx.font = '32px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('🪙', x, y);
+                ctx.shadowBlur = 0;
             });
             
             // Draw obstacles
             obstacles.forEach(obs => {
-                ctx.font = '40px Arial';
-                ctx.fillText('📉', lanes[obs.lane], obs.y);
+                const x = lanes[obs.lane];
+                const y = obs.y;
+                
+                ctx.font = '50px Arial';
+                if (obs.type === 'barrier') {
+                    ctx.fillText('🚧', x, y);
+                } else {
+                    ctx.fillText('📉', x, y);
+                }
             });
+            
+            // Draw player car with tilt
+            const playerX = player.x;
+            const playerY = player.y;
+            
+            // Shadow
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+            ctx.beginPath();
+            ctx.ellipse(playerX, playerY + 45, 25, 10, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Car with rotation
+            ctx.save();
+            ctx.translate(playerX, playerY);
+            ctx.rotate(player.angle);
+            ctx.font = '55px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('🏎️', 0, 0);
+            ctx.restore();
+            
+            // Draw particles
+            particles.forEach(p => {
+                ctx.save();
+                ctx.globalAlpha = p.life;
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            });
+        }
+        
+        function updateUI() {
+            document.getElementById('score').textContent = Math.floor(score);
+            document.getElementById('coins').textContent = coins;
         }
         
         function gameLoop() {
@@ -316,25 +653,46 @@
         }
         
         // Controls
+        function moveLeft() {
+            if (player.lane > 0) {
+                player.lane--;
+                player.targetX = lanes[player.lane];
+                if (navigator.vibrate) navigator.vibrate(5);
+            }
+        }
+        
+        function moveRight() {
+            if (player.lane < 2) {
+                player.lane++;
+                player.targetX = lanes[player.lane];
+                if (navigator.vibrate) navigator.vibrate(5);
+            }
+        }
+        
+        // Keyboard controls
         document.addEventListener('keydown', (e) => {
             if (!gameRunning) return;
-            if (e.key === 'ArrowLeft' && player.lane > 0) player.lane--;
-            if (e.key === 'ArrowRight' && player.lane < 2) player.lane++;
+            if (e.key === 'ArrowLeft') moveLeft();
+            if (e.key === 'ArrowRight') moveRight();
         });
         
+        // Touch controls
         let touchStartX = 0;
+        let touchStartY = 0;
+        
         document.addEventListener('touchstart', (e) => {
             touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
         });
         
         document.addEventListener('touchend', (e) => {
             if (!gameRunning) return;
-            const touchEndX = e.changedTouches[0].clientX;
-            const diff = touchEndX - touchStartX;
+            const dx = e.changedTouches[0].clientX - touchStartX;
+            const dy = e.changedTouches[0].clientY - touchStartY;
             
-            if (Math.abs(diff) > 50) {
-                if (diff > 0 && player.lane < 2) player.lane++;
-                else if (diff < 0 && player.lane > 0) player.lane--;
+            if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50) {
+                if (dx > 0) moveRight();
+                else moveLeft();
             }
         });
     </script>
