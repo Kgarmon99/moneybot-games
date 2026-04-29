@@ -3,42 +3,452 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Financial Wordle - Daily Finance Terms</title>
+    <title>Financial Wordle | MoneyBot</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; touch-action: manipulation; user-select: none; }
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
-        :root { --mb-green: #22C55E; --mb-gold: #FBBF24; --mb-dark: #0F172A; --mb-gray: #64748B; }
-        body { font-family: 'Inter', sans-serif; background: linear-gradient(180deg, #F8FAFC 0%, #E2E8F0 100%); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 20px; }
-        h1 { color: var(--mb-dark); font-size: 2rem; font-weight: 800; margin-bottom: 10px; text-align: center; }
-        .subtitle { color: var(--mb-gray); margin-bottom: 20px; text-align: center; }
-        #game-board { display: grid; grid-template-rows: repeat(6, 1fr); gap: 10px; margin-bottom: 20px; }
-        .row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
-        .tile { width: 60px; height: 60px; border: 2px solid #E2E8F0; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 700; text-transform: uppercase; transition: all 0.3s; }
-        .tile.correct { background: var(--mb-green); color: white; border-color: var(--mb-green); animation: flip 0.5s; }
-        .tile.present { background: var(--mb-gold); color: white; border-color: var(--mb-gold); animation: flip 0.5s; }
-        .tile.absent { background: #94A3B8; color: white; border-color: #94A3B8; animation: flip 0.5s; }
-        @keyframes flip { 0% { transform: rotateX(0); } 50% { transform: rotateX(90deg); } 100% { transform: rotateX(0); } }
-        #keyboard { display: flex; flex-direction: column; gap: 8px; max-width: 500px; }
-        .keyboard-row { display: flex; justify-content: center; gap: 6px; }
-        .key { min-width: 32px; height: 50px; background: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1); transition: all 0.2s; }
-        .key:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
-        .key.correct { background: var(--mb-green); color: white; }
-        .key.present { background: var(--mb-gold); color: white; }
-        .key.absent { background: #94A3B8; color: white; }
-        .key.wide { min-width: 50px; }
-        #message { height: 30px; text-align: center; font-weight: 600; color: var(--mb-dark); margin: 10px 0; }
-        .definition { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); max-width: 400px; text-align: center; margin-top: 20px; display: none; }
-        .definition.show { display: block; animation: slideIn 0.5s; }
-        @keyframes slideIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        @import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;500;600;700;800&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            user-select: none;
+        }
+        
+        :root {
+            --moneybot-green: #00E676;
+            --moneybot-green-light: #69F0AE;
+            --moneybot-green-dark: #00C853;
+            --moneybot-dark: #1A1A2E;
+            --moneybot-gray: #F5F5F7;
+            --moneybot-text: #1A1A2E;
+            --moneybot-text-secondary: #6B7280;
+            --correct: #00E676;
+            --present: #FBBF24;
+            --absent: #94A3B8;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+            --shadow-lg: 0 12px 40px rgba(0,0,0,0.12);
+            --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+            --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', sans-serif;
+            background: var(--moneybot-gray);
+            min-height: 100vh;
+            color: var(--moneybot-text);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        /* Animated Background */
+        .bg-gradient {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(ellipse at 20% 20%, rgba(0, 230, 118, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(0, 230, 118, 0.05) 0%, transparent 50%),
+                var(--moneybot-gray);
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        /* App Container */
+        .app {
+            position: relative;
+            z-index: 1;
+            max-width: 430px;
+            margin: 0 auto;
+            min-height: 100vh;
+            background: var(--moneybot-gray);
+            display: flex;
+            flex-direction: column;
+            padding-bottom: 20px;
+        }
+        
+        /* Header */
+        .header {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+        
+        .header-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .back-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            border: none;
+            background: rgba(0, 230, 118, 0.1);
+            color: var(--moneybot-green);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s var(--ease-out-expo);
+            text-decoration: none;
+        }
+        
+        .back-btn:hover {
+            background: rgba(0, 230, 118, 0.2);
+            transform: translateX(-2px);
+        }
+        
+        .back-btn:active {
+            transform: scale(0.92);
+        }
+        
+        .header-title {
+            font-weight: 700;
+            font-size: 17px;
+            letter-spacing: -0.3px;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .icon-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            border: none;
+            background: rgba(0, 230, 118, 0.1);
+            color: var(--moneybot-green);
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s var(--ease-out-expo);
+        }
+        
+        .icon-btn:active {
+            transform: scale(0.92);
+            background: rgba(0, 230, 118, 0.2);
+        }
+        
+        /* Game Info Card */
+        .info-card {
+            background: white;
+            margin: 16px 20px;
+            padding: 20px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: var(--shadow-md);
+        }
+        
+        .info-title {
+            font-size: 14px;
+            color: var(--moneybot-text-secondary);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+        
+        .info-word {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--moneybot-green);
+        }
+        
+        /* Game Board */
+        .board-container {
+            display: flex;
+            justify-content: center;
+            padding: 0 20px;
+            margin-bottom: 20px;
+        }
+        
+        #game-board {
+            display: grid;
+            grid-template-rows: repeat(6, 1fr);
+            gap: 8px;
+        }
+        
+        .row {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+        }
+        
+        .tile {
+            width: 56px;
+            height: 56px;
+            background: white;
+            border: 2px solid #E5E7EB;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            transition: all 0.3s var(--ease-spring);
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .tile.filled {
+            border-color: var(--moneybot-green);
+            transform: scale(1.05);
+        }
+        
+        .tile.correct {
+            background: var(--correct);
+            color: white;
+            border-color: var(--correct);
+            animation: flipCorrect 0.6s var(--ease-spring);
+            box-shadow: 0 4px 12px rgba(0, 230, 118, 0.4);
+        }
+        
+        .tile.present {
+            background: var(--present);
+            color: white;
+            border-color: var(--present);
+            animation: flipPresent 0.6s var(--ease-spring);
+            box-shadow: 0 4px 12px rgba(251, 191, 36, 0.4);
+        }
+        
+        .tile.absent {
+            background: var(--absent);
+            color: white;
+            border-color: var(--absent);
+            animation: flipAbsent 0.6s var(--ease-spring);
+        }
+        
+        @keyframes flipCorrect {
+            0% { transform: rotateX(0) scale(1); }
+            50% { transform: rotateX(90deg) scale(0.9); }
+            100% { transform: rotateX(0) scale(1.05); }
+        }
+        
+        @keyframes flipPresent {
+            0% { transform: rotateX(0) scale(1); }
+            50% { transform: rotateX(90deg) scale(0.9); }
+            100% { transform: rotateX(0) scale(1.05); }
+        }
+        
+        @keyframes flipAbsent {
+            0% { transform: rotateX(0); }
+            50% { transform: rotateX(90deg); }
+            100% { transform: rotateX(0); }
+        }
+        
+        /* Message */
+        .message {
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 16px;
+            color: var(--moneybot-text);
+            margin-bottom: 12px;
+        }
+        
+        .message.show {
+            animation: messagePop 0.3s var(--ease-spring);
+        }
+        
+        @keyframes messagePop {
+            0% { transform: scale(0.8); opacity: 0; }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        /* Keyboard */
+        .keyboard-container {
+            padding: 0 12px;
+        }
+        
+        #keyboard {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .keyboard-row {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+        }
+        
+        .key {
+            min-width: 32px;
+            height: 48px;
+            background: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.15s var(--ease-out-expo);
+            color: var(--moneybot-text);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            max-width: 42px;
+        }
+        
+        .key:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .key:active {
+            transform: scale(0.92);
+            background: var(--moneybot-gray);
+        }
+        
+        .key.wide {
+            min-width: 48px;
+            max-width: 64px;
+            font-size: 13px;
+        }
+        
+        .key.correct {
+            background: var(--correct);
+            color: white;
+            box-shadow: 0 4px 12px rgba(0, 230, 118, 0.4);
+        }
+        
+        .key.present {
+            background: var(--present);
+            color: white;
+            box-shadow: 0 4px 12px rgba(251, 191, 36, 0.4);
+        }
+        
+        .key.absent {
+            background: var(--absent);
+            color: white;
+        }
+        
+        /* Definition Card */
+        .definition-card {
+            background: linear-gradient(135deg, var(--moneybot-green) 0%, var(--moneybot-green-dark) 100%);
+            margin: 16px 20px 0;
+            padding: 24px;
+            border-radius: 20px;
+            color: white;
+            box-shadow: 
+                0 12px 32px rgba(0, 230, 118, 0.3),
+                inset 0 1px 0 rgba(255,255,255,0.2);
+            display: none;
+            animation: slideUp 0.5s var(--ease-spring);
+        }
+        
+        .definition-card.show {
+            display: block;
+        }
+        
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .definition-word {
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+        
+        .definition-text {
+            font-size: 15px;
+            line-height: 1.5;
+            opacity: 0.95;
+        }
+        
+        /* New Game Button */
+        .new-game-btn {
+            margin: 16px 20px 0;
+            background: linear-gradient(135deg, var(--moneybot-green) 0%, var(--moneybot-green-dark) 100%);
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            font-size: 16px;
+            font-weight: 700;
+            border-radius: 16px;
+            cursor: pointer;
+            box-shadow: 
+                0 8px 24px rgba(0, 230, 118, 0.4),
+                inset 0 1px 0 rgba(255,255,255,0.2);
+            transition: all 0.2s var(--ease-spring);
+            display: none;
+        }
+        
+        .new-game-btn.show {
+            display: block;
+            animation: slideUp 0.5s var(--ease-spring);
+        }
+        
+        .new-game-btn:active {
+            transform: scale(0.96);
+        }
     </style>
 </head>
 <body>
-    <h1>💰 Financial Wordle</h1>
-    <p class="subtitle">Guess the 5-letter finance term!</p>
-    <div id="game-board"></div>
-    <div id="message"></div>
-    <div id="keyboard"></div>
-    <div class="definition" id="definition"></div>
+    <div class="bg-gradient"></div>
+    
+    <div class="app">
+        <header class="header">
+            <div class="header-logo">
+                <a href="../moneybot-official/" class="back-btn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M19 12H5M12 19l-7-7 7-7"/>
+                    </svg>
+                </a>
+                <span class="header-title">Financial Wordle</span>
+            </div>
+            <div class="header-actions">
+                <button class="icon-btn" onclick="initGame()">🔄</button>
+            </div>
+        </header>
+        
+        <div class="info-card">
+            <div class="info-title">Guess the Finance Term</div>
+            <div style="font-size: 13px; color: var(--moneybot-text-secondary);">5 letters • Learn as you play</div>
+        </div>
+        
+        <div class="board-container">
+            <div id="game-board"></div>
+        </div>
+        
+        <div class="message" id="message"></div>
+        
+        <div class="keyboard-container">
+            <div id="keyboard"></div>
+        </div>
+        
+        <div class="definition-card" id="definition">
+            <div class="definition-word" id="defWord"></div>
+            <div class="definition-text" id="defText"></div>
+        </div>
+        
+        <button class="new-game-btn" id="newGameBtn" onclick="initGame()">Play Again</button>
+    </div>
+    
     <script>
         const WORDS = [
             { word: 'ASSET', def: 'Something valuable that you own (cash, stocks, property)' },
@@ -60,14 +470,21 @@
         
         let targetWord, currentRow = 0, currentTile = 0, gameOver = false;
         
-        function init() {
+        function initGame() {
             targetWord = WORDS[Math.floor(Math.random() * WORDS.length)];
+            currentRow = 0;
+            currentTile = 0;
+            gameOver = false;
+            document.getElementById('message').textContent = '';
+            document.getElementById('definition').classList.remove('show');
+            document.getElementById('newGameBtn').classList.remove('show');
             createBoard();
             createKeyboard();
         }
         
         function createBoard() {
             const board = document.getElementById('game-board');
+            board.innerHTML = '';
             for (let i = 0; i < 6; i++) {
                 const row = document.createElement('div');
                 row.className = 'row';
@@ -83,12 +500,9 @@
         }
         
         function createKeyboard() {
-            const keys = [
-                'QWERTYUIOP',
-                'ASDFGHJKL',
-                'ZXCVBNM'
-            ];
+            const keys = ['QWERTYUIOP', 'ASDFGHJKL', 'ZXCVBNM'];
             const keyboard = document.getElementById('keyboard');
+            keyboard.innerHTML = '';
             
             keys.forEach((row, i) => {
                 const rowDiv = document.createElement('div');
@@ -114,7 +528,7 @@
                 if (i === 2) {
                     const backKey = document.createElement('button');
                     backKey.className = 'key wide';
-                    backKey.textContent = '⌫';
+                    backKey.innerHTML = '⌫';
                     backKey.onclick = () => removeLetter();
                     rowDiv.appendChild(backKey);
                 }
@@ -127,7 +541,9 @@
             if (gameOver || currentTile >= 5) return;
             const tile = document.querySelector(`.tile[data-row="${currentRow}"][data-col="${currentTile}"]`);
             tile.textContent = letter;
+            tile.classList.add('filled');
             currentTile++;
+            if (navigator.vibrate) navigator.vibrate(5);
         }
         
         function removeLetter() {
@@ -135,6 +551,8 @@
             currentTile--;
             const tile = document.querySelector(`.tile[data-row="${currentRow}"][data-col="${currentTile}"]`);
             tile.textContent = '';
+            tile.classList.remove('filled');
+            if (navigator.vibrate) navigator.vibrate(5);
         }
         
         function submitGuess() {
@@ -159,29 +577,34 @@
                 setTimeout(() => {
                     if (letter === target[i]) {
                         tile.classList.add('correct');
+                        key.classList.remove('present', 'absent');
                         key.classList.add('correct');
                     } else if (target.includes(letter)) {
                         tile.classList.add('present');
-                        if (!key.classList.contains('correct')) key.classList.add('present');
+                        if (!key.classList.contains('correct')) {
+                            key.classList.add('present');
+                        }
                     } else {
                         tile.classList.add('absent');
                         key.classList.add('absent');
                     }
-                }, i * 200);
+                    if (navigator.vibrate) navigator.vibrate(10);
+                }, i * 150);
             }
             
             if (guess === target) {
                 gameOver = true;
                 setTimeout(() => {
-                    showMessage('🎉 Correct! Great job!');
+                    showMessage('🎉 Correct!');
                     showDefinition();
-                }, 1200);
+                    if (navigator.vibrate) navigator.vibrate([50, 100, 50]);
+                }, 900);
             } else if (currentRow === 5) {
                 gameOver = true;
                 setTimeout(() => {
                     showMessage(`The word was: ${target}`);
                     showDefinition();
-                }, 1200);
+                }, 900);
             } else {
                 currentRow++;
                 currentTile = 0;
@@ -191,13 +614,15 @@
         function showMessage(msg) {
             const el = document.getElementById('message');
             el.textContent = msg;
-            setTimeout(() => el.textContent = '', 3000);
+            el.classList.add('show');
+            setTimeout(() => el.classList.remove('show'), 2000);
         }
         
         function showDefinition() {
-            const def = document.getElementById('definition');
-            def.innerHTML = `<strong>${targetWord.word}:</strong> ${targetWord.def}`;
-            def.classList.add('show');
+            document.getElementById('defWord').textContent = targetWord.word;
+            document.getElementById('defText').textContent = targetWord.def;
+            document.getElementById('definition').classList.add('show');
+            document.getElementById('newGameBtn').classList.add('show');
         }
         
         document.addEventListener('keydown', (e) => {
@@ -206,7 +631,7 @@
             else if (/^[a-zA-Z]$/.test(e.key)) addLetter(e.key.toUpperCase());
         });
         
-        init();
+        initGame();
     </script>
 </body>
 </html>
