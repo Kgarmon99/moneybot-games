@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Crypto Miner | MoneyBot Gaming</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            user-select: none;
+        }
+        
+        :root {
+            --moneybot-green: #00E676;
+            --moneybot-green-light: #69F0AE;
+            --moneybot-green-dark: #00C853;
+            --moneybot-glow: rgba(0, 230, 118, 0.4);
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%);
+            min-height: 100vh;
+            overflow: hidden;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 230, 118, 0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 230, 118, 0.04) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        body::after {
+            content: '';
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, var(--moneybot-glow) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+            animation: pulse 4s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; transform: translate(-50%, -50%) scale(1); }
+            50% { opacity: 0.6; transform: translate(-50%, -50%) scale(1.2); }
+        }
+        
+        .app {
+            max-width: 430px;
+            margin: 0 auto;
+            min-height: 100vh;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        
+        .header-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .back-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            background: rgba(0, 230, 118, 0.1);
+            border: none;
+            color: var(--moneybot-green);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 20px;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        
+        .back-btn:active { transform: scale(0.95); }
+        
+        .header-title {
+            font-weight: 800;
+            font-size: 20px;
+            color: #1e293b;
+        }
+        
+        .score-pill {
+            background: linear-gradient(135deg, var(--moneybot-green), var(--moneybot-green-dark));
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 700;
+            font-size: 16px;
+            box-shadow: 0 4px 15px rgba(0, 230, 118, 0.3);
+        }
+        
+        .game-container {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            overflow-y: auto;
+        }
+        
+        .mining-stats {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+        
+        .stat-row:last-child {
+            margin-bottom: 0;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: #64748b;
+        }
+        
+        .stat-value {
+            font-weight: 700;
+            font-size: 16px;
+            color: #1e293b;
+        }
+        
+        .stat-value.btc {
+            color: #F59E0B;
+        }
+        
+        .rig-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+        
+        .rig-card {
+            background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+            border-radius: 16px;
+            padding: 16px;
+            text-align: center;
+            box-shadow: 0 0 30px rgba(0, 230, 118, 0.15);
+            border: 2px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .rig-card.owned {
+            border-color: var(--moneybot-green);
+            box-shadow: 0 0 30px rgba(0, 230, 118, 0.3);
+        }
+        
+        .rig-icon {
+            font-size: 40px;
+            margin-bottom: 8px;
+        }
+        
+        .rig-name {
+            font-weight: 700;
+            font-size: 14px;
+            color: white;
+            margin-bottom: 4px;
+        }
+        
+        .rig-hash {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-bottom: 8px;
+        }
+        
+        .rig-cost {
+            font-weight: 700;
+            font-size: 14px;
+            color: var(--moneybot-green);
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+            margin-top: 10px;
+        }
+        
+        .btn-buy {
+            background: linear-gradient(135deg, var(--moneybot-green), var(--moneybot-green-dark));
+            color: white;
+        }
+        
+        .btn:active {
+            transform: scale(0.95);
+        }
+        
+        .overlay-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            z-index: 200;
+            padding: 40px;
+        }
+        
+        .overlay-screen.hidden { display: none; }
+        
+        .game-icon {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, var(--moneybot-green), var(--moneybot-green-dark));
+            border-radius: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+            margin-bottom: 30px;
+            box-shadow: 0 0 40px rgba(0, 230, 118, 0.5);
+            animation: mine 1s ease-in-out infinite;
+        }
+        
+        @keyframes mine {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .game-title {
+            font-size: 36px;
+            font-weight: 900;
+            color: #1e293b;
+            margin-bottom: 12px;
+        }
+        
+        .game-subtitle {
+            color: #64748b;
+            font-size: 17px;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+        
+        .stats-card {
+            background: white;
+            border-radius: 20px;
+            padding: 24px 40px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        
+        .stats-label {
+            font-size: 13px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+        
+        .stats-value {
+            font-size: 36px;
+            font-weight: 800;
+            color: var(--moneybot-green);
+        }
+        
+        .primary-btn {
+            background: linear-gradient(135deg, var(--moneybot-green), var(--moneybot-green-dark));
+            color: white;
+            border: none;
+            padding: 20px 60px;
+            font-size: 18px;
+            font-weight: 700;
+            border-radius: 16px;
+            cursor: pointer;
+            box-shadow: 0 0 30px rgba(0, 230, 118, 0.4);
+            transition: all 0.3s;
+            width: 100%;
+            max-width: 280px;
+        }
+        
+        .primary-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 40px rgba(0, 230, 118, 0.6);
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <div class="header">
+            <div class="header-logo">
+                <a href="../moneybot-official/" class="back-btn">←</a>
+                <span class="header-title">Crypto Miner</span>
+            </div>
+            <div class="score-pill">₿ <span id="btc">0.000</span></div>
+        </div>
+        
+        <div class="game-container">
+            <div class="mining-stats">
+                <div class="stat-row">
+                    <span class="stat-label">Hash Rate</span>
+                    <span class="stat-value" id="hashRate">0 MH/s</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Power Cost</span>
+                    <span class="stat-value">$<span id="powerCost">0</span>/s</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">BTC Value</span>
+                    <span class="stat-value btc">$<span id="btcValue">0</span></span>
+                </div>
+            </div>
+            
+            <div class="rig-grid" id="rigGrid"></div>
+        </div>
+    </div>
+    
+    <div class="overlay-screen" id="startScreen">
+        <div class="game-icon">⛏️</div>
+        <div class="game-title">Crypto Miner</div>
+        <div class="game-subtitle">Build your mining operation!<br>Mine Bitcoin and earn profits</div>
+        
+        <div class="stats-card">
+            <div class="stats-label">Best Mining Op</div>
+            <div class="stats-value" id="highScore">₿ 0.000</div>
+        </div>
+        
+        <button class="primary-btn" onclick="startGame()">Start Mining</button>
+    </div>
+    
+    <div class="overlay-screen hidden" id="gameOverScreen">
+        <div class="game-icon" style="background: linear-gradient(135deg, #F59E0B, #D97706);">₿</div>
+        <div class="game-title">Mining Complete!</div>
+        <div class="game-subtitle">Mined: <span id="finalScore" style="color: #F59E0B; font-weight: 800;">₿ 0.000</span></div>
+        <button class="primary-btn" onclick="restartGame()">Mine Again</button>
+    </div>
+    
+    <script>
+        let btc = 0;
+        let hashRate = 0;
+        let powerCost = 0;
+        let btcPrice = 50000;
+        let rigs = [];
+        let highScore = localStorage.getItem('cryptoMinerHighScore') || 0;
+        let gameRunning = false;
+        let miningInterval;
+        
+        document.getElementById('highScore').textContent = '₿ ' + highScore.toFixed(3);
+        
+        const rigTypes = [
+            { name: 'Basic GPU', icon: '🎮', hash: 10, power: 5, cost: 0.001 },
+            { name: 'Mining Rig', icon: '🖥️', hash: 50, power: 20, cost: 0.005 },
+            { name: 'ASIC Miner', icon: '⚡', hash: 200, power: 80, cost: 0.02 },
+            { name: 'Mining Farm', icon: '🏭', hash: 1000, power: 400, cost: 0.1 }
+        ];
+        
+        function initRigs() {
+            rigs = rigTypes.map((type, i) => ({
+                ...type,
+                owned: i === 0 ? 1 : 0,
+                id: i
+            }));
+            renderRigs();
+        }
+        
+        function startGame() {
+            document.getElementById('startScreen').classList.add('hidden');
+            document.getElementById('gameOverScreen').classList.add('hidden');
+            gameRunning = true;
+            btc = 0;
+            hashRate = 0;
+            powerCost = 0;
+            initRigs();
+            updateStats();
+            
+            miningInterval = setInterval(() => {
+                if (gameRunning) {
+                    const mined = hashRate / 1000000;
+                    const cost = powerCost / btcPrice;
+                    btc += Math.max(0, mined - cost);
+                    updateStats();
+                }
+            }, 1000);
+            
+            setTimeout(gameOver, 120000);
+        }
+        
+        function restartGame() {
+            clearInterval(miningInterval);
+            startGame();
+        }
+        
+        function buyRig(index) {
+            const rig = rigs[index];
+            if (btc >= rig.cost) {
+                btc -= rig.cost;
+                rig.owned++;
+                rig.cost *= 1.2;
+                if (navigator.vibrate) navigator.vibrate(20);
+                updateStats();
+                renderRigs();
+            }
+        }
+        
+        function updateStats() {
+            hashRate = rigs.reduce((sum, r) => sum + (r.hash * r.owned), 0);
+            powerCost = rigs.reduce((sum, r) => sum + (r.power * r.owned), 0);
+            
+            document.getElementById('btc').textContent = btc.toFixed(3);
+            document.getElementById('hashRate').textContent = hashRate + ' MH/s';
+            document.getElementById('powerCost').textContent = powerCost;
+            document.getElementById('btcValue').textContent = (btc * btcPrice).toFixed(0);
+        }
+        
+        function renderRigs() {
+            const grid = document.getElementById('rigGrid');
+            grid.innerHTML = rigs.map(rig => `
+                <div class="rig-card ${rig.owned > 0 ? 'owned' : ''}">
+                    <div class="rig-icon">${rig.icon}</div>
+                    <div class="rig-name">${rig.name}</div>
+                    <div class="rig-hash">${rig.hash} MH/s</div>
+                    <div class="rig-cost">₿ ${rig.cost.toFixed(3)}</div>
+                    <div style="color: #64748b; font-size: 12px; margin-top: 4px;">Owned: ${rig.owned}</div>
+                    <button class="btn btn-buy" onclick="buyRig(${rig.id})">Buy</button>
+                </div>
+            `).join('');
+        }
+        
+        function gameOver() {
+            gameRunning = false;
+            clearInterval(miningInterval);
+            if (btc > highScore) {
+                highScore = btc;
+                localStorage.setItem('cryptoMinerHighScore', highScore);
+            }
+            document.getElementById('finalScore').textContent = '₿ ' + btc.toFixed(3);
+            document.getElementById('gameOverScreen').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
