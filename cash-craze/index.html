@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Cash Craze | MoneyBot Gaming</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: manipulation; user-select: none; }
+        :root { --moneybot-black: #000000; --moneybot-neon: #00FF99; --moneybot-graphite: #0D0D0D; --moneybot-white: #FFFFFF; --moneybot-gray: #888888; --moneybot-blue: #00D4FF; --moneybot-gold: #FFD700; --moneybot-red: #FF4D4D; --glow-neon: 0 0 10px #00FF99, 0 0 20px #00FF99; }
+        body { font-family: 'Inter', sans-serif; background: var(--moneybot-black); min-height: 100vh; overflow: hidden; }
+        body::before { content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-image: linear-gradient(rgba(0, 255, 153, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 255, 153, 0.03) 1px, transparent 1px); background-size: 80px 80px; pointer-events: none; z-index: 0; }
+        .app { max-width: 430px; margin: 0 auto; min-height: 100vh; position: relative; z-index: 1; display: flex; flex-direction: column; }
+        .header { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; z-index: 100; border-bottom: 1px solid rgba(0, 255, 153, 0.1); }
+        .header-logo { display: flex; align-items: center; gap: 12px; }
+        .moneybot-brand { display: flex; align-items: center; gap: 8px; }
+        .moneybot-icon { width: 32px; height: 32px; background: linear-gradient(135deg, var(--moneybot-neon), var(--moneybot-blue)); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; box-shadow: var(--glow-neon); }
+        .back-btn { width: 44px; height: 44px; border-radius: 14px; background: rgba(0, 255, 153, 0.1); border: none; color: var(--moneybot-neon); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 20px; text-decoration: none; }
+        .header-title { font-weight: 800; font-size: 18px; color: var(--moneybot-white); }
+        .score-pill { background: linear-gradient(135deg, var(--moneybot-neon), var(--moneybot-blue)); color: var(--moneybot-black); padding: 10px 20px; border-radius: 25px; font-weight: 700; font-size: 16px; box-shadow: var(--glow-neon); }
+        .game-area { flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        #gameCanvas { background: var(--moneybot-graphite); border-radius: 20px; box-shadow: var(--glow-neon); }
+        .overlay-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.95); z-index: 200; padding: 40px; }
+        .overlay-screen.hidden { display: none; }
+        .game-icon { width: 120px; height: 120px; background: linear-gradient(135deg, var(--moneybot-neon), var(--moneybot-blue)); border-radius: 32px; display: flex; align-items: center; justify-content: center; font-size: 60px; margin-bottom: 30px; box-shadow: var(--glow-neon); }
+        .game-title { font-size: 36px; font-weight: 900; color: var(--moneybot-white); margin-bottom: 12px; }
+        .game-subtitle { color: var(--moneybot-gray); font-size: 17px; margin-bottom: 40px; text-align: center; }
+        .stats-card { background: var(--moneybot-graphite); border-radius: 20px; padding: 24px 40px; margin-bottom: 30px; text-align: center; border: 1px solid rgba(0, 255, 153, 0.2); }
+        .stats-label { font-size: 13px; color: var(--moneybot-gray); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+        .stats-value { font-size: 36px; font-weight: 800; color: var(--moneybot-neon); }
+        .primary-btn { background: linear-gradient(135deg, var(--moneybot-neon), var(--moneybot-blue)); color: var(--moneybot-black); border: none; padding: 20px 60px; font-size: 18px; font-weight: 700; border-radius: 16px; cursor: pointer; box-shadow: var(--glow-neon); width: 100%; max-width: 280px; }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <div class="header">
+            <div class="header-logo">
+                <a href="../moneybot-official/" class="back-btn">←</a>
+                <div class="moneybot-brand">
+                    <div class="moneybot-icon">🤖</div>
+                    <span class="header-title">Cash Craze</span>
+                </div>
+            </div>
+            <div class="score-pill">$<span id="score">0</span></div>
+        </div>
+        <div class="game-area">
+            <canvas id="gameCanvas" width="350" height="400"></canvas>
+        </div>
+    </div>
+    <div class="overlay-screen" id="startScreen">
+        <div class="game-icon">💎</div>
+        <div class="game-title">Cash Craze</div>
+        <div class="game-subtitle">Match-3 with money!<br>Swap tiles, create combos</div>
+        <div class="stats-card">
+            <div class="stats-label">Best Score</div>
+            <div class="stats-value" id="highScore">$0</div>
+        </div>
+        <button class="primary-btn" onclick="startGame()">Start Matching</button>
+    </div>
+    <div class="overlay-screen hidden" id="gameOverScreen">
+        <div class="game-icon" style="background: linear-gradient(135deg, var(--moneybot-gold), var(--moneybot-neon));">💰</div>
+        <div class="game-title">Time's Up!</div>
+        <div class="game-subtitle">You earned $<span id="finalScore" style="color: var(--moneybot-neon); font-weight: 800;">0</span></div>
+        <button class="primary-btn" onclick="restartGame()">Play Again</button>
+    </div>
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const GRID_SIZE = 6;
+        const CELL_SIZE = 50;
+        let gameRunning = false;
+        let score = 0;
+        let highScore = localStorage.getItem('cashCrazeHighScore') || 0;
+        let grid = [];
+        let selected = null;
+        let gameLoop;
+        const symbols = ['💵', '💰', '💎', '🪙', '💳'];
+        document.getElementById('highScore').textContent = '$' + highScore;
+        function initGrid() {
+            grid = [];
+            for (let y = 0; y < GRID_SIZE; y++) {
+                grid[y] = [];
+                for (let x = 0; x < GRID_SIZE; x++) {
+                    grid[y][x] = symbols[Math.floor(Math.random() * symbols.length)];
+                }
+            }
+        }
+        function startGame() {
+            document.getElementById('startScreen').classList.add('hidden');
+            document.getElementById('gameOverScreen').classList.add('hidden');
+            gameRunning = true;
+            score = 0;
+            selected = null;
+            initGrid();
+            updateScore();
+            draw();
+            setTimeout(gameOver, 60000);
+        }
+        function restartGame() { startGame(); }
+        function checkMatches() {
+            let matches = [];
+            for (let y = 0; y < GRID_SIZE; y++) {
+                for (let x = 0; x < GRID_SIZE - 2; x++) {
+                    if (grid[y][x] === grid[y][x + 1] && grid[y][x] === grid[y][x + 2]) {
+                        matches.push({x, y}, {x: x + 1, y}, {x: x + 2, y});
+                    }
+                }
+            }
+            for (let x = 0; x < GRID_SIZE; x++) {
+                for (let y = 0; y < GRID_SIZE - 2; y++) {
+                    if (grid[y][x] === grid[y + 1][x] && grid[y][x] === grid[y + 2][x]) {
+                        matches.push({x, y}, {x, y: y + 1}, {x, y: y + 2});
+                    }
+                }
+            }
+            if (matches.length > 0) {
+                score += matches.length * 10;
+                matches.forEach(m => {
+                    grid[m.y][m.x] = symbols[Math.floor(Math.random() * symbols.length)];
+                });
+                if (navigator.vibrate) navigator.vibrate(20);
+                updateScore();
+            }
+        }
+        function gameOver() {
+            gameRunning = false;
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem('cashCrazeHighScore', highScore);
+            }
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('gameOverScreen').classList.remove('hidden');
+        }
+        function updateScore() { document.getElementById('score').textContent = score; }
+        function draw() {
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            for (let y = 0; y < GRID_SIZE; y++) {
+                for (let x = 0; x < GRID_SIZE; x++) {
+                    const px = x * CELL_SIZE + 25;
+                    const py = y * CELL_SIZE + 25;
+                    if (selected && selected.x === x && selected.y === y) {
+                        ctx.fillStyle = '#00FF99';
+                        ctx.fillRect(px - 2, py - 2, CELL_SIZE + 4, CELL_SIZE + 4);
+                    }
+                    ctx.fillStyle = '#1A1A1A';
+                    ctx.fillRect(px, py, CELL_SIZE, CELL_SIZE);
+                    ctx.font = '30px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(grid[y][x], px + CELL_SIZE / 2, py + CELL_SIZE / 2);
+                }
+            }
+        }
+        canvas.addEventListener('click', (e) => {
+            if (!gameRunning) return;
+            const rect = canvas.getBoundingClientRect();
+            const x = Math.floor((e.clientX - rect.left - 25) / CELL_SIZE);
+            const y = Math.floor((e.clientY - rect.top - 25) / CELL_SIZE);
+            if (x >= 0 && x < GRID_SIZE && y >= 0 && y < GRID_SIZE) {
+                if (!selected) {
+                    selected = {x, y};
+                } else {
+                    const dx = Math.abs(selected.x - x);
+                    const dy = Math.abs(selected.y - y);
+                    if (dx + dy === 1) {
+                        const temp = grid[selected.y][selected.x];
+                        grid[selected.y][selected.x] = grid[y][x];
+                        grid[y][x] = temp;
+                        checkMatches();
+                    }
+                    selected = null;
+                }
+                draw();
+            }
+        });
+    </script>
+</body>
+</html>

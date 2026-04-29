@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Wealth Wheel | MoneyBot Gaming</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: manipulation; user-select: none; }
+        :root { --moneybot-black: #000000; --moneybot-neon: #00FF99; --moneybot-neon-light: #33FFB5; --moneybot-graphite: #0D0D0D; --moneybot-charcoal: #1A1A1A; --moneybot-white: #FFFFFF; --moneybot-gray: #888888; --moneybot-blue: #00D4FF; --moneybot-purple: #7B61FF; --moneybot-gold: #FFD700; --moneybot-red: #FF4D4D; --glow-neon: 0 0 10px #00FF99, 0 0 20px #00FF99; --glow-strong: 0 0 20px #00FF99, 0 0 40px #00FF99; }
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--moneybot-black); min-height: 100vh; overflow: hidden; }
+        body::before { content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-image: linear-gradient(rgba(0, 255, 153, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 255, 153, 0.03) 1px, transparent 1px); background-size: 80px 80px; pointer-events: none; z-index: 0; }
+        body::after { content: ''; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 600px; height: 600px; background: radial-gradient(circle, rgba(0, 255, 153, 0.08) 0%, transparent 70%); pointer-events: none; z-index: 0; animation: pulse 4s ease-in-out infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 0.3; transform: translate(-50%, -50%) scale(1); } 50% { opacity: 0.6; transform: translate(-50%, -50%) scale(1.2); } }
+        .app { max-width: 430px; margin: 0 auto; min-height: 100vh; position: relative; z-index: 1; display: flex; flex-direction: column; }
+        .header { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; z-index: 100; border-bottom: 1px solid rgba(0, 255, 153, 0.1); }
+        .header-logo { display: flex; align-items: center; gap: 12px; }
+        .moneybot-brand { display: flex; align-items: center; gap: 8px; }
+        .moneybot-icon { width: 32px; height: 32px; background: linear-gradient(135deg, var(--moneybot-neon), var(--moneybot-blue)); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; box-shadow: var(--glow-neon); }
+        .back-btn { width: 44px; height: 44px; border-radius: 14px; background: rgba(0, 255, 153, 0.1); border: none; color: var(--moneybot-neon); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 20px; text-decoration: none; transition: all 0.2s; }
+        .back-btn:hover { background: rgba(0, 255, 153, 0.2); transform: scale(1.05); }
+        .back-btn:active { transform: scale(0.95); }
+        .header-title { font-weight: 800; font-size: 18px; color: var(--moneybot-white); }
+        .score-pill { background: linear-gradient(135deg, var(--moneybot-neon), var(--moneybot-blue)); color: var(--moneybot-black); padding: 10px 20px; border-radius: 25px; font-weight: 700; font-size: 16px; box-shadow: var(--glow-neon); }
+        .game-area { flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        #gameCanvas { background: var(--moneybot-graphite); border-radius: 20px; box-shadow: var(--glow-neon); }
+        .overlay-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.95); backdrop-filter: blur(20px); z-index: 200; padding: 40px; }
+        .overlay-screen.hidden { display: none; }
+        .game-icon { width: 120px; height: 120px; background: linear-gradient(135deg, var(--moneybot-neon), var(--moneybot-blue)); border-radius: 32px; display: flex; align-items: center; justify-content: center; font-size: 60px; margin-bottom: 30px; box-shadow: var(--glow-strong); animation: spin 3s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .game-title { font-size: 36px; font-weight: 900; color: var(--moneybot-white); margin-bottom: 12px; }
+        .game-subtitle { color: var(--moneybot-gray); font-size: 17px; margin-bottom: 40px; text-align: center; }
+        .stats-card { background: var(--moneybot-graphite); border-radius: 20px; padding: 24px 40px; margin-bottom: 30px; text-align: center; border: 1px solid rgba(0, 255, 153, 0.2); }
+        .stats-label { font-size: 13px; color: var(--moneybot-gray); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+        .stats-value { font-size: 36px; font-weight: 800; color: var(--moneybot-neon); }
+        .primary-btn { background: linear-gradient(135deg, var(--moneybot-neon), var(--moneybot-blue)); color: var(--moneybot-black); border: none; padding: 20px 60px; font-size: 18px; font-weight: 700; border-radius: 16px; cursor: pointer; box-shadow: var(--glow-neon); transition: all 0.3s; width: 100%; max-width: 280px; }
+        .primary-btn:hover { transform: scale(1.05); box-shadow: var(--glow-strong); }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <div class="header">
+            <div class="header-logo">
+                <a href="../moneybot-official/" class="back-btn">←</a>
+                <div class="moneybot-brand">
+                    <div class="moneybot-icon">🤖</div>
+                    <span class="header-title">Wealth Wheel</span>
+                </div>
+            </div>
+            <div class="score-pill">$<span id="total">0</span></div>
+        </div>
+        <div class="game-area">
+            <canvas id="gameCanvas" width="350" height="350"></canvas>
+        </div>
+    </div>
+    <div class="overlay-screen" id="startScreen">
+        <div class="game-icon">🎡</div>
+        <div class="game-title">Wealth Wheel</div>
+        <div class="game-subtitle">Spin the wheel!<br>Win cash prizes</div>
+        <div class="stats-card">
+            <div class="stats-label">Total Won</div>
+            <div class="stats-value" id="highScore">$0</div>
+        </div>
+        <button class="primary-btn" onclick="startGame()">Spin to Win</button>
+    </div>
+    <div class="overlay-screen hidden" id="gameOverScreen">
+        <div class="game-icon" style="background: linear-gradient(135deg, var(--moneybot-gold), var(--moneybot-neon));">💰</div>
+        <div class="game-title">You Won!</div>
+        <div class="game-subtitle">Prize: $<span id="finalScore" style="color: var(--moneybot-neon); font-weight: 800;">0</span></div>
+        <button class="primary-btn" onclick="restartGame()">Spin Again</button>
+    </div>
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        let gameRunning = false;
+        let totalWon = 0;
+        let highScore = localStorage.getItem('wealthWheelHighScore') || 0;
+        let angle = 0;
+        let spinVelocity = 0;
+        let isSpinning = false;
+        const prizes = [
+            { label: '$10', value: 10, color: '#00FF99' },
+            { label: '$50', value: 50, color: '#00D4FF' },
+            { label: '$100', value: 100, color: '#7B61FF' },
+            { label: '$25', value: 25, color: '#FFD700' },
+            { label: '$500', value: 500, color: '#FF4D4D' },
+            { label: '$75', value: 75, color: '#00FF99' },
+            { label: '$200', value: 200, color: '#00D4FF' },
+            { label: '$5', value: 5, color: '#888888' }
+        ];
+        document.getElementById('highScore').textContent = '$' + highScore;
+        function startGame() {
+            document.getElementById('startScreen').classList.add('hidden');
+            document.getElementById('gameOverScreen').classList.add('hidden');
+            gameRunning = true;
+            angle = 0;
+            spinVelocity = 0;
+            isSpinning = false;
+            draw();
+        }
+        function restartGame() {
+            startGame();
+        }
+        function spin() {
+            if (isSpinning || !gameRunning) return;
+            isSpinning = true;
+            spinVelocity = 0.3 + Math.random() * 0.2;
+            animateSpin();
+        }
+        function animateSpin() {
+            if (!gameRunning) return;
+            angle += spinVelocity;
+            spinVelocity *= 0.98;
+            draw();
+            if (spinVelocity > 0.001) {
+                requestAnimationFrame(animateSpin);
+            } else {
+                isSpinning = false;
+                const prizeIndex = Math.floor((prizes.length - (angle % (Math.PI * 2)) / (Math.PI * 2) * prizes.length) % prizes.length);
+                const prize = prizes[prizeIndex];
+                totalWon += prize.value;
+                if (totalWon > highScore) {
+                    highScore = totalWon;
+                    localStorage.setItem('wealthWheelHighScore', highScore);
+                }
+                document.getElementById('finalScore').textContent = prize.value;
+                document.getElementById('gameOverScreen').classList.remove('hidden');
+                if (navigator.vibrate) navigator.vibrate([50, 30, 50]);
+            }
+        }
+        function draw() {
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const radius = 140;
+            ctx.save();
+            ctx.translate(centerX, centerY);
+            ctx.rotate(angle);
+            const sliceAngle = (Math.PI * 2) / prizes.length;
+            prizes.forEach((prize, i) => {
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.arc(0, 0, radius, i * sliceAngle, (i + 1) * sliceAngle);
+                ctx.fillStyle = prize.color;
+                ctx.fill();
+                ctx.strokeStyle = '#000000';
+                ctx.lineWidth = 3;
+                ctx.stroke();
+                ctx.save();
+                ctx.rotate(i * sliceAngle + sliceAngle / 2);
+                ctx.textAlign = 'right';
+                ctx.fillStyle = '#000000';
+                ctx.font = 'bold 16px Inter';
+                ctx.fillText(prize.label, radius - 20, 5);
+                ctx.restore();
+            });
+            ctx.restore();
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 30, 0, Math.PI * 2);
+            ctx.fillStyle = '#00FF99';
+            ctx.fill();
+            ctx.strokeStyle = '#000000';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+            ctx.fillStyle = '#000000';
+            ctx.font = 'bold 14px Inter';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('SPIN', centerX, centerY);
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY - radius - 10);
+            ctx.lineTo(centerX - 15, centerY - radius - 30);
+            ctx.lineTo(centerX + 15, centerY - radius - 30);
+            ctx.closePath();
+            ctx.fillStyle = '#FFD700';
+            ctx.fill();
+        }
+        canvas.addEventListener('click', spin);
+        draw();
+    </script>
+</body>
+</html>

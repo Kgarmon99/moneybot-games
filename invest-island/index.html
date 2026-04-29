@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Invest Island | MoneyBot Gaming</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: manipulation; user-select: none; }
+        :root { --moneybot-black: #000000; --moneybot-neon: #00FF99; --moneybot-graphite: #0D0D0D; --moneybot-white: #FFFFFF; --moneybot-gray: #888888; --moneybot-blue: #00D4FF; --moneybot-purple: #7B61FF; --moneybot-gold: #FFD700; --glow-neon: 0 0 10px #00FF99, 0 0 20px #00FF99; }
+        body { font-family: 'Inter', sans-serif; background: var(--moneybot-black); min-height: 100vh; overflow: hidden; }
+        body::before { content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-image: linear-gradient(rgba(0, 255, 153, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 255, 153, 0.03) 1px, transparent 1px); background-size: 80px 80px; pointer-events: none; z-index: 0; }
+        .app { max-width: 430px; margin: 0 auto; min-height: 100vh; position: relative; z-index: 1; display: flex; flex-direction: column; }
+        .header { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; z-index: 100; border-bottom: 1px solid rgba(0, 255, 153, 0.1); }
+        .header-logo { display: flex; align-items: center; gap: 12px; }
+        .moneybot-brand { display: flex; align-items: center; gap: 8px; }
+        .moneybot-icon { width: 32px; height: 32px; background: linear-gradient(135deg, var(--moneybot-neon), var(--moneybot-blue)); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; box-shadow: var(--glow-neon); }
+        .back-btn { width: 44px; height: 44px; border-radius: 14px; background: rgba(0, 255, 153, 0.1); border: none; color: var(--moneybot-neon); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 20px; text-decoration: none; }
+        .header-title { font-weight: 800; font-size: 18px; color: var(--moneybot-white); }
+        .score-pill { background: linear-gradient(135deg, var(--moneybot-neon), var(--moneybot-blue)); color: var(--moneybot-black); padding: 10px 20px; border-radius: 25px; font-weight: 700; font-size: 16px; box-shadow: var(--glow-neon); }
+        .game-area { flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        #gameCanvas { background: var(--moneybot-graphite); border-radius: 20px; box-shadow: var(--glow-neon); }
+        .overlay-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.95); z-index: 200; padding: 40px; }
+        .overlay-screen.hidden { display: none; }
+        .game-icon { width: 120px; height: 120px; background: linear-gradient(135deg, var(--moneybot-neon), var(--moneybot-blue)); border-radius: 32px; display: flex; align-items: center; justify-content: center; font-size: 60px; margin-bottom: 30px; box-shadow: var(--glow-neon); }
+        .game-title { font-size: 36px; font-weight: 900; color: var(--moneybot-white); margin-bottom: 12px; }
+        .game-subtitle { color: var(--moneybot-gray); font-size: 17px; margin-bottom: 40px; text-align: center; }
+        .stats-card { background: var(--moneybot-graphite); border-radius: 20px; padding: 24px 40px; margin-bottom: 30px; text-align: center; border: 1px solid rgba(0, 255, 153, 0.2); }
+        .stats-label { font-size: 13px; color: var(--moneybot-gray); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+        .stats-value { font-size: 36px; font-weight: 800; color: var(--moneybot-neon); }
+        .primary-btn { background: linear-gradient(135deg, var(--moneybot-neon), var(--moneybot-blue)); color: var(--moneybot-black); border: none; padding: 20px 60px; font-size: 18px; font-weight: 700; border-radius: 16px; cursor: pointer; box-shadow: var(--glow-neon); width: 100%; max-width: 280px; }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <div class="header">
+            <div class="header-logo">
+                <a href="../moneybot-official/" class="back-btn">←</a>
+                <div class="moneybot-brand">
+                    <div class="moneybot-icon">🤖</div>
+                    <span class="header-title">Invest Island</span>
+                </div>
+            </div>
+            <div class="score-pill">$<span id="wealth">0</span></div>
+        </div>
+        <div class="game-area">
+            <canvas id="gameCanvas" width="350" height="500"></canvas>
+        </div>
+    </div>
+    <div class="overlay-screen" id="startScreen">
+        <div class="game-icon">🏝️</div>
+        <div class="game-title">Invest Island</div>
+        <div class="game-subtitle">Build on investment islands!<br>Develop properties, earn returns</div>
+        <div class="stats-card">
+            <div class="stats-label">Best Island</div>
+            <div class="stats-value" id="highScore">$0</div>
+        </div>
+        <button class="primary-btn" onclick="startGame()">Build Island</button>
+    </div>
+    <div class="overlay-screen hidden" id="gameOverScreen">
+        <div class="game-icon" style="background: linear-gradient(135deg, var(--moneybot-gold), var(--moneybot-neon));">👑</div>
+        <div class="game-title">Island Empire!</div>
+        <div class="game-subtitle">Total Wealth: $<span id="finalScore" style="color: var(--moneybot-neon); font-weight: 800;">0</span></div>
+        <button class="primary-btn" onclick="restartGame()">Build Again</button>
+    </div>
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        let gameRunning = false;
+        let wealth = 1000;
+        let highScore = localStorage.getItem('investIslandHighScore') || 0;
+        let islands = [];
+        let gameLoop;
+        document.getElementById('highScore').textContent = '$' + highScore;
+        const islandTypes = [
+            { name: 'Stock', icon: '📈', cost: 500, income: 50, color: '#00D4FF' },
+            { name: 'Bond', icon: '📜', cost: 1000, income: 80, color: '#00FF99' },
+            { name: 'Real Estate', icon: '🏢', cost: 2000, income: 150, color: '#FFD700' },
+            { name: 'Crypto', icon: '₿', cost: 3000, income: 200, color: '#7B61FF' }
+        ];
+        function initIslands() {
+            islands = [];
+            for (let i = 0; i < 4; i++) {
+                islands.push({
+                    x: 50 + (i % 2) * 150,
+                    y: 100 + Math.floor(i / 2) * 180,
+                    type: islandTypes[i],
+                    built: false,
+                    level: 0
+                });
+            }
+        }
+        function startGame() {
+            document.getElementById('startScreen').classList.add('hidden');
+            document.getElementById('gameOverScreen').classList.add('hidden');
+            gameRunning = true;
+            wealth = 1000;
+            initIslands();
+            updateScore();
+            gameLoop = setInterval(() => {
+                if (gameRunning) {
+                    islands.forEach(island => {
+                        if (island.built) {
+                            wealth += island.type.income * island.level;
+                        }
+                    });
+                    updateScore();
+                    draw();
+                }
+            }, 1000);
+            draw();
+            setTimeout(gameOver, 60000);
+        }
+        function restartGame() { startGame(); }
+        function buildIsland(index) {
+            const island = islands[index];
+            if (!island.built && wealth >= island.type.cost) {
+                wealth -= island.type.cost;
+                island.built = true;
+                island.level = 1;
+                if (navigator.vibrate) navigator.vibrate(20);
+            } else if (island.built && wealth >= island.type.cost * island.level) {
+                wealth -= island.type.cost * island.level;
+                island.level++;
+                if (navigator.vibrate) navigator.vibrate(10);
+            }
+            updateScore();
+            draw();
+        }
+        function gameOver() {
+            gameRunning = false;
+            clearInterval(gameLoop);
+            if (wealth > highScore) {
+                highScore = wealth;
+                localStorage.setItem('investIslandHighScore', highScore);
+            }
+            document.getElementById('finalScore').textContent = wealth;
+            document.getElementById('gameOverScreen').classList.remove('hidden');
+        }
+        function updateScore() { document.getElementById('wealth').textContent = Math.floor(wealth); }
+        function draw() {
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.font = '40px Arial';
+            ctx.textAlign = 'center';
+            islands.forEach((island, i) => {
+                ctx.fillStyle = island.built ? island.type.color : '#1A1A1A';
+                ctx.fillRect(island.x, island.y, 120, 140);
+                ctx.fillStyle = '#000000';
+                ctx.fillText(island.type.icon, island.x + 60, island.y + 60);
+                ctx.font = '12px Inter';
+                ctx.fillStyle = '#FFFFFF';
+                if (island.built) {
+                    ctx.fillText('Lvl ' + island.level, island.x + 60, island.y + 100);
+                    ctx.fillText('$' + island.type.income * island.level + '/s', island.x + 60, island.y + 120);
+                } else {
+                    ctx.fillText('$' + island.type.cost, island.x + 60, island.y + 110);
+                }
+                ctx.font = '40px Arial';
+            });
+        }
+        canvas.addEventListener('click', (e) => {
+            if (!gameRunning) return;
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            islands.forEach((island, i) => {
+                if (x > island.x && x < island.x + 120 && y > island.y && y < island.y + 140) {
+                    buildIsland(i);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
