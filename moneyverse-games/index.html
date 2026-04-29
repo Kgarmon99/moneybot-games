@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MoneyVerse Games | MoneyBot</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            user-select: none;
+        }
+        
+        :root {
+            --moneybot-black: #000000;
+            --moneybot-neon: #00FF99;
+            --moneybot-neon-light: #33FFB5;
+            --moneybot-graphite: #0D0D0D;
+            --moneybot-charcoal: #1A1A1A;
+            --moneybot-white: #FFFFFF;
+            --moneybot-gray: #888888;
+            --moneybot-blue: #00D4FF;
+            --moneybot-purple: #7B61FF;
+            --moneybot-gold: #FFD700;
+            --moneybot-red: #FF4D4D;
+            --glow-neon: 0 0 10px #00FF99, 0 0 20px #00FF99;
+            --glow-strong: 0 0 20px #00FF99, 0 0 40px #00FF99;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--moneybot-black);
+            min-height: 100vh;
+            color: var(--moneybot-white);
+            overflow-x: hidden;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 255, 153, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 153, 0.03) 1px, transparent 1px);
+            background-size: 80px 80px;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .app {
+            max-width: 430px;
+            margin: 0 auto;
+            min-height: 100vh;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Header */
+        .header {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            border-bottom: 1px solid rgba(0, 255, 153, 0.1);
+            position: sticky;
+            top: 0;
+        }
+        
+        .header-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .moneybot-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--moneybot-neon), var(--moneybot-blue));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: var(--glow-neon);
+        }
+        
+        .header-title {
+            font-weight: 800;
+            font-size: 20px;
+            background: linear-gradient(135deg, var(--moneybot-white) 0%, var(--moneybot-neon) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .user-stats {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .stat-pill {
+            background: var(--moneybot-charcoal);
+            padding: 8px 16px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 700;
+            font-size: 14px;
+            border: 1px solid rgba(0, 255, 153, 0.2);
+        }
+        
+        .stat-pill.xp { color: var(--moneybot-blue); }
+        .stat-pill.botbucks { color: var(--moneybot-neon); }
+        
+        /* Hero Section */
+        .hero {
+            padding: 32px 20px;
+            text-align: center;
+        }
+        
+        .hero-title {
+            font-size: 32px;
+            font-weight: 900;
+            margin-bottom: 8px;
+        }
+        
+        .hero-subtitle {
+            color: var(--moneybot-gray);
+            font-size: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .progress-card {
+            background: var(--moneybot-graphite);
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid rgba(0, 255, 153, 0.2);
+        }
+        
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+        
+        .progress-label {
+            font-size: 14px;
+            color: var(--moneybot-gray);
+        }
+        
+        .progress-value {
+            font-weight: 700;
+            color: var(--moneybot-neon);
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background: var(--moneybot-charcoal);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--moneybot-neon), var(--moneybot-blue));
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+        
+        /* Category Filter */
+        .categories {
+            padding: 0 20px 20px;
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+        
+        .categories::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .category-btn {
+            background: var(--moneybot-charcoal);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--moneybot-gray);
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+        
+        .category-btn:hover,
+        .category-btn.active {
+            background: linear-gradient(135deg, var(--moneybot-neon), var(--moneybot-blue));
+            color: var(--moneybot-black);
+            border-color: var(--moneybot-neon);
+            box-shadow: var(--glow-neon);
+        }
+        
+        /* Games Grid */
+        .games-section {
+            padding: 0 20px 100px;
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+        }
+        
+        .games-count {
+            color: var(--moneybot-gray);
+            font-size: 14px;
+        }
+        
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+        
+        .game-card {
+            background: var(--moneybot-graphite);
+            border-radius: 16px;
+            padding: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .game-card:hover {
+            transform: scale(1.03);
+            box-shadow: var(--glow-neon);
+            border-color: var(--moneybot-neon);
+        }
+        
+        .game-card.locked {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+        
+        .game-icon {
+            font-size: 40px;
+            margin-bottom: 12px;
+        }
+        
+        .game-title {
+            font-weight: 700;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+        
+        .game-meta {
+            display: flex;
+            gap: 8px;
+            font-size: 12px;
+            color: var(--moneybot-gray);
+        }
+        
+        .difficulty {
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+        
+        .difficulty.easy { background: rgba(0, 255, 153, 0.2); color: var(--moneybot-neon); }
+        .difficulty.medium { background: rgba(0, 212, 255, 0.2); color: var(--moneybot-blue); }
+        .difficulty.hard { background: rgba(255, 215, 0, 0.2); color: var(--moneybot-gold); }
+        
+        .rewards {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            font-size: 12px;
+        }
+        
+        .reward {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .reward.xp { color: var(--moneybot-blue); }
+        .reward.botbucks { color: var(--moneybot-neon); }
+        
+        /* Bottom Nav */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(0, 255, 153, 0.1);
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-around;
+            z-index: 100;
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: var(--moneybot-gray);
+            text-decoration: none;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+        
+        .nav-item.active {
+            color: var(--moneybot-neon);
+        }
+        
+        .nav-icon {
+            font-size: 24px;
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-logo">
+                <div class="moneybot-icon">🤖</div>
+                <span class="header-title">MoneyVerse</span>
+            </div>
+            <div class="user-stats">
+                <div class="stat-pill xp">
+                    <span>⭐</span>
+                    <span id="userXP">0</span>
+                </div>
+                <div class="stat-pill botbucks">
+                    <span>🪙</span>
+                    <span id="userBotBucks">0</span>
+                </div>
+            </div>
+        </header>
+        
+        <!-- Hero -->
+        <section class="hero">
+            <h1 class="hero-title">MoneyVerse Games</h1>
+            <p class="hero-subtitle">Master money skills. Earn BotBucks. Level up.</p>
+            <div class="progress-card">
+                <div class="progress-header">
+                    <span class="progress-label">Games Completed</span>
+                    <span class="progress-value" id="gamesCompleted">0/100</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Categories -->
+        <div class="categories">
+            <button class="category-btn active" data-category="all">All Games</button>
+            <button class="category-btn" data-category="basics">Basics</button>
+            <button class="category-btn" data-category="budgeting">Budgeting</button>
+            <button class="category-btn" data-category="saving">Saving</button>
+            <button class="category-btn" data-category="investing">Investing</button>
+            <button class="category-btn" data-category="career">Career</button>
+            <button class="category-btn" data-category="arcade">Arcade</button>
+            <button class="category-btn" data-category="multiplayer">Multiplayer</button>
+        </div>
+        
+        <!-- Games Grid -->
+        <section class="games-section">
+            <div class="section-header">
+                <h2 class="section-title">Play Now</h2>
+                <span class="games-count" id="gamesCount">100 games</span>
+            </div>
+            <div class="games-grid" id="gamesGrid">
+                <!-- Games injected by JS -->
+            </div>
+        </section>
+        
+        <!-- Bottom Nav -->
+        <nav class="bottom-nav">
+            <a href="#" class="nav-item active">
+                <span class="nav-icon">🎮</span>
+                <span>Games</span>
+            </a>
+            <a href="#" class="nav-item">
+                <span class="nav-icon">🏆</span>
+                <span>Badges</span>
+            </a>
+            <a href="#" class="nav-item">
+                <span class="nav-icon">🛒</span>
+                <span>Shop</span>
+            </a>
+            <a href="#" class="nav-item">
+                <span class="nav-icon">👤</span>
+                <span>Profile</span>
+            </a>
+        </nav>
+    </div>
+    
+    <script>
+        // Game Library Data
+        const games = [
+            {
+                id: 'needs-vs-wants',
+                title: 'Needs vs Wants',
+                category: 'basics',
+                difficulty: 'easy',
+                skill: 'Smart Spending',
+                description: 'Sort items into needs and wants',
+                estimatedTime: '2 min',
+                rewardXP: 50,
+                rewardBotBucks: 25,
+                icon: '🛒',
+                playable: true
+            },
+            {
+                id: 'quick-budget',
+                title: 'Quick Budget',
+                category: 'budgeting',
+                difficulty: 'easy',
+                skill: 'Budgeting Basics',
+                description: 'Create a budget in 60 seconds',
+                estimatedTime: '1 min',
+                rewardXP: 75,
+                rewardBotBucks: 50,
+                icon: '📊',
+                playable: true
+            },
+            {
+                id: 'price-guess',
+                title: 'Price Guess',
+                category: 'basics',
+                difficulty: 'easy',
+                skill: 'Price Awareness',
+                description: 'Guess the real price of items',
+                estimatedTime: '3 min',
+                rewardXP: 60,
+                rewardBotBucks: 30,
+                icon: '💰',
+                playable: true
+            },
+            {
+                id: 'higher-lower',
+                title: 'Higher or Lower',
+                category: 'basics',
+                difficulty: 'easy',
+                skill: 'Market Awareness',
+                description: 'Is the price higher or lower?',
+                estimatedTime: '2 min',
+                rewardXP: 50,
+                rewardBotBucks: 25,
+                icon: '📈',
+                playable: true
+            },
+            {
+                id: 'save-streak',
+                title: 'SaveStreak',
+                category: 'saving',
+                difficulty: 'medium',
+                skill: 'Saving Habits',
+                description: 'Build a daily saving streak',
+                estimatedTime: '5 min',
+                rewardXP: 100,
+                rewardBotBucks: 75,
+                icon: '🔥',
+                playable: true
+            },
+            {
+                id: 'subscription-slayer',
+                title: 'Subscription Slayer',
+                category: 'budgeting',
+                difficulty: 'medium',
+                skill: 'Expense Management',
+                description: 'Find and cancel unused subscriptions',
+                estimatedTime: '3 min',
+                rewardXP: 80,
+                rewardBotBucks: 60,
+                icon: '⚔️',
+                playable: true
+            },
+            {
+                id: 'discount-dash',
+                title: 'Discount Dash',
+                category: 'saving',
+                difficulty: 'easy',
+                skill: 'Smart Shopping',
+                description: 'Calculate discounts quickly',
+                estimatedTime: '2 min',
+                rewardXP: 60,
+                rewardBotBucks: 40,
+                icon: '🏷️',
+                playable: true
+            },
+            {
+                id: 'money-match',
+                title: 'MoneyMatch',
+                category: 'basics',
+                difficulty: 'easy',
+                skill: 'Financial Terms',
+                description: 'Match financial terms to definitions',
+                estimatedTime: '3 min',
+                rewardXP: 70,
+                rewardBotBucks: 35,
+                icon: '🧩',
+                playable: true
+            },
+            {
+                id: 'tap-to-invest',
+                title: 'Tap to Invest',
+                category: 'investing',
+                difficulty: 'medium',
+                skill: 'Investment Basics',
+                description: 'Learn compound growth by tapping',
+                estimatedTime: '4 min',
+                rewardXP: 90,
+                rewardBotBucks: 70,
+                icon: '💎',
+                playable: true
+            },
+            {
+                id: 'cash-grab-dash',
+                title: 'Cash Grab Dash',
+                category: 'arcade',
+                difficulty: 'medium',
+                skill: 'Quick Decisions',
+                description: 'Grab cash while avoiding debt',
+                estimatedTime: '2 min',
+                rewardXP: 75,
+                rewardBotBucks: 50,
+                icon: '💨',
+                playable: true
+            }
+        ];
+        
+        // User Progress (from localStorage or default)
+        let userProgress = {
+            xp: parseInt(localStorage.getItem('moneyverseXP')) || 0,
+            botBucks: parseInt(localStorage.getItem('moneyverseBotBucks')) || 0,
+            gamesCompleted: JSON.parse(localStorage.getItem('moneyverseCompleted')) || [],
+            badges: JSON.parse(localStorage.getItem('moneyverseBadges')) || []
+        };
+        
+        // Update UI
+        function updateUserStats() {
+            document.getElementById('userXP').textContent = userProgress.xp;
+            document.getElementById('userBotBucks').textContent = userProgress.botBucks;
+            document.getElementById('gamesCompleted').textContent = `${userProgress.gamesCompleted.length}/100`;
+            document.getElementById('progressFill').style.width = `${(userProgress.gamesCompleted.length / 100) * 100}%`;
+        }
+        
+        // Render Games
+        function renderGames(category = 'all') {
+            const grid = document.getElementById('gamesGrid');
+            const filteredGames = category === 'all' 
+                ? games 
+                : games.filter(g => g.category === category);
+            
+            grid.innerHTML = filteredGames.map(game => `
+                <div class="game-card ${game.playable ? '' : 'locked'}" onclick="launchGame('${game.id}')">
+                    <div class="game-icon">${game.icon}</div>
+                    <div class="game-title">${game.title}</div>
+                    <div class="game-meta">
+                        <span class="difficulty ${game.difficulty}">${game.difficulty}</span>
+                        <span>${game.estimatedTime}</span>
+                    </div>
+                    <div class="rewards">
+                        <span class="reward xp">⭐ ${game.rewardXP}</span>
+                        <span class="reward botbucks">🪙 ${game.rewardBotBucks}</span>
+                    </div>
+                </div>
+            `).join('');
+            
+            document.getElementById('gamesCount').textContent = `${filteredGames.length} games`;
+        }
+        
+        // Launch Game
+        function launchGame(gameId) {
+            const game = games.find(g => g.id === gameId);
+            if (!game || !game.playable) return;
+            
+            // Navigate to game
+            window.location.href = `games/${gameId}/index.html`;
+        }
+        
+        // Category Filter
+        document.querySelectorAll('.category-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                renderGames(btn.dataset.category);
+            });
+        });
+        
+        // Initialize
+        updateUserStats();
+        renderGames();
+    </script>
+</body>
+</html>

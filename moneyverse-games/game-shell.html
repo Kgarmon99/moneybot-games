@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>{{GAME_TITLE}} | MoneyVerse</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            user-select: none;
+        }
+        
+        :root {
+            --moneybot-black: #000000;
+            --moneybot-neon: #00FF99;
+            --moneybot-neon-light: #33FFB5;
+            --moneybot-graphite: #0D0D0D;
+            --moneybot-charcoal: #1A1A1A;
+            --moneybot-white: #FFFFFF;
+            --moneybot-gray: #888888;
+            --moneybot-blue: #00D4FF;
+            --moneybot-purple: #7B61FF;
+            --moneybot-gold: #FFD700;
+            --moneybot-red: #FF4D4D;
+            --glow-neon: 0 0 10px #00FF99, 0 0 20px #00FF99;
+            --glow-strong: 0 0 20px #00FF99, 0 0 40px #00FF99;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--moneybot-black);
+            min-height: 100vh;
+            color: var(--moneybot-white);
+            overflow: hidden;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 255, 153, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 153, 0.03) 1px, transparent 1px);
+            background-size: 80px 80px;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .app {
+            max-width: 430px;
+            margin: 0 auto;
+            min-height: 100vh;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Header */
+        .header {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            border-bottom: 1px solid rgba(0, 255, 153, 0.1);
+        }
+        
+        .header-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .moneybot-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--moneybot-neon), var(--moneybot-blue));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            box-shadow: var(--glow-neon);
+        }
+        
+        .back-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            background: rgba(0, 255, 153, 0.1);
+            border: none;
+            color: var(--moneybot-neon);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 20px;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        
+        .back-btn:hover {
+            background: rgba(0, 255, 153, 0.2);
+            transform: scale(1.05);
+        }
+        
+        .header-title {
+            font-weight: 800;
+            font-size: 18px;
+            color: var(--moneybot-white);
+        }
+        
+        .game-timer {
+            background: var(--moneybot-charcoal);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 14px;
+            border: 1px solid rgba(0, 255, 153, 0.2);
+        }
+        
+        /* Game Area */
+        .game-area {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        #gameCanvas {
+            background: var(--moneybot-graphite);
+            border-radius: 20px;
+            box-shadow: var(--glow-neon);
+        }
+        
+        /* Overlay Screens */
+        .overlay-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(20px);
+            z-index: 200;
+            padding: 40px;
+        }
+        
+        .overlay-screen.hidden {
+            display: none;
+        }
+        
+        .game-icon {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, var(--moneybot-neon), var(--moneybot-blue));
+            border-radius: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+            margin-bottom: 30px;
+            box-shadow: var(--glow-strong);
+        }
+        
+        .game-title {
+            font-size: 36px;
+            font-weight: 900;
+            color: var(--moneybot-white);
+            margin-bottom: 12px;
+            text-align: center;
+        }
+        
+        .game-subtitle {
+            color: var(--moneybot-gray);
+            font-size: 17px;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+        
+        .game-info {
+            background: var(--moneybot-graphite);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 30px;
+            width: 100%;
+            max-width: 320px;
+            border: 1px solid rgba(0, 255, 153, 0.2);
+        }
+        
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+        
+        .info-row:last-child {
+            margin-bottom: 0;
+        }
+        
+        .info-label {
+            color: var(--moneybot-gray);
+        }
+        
+        .info-value {
+            font-weight: 700;
+            color: var(--moneybot-neon);
+        }
+        
+        .rewards-preview {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .reward-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 18px;
+            font-weight: 700;
+        }
+        
+        .reward-item.xp {
+            color: var(--moneybot-blue);
+        }
+        
+        .reward-item.botbucks {
+            color: var(--moneybot-neon);
+        }
+        
+        .primary-btn {
+            background: linear-gradient(135deg, var(--moneybot-neon), var(--moneybot-blue));
+            color: var(--moneybot-black);
+            border: none;
+            padding: 20px 60px;
+            font-size: 18px;
+            font-weight: 700;
+            border-radius: 16px;
+            cursor: pointer;
+            box-shadow: var(--glow-neon);
+            transition: all 0.3s;
+            width: 100%;
+            max-width: 280px;
+        }
+        
+        .primary-btn:hover {
+            transform: scale(1.05);
+            box-shadow: var(--glow-strong);
+        }
+        
+        /* Results Screen */
+        .results-stats {
+            background: var(--moneybot-graphite);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            width: 100%;
+            max-width: 320px;
+            border: 1px solid rgba(0, 255, 153, 0.2);
+            text-align: center;
+        }
+        
+        .result-score {
+            font-size: 48px;
+            font-weight: 900;
+            color: var(--moneybot-neon);
+            margin-bottom: 8px;
+        }
+        
+        .result-label {
+            color: var(--moneybot-gray);
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+        
+        .earned-rewards {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+        }
+        
+        .earned-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .earned-icon {
+            font-size: 32px;
+        }
+        
+        .earned-value {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--moneybot-neon);
+        }
+        
+        .earned-label {
+            font-size: 12px;
+            color: var(--moneybot-gray);
+        }
+        
+        .badge-unlocked {
+            background: linear-gradient(135deg, var(--moneybot-gold), var(--moneybot-neon));
+            color: var(--moneybot-black);
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .secondary-btn {
+            background: transparent;
+            color: var(--moneybot-gray);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 16px 40px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 12px;
+            cursor: pointer;
+            margin-top: 12px;
+            transition: all 0.2s;
+        }
+        
+        .secondary-btn:hover {
+            border-color: var(--moneybot-neon);
+            color: var(--moneybot-neon);
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-logo">
+                <a href="../index.html" class="back-btn">←</a>
+                <div class="moneybot-icon">🤖</div>
+                <span class="header-title">{{GAME_TITLE}}</span>
+            </div>
+            <div class="game-timer" id="gameTimer">00:00</div>
+        </header>
+        
+        <!-- Game Area -->
+        <div class="game-area">
+            <canvas id="gameCanvas"></canvas>
+        </div>
+    </div>
+    
+    <!-- Start Screen -->
+    <div class="overlay-screen" id="startScreen">
+        <div class="game-icon">{{GAME_ICON}}</div>
+        <div class="game-title">{{GAME_TITLE}}</div>
+        <div class="game-subtitle">{{GAME_DESCRIPTION}}</div>
+        
+        <div class="game-info">
+            <div class="info-row">
+                <span class="info-label">Skill</span>
+                <span class="info-value">{{GAME_SKILL}}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Difficulty</span>
+                <span class="info-value">{{GAME_DIFFICULTY}}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Time</span>
+                <span class="info-value">{{ESTIMATED_TIME}}</span>
+            </div>
+        </div>
+        
+        <div class="rewards-preview">
+            <div class="reward-item xp">
+                <span>⭐</span>
+                <span>+{{REWARD_XP}} XP</span>
+            </div>
+            <div class="reward-item botbucks">
+                <span>🪙</span>
+                <span>+{{REWARD_BOTBUCKS}}</span>
+            </div>
+        </div>
+        
+        <button class="primary-btn" onclick="startGame()">Start Game</button>
+    </div>
+    
+    <!-- Results Screen -->
+    <div class="overlay-screen hidden" id="resultsScreen">
+        <div class="game-icon">🏆</div>
+        <div class="game-title">Game Complete!</div>
+        
+        <div class="results-stats">
+            <div class="result-score" id="finalScore">0</div>
+            <div class="result-label">Your Score</div>
+            
+            <div class="earned-rewards">
+                <div class="earned-item">
+                    <span class="earned-icon">⭐</span>
+                    <span class="earned-value" id="earnedXP">0</span>
+                    <span class="earned-label">XP Earned</span>
+                </div>
+                <div class="earned-item">
+                    <span class="earned-icon">🪙</span>
+                    <span class="earned-value" id="earnedBotBucks">0</span>
+                    <span class="earned-label">BotBucks</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="badge-unlocked hidden" id="badgeUnlocked">
+            <span>🏅</span>
+            <span>Badge Unlocked: {{BADGE_NAME}}</span>
+        </div>
+        
+        <button class="primary-btn" onclick="playAgain()">Play Again</button>
+        <button class="secondary-btn" onclick="backToLibrary()">Back to Games</button>
+    </div>
+    
+    <script>
+        // Game Configuration
+        const GAME_CONFIG = {
+            id: '{{GAME_ID}}',
+            title: '{{GAME_TITLE}}',
+            category: '{{GAME_CATEGORY}}',
+            difficulty: '{{GAME_DIFFICULTY}}',
+            skill: '{{GAME_SKILL}}',
+            description: '{{GAME_DESCRIPTION}}',
+            estimatedTime: '{{ESTIMATED_TIME}}',
+            rewardXP: {{REWARD_XP}},
+            rewardBotBucks: {{REWARD_BOTBUCKS}},
+            badge: '{{BADGE_NAME}}'
+        };
+        
+        // User Progress System
+        const UserProgress = {
+            get: () => ({
+                xp: parseInt(localStorage.getItem('moneyverseXP')) || 0,
+                botBucks: parseInt(localStorage.getItem('moneyverseBotBucks')) || 0,
+                completedGames: JSON.parse(localStorage.getItem('moneyverseCompleted')) || [],
+                badges: JSON.parse(localStorage.getItem('moneyverseBadges')) || [],
+                highScores: JSON.parse(localStorage.getItem('moneyverseHighScores')) || {}
+            }),
+            
+            save: (data) => {
+                localStorage.setItem('moneyverseXP', data.xp);
+                localStorage.setItem('moneyverseBotBucks', data.botBucks);
+                localStorage.setItem('moneyverseCompleted', JSON.stringify(data.completedGames));
+                localStorage.setItem('moneyverseBadges', JSON.stringify(data.badges));
+                localStorage.setItem('moneyverseHighScores', JSON.stringify(data.highScores));
+            },
+            
+            addGameCompletion: (gameId, score) => {
+                const progress = UserProgress.get();
+                if (!progress.completedGames.includes(gameId)) {
+                    progress.completedGames.push(gameId);
+                }
+                if (!progress.highScores[gameId] || score > progress.highScores[gameId]) {
+                    progress.highScores[gameId] = score;
+                }
+                UserProgress.save(progress);
+            },
+            
+            addRewards: (xp, botBucks) => {
+                const progress = UserProgress.get();
+                progress.xp += xp;
+                progress.botBucks += botBucks;
+                UserProgress.save(progress);
+            },
+            
+            unlockBadge: (badge) => {
+                const progress = UserProgress.get();
+                if (!progress.badges.includes(badge)) {
+                    progress.badges.push(badge);
+                    UserProgress.save(progress);
+                    return true;
+                }
+                return false;
+            }
+        };
+        
+        // Game State
+        let gameRunning = false;
+        let gameScore = 0;
+        let gameStartTime = 0;
+        let gameTimer = null;
+        
+        // Timer
+        function startTimer() {
+            gameStartTime = Date.now();
+            gameTimer = setInterval(() => {
+                const elapsed = Math.floor((Date.now() - gameStartTime) / 1000);
+                const minutes = Math.floor(elapsed / 60).toString().padStart(2, '0');
+                const seconds = (elapsed % 60).toString().padStart(2, '0');
+                document.getElementById('gameTimer').textContent = `${minutes}:${seconds}`;
+            }, 1000);
+        }
+        
+        function stopTimer() {
+            clearInterval(gameTimer);
+        }
+        
+        // Start Game
+        function startGame() {
+            document.getElementById('startScreen').classList.add('hidden');
+            gameRunning = true;
+            gameScore = 0;
+            startTimer();
+            initGame();
+        }
+        
+        // End Game
+        function endGame(finalScore) {
+            gameRunning = false;
+            stopTimer();
+            gameScore = finalScore;
+            
+            // Save progress
+            UserProgress.addGameCompletion(GAME_CONFIG.id, gameScore);
+            UserProgress.addRewards(GAME_CONFIG.rewardXP, GAME_CONFIG.rewardBotBucks);
+            
+            // Check badge unlock
+            const newBadge = UserProgress.unlockBadge(GAME_CONFIG.badge);
+            if (newBadge) {
+                document.getElementById('badgeUnlocked').classList.remove('hidden');
+            }
+            
+            // Show results
+            document.getElementById('finalScore').textContent = gameScore;
+            document.getElementById('earnedXP').textContent = '+' + GAME_CONFIG.rewardXP;
+            document.getElementById('earnedBotBucks').textContent = '+' + GAME_CONFIG.rewardBotBucks;
+            document.getElementById('resultsScreen').classList.remove('hidden');
+        }
+        
+        // Play Again
+        function playAgain() {
+            document.getElementById('resultsScreen').classList.add('hidden');
+            startGame();
+        }
+        
+        // Back to Library
+        function backToLibrary() {
+            window.location.href = '../index.html';
+        }
+        
+        // Game-specific functions (to be overridden)
+        function initGame() {
+            // Override in specific game
+            console.log('Game initialized');
+        }
+    </script>
+    
+    <!-- Game-specific script will be inserted here -->
+    <script src="game.js"></script>
+</body>
+</html>
