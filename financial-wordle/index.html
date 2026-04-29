@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Financial Wordle | MoneyBot</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
         
         * {
             margin: 0;
@@ -20,10 +20,10 @@
             --moneybot-green: #00E676;
             --moneybot-green-light: #69F0AE;
             --moneybot-green-dark: #00C853;
+            --moneybot-gold: #FBBF24;
             --moneybot-dark: #1A1A2E;
             --moneybot-gray: #F5F5F7;
             --moneybot-text: #1A1A2E;
-            --moneybot-text-secondary: #6B7280;
             --correct: #00E676;
             --present: #FBBF24;
             --absent: #94A3B8;
@@ -35,168 +35,128 @@
         }
         
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', sans-serif;
-            background: var(--moneybot-gray);
+            font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+            background: linear-gradient(180deg, #1A1A2E 0%, #0F0F1A 100%);
             min-height: 100vh;
-            color: var(--moneybot-text);
-            overflow-x: hidden;
-            -webkit-font-smoothing: antialiased;
+            overflow: hidden;
         }
         
-        /* Animated Background */
-        .bg-gradient {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: 
-                radial-gradient(ellipse at 20% 20%, rgba(0, 230, 118, 0.08) 0%, transparent 50%),
-                radial-gradient(ellipse at 80% 80%, rgba(0, 230, 118, 0.05) 0%, transparent 50%),
-                var(--moneybot-gray);
-            pointer-events: none;
-            z-index: 0;
-        }
-        
-        /* App Container */
         .app {
-            position: relative;
-            z-index: 1;
             max-width: 430px;
             margin: 0 auto;
             min-height: 100vh;
-            background: var(--moneybot-gray);
+            position: relative;
             display: flex;
             flex-direction: column;
-            padding-bottom: 20px;
         }
         
-        /* Header */
         .header {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(20px) saturate(180%);
-            -webkit-backdrop-filter: blur(20px) saturate(180%);
             padding: 16px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            position: sticky;
-            top: 0;
             z-index: 100;
-            border-bottom: 1px solid rgba(0,0,0,0.05);
-        }
-        
-        .header-logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
         }
         
         .back-btn {
-            width: 36px;
-            height: 36px;
-            border-radius: 10px;
-            border: none;
-            background: rgba(0, 230, 118, 0.1);
-            color: var(--moneybot-green);
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: white;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: all 0.2s var(--ease-out-expo);
+            font-size: 22px;
             text-decoration: none;
-        }
-        
-        .back-btn:hover {
-            background: rgba(0, 230, 118, 0.2);
-            transform: translateX(-2px);
+            transition: all 0.2s var(--ease-out-expo);
         }
         
         .back-btn:active {
-            transform: scale(0.92);
+            transform: scale(0.95);
+            background: rgba(255,255,255,0.25);
         }
         
         .header-title {
             font-weight: 700;
-            font-size: 17px;
+            font-size: 20px;
+            color: white;
             letter-spacing: -0.3px;
         }
         
-        .header-actions {
-            display: flex;
-            gap: 8px;
-        }
-        
         .icon-btn {
-            width: 36px;
-            height: 36px;
-            border-radius: 10px;
-            border: none;
-            background: rgba(0, 230, 118, 0.1);
-            color: var(--moneybot-green);
-            font-size: 18px;
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: white;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
+            font-size: 20px;
             transition: all 0.2s var(--ease-out-expo);
         }
         
         .icon-btn:active {
-            transform: scale(0.92);
-            background: rgba(0, 230, 118, 0.2);
+            transform: scale(0.95);
+            background: rgba(255,255,255,0.25);
         }
         
-        /* Game Info Card */
+        .game-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 0 20px 20px;
+            align-items: center;
+        }
+        
         .info-card {
-            background: white;
-            margin: 16px 20px;
-            padding: 20px;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
             border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
             text-align: center;
-            box-shadow: var(--shadow-md);
+            width: 100%;
         }
         
         .info-title {
             font-size: 14px;
-            color: var(--moneybot-text-secondary);
-            margin-bottom: 8px;
+            color: rgba(255,255,255,0.6);
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            font-weight: 600;
+            margin-bottom: 4px;
         }
         
-        .info-word {
-            font-size: 24px;
-            font-weight: 800;
-            color: var(--moneybot-green);
+        .info-subtitle {
+            font-size: 13px;
+            color: rgba(255,255,255,0.4);
         }
         
-        /* Game Board */
-        .board-container {
+        .game-board {
             display: flex;
-            justify-content: center;
-            padding: 0 20px;
+            flex-direction: column;
+            gap: 8px;
             margin-bottom: 20px;
         }
         
-        #game-board {
-            display: grid;
-            grid-template-rows: repeat(6, 1fr);
-            gap: 8px;
-        }
-        
         .row {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
+            display: flex;
             gap: 8px;
         }
         
         .tile {
             width: 56px;
             height: 56px;
-            background: white;
-            border: 2px solid #E5E7EB;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(255,255,255,0.2);
             border-radius: 12px;
             display: flex;
             align-items: center;
@@ -204,18 +164,18 @@
             font-size: 1.5rem;
             font-weight: 700;
             text-transform: uppercase;
+            color: white;
             transition: all 0.3s var(--ease-spring);
-            box-shadow: var(--shadow-sm);
         }
         
         .tile.filled {
             border-color: var(--moneybot-green);
+            background: rgba(0, 230, 118, 0.1);
             transform: scale(1.05);
         }
         
         .tile.correct {
             background: var(--correct);
-            color: white;
             border-color: var(--correct);
             animation: flipCorrect 0.6s var(--ease-spring);
             box-shadow: 0 4px 12px rgba(0, 230, 118, 0.4);
@@ -223,7 +183,6 @@
         
         .tile.present {
             background: var(--present);
-            color: white;
             border-color: var(--present);
             animation: flipPresent 0.6s var(--ease-spring);
             box-shadow: 0 4px 12px rgba(251, 191, 36, 0.4);
@@ -231,7 +190,6 @@
         
         .tile.absent {
             background: var(--absent);
-            color: white;
             border-color: var(--absent);
             animation: flipAbsent 0.6s var(--ease-spring);
         }
@@ -254,7 +212,6 @@
             100% { transform: rotateX(0); }
         }
         
-        /* Message */
         .message {
             height: 40px;
             display: flex;
@@ -262,7 +219,7 @@
             justify-content: center;
             font-weight: 700;
             font-size: 16px;
-            color: var(--moneybot-text);
+            color: white;
             margin-bottom: 12px;
         }
         
@@ -276,15 +233,11 @@
             100% { transform: scale(1); opacity: 1; }
         }
         
-        /* Keyboard */
-        .keyboard-container {
-            padding: 0 12px;
-        }
-        
-        #keyboard {
+        .keyboard {
             display: flex;
             flex-direction: column;
             gap: 8px;
+            width: 100%;
         }
         
         .keyboard-row {
@@ -296,30 +249,28 @@
         .key {
             min-width: 32px;
             height: 48px;
-            background: white;
-            border: none;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
             border-radius: 8px;
             font-size: 15px;
             font-weight: 600;
             cursor: pointer;
-            box-shadow: var(--shadow-sm);
-            transition: all 0.15s var(--ease-out-expo);
-            color: var(--moneybot-text);
+            color: white;
             display: flex;
             align-items: center;
             justify-content: center;
             flex: 1;
             max-width: 42px;
+            transition: all 0.15s var(--ease-out-expo);
         }
         
         .key:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
+            background: rgba(255,255,255,0.2);
         }
         
         .key:active {
             transform: scale(0.92);
-            background: var(--moneybot-gray);
+            background: rgba(255,255,255,0.15);
         }
         
         .key.wide {
@@ -330,33 +281,31 @@
         
         .key.correct {
             background: var(--correct);
-            color: white;
+            border-color: var(--correct);
             box-shadow: 0 4px 12px rgba(0, 230, 118, 0.4);
         }
         
         .key.present {
             background: var(--present);
-            color: white;
+            border-color: var(--present);
             box-shadow: 0 4px 12px rgba(251, 191, 36, 0.4);
         }
         
         .key.absent {
             background: var(--absent);
-            color: white;
+            border-color: var(--absent);
         }
         
-        /* Definition Card */
         .definition-card {
             background: linear-gradient(135deg, var(--moneybot-green) 0%, var(--moneybot-green-dark) 100%);
-            margin: 16px 20px 0;
+            margin-top: 16px;
             padding: 24px;
             border-radius: 20px;
             color: white;
-            box-shadow: 
-                0 12px 32px rgba(0, 230, 118, 0.3),
-                inset 0 1px 0 rgba(255,255,255,0.2);
+            box-shadow: 0 12px 32px rgba(0, 230, 118, 0.3);
             display: none;
             animation: slideUp 0.5s var(--ease-spring);
+            width: 100%;
         }
         
         .definition-card.show {
@@ -380,9 +329,8 @@
             opacity: 0.95;
         }
         
-        /* New Game Button */
         .new-game-btn {
-            margin: 16px 20px 0;
+            margin-top: 16px;
             background: linear-gradient(135deg, var(--moneybot-green) 0%, var(--moneybot-green-dark) 100%);
             color: white;
             border: none;
@@ -391,11 +339,10 @@
             font-weight: 700;
             border-radius: 16px;
             cursor: pointer;
-            box-shadow: 
-                0 8px 24px rgba(0, 230, 118, 0.4),
-                inset 0 1px 0 rgba(255,255,255,0.2);
+            box-shadow: 0 8px 24px rgba(0, 230, 118, 0.4);
             transition: all 0.2s var(--ease-spring);
             display: none;
+            width: 100%;
         }
         
         .new-game-btn.show {
@@ -406,47 +353,142 @@
         .new-game-btn:active {
             transform: scale(0.96);
         }
+        
+        .start-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(180deg, rgba(26,26,46,0.98) 0%, rgba(0,0,0,0.95) 100%);
+            backdrop-filter: blur(20px);
+            z-index: 200;
+        }
+        
+        .logo {
+            font-size: 80px;
+            filter: drop-shadow(0 10px 30px rgba(0, 230, 118, 0.4));
+            animation: float 3s ease-in-out infinite;
+            margin-bottom: 20px;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .title {
+            font-size: 36px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #fff 0%, var(--moneybot-green) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+            letter-spacing: -1px;
+        }
+        
+        .subtitle {
+            color: rgba(255,255,255,0.6);
+            font-size: 16px;
+            margin-bottom: 40px;
+            text-align: center;
+            padding: 0 40px;
+            line-height: 1.5;
+        }
+        
+        .start-btn {
+            background: linear-gradient(135deg, var(--moneybot-green), var(--moneybot-green-dark));
+            color: white;
+            border: none;
+            padding: 22px 70px;
+            font-size: 22px;
+            font-weight: 800;
+            border-radius: 35px;
+            cursor: pointer;
+            box-shadow: 0 15px 40px rgba(0, 230, 118, 0.5);
+            transition: all 0.3s var(--ease-spring);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .start-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .instructions {
+            margin-top: 40px;
+            display: flex;
+            gap: 30px;
+        }
+        
+        .instruction-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            color: rgba(255,255,255,0.5);
+            font-size: 13px;
+        }
+        
+        .instruction-icon {
+            font-size: 28px;
+        }
     </style>
 </head>
 <body>
-    <div class="bg-gradient"></div>
-    
     <div class="app">
-        <header class="header">
-            <div class="header-logo">
-                <a href="../moneybot-official/" class="back-btn">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M19 12H5M12 19l-7-7 7-7"/>
-                    </svg>
-                </a>
-                <span class="header-title">Financial Wordle</span>
+        <div class="header">
+            <a href="../moneybot-official/" class="back-btn">←</a>
+            <div class="header-title">Financial Wordle</div>
+            <button class="icon-btn" onclick="initGame()">🔄</button>
+        </div>
+        
+        <div class="game-container">
+            <div class="info-card">
+                <div class="info-title">Guess the Finance Term</div>
+                <div class="info-subtitle">5 letters • Learn as you play</div>
             </div>
-            <div class="header-actions">
-                <button class="icon-btn" onclick="initGame()">🔄</button>
+            
+            <div class="game-board" id="gameBoard"></div>
+            
+            <div class="message" id="message"></div>
+            
+            <div class="keyboard" id="keyboard"></div>
+            
+            <div class="definition-card" id="definition">
+                <div class="definition-word" id="defWord"></div>
+                <div class="definition-text" id="defText"></div>
             </div>
-        </header>
-        
-        <div class="info-card">
-            <div class="info-title">Guess the Finance Term</div>
-            <div style="font-size: 13px; color: var(--moneybot-text-secondary);">5 letters • Learn as you play</div>
+            
+            <button class="new-game-btn" id="newGameBtn" onclick="initGame()">Play Again</button>
         </div>
         
-        <div class="board-container">
-            <div id="game-board"></div>
+        <div class="start-screen" id="startScreen">
+            <div class="logo">🎯</div>
+            <div class="title">Financial Wordle</div>
+            <div class="subtitle">Guess finance terms in 6 tries!<br>Learn money vocabulary as you play</div>
+            
+            <button class="start-btn" onclick="startGame()">PLAY NOW</button>
+            
+            <div class="instructions">
+                <div class="instruction-item">
+                    <span class="instruction-icon">🟩</span>
+                    <span>Correct Spot</span>
+                </div>
+                <div class="instruction-item">
+                    <span class="instruction-icon">🟨</span>
+                    <span>Wrong Spot</span>
+                </div>
+                <div class="instruction-item">
+                    <span class="instruction-icon">⬜</span>
+                    <span>Not in Word</span>
+                </div>
+            </div>
         </div>
-        
-        <div class="message" id="message"></div>
-        
-        <div class="keyboard-container">
-            <div id="keyboard"></div>
-        </div>
-        
-        <div class="definition-card" id="definition">
-            <div class="definition-word" id="defWord"></div>
-            <div class="definition-text" id="defText"></div>
-        </div>
-        
-        <button class="new-game-btn" id="newGameBtn" onclick="initGame()">Play Again</button>
     </div>
     
     <script>
@@ -470,6 +512,11 @@
         
         let targetWord, currentRow = 0, currentTile = 0, gameOver = false;
         
+        function startGame() {
+            document.getElementById('startScreen').style.display = 'none';
+            initGame();
+        }
+        
         function initGame() {
             targetWord = WORDS[Math.floor(Math.random() * WORDS.length)];
             currentRow = 0;
@@ -483,7 +530,7 @@
         }
         
         function createBoard() {
-            const board = document.getElementById('game-board');
+            const board = document.getElementById('gameBoard');
             board.innerHTML = '';
             for (let i = 0; i < 6; i++) {
                 const row = document.createElement('div');
@@ -630,8 +677,6 @@
             else if (e.key === 'Backspace') removeLetter();
             else if (/^[a-zA-Z]$/.test(e.key)) addLetter(e.key.toUpperCase());
         });
-        
-        initGame();
     </script>
 </body>
 </html>
