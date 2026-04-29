@@ -235,13 +235,20 @@
         }
         
         .game-preview {
-            height: 140px;
-            background: linear-gradient(135deg, #1A1A2E 0%, #2D2D44 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 3rem;
+            height: 160px;
             position: relative;
+            overflow: hidden;
+        }
+        
+        .game-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+        
+        .game-card:hover .game-preview img {
+            transform: scale(1.05);
         }
         
         .game-preview::after {
@@ -251,7 +258,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: radial-gradient(circle at center, rgba(0, 230, 118, 0.15) 0%, transparent 70%);
+            background: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.3) 100%);
         }
         
         .game-badge {
@@ -475,7 +482,7 @@
             <div class="games-grid">
                 <div class="game-card">
                     <div class="game-preview">
-                        📈
+                        <img src="../assets/thumbnails/investment-tycoon.png" alt="Investment Tycoon">
                         <span class="game-badge">Popular</span>
                     </div>
                     <div class="game-info">
@@ -483,38 +490,42 @@
                         <div class="game-desc">Build a financial empire from scratch</div>
                         <div class="game-meta">
                             <div class="game-players"><span>12.5K</span> players</div>
-                            <a href="../moneybot-rush-pro/" class="play-btn" target="_blank">Play</a>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="game-card">
-                    <div class="game-preview">💎</div>
-                    <div class="game-info">
-                        <div class="game-title">Portfolio Balancer</div>
-                        <div class="game-desc">Match assets, build wealth</div>
-                        <div class="game-meta">
-                            <div class="game-players"><span>8.2K</span> players</div>
-                            <a href="../portfolio-balancer/" class="play-btn" target="_blank">Play</a>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="game-card">
-                    <div class="game-preview">🏢</div>
-                    <div class="game-info">
-                        <div class="game-title">Wealth Tower</div>
-                        <div class="game-desc">Stack your way to the top</div>
-                        <div class="game-meta">
-                            <div class="game-players"><span>6.7K</span> players</div>
-                            <a href="../wealth-tower/" class="play-btn" target="_blank">Play</a>
+                            <a href="../moneybot-rush-pro/" class="play-btn">Play</a>
                         </div>
                     </div>
                 </div>
                 
                 <div class="game-card">
                     <div class="game-preview">
-                        🎯
+                        <img src="../assets/thumbnails/portfolio-balancer.png" alt="Portfolio Balancer">
+                    </div>
+                    <div class="game-info">
+                        <div class="game-title">Portfolio Balancer</div>
+                        <div class="game-desc">Match assets, build wealth</div>
+                        <div class="game-meta">
+                            <div class="game-players"><span>8.2K</span> players</div>
+                            <a href="../portfolio-balancer/" class="play-btn">Play</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="game-card">
+                    <div class="game-preview">
+                        <img src="../assets/thumbnails/wealth-tower.png" alt="Wealth Tower">
+                    </div>
+                    <div class="game-info">
+                        <div class="game-title">Wealth Tower</div>
+                        <div class="game-desc">Stack your way to the top</div>
+                        <div class="game-meta">
+                            <div class="game-players"><span>6.7K</span> players</div>
+                            <a href="../wealth-tower/" class="play-btn">Play</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="game-card">
+                    <div class="game-preview">
+                        <img src="../assets/thumbnails/financial-wordle.png" alt="Financial Wordle">
                         <span class="game-badge">New</span>
                     </div>
                     <div class="game-info">
@@ -522,55 +533,78 @@
                         <div class="game-desc">Master finance vocabulary</div>
                         <div class="game-meta">
                             <div class="game-players"><span>15.1K</span> players</div>
-                            <a href="../financial-wordle/" class="play-btn" target="_blank">Play</a>
+                            <a href="../financial-wordle/" class="play-btn">Play</a>
                         </div>
                     </div>
                 </div>
                 
                 <div class="game-card">
-                    <div class="game-preview">🏎️</div>
+                    <div class="game-preview">
+                        <img src="../assets/thumbnails/market-racer.png" alt="Market Racer">
+                    </div>
                     <div class="game-info">
                         <div class="game-title">Market Racer</div>
                         <div class="game-desc">Race through market trends</div>
                         <div class="game-meta">
                             <div class="game-players"><span>9.3K</span> players</div>
-                            <a href="../market-racer/" class="play-btn" target="_blank">Play</a>
+                            <a href="../market-racer/" class="play-btn">Play</a>
                         </div>
                     </div>
                 </div>
                 
                 <div class="game-card">
-                    <div class="game-preview">🔢</div>
+                    <div class="game-preview">
+                        <img src="../assets/thumbnails/compound-2048.png" alt="Compound 2048">
+                    </div>
                     <div class="game-info">
                         <div class="game-title">Compound 2048</div>
                         <div class="game-desc">Merge to millions</div>
                         <div class="game-meta">
                             <div class="game-players"><span>11.8K</span> players</div>
-                            <a href="../compound-2048/" class="play-btn" target="_blank">Play</a>
+                            <a href="../compound-2048/" class="play-btn">Play</a>
                         </div>
                     </div>
                 </div>
                 
                 <div class="game-card">
-                    <div class="game-preview">🎲</div>
+                    <div class="game-preview">
+                        <img src="../assets/thumbnails/diversification-drop.png" alt="Diversification Drop">
+                    </div>
                     <div class="game-info">
                         <div class="game-title">Diversification Drop</div>
                         <div class="game-desc">Risk vs reward physics</div>
                         <div class="game-meta">
                             <div class="game-players"><span>7.5K</span> players</div>
-                            <a href="../diversification-drop/" class="play-btn" target="_blank">Play</a>
+                            <a href="../diversification-drop/" class="play-btn">Play</a>
                         </div>
                     </div>
                 </div>
                 
                 <div class="game-card">
-                    <div class="game-preview">⚠️</div>
+                    <div class="game-preview">
+                        <img src="../assets/thumbnails/risk-tetris.png" alt="Risk Tetris">
+                    </div>
                     <div class="game-info">
                         <div class="game-title">Risk Tetris</div>
                         <div class="game-desc">Balance your portfolio</div>
                         <div class="game-meta">
                             <div class="game-players"><span>5.9K</span> players</div>
-                            <a href="../risk-tetris/" class="play-btn" target="_blank">Play</a>
+                            <a href="../risk-tetris/" class="play-btn">Play</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="game-card">
+                    <div class="game-preview">
+                        <img src="../assets/thumbnails/market-surfers.png" alt="Market Surfers">
+                        <span class="game-badge">Hot</span>
+                    </div>
+                    <div class="game-info">
+                        <div class="game-title">Market Surfers</div>
+                        <div class="game-desc">Surf the market waves</div>
+                        <div class="game-meta">
+                            <div class="game-players"><span>18.2K</span> players</div>
+                            <a href="../market-surfers/" class="play-btn">Play</a>
                         </div>
                     </div>
                 </div>
