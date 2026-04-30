@@ -199,11 +199,72 @@
             box-shadow: 0 0 15px rgba(34, 197, 94, 0.6);
         }
         
+        .theme-btn.locked {
+            opacity: 0.5;
+            cursor: not-allowed;
+            position: relative;
+        }
+        
+        .theme-btn.locked::after {
+            content: '🔒';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 20px;
+        }
+        
         .theme-deepSpace { background: linear-gradient(135deg, #000000, #1a1a2e); }
         .theme-nebula { background: linear-gradient(135deg, #2d1b4e, #1a0a2e); }
         .theme-galaxy { background: linear-gradient(135deg, #0a1628, #1a3a5c); }
         .theme-sunset { background: linear-gradient(135deg, #2d1810, #4a2512); }
         .theme-matrix { background: linear-gradient(135deg, #000500, #003300); }
+        .theme-aurora { background: linear-gradient(135deg, #00ff88, #0088ff); }
+        .theme-volcano { background: linear-gradient(135deg, #ff4400, #880000); }
+        .theme-cyber { background: linear-gradient(135deg, #ff00ff, #00ffff); }
+        
+        .bot-selector {
+            margin: 15px 0;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .bot-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 3px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+        }
+        
+        .bot-btn:hover {
+            transform: scale(1.1);
+            background: rgba(255,255,255,0.2);
+        }
+        
+        .bot-btn.active {
+            border-color: #22C55E;
+            box-shadow: 0 0 20px rgba(34, 197, 94, 0.6);
+        }
+        
+        .bot-btn.locked {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .unlock-text {
+            font-size: 10px;
+            color: #888;
+            margin-top: 2px;
+        }
         
         .tap-icon {
             font-size: 40px;
@@ -317,12 +378,26 @@
     <div class="start-screen" id="startScreen">
         <div class="logo">🤖 FLAPPYBOT</div>
         <div class="subtitle">Fly through the market volatility!<br>Tap to flap, avoid the red zones</div>
-        <div class="theme-selector">
-            <button class="theme-btn theme-deepSpace active" onclick="game.setTheme('deepSpace')" title="Deep Space">🌌</button>
-            <button class="theme-btn theme-nebula" onclick="game.setTheme('nebula')" title="Nebula">🌸</button>
-            <button class="theme-btn theme-galaxy" onclick="game.setTheme('galaxy')" title="Galaxy">🌀</button>
-            <button class="theme-btn theme-sunset" onclick="game.setTheme('sunset')" title="Sunset">🌅</button>
-            <button class="theme-btn theme-matrix" onclick="game.setTheme('matrix')" title="Matrix">💻</button>
+        
+        <div style="font-size: 14px; color: #888; margin-bottom: 10px;">Choose Your Bot</div>
+        <div class="bot-selector" id="botSelector">
+            <button class="bot-btn active" onclick="game.setBot('classic')" data-bot="classic" title="Classic Bot (Unlocked)">🤖</button>
+            <button class="bot-btn locked" onclick="game.setBot('gold')" data-bot="gold" title="Gold Bot">🥇</button>
+            <button class="bot-btn locked" onclick="game.setBot('neon')" data-bot="neon" title="Neon Bot">🌈</button>
+            <button class="bot-btn locked" onclick="game.setBot('ninja')" data-bot="ninja" title="Ninja Bot">🥷</button>
+            <button class="bot-btn locked" onclick="game.setBot('alien')" data-bot="alien" title="Alien Bot">👽</button>
+        </div>
+        
+        <div style="font-size: 14px; color: #888; margin-bottom: 10px;">Choose Theme</div>
+        <div class="theme-selector" id="themeSelector">
+            <button class="theme-btn theme-deepSpace active" onclick="game.setTheme('deepSpace')" data-theme="deepSpace" title="Deep Space (Unlocked)">🌌</button>
+            <button class="theme-btn theme-nebula" onclick="game.setTheme('nebula')" data-theme="nebula" title="Nebula - Unlock at 10 pts">🌸</button>
+            <button class="theme-btn theme-galaxy" onclick="game.setTheme('galaxy')" data-theme="galaxy" title="Galaxy - Unlock at 20 pts">🌀</button>
+            <button class="theme-btn theme-sunset locked" onclick="game.setTheme('sunset')" data-theme="sunset" title="Sunset - Unlock at 30 pts">🌅</button>
+            <button class="theme-btn theme-matrix locked" onclick="game.setTheme('matrix')" data-theme="matrix" title="Matrix - Unlock at 50 pts">💻</button>
+            <button class="theme-btn theme-aurora locked" onclick="game.setTheme('aurora')" data-theme="aurora" title="Aurora - Unlock at 75 pts">🌟</button>
+            <button class="theme-btn theme-volcano locked" onclick="game.setTheme('volcano')" data-theme="volcano" title="Volcano - Unlock at 100 pts">🌋</button>
+            <button class="theme-btn theme-cyber locked" onclick="game.setTheme('cyber')" data-theme="cyber" title="Cyber - Unlock at 150 pts">⚡</button>
         </div>
         <button class="btn" onclick="game.start()">PLAY NOW</button>
         <div class="instructions">
@@ -361,6 +436,9 @@
             score: 0,
             bestScore: parseInt(localStorage.getItem('flappybot_best')) || 0,
             currentTheme: localStorage.getItem('flappybot_theme') || 'deepSpace',
+            currentBot: localStorage.getItem('flappybot_bot') || 'classic',
+            unlockedThemes: JSON.parse(localStorage.getItem('flappybot_unlockedThemes')) || ['deepSpace'],
+            unlockedBots: JSON.parse(localStorage.getItem('flappybot_unlockedBots')) || ['classic'],
             frames: 0,
             combo: 0,
             lastPipeX: 0,
@@ -401,8 +479,12 @@
                     this.playerImageLoaded = true;
                 };
                 
-                // Set initial theme
+                // Set initial theme and bot
                 this.setTheme(this.currentTheme);
+                this.setBot(this.currentBot);
+                
+                // Update unlocks based on best score
+                this.updateUnlocks();
                 
                 this.resize();
                 window.addEventListener('resize', () => this.resize());
@@ -432,17 +514,122 @@
                 this.bird.y = canvas.height / 2;
             },
             
+            themeUnlocks: {
+                deepSpace: 0,
+                nebula: 10,
+                galaxy: 20,
+                sunset: 30,
+                matrix: 50,
+                aurora: 75,
+                volcano: 100,
+                cyber: 150
+            },
+            
+            botUnlocks: {
+                classic: 0,
+                gold: 25,
+                neon: 40,
+                ninja: 60,
+                alien: 80
+            },
+            
+            updateUnlocks() {
+                // Check theme unlocks
+                for (const [theme, required] of Object.entries(this.themeUnlocks)) {
+                    if (this.bestScore >= required && !this.unlockedThemes.includes(theme)) {
+                        this.unlockedThemes.push(theme);
+                    }
+                }
+                
+                // Check bot unlocks
+                for (const [bot, required] of Object.entries(this.botUnlocks)) {
+                    if (this.bestScore >= required && !this.unlockedBots.includes(bot)) {
+                        this.unlockedBots.push(bot);
+                    }
+                }
+                
+                // Save unlocks
+                localStorage.setItem('flappybot_unlockedThemes', JSON.stringify(this.unlockedThemes));
+                localStorage.setItem('flappybot_unlockedBots', JSON.stringify(this.unlockedBots));
+                
+                // Update UI
+                this.updateUnlockUI();
+            },
+            
+            updateUnlockUI() {
+                // Update theme buttons
+                document.querySelectorAll('.theme-btn').forEach(btn => {
+                    const theme = btn.dataset.theme;
+                    const required = this.themeUnlocks[theme];
+                    if (this.unlockedThemes.includes(theme)) {
+                        btn.classList.remove('locked');
+                        btn.title = theme.charAt(0).toUpperCase() + theme.slice(1);
+                    } else {
+                        btn.classList.add('locked');
+                        btn.title = `Unlock at ${required} pts`;
+                    }
+                });
+                
+                // Update bot buttons
+                document.querySelectorAll('.bot-btn').forEach(btn => {
+                    const bot = btn.dataset.bot;
+                    const required = this.botUnlocks[bot];
+                    if (this.unlockedBots.includes(bot)) {
+                        btn.classList.remove('locked');
+                        btn.title = bot.charAt(0).toUpperCase() + bot.slice(1) + ' Bot';
+                    } else {
+                        btn.classList.add('locked');
+                        btn.title = `Unlock at ${required} pts`;
+                    }
+                });
+            },
+            
             setTheme(themeName) {
+                // Check if unlocked
+                if (!this.unlockedThemes.includes(themeName)) {
+                    const required = this.themeUnlocks[themeName];
+                    alert(`Unlock ${themeName} by scoring ${required} points!`);
+                    return;
+                }
+                
                 this.currentTheme = themeName;
                 
                 // Update button states
                 document.querySelectorAll('.theme-btn').forEach(btn => {
                     btn.classList.remove('active');
                 });
-                document.querySelector(`.theme-${themeName}`).classList.add('active');
+                document.querySelector(`[data-theme="${themeName}"]`).classList.add('active');
                 
                 // Save preference
                 localStorage.setItem('flappybot_theme', themeName);
+            },
+            
+            setBot(botName) {
+                // Check if unlocked
+                if (!this.unlockedBots.includes(botName)) {
+                    const required = this.botUnlocks[botName];
+                    alert(`Unlock ${botName} bot by scoring ${required} points!`);
+                    return;
+                }
+                
+                this.currentBot = botName;
+                
+                // Update button states
+                document.querySelectorAll('.bot-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                document.querySelector(`[data-bot="${botName}"]`).classList.add('active');
+                
+                // Save preference
+                localStorage.setItem('flappybot_bot', botName);
+                
+                // Apply bot effects (color filters, etc.)
+                this.applyBotEffect(botName);
+            },
+            
+            applyBotEffect(botName) {
+                // Bot effects will be applied during drawing
+                this.botEffect = botName;
             },
             
             start() {
@@ -1029,6 +1216,9 @@
                 this.state = 'gameover';
                 this.shakeIntensity = 20; // Screen shake on death
                 
+                // Check for new unlocks based on this game's score
+                const prevBest = this.bestScore;
+                
                 // Create explosion particles
                 this.createParticles(this.bird.x, this.bird.y, 30, '#FF4444');
                 this.createParticles(this.bird.x, this.bird.y, 20, '#FFD700');
@@ -1051,6 +1241,42 @@
                 
                 document.getElementById('gameOverScreen').style.display = 'flex';
                 document.getElementById('bestScore').textContent = this.bestScore;
+                
+                // Check for new unlocks
+                this.updateUnlocks();
+                
+                // Show unlock notification if something new was unlocked
+                if (this.bestScore > prevBest) {
+                    this.checkNewUnlocks(prevBest, this.bestScore);
+                }
+            },
+            
+            checkNewUnlocks(oldScore, newScore) {
+                const newThemes = [];
+                const newBots = [];
+                
+                for (const [theme, required] of Object.entries(this.themeUnlocks)) {
+                    if (oldScore < required && newScore >= required) {
+                        newThemes.push(theme);
+                    }
+                }
+                
+                for (const [bot, required] of Object.entries(this.botUnlocks)) {
+                    if (oldScore < required && newScore >= required) {
+                        newBots.push(bot);
+                    }
+                }
+                
+                if (newThemes.length > 0 || newBots.length > 0) {
+                    let message = '🎉 NEW UNLOCKS! 🎉\n\n';
+                    if (newThemes.length > 0) {
+                        message += 'Themes: ' + newThemes.join(', ') + '\n';
+                    }
+                    if (newBots.length > 0) {
+                        message += 'Bots: ' + newBots.join(', ') + '\n';
+                    }
+                    setTimeout(() => alert(message), 500);
+                }
             },
             
             restart() {
