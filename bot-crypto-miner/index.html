@@ -3,484 +3,162 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MoneyBot - Crypto Miner | MoneyBot Gaming</title>
-    <link rel="icon" type="image/svg+xml" href="../assets/moneybot-idle.svg">
+    <title>MoneyBot - bot-crypto-miner</title>
+    <link rel="icon" type="image/jpeg" href="assets/moneybot-logo-1.jpg">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-            touch-action: manipulation;
-            user-select: none;
-        }
-        
-        :root {
-            --moneybot-green: #00E676;
-            --moneybot-green-light: #69F0AE;
-            --moneybot-green-dark: #00C853;
-            --moneybot-glow: rgba(0, 230, 118, 0.4);
-        }
-        
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: #FFFFFF;
-            min-height: 100vh;
-            overflow: hidden;
-        }
-        
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: 
-                #FFFFFF 1px, transparent 1px),
-                #FFFFFF 1px, transparent 1px);
-            background-size: 50px 50px;
-            pointer-events: none;
-            z-index: 0;
-        }
-        
-        body::after {
-            content: '';
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 600px;
-            height: 600px;
-            background: radial-gradient(circle, var(--moneybot-glow) 0%, transparent 70%);
-            pointer-events: none;
-            z-index: 0;
-            animation: pulse 4s ease-in-out infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { opacity: 0.3; transform: translate(-50%, -50%) scale(1); }
-            50% { opacity: 0.6; transform: translate(-50%, -50%) scale(1.2); }
-        }
-        
-        .app {
-            max-width: 430px;
-            margin: 0 auto;
-            min-height: 100vh;
-            position: relative;
-            z-index: 1;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .header {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(20px) saturate(180%);
-            -webkit-backdrop-filter: blur(20px) saturate(180%);
-            padding: 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            z-index: 100;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-        }
-        
-        .header-logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        
-        .back-btn {
-            width: 44px;
-            height: 44px;
-            border-radius: 8px;
-            background: rgba(0, 230, 118, 0.1);
-            border: none;
-            color: var(--moneybot-green);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 20px;
-            text-decoration: none;
-            transition: all 0.2s;
-        }
-        
-        .back-btn:active { transform: scale(0.95); }
-        
-        .header-title {
-            font-weight: 800;
-            font-size: 20px;
-            color: #1e293b;
-        }
-        
-        .score-pill {
-            background: #FFFFFF, var(--moneybot-green-dark));
-            color: #0F172A;
-            padding: 10px 20px;
-            border-radius: 25px;
-            font-weight: 700;
-            font-size: 16px;
-            box-shadow: 0 4px 15px rgba(0, 230, 118, 0.3);
-        }
-        
-        .game-container {
-            flex: 1;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            overflow-y: auto;
-        }
-        
-        .mining-stats {
-            background: white;
-            border-radius: 16px;
-            padding: 20px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-        }
-        
-        .stat-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 12px;
-        }
-        
-        .stat-row:last-child {
-            margin-bottom: 0;
-        }
-        
-        .stat-label {
-            font-size: 14px;
-            color: #64748b;
-        }
-        
-        .stat-value {
-            font-weight: 700;
-            font-size: 16px;
-            color: #1e293b;
-        }
-        
-        .stat-value.btc {
-            color: #F59E0B;
-        }
-        
-        .rig-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-        }
-        
-        .rig-card {
-            background: #FFFFFF;
-            border-radius: 16px;
-            padding: 16px;
-            text-align: center;
-            box-shadow: 0 0 30px rgba(0, 230, 118, 0.15);
-            border: 2px solid transparent;
-            transition: all 0.3s;
-        }
-        
-        .rig-card.owned {
-            border-color: var(--moneybot-green);
-            box-shadow: 0 0 30px rgba(0, 230, 118, 0.3);
-        }
-        
-        .rig-icon {
-            font-size: 40px;
-            margin-bottom: 8px;
-        }
-        
-        .rig-name {
-            font-weight: 700;
-            font-size: 14px;
-            color: #0F172A;
-            margin-bottom: 4px;
-        }
-        
-        .rig-hash {
-            font-size: 12px;
-            color: #94a3b8;
-            margin-bottom: 8px;
-        }
-        
-        .rig-cost {
-            font-weight: 700;
-            font-size: 14px;
-            color: var(--moneybot-green);
-        }
-        
-        .btn {
-            width: 100%;
-            padding: 12px;
-            border-radius: 10px;
-            font-weight: 700;
-            font-size: 14px;
-            cursor: pointer;
-            border: none;
-            transition: all 0.2s;
-            margin-top: 10px;
-        }
-        
-        .btn-buy {
-            background: #FFFFFF, var(--moneybot-green-dark));
-            color: #0F172A;
-        }
-        
-        .btn:active {
-            transform: scale(0.95);
-        }
-        
-        .overlay-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background: rgba(255, 255, 255, 0.95);
-            
-            z-index: 200;
-            padding: 40px;
-        }
-        
-        .overlay-screen.hidden { display: none; }
-        
-        .game-icon {
-            width: 120px;
-            height: 120px;
-            background: #FFFFFF, var(--moneybot-green-dark));
-            border-radius: 32px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 40px;
-            margin-bottom: 30px;
-            box-shadow: 0 0 40px rgba(0, 230, 118, 0.5);
-            animation: mine 1s ease-in-out infinite;
-        }
-        
-        @keyframes mine {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-        
-        .game-title {
-            font-size: 40px;
-            font-weight: 800;
-            color: #1e293b;
-            margin-bottom: 12px;
-        }
-        
-        .game-subtitle {
-            color: #64748b;
-            font-size: 17px;
-            margin-bottom: 40px;
-            text-align: center;
-        }
-        
-        .stats-card {
-            background: white;
-            border-radius: 16px;
-            padding: 24px 40px;
-            margin-bottom: 30px;
-            text-align: center;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-        }
-        
-        .stats-label {
-            font-size: 13px;
-            color: #94a3b8;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 8px;
-        }
-        
-        .stats-value {
-            font-size: 40px;
-            font-weight: 800;
-            color: var(--moneybot-green);
-        }
-        
-        .primary-btn {
-            background: #FFFFFF, var(--moneybot-green-dark));
-            color: #0F172A;
-            border: none;
-            padding: 16px 32px;
-            font-size: 18px;
-            font-weight: 700;
-            border-radius: 16px;
-            cursor: pointer;
-            box-shadow: 0 0 30px rgba(0, 230, 118, 0.4);
-            transition: all 0.3s;
-            width: 100%;
-            max-width: 280px;
-        }
-        
-        .primary-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 0 40px rgba(0, 230, 118, 0.6);
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: manipulation; user-select: none; }
+        body { font-family: 'Inter', sans-serif; background: #FFFFFF; min-height: 100vh; color: #0F172A; }
+        .app { max-width: 430px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; }
+        .header { background: #FFFFFF; padding: 16px; display: flex; align-items: center; gap: 12px; border-bottom: 2px solid #22C55E; }
+        .header img { width: 40px; height: 40px; border-radius: 8px; object-fit: cover; }
+        .header h1 { font-size: 20px; font-weight: 800; }
+        .back-btn { width: 44px; height: 44px; border-radius: 12px; background: #22C55E; border: none; color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 20px; text-decoration: none; }
+        .game-container { flex: 1; padding: 20px; display: flex; flex-direction: column; }
+        #gameCanvas { background: #F1F5F9; border-radius: 16px; width: 100%; height: 400px; margin-bottom: 16px; }
+        .controls { display: flex; justify-content: center; gap: 12px; }
+        .btn { background: #22C55E; color: white; border: none; padding: 16px 32px; border-radius: 12px; font-weight: 700; font-size: 16px; cursor: pointer; }
+        .score { text-align: center; padding: 16px; background: #F1F5F9; border-radius: 12px; margin-bottom: 16px; }
+        .score-label { font-size: 12px; color: #64748B; }
+        .score-value { font-size: 32px; font-weight: 800; color: #22C55E; }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.98); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; }
+        .overlay.hidden { display: none; }
+        .start-btn { background: #22C55E; color: white; border: none; padding: 20px 48px; border-radius: 16px; font-size: 18px; font-weight: 700; cursor: pointer; }
     </style>
 </head>
 <body>
     <div class="app">
-        <div class="header">
-            <div class="header-logo">
-                <a href="../moneybot-official/" class="back-btn">←</a>
-                <span class="header-title">MoneyBot</span>
-            </div>
-            <div class="score-pill">₿ <span id="btc">0.000</span></div>
-        </div>
+        <header class="header">
+            <a href="../moneybot-official/" class="back-btn">←</a>
+            <img src="assets/moneybot-logo-1.jpg" alt="MoneyBot">
+            <h1>bot-crypto-miner</h1>
+        </header>
         
         <div class="game-container">
-            <div class="mining-stats">
-                <div class="stat-row">
-                    <span class="stat-label">Hash Rate</span>
-                    <span class="stat-value" id="hashRate">0 MH/s</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label">Power Cost</span>
-                    <span class="stat-value">$<span id="powerCost">0</span>/s</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label">BTC Value</span>
-                    <span class="stat-value btc">$<span id="btcValue">0</span></span>
-                </div>
+            <div class="score">
+                <div class="score-label">SCORE</div>
+                <div class="score-value" id="score">0</div>
             </div>
-            
-            <div class="rig-grid" id="rigGrid"></div>
+            <canvas id="gameCanvas" width="390" height="400"></canvas>
+            <div class="controls">
+                <button class="btn" onclick="game.action()">PLAY</button>
+            </div>
         </div>
     </div>
     
-    <div class="overlay-screen" id="startScreen">
-        <div class="game-icon">⛏️</div>
-        <div class="game-title">Crypto Miner</div>
-        <div class="game-subtitle">Build your mining operation!<br>Mine Bitcoin and earn profits</div>
-        
-        <div class="stats-card">
-            <div class="stats-label">Best Mining Op</div>
-            <div class="stats-value" id="highScore">₿ 0.000</div>
-        </div>
-        
-        <button class="primary-btn" onclick="startGame()">Start Mining</button>
-    </div>
-    
-    <div class="overlay-screen hidden" id="gameOverScreen">
-        <div class="game-icon" style="background: #FFFFFF;">₿</div>
-        <div class="game-title">Mining Complete!</div>
-        <div class="game-subtitle">Mined: <span id="finalScore" style="color: #F59E0B; font-weight: 800;">₿ 0.000</span></div>
-        <button class="primary-btn" onclick="restartGame()">Mine Again</button>
+    <div class="overlay" id="startOverlay">
+        <h2 style="font-size: 28px; margin-bottom: 16px;">bot-crypto-miner</h2>
+        <p style="color: #64748B; margin-bottom: 32px;">Tap to play! Collect coins, avoid debt.</p>
+        <button class="start-btn" onclick="game.start()">START GAME</button>
     </div>
     
     <script>
-        let btc = 0;
-        let hashRate = 0;
-        let powerCost = 0;
-        let btcPrice = 50000;
-        let rigs = [];
-        let highScore = localStorage.getItem('cryptoMinerHighScore') || 0;
-        let gameRunning = false;
-        let miningInterval;
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
         
-        document.getElementById('highScore').textContent = '₿ ' + highScore.toFixed(3);
-        
-        const rigTypes = [
-            { name: 'Basic GPU', icon: '🎮', hash: 10, power: 5, cost: 0.001 },
-            { name: 'Mining Rig', icon: '🖥️', hash: 50, power: 20, cost: 0.005 },
-            { name: 'ASIC Miner', icon: '⚡', hash: 200, power: 80, cost: 0.02 },
-            { name: 'Mining Farm', icon: '🏭', hash: 1000, power: 400, cost: 0.1 }
-        ];
-        
-        function initRigs() {
-            rigs = rigTypes.map((type, i) => ({
-                ...type,
-                owned: i === 0 ? 1 : 0,
-                id: i
-            }));
-            renderRigs();
-        }
-        
-        function startGame() {
-            document.getElementById('startScreen').classList.add('hidden');
-            document.getElementById('gameOverScreen').classList.add('hidden');
-            gameRunning = true;
-            btc = 0;
-            hashRate = 0;
-            powerCost = 0;
-            initRigs();
-            updateStats();
+        const game = {
+            score: 0,
+            running: false,
+            entities: [],
+            player: { x: 195, y: 350, size: 20 },
             
-            miningInterval = setInterval(() => {
-                if (gameRunning) {
-                    const mined = hashRate / 1000000;
-                    const cost = powerCost / btcPrice;
-                    btc += Math.max(0, mined - cost);
-                    updateStats();
+            start() {
+                document.getElementById('startOverlay').classList.add('hidden');
+                this.running = true;
+                this.score = 0;
+                this.entities = [];
+                for (let i = 0; i < 8; i++) {
+                    this.spawnEntity();
                 }
-            }, 1000);
+                this.updateScore();
+                this.loop();
+            },
             
-            setTimeout(gameOver, 120000);
-        }
-        
-        function restartGame() {
-            clearInterval(miningInterval);
-            startGame();
-        }
-        
-        function buyRig(index) {
-            const rig = rigs[index];
-            if (btc >= rig.cost) {
-                btc -= rig.cost;
-                rig.owned++;
-                rig.cost *= 1.2;
-                if (navigator.vibrate) navigator.vibrate(20);
-                updateStats();
-                renderRigs();
-            }
-        }
-        
-        function updateStats() {
-            hashRate = rigs.reduce((sum, r) => sum + (r.hash * r.owned), 0);
-            powerCost = rigs.reduce((sum, r) => sum + (r.power * r.owned), 0);
+            spawnEntity() {
+                this.entities.push({
+                    x: Math.random() * 350 + 20,
+                    y: -30,
+                    type: Math.random() > 0.3 ? 'coin' : 'debt',
+                    value: Math.random() > 0.3 ? 10 : -15,
+                    speed: Math.random() * 2 + 1
+                });
+            },
             
-            document.getElementById('btc').textContent = btc.toFixed(3);
-            document.getElementById('hashRate').textContent = hashRate + ' MH/s';
-            document.getElementById('powerCost').textContent = powerCost;
-            document.getElementById('btcValue').textContent = (btc * btcPrice).toFixed(0);
-        }
-        
-        function renderRigs() {
-            const grid = document.getElementById('rigGrid');
-            grid.innerHTML = rigs.map(rig => `
-                <div class="rig-card ${rig.owned > 0 ? 'owned' : ''}">
-                    <div class="rig-icon">${rig.icon}</div>
-                    <div class="rig-name">${rig.name}</div>
-                    <div class="rig-hash">${rig.hash} MH/s</div>
-                    <div class="rig-cost">₿ ${rig.cost.toFixed(3)}</div>
-                    <div style="color: #64748b; font-size: 12px; margin-top: 4px;">Owned: ${rig.owned}</div>
-                    <button class="btn btn-buy" onclick="buyRig(${rig.id})">Buy</button>
-                </div>
-            `).join('');
-        }
-        
-        function gameOver() {
-            gameRunning = false;
-            clearInterval(miningInterval);
-            if (btc > highScore) {
-                highScore = btc;
-                localStorage.setItem('cryptoMinerHighScore', highScore);
+            action() {
+                if (!this.running) {
+                    this.start();
+                    return;
+                }
+                
+                // Move player
+                this.player.x += 40;
+                if (this.player.x > 370) this.player.x = 20;
+                
+                // Check collisions
+                this.entities.forEach((entity, index) => {
+                    const dx = this.player.x - entity.x;
+                    const dy = this.player.y - entity.y;
+                    const dist = Math.sqrt(dx*dx + dy*dy);
+                    
+                    if (dist < 30) {
+                        this.score += entity.value;
+                        this.entities.splice(index, 1);
+                        this.spawnEntity();
+                    }
+                });
+                
+                this.updateScore();
+            },
+            
+            loop() {
+                if (!this.running) return;
+                
+                // Update entities
+                this.entities.forEach(entity => {
+                    entity.y += entity.speed;
+                    if (entity.y > 420) {
+                        entity.y = -30;
+                        entity.x = Math.random() * 350 + 20;
+                    }
+                });
+                
+                // Draw
+                ctx.fillStyle = '#F1F5F9';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                // Draw grid
+                ctx.strokeStyle = '#E2E8F0';
+                for (let i = 0; i < canvas.width; i += 40) {
+                    ctx.beginPath();
+                    ctx.moveTo(i, 0);
+                    ctx.lineTo(i, canvas.height);
+                    ctx.stroke();
+                }
+                
+                // Draw entities
+                this.entities.forEach(entity => {
+                    ctx.font = '24px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(entity.type === 'coin' ? '🪙' : '💸', entity.x, entity.y);
+                });
+                
+                // Draw player
+                ctx.fillStyle = '#22C55E';
+                ctx.beginPath();
+                ctx.arc(this.player.x, this.player.y, this.player.size, 0, Math.PI * 2);
+                ctx.fill();
+                
+                requestAnimationFrame(() => this.loop());
+            },
+            
+            updateScore() {
+                document.getElementById('score').textContent = this.score;
             }
-            document.getElementById('finalScore').textContent = '₿ ' + btc.toFixed(3);
-            document.getElementById('gameOverScreen').classList.remove('hidden');
-        }
+        };
+        
+        // Controls
+        canvas.addEventListener('click', () => game.action());
+        canvas.addEventListener('touchstart', (e) => { e.preventDefault(); game.action(); });
+        document.addEventListener('keydown', (e) => { if (e.code === 'Space') { e.preventDefault(); game.action(); }});
     </script>
 </body>
 </html>

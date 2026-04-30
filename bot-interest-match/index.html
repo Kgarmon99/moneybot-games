@@ -3,441 +3,162 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MoneyBot - Interest Match | MoneyBot Gaming</title>
-    <link rel="icon" type="image/svg+xml" href="../assets/moneybot-idle.svg">
+    <title>MoneyBot - bot-interest-match</title>
+    <link rel="icon" type="image/jpeg" href="assets/moneybot-logo-1.jpg">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-            touch-action: manipulation;
-            user-select: none;
-        }
-        
-        :root {
-            --moneybot-green: #00E676;
-            --moneybot-green-light: #69F0AE;
-            --moneybot-green-dark: #00C853;
-            --moneybot-glow: rgba(0, 230, 118, 0.4);
-        }
-        
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: #FFFFFF;
-            min-height: 100vh;
-            overflow: hidden;
-        }
-        
-        /* Grid Background */
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: 
-                #FFFFFF 1px, transparent 1px),
-                #FFFFFF 1px, transparent 1px);
-            background-size: 50px 50px;
-            pointer-events: none;
-            z-index: 0;
-        }
-        
-        /* Green Glow Aura */
-        body::after {
-            content: '';
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 600px;
-            height: 600px;
-            background: radial-gradient(circle, var(--moneybot-glow) 0%, transparent 70%);
-            pointer-events: none;
-            z-index: 0;
-            animation: pulse 4s ease-in-out infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { opacity: 0.3; transform: translate(-50%, -50%) scale(1); }
-            50% { opacity: 0.6; transform: translate(-50%, -50%) scale(1.2); }
-        }
-        
-        .app {
-            max-width: 430px;
-            margin: 0 auto;
-            min-height: 100vh;
-            position: relative;
-            z-index: 1;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .header {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(20px) saturate(180%);
-            -webkit-backdrop-filter: blur(20px) saturate(180%);
-            padding: 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            z-index: 100;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-        }
-        
-        .header-logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        
-        .back-btn {
-            width: 44px;
-            height: 44px;
-            border-radius: 8px;
-            background: rgba(0, 230, 118, 0.1);
-            border: none;
-            color: var(--moneybot-green);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 20px;
-            text-decoration: none;
-            transition: all 0.2s;
-        }
-        
-        .back-btn:active { transform: scale(0.95); }
-        
-        .header-title {
-            font-weight: 800;
-            font-size: 20px;
-            color: #1e293b;
-        }
-        
-        .score-pill {
-            background: #FFFFFF, var(--moneybot-green-dark));
-            color: #0F172A;
-            padding: 10px 20px;
-            border-radius: 25px;
-            font-weight: 700;
-            font-size: 16px;
-            box-shadow: 0 4px 15px rgba(0, 230, 118, 0.3);
-        }
-        
-        .game-container {
-            flex: 1;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        
-        .game-board {
-            background: #FFFFFF;
-            border-radius: 16px;
-            padding: 20px;
-            box-shadow: 0 0 40px rgba(0, 230, 118, 0.2);
-        }
-        
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 12px;
-        }
-        
-        .card {
-            width: 70px;
-            height: 70px;
-            background: #FFFFFF;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 32px;
-            cursor: pointer;
-            transition: all 0.3s;
-            position: relative;
-            transform-style: preserve-3d;
-        }
-        
-        .card.flipped {
-            background: #FFFFFF, var(--moneybot-green-dark));
-            transform: rotateY(180deg);
-        }
-        
-        .card.matched {
-            background: #FFFFFF;
-            animation: matchPulse 0.5s;
-        }
-        
-        @keyframes matchPulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-        }
-        
-        .card-content {
-            backface-visibility: hidden;
-        }
-        
-        .card.flipped .card-content {
-            transform: rotateY(180deg);
-        }
-        
-        .overlay-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background: rgba(255, 255, 255, 0.95);
-            
-            z-index: 200;
-            padding: 40px;
-        }
-        
-        .overlay-screen.hidden { display: none; }
-        
-        .game-icon {
-            width: 120px;
-            height: 120px;
-            background: #FFFFFF, var(--moneybot-green-dark));
-            border-radius: 32px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 40px;
-            margin-bottom: 30px;
-            box-shadow: 0 0 40px rgba(0, 230, 118, 0.5);
-            animation: flip 2s ease-in-out infinite;
-        }
-        
-        @keyframes flip {
-            0%, 100% { transform: rotateY(0); }
-            50% { transform: rotateY(180deg); }
-        }
-        
-        .game-title {
-            font-size: 40px;
-            font-weight: 800;
-            color: #1e293b;
-            margin-bottom: 12px;
-        }
-        
-        .game-subtitle {
-            color: #64748b;
-            font-size: 17px;
-            margin-bottom: 40px;
-            text-align: center;
-        }
-        
-        .stats-card {
-            background: white;
-            border-radius: 16px;
-            padding: 24px 40px;
-            margin-bottom: 30px;
-            text-align: center;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-        }
-        
-        .stats-label {
-            font-size: 13px;
-            color: #94a3b8;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 8px;
-        }
-        
-        .stats-value {
-            font-size: 40px;
-            font-weight: 800;
-            color: var(--moneybot-green);
-        }
-        
-        .primary-btn {
-            background: #FFFFFF, var(--moneybot-green-dark));
-            color: #0F172A;
-            border: none;
-            padding: 16px 32px;
-            font-size: 18px;
-            font-weight: 700;
-            border-radius: 16px;
-            cursor: pointer;
-            box-shadow: 0 0 30px rgba(0, 230, 118, 0.4);
-            transition: all 0.3s;
-            width: 100%;
-            max-width: 280px;
-        }
-        
-        .primary-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 0 40px rgba(0, 230, 118, 0.6);
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: manipulation; user-select: none; }
+        body { font-family: 'Inter', sans-serif; background: #FFFFFF; min-height: 100vh; color: #0F172A; }
+        .app { max-width: 430px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; }
+        .header { background: #FFFFFF; padding: 16px; display: flex; align-items: center; gap: 12px; border-bottom: 2px solid #22C55E; }
+        .header img { width: 40px; height: 40px; border-radius: 8px; object-fit: cover; }
+        .header h1 { font-size: 20px; font-weight: 800; }
+        .back-btn { width: 44px; height: 44px; border-radius: 12px; background: #22C55E; border: none; color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 20px; text-decoration: none; }
+        .game-container { flex: 1; padding: 20px; display: flex; flex-direction: column; }
+        #gameCanvas { background: #F1F5F9; border-radius: 16px; width: 100%; height: 400px; margin-bottom: 16px; }
+        .controls { display: flex; justify-content: center; gap: 12px; }
+        .btn { background: #22C55E; color: white; border: none; padding: 16px 32px; border-radius: 12px; font-weight: 700; font-size: 16px; cursor: pointer; }
+        .score { text-align: center; padding: 16px; background: #F1F5F9; border-radius: 12px; margin-bottom: 16px; }
+        .score-label { font-size: 12px; color: #64748B; }
+        .score-value { font-size: 32px; font-weight: 800; color: #22C55E; }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.98); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; }
+        .overlay.hidden { display: none; }
+        .start-btn { background: #22C55E; color: white; border: none; padding: 20px 48px; border-radius: 16px; font-size: 18px; font-weight: 700; cursor: pointer; }
     </style>
 </head>
 <body>
     <div class="app">
-        <div class="header">
-            <div class="header-logo">
-                <a href="../moneybot-official/" class="back-btn">←</a>
-                <span class="header-title">MoneyBot</span>
-            </div>
-            <div class="score-pill">Moves: <span id="moves">0</span></div>
-        </div>
+        <header class="header">
+            <a href="../moneybot-official/" class="back-btn">←</a>
+            <img src="assets/moneybot-logo-1.jpg" alt="MoneyBot">
+            <h1>bot-interest-match</h1>
+        </header>
         
         <div class="game-container">
-            <div class="game-board">
-                <div class="grid" id="grid"></div>
+            <div class="score">
+                <div class="score-label">SCORE</div>
+                <div class="score-value" id="score">0</div>
+            </div>
+            <canvas id="gameCanvas" width="390" height="400"></canvas>
+            <div class="controls">
+                <button class="btn" onclick="game.action()">PLAY</button>
             </div>
         </div>
     </div>
     
-    <div class="overlay-screen" id="startScreen">
-        <div class="game-icon">🧠</div>
-        <div class="game-title">Interest Match</div>
-        <div class="game-subtitle">Match compound interest cards!<br>Test your financial memory</div>
-        
-        <div class="stats-card">
-            <div class="stats-label">Best Moves</div>
-            <div class="stats-value" id="highScore">--</div>
-        </div>
-        
-        <button class="primary-btn" onclick="startGame()">Start Game</button>
-    </div>
-    
-    <div class="overlay-screen hidden" id="gameOverScreen">
-        <div class="game-icon" style="background: #FFFFFF;">🎉</div>
-        <div class="game-title">Complete!</div>
-        <div class="game-subtitle">Moves: <span id="finalScore" style="color: var(--moneybot-green); font-weight: 800;">0</span></div>
-        <button class="primary-btn" onclick="restartGame()">Play Again</button>
+    <div class="overlay" id="startOverlay">
+        <h2 style="font-size: 28px; margin-bottom: 16px;">bot-interest-match</h2>
+        <p style="color: #64748B; margin-bottom: 32px;">Tap to play! Collect coins, avoid debt.</p>
+        <button class="start-btn" onclick="game.start()">START GAME</button>
     </div>
     
     <script>
-        const icons = ['💰', '📈', '💵', '🏦', '💎', '📊', '💳', '🪙'];
-        let cards = [];
-        let flippedCards = [];
-        let matchedPairs = 0;
-        let moves = 0;
-        let gameRunning = false;
-        let highScore = localStorage.getItem('interestMatchHighScore') || null;
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
         
-        document.getElementById('highScore').textContent = highScore || '--';
-        
-        function shuffle(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
-            }
-            return array;
-        }
-        
-        function initGame() {
-            const pairs = [...icons, ...icons];
-            cards = shuffle(pairs).map((icon, index) => ({
-                id: index,
-                icon: icon,
-                flipped: false,
-                matched: false
-            }));
+        const game = {
+            score: 0,
+            running: false,
+            entities: [],
+            player: { x: 195, y: 350, size: 20 },
             
-            const grid = document.getElementById('grid');
-            grid.innerHTML = cards.map((card, i) => `
-                <div class="card" data-index="${i}" onclick="flipCard(${i})">
-                    <span class="card-content">${card.flipped || card.matched ? card.icon : '?'}</span>
-                </div>
-            `).join('');
-        }
-        
-        function startGame() {
-            document.getElementById('startScreen').classList.add('hidden');
-            document.getElementById('gameOverScreen').classList.add('hidden');
-            gameRunning = true;
-            moves = 0;
-            matchedPairs = 0;
-            flippedCards = [];
-            updateMoves();
-            initGame();
-        }
-        
-        function restartGame() {
-            startGame();
-        }
-        
-        function flipCard(index) {
-            if (!gameRunning || cards[index].flipped || cards[index].matched || flippedCards.length >= 2) return;
-            
-            cards[index].flipped = true;
-            flippedCards.push(index);
-            updateCard(index);
-            
-            if (navigator.vibrate) navigator.vibrate(10);
-            
-            if (flippedCards.length === 2) {
-                moves++;
-                updateMoves();
-                checkMatch();
-            }
-        }
-        
-        function checkMatch() {
-            const [first, second] = flippedCards;
-            
-            if (cards[first].icon === cards[second].icon) {
-                cards[first].matched = true;
-                cards[second].matched = true;
-                matchedPairs++;
-                
-                setTimeout(() => {
-                    document.querySelectorAll('.card')[first].classList.add('matched');
-                    document.querySelectorAll('.card')[second].classList.add('matched');
-                    if (navigator.vibrate) navigator.vibrate([20, 10, 20]);
-                }, 300);
-                
-                flippedCards = [];
-                
-                if (matchedPairs === icons.length) {
-                    setTimeout(gameOver, 500);
+            start() {
+                document.getElementById('startOverlay').classList.add('hidden');
+                this.running = true;
+                this.score = 0;
+                this.entities = [];
+                for (let i = 0; i < 8; i++) {
+                    this.spawnEntity();
                 }
-            } else {
-                setTimeout(() => {
-                    cards[first].flipped = false;
-                    cards[second].flipped = false;
-                    updateCard(first);
-                    updateCard(second);
-                    flippedCards = [];
-                }, 1000);
+                this.updateScore();
+                this.loop();
+            },
+            
+            spawnEntity() {
+                this.entities.push({
+                    x: Math.random() * 350 + 20,
+                    y: -30,
+                    type: Math.random() > 0.3 ? 'coin' : 'debt',
+                    value: Math.random() > 0.3 ? 10 : -15,
+                    speed: Math.random() * 2 + 1
+                });
+            },
+            
+            action() {
+                if (!this.running) {
+                    this.start();
+                    return;
+                }
+                
+                // Move player
+                this.player.x += 40;
+                if (this.player.x > 370) this.player.x = 20;
+                
+                // Check collisions
+                this.entities.forEach((entity, index) => {
+                    const dx = this.player.x - entity.x;
+                    const dy = this.player.y - entity.y;
+                    const dist = Math.sqrt(dx*dx + dy*dy);
+                    
+                    if (dist < 30) {
+                        this.score += entity.value;
+                        this.entities.splice(index, 1);
+                        this.spawnEntity();
+                    }
+                });
+                
+                this.updateScore();
+            },
+            
+            loop() {
+                if (!this.running) return;
+                
+                // Update entities
+                this.entities.forEach(entity => {
+                    entity.y += entity.speed;
+                    if (entity.y > 420) {
+                        entity.y = -30;
+                        entity.x = Math.random() * 350 + 20;
+                    }
+                });
+                
+                // Draw
+                ctx.fillStyle = '#F1F5F9';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                // Draw grid
+                ctx.strokeStyle = '#E2E8F0';
+                for (let i = 0; i < canvas.width; i += 40) {
+                    ctx.beginPath();
+                    ctx.moveTo(i, 0);
+                    ctx.lineTo(i, canvas.height);
+                    ctx.stroke();
+                }
+                
+                // Draw entities
+                this.entities.forEach(entity => {
+                    ctx.font = '24px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(entity.type === 'coin' ? '🪙' : '💸', entity.x, entity.y);
+                });
+                
+                // Draw player
+                ctx.fillStyle = '#22C55E';
+                ctx.beginPath();
+                ctx.arc(this.player.x, this.player.y, this.player.size, 0, Math.PI * 2);
+                ctx.fill();
+                
+                requestAnimationFrame(() => this.loop());
+            },
+            
+            updateScore() {
+                document.getElementById('score').textContent = this.score;
             }
-        }
+        };
         
-        function updateCard(index) {
-            const cardEl = document.querySelectorAll('.card')[index];
-            const card = cards[index];
-            cardEl.querySelector('.card-content').textContent = card.flipped || card.matched ? card.icon : '?';
-            cardEl.classList.toggle('flipped', card.flipped);
-        }
-        
-        function updateMoves() {
-            document.getElementById('moves').textContent = moves;
-        }
-        
-        function gameOver() {
-            gameRunning = false;
-            if (!highScore || moves < highScore) {
-                highScore = moves;
-                localStorage.setItem('interestMatchHighScore', highScore);
-            }
-            document.getElementById('finalScore').textContent = moves;
-            document.getElementById('gameOverScreen').classList.remove('hidden');
-        }
+        // Controls
+        canvas.addEventListener('click', () => game.action());
+        canvas.addEventListener('touchstart', (e) => { e.preventDefault(); game.action(); });
+        document.addEventListener('keydown', (e) => { if (e.code === 'Space') { e.preventDefault(); game.action(); }});
     </script>
 </body>
 </html>

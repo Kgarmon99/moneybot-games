@@ -2,60 +2,163 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>MoneyBot - bot-cashflow-master</title>
-    <link rel="icon" type="image/svg+xml" href="assets/moneybot-logo-1.jpg">
+    <link rel="icon" type="image/jpeg" href="assets/moneybot-logo-1.jpg">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: manipulation; user-select: none; }
         body { font-family: 'Inter', sans-serif; background: #FFFFFF; min-height: 100vh; color: #0F172A; }
         .app { max-width: 430px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; }
-        .header { background: #FFFFFF; padding: 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #22C55E; }
-        .header-logo { display: flex; align-items: center; gap: 12px; }
-        .moneybot-icon { width: 40px; height: 40px; border-radius: 8px; overflow: hidden; }
-        .moneybot-icon img { width: 100%; height: 100%; object-fit: cover; }
-        .header-title { font-weight: 800; font-size: 20px; color: #0F172A; }
+        .header { background: #FFFFFF; padding: 16px; display: flex; align-items: center; gap: 12px; border-bottom: 2px solid #22C55E; }
+        .header img { width: 40px; height: 40px; border-radius: 8px; object-fit: cover; }
+        .header h1 { font-size: 20px; font-weight: 800; }
         .back-btn { width: 44px; height: 44px; border-radius: 12px; background: #22C55E; border: none; color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 20px; text-decoration: none; }
-        .game-area { flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px; }
-        .overlay-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #FFFFFF; z-index: 200; padding: 40px; }
-        .overlay-screen.hidden { display: none; }
-        .game-icon { width: 120px; height: 120px; background: #22C55E; border-radius: 24px; display: flex; align-items: center; justify-content: center; font-size: 60px; margin-bottom: 30px; }
-        .game-title { font-size: 36px; font-weight: 800; color: #0F172A; margin-bottom: 12px; text-transform: capitalize; }
-        .game-subtitle { color: #64748B; font-size: 17px; margin-bottom: 40px; text-align: center; }
-        .primary-btn { background: #22C55E; color: white; border: none; padding: 20px 60px; font-size: 18px; font-weight: 700; border-radius: 12px; cursor: pointer; width: 100%; max-width: 280px; }
+        .game-container { flex: 1; padding: 20px; display: flex; flex-direction: column; }
+        #gameCanvas { background: #F1F5F9; border-radius: 16px; width: 100%; height: 400px; margin-bottom: 16px; }
+        .controls { display: flex; justify-content: center; gap: 12px; }
+        .btn { background: #22C55E; color: white; border: none; padding: 16px 32px; border-radius: 12px; font-weight: 700; font-size: 16px; cursor: pointer; }
+        .score { text-align: center; padding: 16px; background: #F1F5F9; border-radius: 12px; margin-bottom: 16px; }
+        .score-label { font-size: 12px; color: #64748B; }
+        .score-value { font-size: 32px; font-weight: 800; color: #22C55E; }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.98); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; }
+        .overlay.hidden { display: none; }
+        .start-btn { background: #22C55E; color: white; border: none; padding: 20px 48px; border-radius: 16px; font-size: 18px; font-weight: 700; cursor: pointer; }
     </style>
 </head>
 <body>
     <div class="app">
         <header class="header">
-            <div class="header-logo">
-                <a href="../moneybot-official/" class="back-btn">←</a>
-                <div class="moneybot-icon"><img src="assets/moneybot-logo-1.jpg" /></div>
-                <span class="header-title">bot-cashflow-master</span>
-            </div>
+            <a href="../moneybot-official/" class="back-btn">←</a>
+            <img src="assets/moneybot-logo-1.jpg" alt="MoneyBot">
+            <h1>bot-cashflow-master</h1>
         </header>
-        <div class="game-area">
-            <canvas id="gameCanvas" width="350" height="500"></canvas>
+        
+        <div class="game-container">
+            <div class="score">
+                <div class="score-label">SCORE</div>
+                <div class="score-value" id="score">0</div>
+            </div>
+            <canvas id="gameCanvas" width="390" height="400"></canvas>
+            <div class="controls">
+                <button class="btn" onclick="game.action()">PLAY</button>
+            </div>
         </div>
     </div>
-    <div class="overlay-screen" id="startScreen">
-        <div class="game-icon">🎮</div>
-        <div class="game-title">bot-cashflow-master</div>
-        <div class="game-subtitle">Master your money skills!<br>Coming soon to MoneyBot</div>
-        <button class="primary-btn" onclick="startGame()">Start Game</button>
+    
+    <div class="overlay" id="startOverlay">
+        <h2 style="font-size: 28px; margin-bottom: 16px;">bot-cashflow-master</h2>
+        <p style="color: #64748B; margin-bottom: 32px;">Tap to play! Collect coins, avoid debt.</p>
+        <button class="start-btn" onclick="game.start()">START GAME</button>
     </div>
+    
     <script>
-        function startGame() {
-            document.getElementById('startScreen').classList.add('hidden');
-            const canvas = document.getElementById('gameCanvas');
-            const ctx = canvas.getContext('2d');
-            ctx.fillStyle = '#FFFFFF';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = '#22C55E';
-            ctx.font = '24px Inter';
-            ctx.textAlign = 'center';
-            ctx.fillText('bot-cashflow-master Coming Soon!', canvas.width/2, canvas.height/2);
-        }
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        const game = {
+            score: 0,
+            running: false,
+            entities: [],
+            player: { x: 195, y: 350, size: 20 },
+            
+            start() {
+                document.getElementById('startOverlay').classList.add('hidden');
+                this.running = true;
+                this.score = 0;
+                this.entities = [];
+                for (let i = 0; i < 8; i++) {
+                    this.spawnEntity();
+                }
+                this.updateScore();
+                this.loop();
+            },
+            
+            spawnEntity() {
+                this.entities.push({
+                    x: Math.random() * 350 + 20,
+                    y: -30,
+                    type: Math.random() > 0.3 ? 'coin' : 'debt',
+                    value: Math.random() > 0.3 ? 10 : -15,
+                    speed: Math.random() * 2 + 1
+                });
+            },
+            
+            action() {
+                if (!this.running) {
+                    this.start();
+                    return;
+                }
+                
+                // Move player
+                this.player.x += 40;
+                if (this.player.x > 370) this.player.x = 20;
+                
+                // Check collisions
+                this.entities.forEach((entity, index) => {
+                    const dx = this.player.x - entity.x;
+                    const dy = this.player.y - entity.y;
+                    const dist = Math.sqrt(dx*dx + dy*dy);
+                    
+                    if (dist < 30) {
+                        this.score += entity.value;
+                        this.entities.splice(index, 1);
+                        this.spawnEntity();
+                    }
+                });
+                
+                this.updateScore();
+            },
+            
+            loop() {
+                if (!this.running) return;
+                
+                // Update entities
+                this.entities.forEach(entity => {
+                    entity.y += entity.speed;
+                    if (entity.y > 420) {
+                        entity.y = -30;
+                        entity.x = Math.random() * 350 + 20;
+                    }
+                });
+                
+                // Draw
+                ctx.fillStyle = '#F1F5F9';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                // Draw grid
+                ctx.strokeStyle = '#E2E8F0';
+                for (let i = 0; i < canvas.width; i += 40) {
+                    ctx.beginPath();
+                    ctx.moveTo(i, 0);
+                    ctx.lineTo(i, canvas.height);
+                    ctx.stroke();
+                }
+                
+                // Draw entities
+                this.entities.forEach(entity => {
+                    ctx.font = '24px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(entity.type === 'coin' ? '🪙' : '💸', entity.x, entity.y);
+                });
+                
+                // Draw player
+                ctx.fillStyle = '#22C55E';
+                ctx.beginPath();
+                ctx.arc(this.player.x, this.player.y, this.player.size, 0, Math.PI * 2);
+                ctx.fill();
+                
+                requestAnimationFrame(() => this.loop());
+            },
+            
+            updateScore() {
+                document.getElementById('score').textContent = this.score;
+            }
+        };
+        
+        // Controls
+        canvas.addEventListener('click', () => game.action());
+        canvas.addEventListener('touchstart', (e) => { e.preventDefault(); game.action(); });
+        document.addEventListener('keydown', (e) => { if (e.code === 'Space') { e.preventDefault(); game.action(); }});
     </script>
 </body>
 </html>
