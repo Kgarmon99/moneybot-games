@@ -189,10 +189,11 @@
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         
-        const GRAVITY = 0.4;
-        const FLAP_STRENGTH = -7;
-        const PIPE_SPEED = 3;
-        const PIPE_GAP = 160;
+        const GRAVITY = 0.35;
+        const FLAP_STRENGTH = -8;
+        const PIPE_SPEED = 2.5;
+        const PIPE_GAP = 180;
+        const MAX_VELOCITY = 8;
         
         // Audio context for sounds
         const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -368,6 +369,9 @@
                     this.bird.velocity = FLAP_STRENGTH;
                     this.flapsThisGame++;
                     this.createParticles(this.bird.x - 10, this.bird.y + 12, 3, '#22C55E');
+                    
+                    // Reset rotation immediately for snappier feel
+                    this.bird.rotation = -Math.PI / 8;
                 }
             },
             
@@ -394,10 +398,14 @@
                 
                 this.frames++;
                 
-                // Bird physics
+                // Bird physics - smoother with velocity cap
                 this.bird.velocity += GRAVITY;
+                this.bird.velocity = Math.min(this.bird.velocity, MAX_VELOCITY);
                 this.bird.y += this.bird.velocity;
-                this.bird.rotation = Math.min(Math.PI / 4, Math.max(-Math.PI / 4, (this.bird.velocity * 0.1)));
+                
+                // Smoother rotation that follows velocity
+                const targetRotation = Math.min(Math.PI / 6, Math.max(-Math.PI / 6, (this.bird.velocity * 0.08)));
+                this.bird.rotation += (targetRotation - this.bird.rotation) * 0.15;
                 
                 // Ceiling collision
                 if (this.bird.y < 0) {
@@ -419,9 +427,10 @@
                     const pipe = this.pipes[i];
                     pipe.x -= PIPE_SPEED;
                     
-                    // Collision
-                    if (this.bird.x + this.bird.width > pipe.x && this.bird.x < pipe.x + pipe.width) {
-                        if (this.bird.y < pipe.topHeight || this.bird.y + this.bird.height > pipe.bottomY) {
+                    // Collision - more forgiving with smaller hitbox
+                    const hitboxPadding = 6; // Smaller hitbox for easier gameplay
+                    if (this.bird.x + this.bird.width - hitboxPadding > pipe.x && this.bird.x + hitboxPadding < pipe.x + pipe.width) {
+                        if (this.bird.y + hitboxPadding < pipe.topHeight || this.bird.y + this.bird.height - hitboxPadding > pipe.bottomY) {
                             this.gameOver();
                             return;
                         }
