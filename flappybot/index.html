@@ -99,7 +99,11 @@
                 <div class="grid-selector">
                     <button class="grid-btn active" onclick="game.setBot('classic')" data-bot="classic"><div class="grid-icon">🤖</div><div class="grid-name">Classic</div></button>
                     <button class="grid-btn locked" onclick="game.setBot('gold')" data-bot="gold"><div class="grid-icon">🥇</div><div class="grid-name">Gold</div><div class="grid-unlock">25</div></button>
-                    <button class="grid-btn locked" onclick="game.setBot('neon')" data-bot="neon"><div class="grid-icon">🌈</div><div class="grid-name">Neon</div><div class="grid-unlock">40</div></button>
+                    <button class="grid-btn locked" onclick="game.setBot('neon')" data-bot="neon"><div class="grid-icon">🌈</div><div class="grid-name">Neon</div><div class="grid-unlock">50</div></button>
+                    <button class="grid-btn locked" onclick="game.setBot('ninja')" data-bot="ninja"><div class="grid-icon">🥷</div><div class="grid-name">Ninja</div><div class="grid-unlock">75</div></button>
+                    <button class="grid-btn locked" onclick="game.setBot('fire')" data-bot="fire"><div class="grid-icon">🔥</div><div class="grid-name">Fire</div><div class="grid-unlock">100</div></button>
+                    <button class="grid-btn locked" onclick="game.setBot('pixel')" data-bot="pixel"><div class="grid-icon">👾</div><div class="grid-name">Pixel</div><div class="grid-unlock">150</div></button>
+                    <button class="grid-btn locked" onclick="game.setBot('alien')" data-bot="alien"><div class="grid-icon">👽</div><div class="grid-name">Alien</div><div class="grid-unlock">200</div></button>
                 </div>
             </div>
             <div class="tab-content" id="tab-themes">
@@ -217,7 +221,7 @@
             trailParticles: [],
             
             themeUnlocks: { deepSpace: 0, nebula: 0, galaxy: 0, matrix: 0, sunset: 30, moneyverse: 60, aurora: 80, cyberpunk: 120, volcano: 200 },
-            botUnlocks: { classic: 0, gold: 25, neon: 40, ninja: 60, alien: 100 },
+            botUnlocks: { classic: 0, gold: 25, neon: 50, ninja: 75, fire: 100, pixel: 150, alien: 200 },
             trailUnlocks: { none: 0, cash: 0, coins: 0, green: 20, fire: 40, rainbow: 70, neon: 100, stars: 150, bubbles: 250 },
             
             trailColors: {
@@ -276,18 +280,8 @@
             },
             
             getCurrentBotImage() {
-                // Map bot types to images
-                const botImageMap = {
-                    classic: 'classic',
-                    gold: 'classic',
-                    neon: 'neon',
-                    ninja: 'ninja',
-                    alien: 'classic',
-                    fire: 'fire',
-                    pixel: 'pixel'
-                };
-                const imageKey = botImageMap[this.currentBot] || 'classic';
-                return this.botImages[imageKey];
+                // Each bot has its own unique image
+                return this.botImages[this.currentBot] || this.botImages.classic;
             },
             
             initEventListeners() {
@@ -545,7 +539,7 @@
                 const botImg = this.getCurrentBotImage();
                 if (botImg && botImg.loaded) {
                     // Draw bot image with transparency
-                    const size = 45;
+                    const size = 50;
                     ctx.drawImage(botImg, -size/2, -size/2, size, size);
                 } else {
                     // Fallback rectangle
@@ -738,7 +732,7 @@
             },
             
             updateStartScreenIndicators() {
-                const botIcons = { classic: '🤖', gold: '🥇', neon: '🌈', ninja: '🥷', alien: '👽' };
+                const botIcons = { classic: '🤖', gold: '🥇', neon: '🌈', ninja: '🥷', fire: '🔥', pixel: '👾', alien: '👽' };
                 const themeIcons = { deepSpace: '🌌', nebula: '🌸', galaxy: '🌀', matrix: '💻', sunset: '🌅', moneyverse: '💚', aurora: '🌟', cyberpunk: '🌃', volcano: '🌋' };
                 const trailIcons = { none: '❌', cash: '💵', coins: '🪙', green: '💚', fire: '🔥', rainbow: '🌈', neon: '⚡', stars: '⭐', bubbles: '🫧' };
                 document.getElementById('currentBotIcon').textContent = botIcons[this.currentBot] || '🤖';
