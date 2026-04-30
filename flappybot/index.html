@@ -4,782 +4,69 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
-    <!-- VERSION: 2025-04-30-0720 - White MoneyBot character, no background -->
-    <title>FlappyBot - Fly to Financial Freedom</title>
-    <link rel="icon" type="image/jpeg" href="assets/moneybot-logo-1.jpg">
+    <title>FlappyBot</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap');
         
-        * { 
-            margin: 0; 
-            padding: 0; 
-            box-sizing: border-box; 
-            -webkit-tap-highlight-color: transparent; 
-            touch-action: manipulation; 
-            user-select: none; 
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: manipulation; user-select: none; }
         
-        :root { 
-            --moneybot-green: #22C55E; 
-            --moneybot-dark: #0F172A; 
-            --moneybot-white: #FFFFFF;
-            --moneybot-gold: #FFD700;
-        }
+        body { font-family: 'Inter', sans-serif; background: #000; min-height: 100vh; overflow: hidden; }
         
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background: #0a0a1a;
-            min-height: 100vh;
-            overflow: hidden;
-        }
+        #gameCanvas { display: block; width: 100%; height: 100vh; }
         
-        #gameCanvas {
-            display: block;
-            width: 100%;
-            height: 100vh;
-        }
+        .ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
         
-        .ui-layer {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-        }
+        .score-display { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); text-align: center; z-index: 100; }
+        .score-number { font-size: 72px; font-weight: 900; color: #22C55E; text-shadow: 0 0 30px rgba(34, 197, 94, 0.8); line-height: 1; }
+        .best-score { font-size: 14px; color: #22C55E; margin-top: 5px; opacity: 0.8; }
         
-        .score-display {
-            position: absolute;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            text-align: center;
-            z-index: 100;
-        }
+        .near-miss { position: absolute; top: 35%; left: 50%; transform: translate(-50%, -50%); font-size: 24px; font-weight: 900; color: #FFD700; text-shadow: 0 0 20px rgba(255, 215, 0, 0.8); opacity: 0; pointer-events: none; z-index: 150; }
+        .near-miss.show { animation: nearMissPop 0.8s ease-out forwards; }
+        @keyframes nearMissPop { 0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); } 30% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); } 100% { opacity: 0; transform: translate(-50%, -80%) scale(0.9); } }
         
-        .score-number {
-            font-size: 72px;
-            font-weight: 900;
-            color: #22C55E;
-            text-shadow: 0 0 20px rgba(34, 197, 94, 0.8), 0 0 40px rgba(34, 197, 94, 0.4), 0 0 60px rgba(34, 197, 94, 0.2);
-            line-height: 1;
-            animation: scorePulse 1s ease-in-out infinite;
-        }
+        .challenge-banner { position: absolute; top: 110px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #FFD700, #FFA500); padding: 8px 16px; border-radius: 20px; font-size: 12px; font-weight: 700; color: #000; z-index: 100; }
         
-        @keyframes scorePulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-        
-        .best-score {
-            font-size: 16px;
-            font-weight: 600;
-            color: #22C55E;
-            text-shadow: 0 0 10px rgba(34, 197, 94, 0.8);
-            margin-top: 5px;
-        }
-        
-        .medal {
-            position: absolute;
-            top: 100px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            font-size: 30px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            animation: medalPop 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-        }
-        
-        .medal.bronze { background: linear-gradient(135deg, #CD7F32, #8B4513); display: flex; }
-        .medal.silver { background: linear-gradient(135deg, #C0C0C0, #808080); display: flex; }
-        .medal.gold { background: linear-gradient(135deg, #FFD700, #FFA500); display: flex; }
-        .medal.platinum { background: linear-gradient(135deg, #E5E4E2, #A0A0A0); display: flex; }
-        
-        @keyframes medalPop {
-            0% { transform: translateX(-50%) scale(0) rotate(-180deg); }
-            100% { transform: translateX(-50%) scale(1) rotate(0deg); }
-        }
-        
-        .start-screen, .game-over-screen {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background: rgba(0,0,0,0.6);
-            pointer-events: auto;
-            backdrop-filter: blur(5px);
-        }
-        
+        .start-screen, .game-over-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(0,0,0,0.7); pointer-events: auto; }
         .game-over-screen { display: none; }
         
-        .logo {
-            font-size: 48px;
-            font-weight: 900;
-            color: white;
-            text-shadow: 4px 4px 0 var(--moneybot-green), 8px 8px 0 rgba(0,0,0,0.3);
-            margin-bottom: 10px;
-            animation: float 2s ease-in-out infinite;
-        }
-        
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-        
-        .subtitle {
-            font-size: 18px;
-            color: rgba(255,255,255,0.9);
-            margin-bottom: 30px;
-            text-align: center;
-        }
-        
-        .btn {
-            background: linear-gradient(135deg, var(--moneybot-green), #16A34A);
-            color: white;
-            border: none;
-            padding: 20px 50px;
-            border-radius: 50px;
-            font-size: 24px;
-            font-weight: 800;
-            cursor: pointer;
-            box-shadow: 0 8px 30px rgba(34,197,94,0.4), 0 4px 0 #15803d;
-            transition: all 0.1s;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-        
-        .btn:active {
-            transform: translateY(4px);
-            box-shadow: 0 4px 15px rgba(34,197,94,0.4), 0 0 0 #15803d;
-        }
-        
-        .instructions {
-            margin-top: 30px;
-            color: rgba(255,255,255,0.8);
-            font-size: 16px;
-            text-align: center;
-        }
-        
-        .theme-selector {
-            margin: 20px 0;
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-        
-        .theme-btn {
-            width: 50px;
-            height: 50px;
-            border-radius: 12px;
-            border: 3px solid transparent;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-size: 24px;
-        }
-        
-        .theme-btn:hover {
-            transform: scale(1.1);
-        }
-        
-        .theme-btn.active {
-            border-color: #22C55E;
-            box-shadow: 0 0 15px rgba(34, 197, 94, 0.6);
-        }
-        
-        /* Near Miss Notification */
-        .near-miss {
-            position: absolute;
-            top: 40%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 28px;
-            font-weight: 900;
-            color: #FFD700;
-            text-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
-            opacity: 0;
-            pointer-events: none;
-            z-index: 150;
-        }
-        
-        .near-miss.show {
-            animation: nearMissPop 1s ease-out forwards;
-        }
-        
-        @keyframes nearMissPop {
-            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
-            20% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
-            80% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-            100% { opacity: 0; transform: translate(-50%, -80%) scale(0.8); }
-        }
-        
-        /* Daily Challenge */
-        .challenge-banner {
-            position: absolute;
-            top: 120px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: linear-gradient(135deg, #FFD700, #FFA500);
-            padding: 10px 20px;
-            border-radius: 25px;
-            font-size: 13px;
-            font-weight: 700;
-            color: #000;
-            z-index: 100;
-            display: none;
-            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
-        }
-        
-        .challenge-banner.active {
-            display: block;
-            animation: challengePulse 2s ease-in-out infinite;
-        }
-        
-        @keyframes challengePulse {
-            0%, 100% { box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4); }
-            50% { box-shadow: 0 4px 25px rgba(255, 215, 0, 0.8); }
-        }
-        
-        /* Mastery Rank Badge */
-        .mastery-badge {
-            position: absolute;
-            top: 180px;
-            left: 50%;
-            transform: translateX(-50%);
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            z-index: 100;
-            display: none;
-        }
-        
-        .mastery-badge.bronze { background: linear-gradient(135deg, #CD7F32, #8B4513); color: white; display: block; }
-        .mastery-badge.silver { background: linear-gradient(135deg, #C0C0C0, #808080); color: white; display: block; }
-        .mastery-badge.gold { background: linear-gradient(135deg, #FFD700, #FFA500); color: #000; display: block; }
-        .mastery-badge.platinum { background: linear-gradient(135deg, #E5E4E2, #7B68EE); color: #000; display: block; box-shadow: 0 0 20px rgba(123, 104, 238, 0.6); }
-        
-        /* Leaderboard */
-        .leaderboard-btn {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #FFD700, #FFA500);
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-            z-index: 1000;
-            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
-            transition: transform 0.2s;
-        }
-        
-        .leaderboard-btn:hover {
-            transform: scale(1.1);
-        }
-        
-        .leaderboard-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.9);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 3000;
-        }
-        
-        .leaderboard-modal.show {
-            display: flex;
-        }
-        
-        .leaderboard-content {
-            background: linear-gradient(135deg, #1a1a2e, #2d2d44);
-            border-radius: 24px;
-            padding: 25px;
-            width: 90%;
-            max-width: 350px;
-            border: 2px solid #FFD700;
-            max-height: 80%;
-            overflow-y: auto;
-        }
-        
-        .leaderboard-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        
-        .leaderboard-title {
-            font-size: 20px;
-            font-weight: 800;
-            color: #FFD700;
-        }
-        
-        .leaderboard-entry {
-            display: flex;
-            align-items: center;
-            padding: 12px;
-            background: rgba(255,255,255,0.05);
-            border-radius: 12px;
-            margin-bottom: 8px;
-        }
-        
-        .leaderboard-rank {
-            width: 30px;
-            font-size: 18px;
-            font-weight: 800;
-        }
-        
-        .leaderboard-rank.gold { color: #FFD700; }
-        .leaderboard-rank.silver { color: #C0C0C0; }
-        .leaderboard-rank.bronze { color: #CD7F32; }
-        
-        .leaderboard-name {
-            flex: 1;
-            font-size: 14px;
-            color: white;
-        }
-        
-        .leaderboard-score {
-            font-size: 16px;
-            font-weight: 800;
-            color: #22C55E;
-        }
-        
-        .theme-btn.locked {
-            opacity: 0.5;
-            cursor: not-allowed;
-            position: relative;
-        }
-        
-        .theme-btn.locked::after {
-            content: '🔒';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 20px;
-        }
-        
-        .theme-deepSpace { background: linear-gradient(135deg, #000000, #1a1a2e); }
-        .theme-nebula { background: linear-gradient(135deg, #2d1b4e, #1a0a2e); }
-        .theme-galaxy { background: linear-gradient(135deg, #0a1628, #1a3a5c); }
-        .theme-sunset { background: linear-gradient(135deg, #2d1810, #4a2512); }
-        .theme-matrix { background: linear-gradient(135deg, #000500, #003300); }
-        .theme-aurora { background: linear-gradient(135deg, #00ff88, #0088ff); }
-        .theme-volcano { background: linear-gradient(135deg, #ff4400, #880000); }
-        .theme-cyber { background: linear-gradient(135deg, #ff00ff, #00ffff); }
-        
-        .bot-selector {
-            margin: 15px 0;
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-        
-        .bot-btn {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            border: 3px solid transparent;
-            cursor: pointer;
-            transition: all 0.2s;
-            background: rgba(255,255,255,0.1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 30px;
-        }
-        
-        .bot-btn:hover {
-            transform: scale(1.1);
-            background: rgba(255,255,255,0.2);
-        }
-        
-        .bot-btn.active {
-            border-color: #22C55E;
-            box-shadow: 0 0 20px rgba(34, 197, 94, 0.6);
-        }
-        
-        .bot-btn.locked {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        
-        .unlock-text {
-            font-size: 10px;
-            color: #888;
-            margin-top: 2px;
-        }
-        
-        .trail-selector {
-            margin: 15px 0;
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-        
-        .trail-btn {
-            width: 50px;
-            height: 50px;
-            border-radius: 12px;
-            border: 3px solid transparent;
-            cursor: pointer;
-            transition: all 0.2s;
-            background: rgba(255,255,255,0.1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-        }
-        
-        .trail-btn:hover {
-            transform: scale(1.1);
-            background: rgba(255,255,255,0.2);
-        }
-        
-        .trail-btn.active {
-            border-color: #22C55E;
-            box-shadow: 0 0 15px rgba(34, 197, 94, 0.6);
-        }
-        
-        .trail-btn.locked {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        
-        .settings-btn {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.2);
-            border: 2px solid rgba(255, 255, 255, 0.4);
-            color: white;
-            font-size: 24px;
-            cursor: pointer;
-            z-index: 9999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            backdrop-filter: blur(10px);
-            pointer-events: auto;
-        }
-        
-        .settings-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
-            border-color: #22C55E;
-        }
-        
-        .settings-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.85);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 2000;
-            backdrop-filter: blur(10px);
-        }
-        
-        .settings-modal.show {
-            display: flex;
-        }
-        
-        .settings-content {
-            background: linear-gradient(135deg, #1a1a2e, #2d2d44);
-            border-radius: 24px;
-            padding: 25px;
-            width: 90%;
-            max-width: 400px;
-            max-height: 85%;
-            overflow-y: auto;
-            border: 2px solid #22C55E;
-            box-shadow: 0 0 50px rgba(34, 197, 94, 0.4);
-        }
-        
-        .settings-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        
-        .settings-title {
-            font-size: 22px;
-            font-weight: 700;
-            color: white;
-        }
-        
-        .close-btn {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 28px;
-            cursor: pointer;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-        }
-        
-        .close-btn:hover {
-            background: rgba(255,255,255,0.1);
-        }
-        
-        /* Tabs */
-        .settings-tabs {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 20px;
-            background: rgba(0,0,0,0.3);
-            padding: 5px;
-            border-radius: 12px;
-        }
-        
-        .tab-btn {
-            flex: 1;
-            padding: 10px 5px;
-            border: none;
-            background: transparent;
-            color: #888;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            border-radius: 8px;
-            transition: all 0.2s;
-        }
-        
-        .tab-btn.active {
-            background: #22C55E;
-            color: white;
-        }
-        
-        .tab-content {
-            display: none;
-        }
-        
-        .tab-content.active {
-            display: block;
-        }
-        
-        .section-desc {
-            font-size: 13px;
-            color: #888;
-            margin-bottom: 15px;
-            text-align: center;
-        }
-        
-        /* Grid Selector */
-        .grid-selector {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-        }
-        
-        .grid-btn {
-            aspect-ratio: 1;
-            border-radius: 16px;
-            border: 2px solid transparent;
-            background: rgba(255,255,255,0.05);
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 8px;
-        }
-        
-        .grid-btn:hover {
-            background: rgba(255,255,255,0.1);
-            transform: scale(1.02);
-        }
-        
-        .grid-btn.active {
-            border-color: #22C55E;
-            background: rgba(34, 197, 94, 0.15);
-            box-shadow: 0 0 15px rgba(34, 197, 94, 0.3);
-        }
-        
-        .grid-btn.locked {
-            opacity: 0.4;
-            cursor: not-allowed;
-        }
-        
-        .grid-btn.locked::after {
-            content: '🔒';
-            position: absolute;
-            font-size: 16px;
-        }
-        
-        .grid-icon {
-            font-size: 28px;
-            margin-bottom: 4px;
-        }
-        
-        .grid-preview {
-            width: 36px;
-            height: 36px;
-            border-radius: 10px;
-            margin-bottom: 4px;
-        }
-        
-        .grid-name {
-            font-size: 11px;
-            font-weight: 600;
-            color: white;
-            margin-bottom: 2px;
-        }
-        
-        .grid-unlock {
-            font-size: 9px;
-            color: #22C55E;
-        }
-        
-        .grid-btn.locked .grid-unlock {
-            color: #666;
-        }
-        
-        .tap-icon {
-            font-size: 40px;
-            animation: tapPulse 1s ease-in-out infinite;
-        }
-        
-        @keyframes tapPulse {
-            0%, 100% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(0.9); opacity: 0.7; }
-        }
-        
-        .stats-box {
-            background: white;
-            border-radius: 20px;
-            padding: 25px 40px;
-            margin-bottom: 20px;
-            text-align: center;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-        }
-        
-        .stats-label {
-            font-size: 14px;
-            color: #64748B;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 5px;
-        }
-        
-        .stats-value {
-            font-size: 48px;
-            font-weight: 900;
-            color: var(--moneybot-dark);
-        }
-        
-        .new-best {
-            color: var(--moneybot-green);
-            animation: pulse 0.5s ease-in-out 3;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-        }
-        
-        .share-btn {
-            background: linear-gradient(135deg, #1DA1F2, #0d8bd9);
-            margin-top: 15px;
-        }
-        
-        .current-selection {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            margin: 20px 0;
-        }
-        
-        .selection-icon {
-            width: 44px;
-            height: 44px;
-            border-radius: 10px;
-            background: rgba(255,255,255,0.1);
-            border: 2px solid rgba(34, 197, 94, 0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 22px;
-        }
-        
-        .combo-display {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 48px;
-            font-weight: 900;
-            color: var(--moneybot-gold);
-            text-shadow: 3px 3px 0 rgba(0,0,0,0.5);
-            opacity: 0;
-            pointer-events: none;
-            z-index: 50;
-        }
-        
-        .combo-display.show {
-            animation: comboAnim 1s ease-out forwards;
-        }
-        
-        @keyframes comboAnim {
-            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
-            20% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
-            80% { opacity: 1; transform: translate(-50%, -70%) scale(1); }
-            100% { opacity: 0; transform: translate(-50%, -100%) scale(0.8); }
-        }
-        
-        .streak-flames {
-            position: absolute;
-            bottom: 20px;
-            left: 20px;
-            font-size: 30px;
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-        
-        .streak-flames.active {
-            opacity: 1;
-            animation: flames 0.5s ease-in-out infinite alternate;
-        }
-        
-        @keyframes flames {
-            from { transform: scale(1); }
-            to { transform: scale(1.2); }
-        }
+        .logo { font-size: 42px; font-weight: 900; color: white; text-shadow: 3px 3px 0 #22C55E; margin-bottom: 10px; }
+        .subtitle { font-size: 16px; color: rgba(255,255,255,0.8); margin-bottom: 30px; text-align: center; }
+        
+        .btn { background: linear-gradient(135deg, #22C55E, #16A34A); color: white; border: none; padding: 18px 45px; border-radius: 50px; font-size: 22px; font-weight: 800; cursor: pointer; box-shadow: 0 6px 25px rgba(34,197,94,0.4); transition: transform 0.1s; }
+        .btn:active { transform: scale(0.95); }
+        
+        .stats-box { background: rgba(255,255,255,0.1); border-radius: 16px; padding: 20px 35px; margin-bottom: 15px; text-align: center; }
+        .stats-label { font-size: 12px; color: #888; text-transform: uppercase; }
+        .stats-value { font-size: 42px; font-weight: 900; color: white; }
+        .new-best { color: #FFD700; }
+        
+        .settings-btn { position: fixed; top: 20px; right: 20px; width: 45px; height: 45px; border-radius: 50%; background: rgba(255,255,255,0.1); border: 2px solid #22C55E; font-size: 20px; cursor: pointer; z-index: 9999; }
+        
+        .settings-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 2000; }
+        .settings-modal.show { display: flex; }
+        .settings-content { background: linear-gradient(135deg, #1a1a2e, #2d2d44); border-radius: 20px; padding: 25px; width: 90%; max-width: 380px; border: 2px solid #22C55E; max-height: 80%; overflow-y: auto; }
+        .settings-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .settings-title { font-size: 20px; font-weight: 800; color: white; }
+        .close-btn { background: none; border: none; color: white; font-size: 24px; cursor: pointer; }
+        
+        .settings-tabs { display: flex; gap: 8px; margin-bottom: 15px; background: rgba(0,0,0,0.3); padding: 5px; border-radius: 10px; }
+        .tab-btn { flex: 1; padding: 10px 5px; border: none; background: transparent; color: #888; font-size: 12px; font-weight: 600; cursor: pointer; border-radius: 8px; }
+        .tab-btn.active { background: #22C55E; color: white; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .section-desc { font-size: 12px; color: #888; margin-bottom: 12px; text-align: center; }
+        
+        .grid-selector { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .grid-btn { aspect-ratio: 1; border-radius: 12px; border: 2px solid transparent; background: rgba(255,255,255,0.05); cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 8px; position: relative; }
+        .grid-btn.active { border-color: #22C55E; background: rgba(34, 197, 94, 0.15); }
+        .grid-btn.locked { opacity: 0.4; cursor: not-allowed; }
+        .grid-icon { font-size: 24px; margin-bottom: 4px; }
+        .grid-name { font-size: 10px; font-weight: 600; color: white; }
+        .grid-unlock { font-size: 9px; color: #22C55E; }
+        .grid-btn.locked .grid-unlock { color: #666; }
+        
+        .current-selection { display: flex; gap: 12px; justify-content: center; margin: 15px 0; }
+        .selection-icon { width: 40px; height: 40px; border-radius: 10px; background: rgba(255,255,255,0.1); border: 2px solid rgba(34, 197, 94, 0.5); display: flex; align-items: center; justify-content: center; font-size: 20px; }
     </style>
 </head>
 <body>
@@ -790,141 +77,36 @@
             <div class="score-number" id="scoreDisplay">0</div>
             <div class="best-score">Best: <span id="bestScore">0</span></div>
         </div>
-        
-        <div class="medal" id="medal"></div>
-        
-        <!-- Near Miss Notification -->
         <div class="near-miss" id="nearMiss">CLOSE CALL! +5</div>
-        
-        <!-- Daily Challenge Banner -->
-        <div class="challenge-banner" id="challengeBanner">
-            🎯 Daily: <span id="challengeText">Score 50 without using trails</span>
-        </div>
-        
-        <!-- Mastery Rank Badge -->
-        <div class="mastery-badge" id="masteryBadge">BRONZE</div>
-        
-        <div class="combo-display" id="comboDisplay">🔥 x2</div>
-        
-        <div class="streak-flames" id="streakFlames">🔥🔥🔥</div>
+        <div class="challenge-banner" id="challengeBanner">🎯 Pass 10 pipes without flapping</div>
     </div>
     
-    <!-- Settings Button -->
-    <button class="settings-btn" onclick="game.openSettings()" title="Settings">⚙️</button>
+    <button class="settings-btn" onclick="game.openSettings()">⚙️</button>
     
-    <!-- Settings Modal -->
     <div class="settings-modal" id="settingsModal">
         <div class="settings-content">
             <div class="settings-header">
-                <div class="settings-title">⚙️ Customize</div>
+                <div class="settings-title">Customize</div>
                 <button class="close-btn" onclick="game.closeSettings()">×</button>
             </div>
-            
-            <!-- Tabs -->
             <div class="settings-tabs">
-                <button class="tab-btn active" onclick="game.switchTab('bots')" data-tab="bots">🤖 Bots</button>
-                <button class="tab-btn" onclick="game.switchTab('themes')" data-tab="themes">🌌 Themes</button>
-                <button class="tab-btn" onclick="game.switchTab('trails')" data-tab="trails">✨ Trails</button>
+                <button class="tab-btn active" onclick="game.switchTab('bots')" data-tab="bots">Bots</button>
+                <button class="tab-btn" onclick="game.switchTab('themes')" data-tab="themes">Themes</button>
             </div>
-            
-            <!-- Bots Tab -->
             <div class="tab-content active" id="tab-bots">
-                <div class="section-desc">Choose your MoneyBot character</div>
+                <div class="section-desc">Choose your bot</div>
                 <div class="grid-selector">
-                    <button class="grid-btn active" onclick="game.setBot('classic')" data-bot="classic">
-                        <div class="grid-icon">🤖</div>
-                        <div class="grid-name">Classic</div>
-                        <div class="grid-unlock">Unlocked</div>
-                    </button>
-                    <button class="grid-btn locked" onclick="game.setBot('gold')" data-bot="gold">
-                        <div class="grid-icon">🥇</div>
-                        <div class="grid-name">Gold</div>
-                        <div class="grid-unlock">25 pts</div>
-                    </button>
-                    <button class="grid-btn locked" onclick="game.setBot('neon')" data-bot="neon">
-                        <div class="grid-icon">🌈</div>
-                        <div class="grid-name">Neon</div>
-                        <div class="grid-unlock">40 pts</div>
-                    </button>
-                    <button class="grid-btn locked" onclick="game.setBot('ninja')" data-bot="ninja">
-                        <div class="grid-icon">🥷</div>
-                        <div class="grid-name">Ninja</div>
-                        <div class="grid-unlock">60 pts</div>
-                    </button>
-                    <button class="grid-btn locked" onclick="game.setBot('alien')" data-bot="alien">
-                        <div class="grid-icon">👽</div>
-                        <div class="grid-name">Alien</div>
-                        <div class="grid-unlock">80 pts</div>
-                    </button>
+                    <button class="grid-btn active" onclick="game.setBot('classic')" data-bot="classic"><div class="grid-icon">🤖</div><div class="grid-name">Classic</div></button>
+                    <button class="grid-btn locked" onclick="game.setBot('gold')" data-bot="gold"><div class="grid-icon">🥇</div><div class="grid-name">Gold</div><div class="grid-unlock">25</div></button>
+                    <button class="grid-btn locked" onclick="game.setBot('neon')" data-bot="neon"><div class="grid-icon">🌈</div><div class="grid-name">Neon</div><div class="grid-unlock">40</div></button>
                 </div>
             </div>
-            
-            <!-- Themes Tab -->
             <div class="tab-content" id="tab-themes">
-                <div class="section-desc">Choose your space environment</div>
+                <div class="section-desc">Choose theme</div>
                 <div class="grid-selector">
-                    <button class="grid-btn active" onclick="game.setTheme('deepSpace')" data-theme="deepSpace">
-                        <div class="grid-preview theme-deepSpace"></div>
-                        <div class="grid-name">Deep Space</div>
-                        <div class="grid-unlock">Unlocked</div>
-                    </button>
-                    <button class="grid-btn" onclick="game.setTheme('nebula')" data-theme="nebula">
-                        <div class="grid-preview theme-nebula"></div>
-                        <div class="grid-name">Nebula</div>
-                        <div class="grid-unlock">10 pts</div>
-                    </button>
-                    <button class="grid-btn" onclick="game.setTheme('galaxy')" data-theme="galaxy">
-                        <div class="grid-preview theme-galaxy"></div>
-                        <div class="grid-name">Galaxy</div>
-                        <div class="grid-unlock">20 pts</div>
-                    </button>
-                    <button class="grid-btn locked" onclick="game.setTheme('sunset')" data-theme="sunset">
-                        <div class="grid-preview theme-sunset"></div>
-                        <div class="grid-name">Sunset</div>
-                        <div class="grid-unlock">30 pts</div>
-                    </button>
-                    <button class="grid-btn locked" onclick="game.setTheme('matrix')" data-theme="matrix">
-                        <div class="grid-preview theme-matrix"></div>
-                        <div class="grid-name">Matrix</div>
-                        <div class="grid-unlock">50 pts</div>
-                    </button>
-                    <button class="grid-btn locked" onclick="game.setTheme('aurora')" data-theme="aurora">
-                        <div class="grid-preview theme-aurora"></div>
-                        <div class="grid-name">Aurora</div>
-                        <div class="grid-unlock">75 pts</div>
-                    </button>
-                </div>
-            </div>
-            
-            <!-- Trails Tab -->
-            <div class="tab-content" id="tab-trails">
-                <div class="section-desc">Choose your flight trail effect</div>
-                <div class="grid-selector">
-                    <button class="grid-btn" onclick="game.setTrail('none')" data-trail="none">
-                        <div class="grid-icon">❌</div>
-                        <div class="grid-name">None</div>
-                        <div class="grid-unlock">Unlocked</div>
-                    </button>
-                    <button class="grid-btn active" onclick="game.setTrail('coins')" data-trail="coins">
-                        <div class="grid-icon">🪙</div>
-                        <div class="grid-name">Coins</div>
-                        <div class="grid-unlock">5 pts</div>
-                    </button>
-                    <button class="grid-btn locked" onclick="game.setTrail('rainbow')" data-trail="rainbow">
-                        <div class="grid-icon">🌈</div>
-                        <div class="grid-name">Rainbow</div>
-                        <div class="grid-unlock">15 pts</div>
-                    </button>
-                    <button class="grid-btn locked" onclick="game.setTrail('fire')" data-trail="fire">
-                        <div class="grid-icon">🔥</div>
-                        <div class="grid-name">Fire</div>
-                        <div class="grid-unlock">35 pts</div>
-                    </button>
-                    <button class="grid-btn locked" onclick="game.setTrail('sparkles')" data-trail="sparkles">
-                        <div class="grid-icon">✨</div>
-                        <div class="grid-name">Sparkles</div>
-                        <div class="grid-unlock">55 pts</div>
-                    </button>
+                    <button class="grid-btn active" onclick="game.setTheme('deepSpace')" data-theme="deepSpace"><div class="grid-icon">🌌</div><div class="grid-name">Space</div></button>
+                    <button class="grid-btn" onclick="game.setTheme('nebula')" data-theme="nebula"><div class="grid-icon">🌸</div><div class="grid-name">Nebula</div><div class="grid-unlock">10</div></button>
+                    <button class="grid-btn" onclick="game.setTheme('galaxy')" data-theme="galaxy"><div class="grid-icon">🌀</div><div class="grid-name">Galaxy</div><div class="grid-unlock">20</div></button>
                 </div>
             </div>
         </div>
@@ -932,165 +114,102 @@
     
     <div class="start-screen" id="startScreen">
         <div class="logo">🤖 FLAPPYBOT</div>
-        <div class="subtitle">Fly through the market volatility!<br>Tap to flap, avoid the red zones</div>
-        
+        <div class="subtitle">Tap to fly. Avoid barriers.</div>
         <div class="current-selection">
             <div class="selection-icon" id="currentBotIcon">🤖</div>
             <div class="selection-icon" id="currentThemeIcon">🌌</div>
         </div>
-        
-        <button class="btn" onclick="game.start()">PLAY NOW</button>
-        <div class="instructions">
-            <div class="tap-icon">👆</div>
-            <div>Tap or press SPACE to fly</div>
-        </div>
+        <button class="btn" onclick="game.start()">PLAY</button>
     </div>
     
     <div class="game-over-screen" id="gameOverScreen">
-        <div class="stats-box">
-            <div class="stats-label">Score</div>
-            <div class="stats-value" id="finalScore">0</div>
-        </div>
-        <div class="stats-box">
-            <div class="stats-label">Best</div>
-            <div class="stats-value" id="finalBest">0</div>
-        </div>
+        <div class="stats-box"><div class="stats-label">Score</div><div class="stats-value" id="finalScore">0</div></div>
+        <div class="stats-box"><div class="stats-label">Best</div><div class="stats-value" id="finalBest">0</div></div>
         <button class="btn" onclick="game.restart()">PLAY AGAIN</button>
-        <button class="btn share-btn" onclick="game.share()">📤 SHARE SCORE</button>
-    </div>
-    
-    <!-- Leaderboard Button -->
-    <button class="leaderboard-btn" onclick="game.openLeaderboard()" title="Leaderboard">🏆</button>
-    
-    <!-- Leaderboard Modal -->
-    <div class="leaderboard-modal" id="leaderboardModal">
-        <div class="leaderboard-content">
-            <div class="leaderboard-header">
-                <div class="leaderboard-title">🏆 Weekly Leaderboard</div>
-                <button class="close-btn" onclick="game.closeLeaderboard()">×</button>
-            </div>
-            <div id="leaderboardList">
-                <div class="leaderboard-entry">
-                    <div class="leaderboard-rank gold">🥇</div>
-                    <div class="leaderboard-name">You</div>
-                    <div class="leaderboard-score" id="leaderboardYourScore">0</div>
-                </div>
-            </div>
-            <div style="text-align: center; margin-top: 15px; font-size: 12px; color: #888;">
-                Resets every Monday
-            </div>
-        </div>
     </div>
 
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         
-        // Game constants
         const GRAVITY = 0.4;
         const FLAP_STRENGTH = -7;
         const PIPE_SPEED = 3;
-        const PIPE_SPAWN_RATE = 120;
         const PIPE_GAP = 160;
         
-        // Game state
+        // Audio context for sounds
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        const audioCtx = new AudioContext();
+        
+        function playCoinSound(pitch = 1) {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            
+            osc.frequency.value = 800 * pitch;
+            osc.type = 'sine';
+            gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+            
+            osc.start(audioCtx.currentTime);
+            osc.stop(audioCtx.currentTime + 0.1);
+        }
+        
+        function playNearMissSound() {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            
+            osc.frequency.value = 1200;
+            osc.type = 'square';
+            gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+            
+            osc.start(audioCtx.currentTime);
+            osc.stop(audioCtx.currentTime + 0.15);
+        }
+        
         const game = {
-            state: 'menu', // menu, playing, gameover
+            state: 'menu',
             score: 0,
             bestScore: parseInt(localStorage.getItem('flappybot_best')) || 0,
             currentTheme: localStorage.getItem('flappybot_theme') || 'deepSpace',
             currentBot: localStorage.getItem('flappybot_bot') || 'classic',
-            currentTrail: localStorage.getItem('flappybot_trail') || 'coins',
             unlockedThemes: JSON.parse(localStorage.getItem('flappybot_unlockedThemes')) || ['deepSpace'],
             unlockedBots: JSON.parse(localStorage.getItem('flappybot_unlockedBots')) || ['classic'],
-            unlockedTrails: JSON.parse(localStorage.getItem('flappybot_unlockedTrails')) || ['none', 'coins'],
             frames: 0,
-            combo: 0,
-            lastPipeX: 0,
+            pipes: [],
+            particles: [],
+            shakeIntensity: 0,
+            nearMissCount: 0,
+            flapsThisGame: 0,
             
-            // Addictive features
-            nearMissBonus: 0,
-            pipesPassedWithoutFlapping: 0,
-            challengeProgress: 0,
-            masteryRanks: JSON.parse(localStorage.getItem('flappybot_mastery')) || {},
-            secretUnlocks: JSON.parse(localStorage.getItem('flappybot_secrets')) || [],
+            bird: { x: 100, y: 0, velocity: 0, width: 34, height: 24, rotation: 0 },
             
-            // Daily challenge
-            dailyChallenge: null,
-            challengeCompleted: false,
+            themeUnlocks: { deepSpace: 0, nebula: 10, galaxy: 20, sunset: 30, matrix: 50 },
+            botUnlocks: { classic: 0, gold: 25, neon: 40, ninja: 60 },
             
-            // Bird
-            bird: {
-                x: 100,
-                y: 0,
-                velocity: 0,
-                width: 34,
-                height: 24,
-                rotation: 0,
-                wingFrame: 0
+            themes: {
+                deepSpace: { bg: '#000000', stars: true },
+                nebula: { bg: 'linear-gradient(135deg, #1a0a2e, #4a1942)', stars: true },
+                galaxy: { bg: 'linear-gradient(135deg, #0a0a2e, #1a3a5c)', stars: true }
             },
             
-            // Pipes
-            pipes: [],
-            
-            // Particles
-            particles: [],
-            
-            // Background
-            bgOffset: 0,
-            groundOffset: 0,
-            
-            // Player image
-            playerImage: null,
-            playerImageLoaded: false,
-            
-            // Screen shake
-            shakeIntensity: 0,
-            
             init() {
-                // Load player image
-                this.playerImage = new Image();
-                this.playerImage.src = 'assets/player-rembg.png';
-                this.playerImage.onload = () => {
-                    this.playerImageLoaded = true;
-                };
-                
-                // Set initial theme, bot, and trail
-                this.setTheme(this.currentTheme);
-                this.setBot(this.currentBot);
-                this.setTrail(this.currentTrail);
-                
-                // Update start screen indicators
-                this.updateStartScreenIndicators();
-                
-                // Update unlocks based on best score
-                this.updateUnlocks();
-                
-                // Initialize daily challenge
-                this.initDailyChallenge();
-                
-                // Update mastery badge
-                this.updateMasteryBadge();
-                
                 this.resize();
                 window.addEventListener('resize', () => this.resize());
                 
-                // Input handlers
                 canvas.addEventListener('click', () => this.flap());
-                canvas.addEventListener('touchstart', (e) => {
-                    e.preventDefault();
-                    this.flap();
-                });
+                canvas.addEventListener('touchstart', (e) => { e.preventDefault(); this.flap(); });
                 document.addEventListener('keydown', (e) => {
-                    if (e.code === 'Space' || e.code === 'ArrowUp') {
-                        e.preventDefault();
-                        this.flap();
-                    }
+                    if (e.code === 'Space') { e.preventDefault(); this.flap(); }
                 });
                 
                 document.getElementById('bestScore').textContent = this.bestScore;
-                
-                // Start loop
+                this.updateStartScreenIndicators();
+                this.updateUnlocks();
                 this.loop();
             },
             
@@ -1100,175 +219,130 @@
                 this.bird.y = canvas.height / 2;
             },
             
-            updateStartScreenIndicators() {
-                const botIcons = {
-                    classic: '🤖',
-                    gold: '🥇',
-                    neon: '🌈',
-                    ninja: '🥷',
-                    alien: '👽'
-                };
-                const themeIcons = {
-                    deepSpace: '🌌',
-                    nebula: '🌸',
-                    galaxy: '🌀',
-                    sunset: '🌅',
-                    matrix: '💻',
-                    aurora: '🌟',
-                    volcano: '🌋',
-                    cyber: '⚡'
-                };
+            start() {
+                this.state = 'playing';
+                this.score = 0;
+                this.frames = 0;
+                this.pipes = [];
+                this.particles = [];
+                this.shakeIntensity = 0;
+                this.nearMissCount = 0;
+                this.flapsThisGame = 0;
+                this.bird.y = canvas.height / 2;
+                this.bird.velocity = 0;
+                this.bird.rotation = 0;
                 
-                const botIconEl = document.getElementById('currentBotIcon');
-                const themeIconEl = document.getElementById('currentThemeIcon');
+                document.getElementById('startScreen').style.display = 'none';
+                document.getElementById('gameOverScreen').style.display = 'none';
+                document.getElementById('scoreDisplay').textContent = '0';
+                document.getElementById('nearMiss').classList.remove('show');
                 
-                if (botIconEl) botIconEl.textContent = botIcons[this.currentBot] || '🤖';
-                if (themeIconEl) themeIconEl.textContent = themeIcons[this.currentTheme] || '🌌';
+                // Resume audio context
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                
+                this.spawnPipe();
             },
             
-            // Daily Challenge System
-            initDailyChallenge() {
-                const today = new Date().toDateString();
-                const savedDate = localStorage.getItem('flappybot_challengeDate');
-                
-                if (savedDate !== today) {
-                    // New day, new challenge
-                    this.generateDailyChallenge();
-                    localStorage.setItem('flappybot_challengeDate', today);
-                    localStorage.setItem('flappybot_challengeCompleted', 'false');
-                    this.challengeCompleted = false;
-                } else {
-                    // Load existing challenge
-                    this.dailyChallenge = JSON.parse(localStorage.getItem('flappybot_dailyChallenge'));
-                    this.challengeCompleted = localStorage.getItem('flappybot_challengeCompleted') === 'true';
-                }
-                
-                this.updateChallengeUI();
+            restart() {
+                document.getElementById('gameOverScreen').style.display = 'none';
+                this.start();
             },
             
-            generateDailyChallenge() {
-                const challenges = [
-                    { id: 'no_trail', text: 'Score 30 without using trails', target: 30, condition: 'noTrail' },
-                    { id: 'classic_bot', text: 'Score 40 with Classic bot', target: 40, condition: 'classicBot' },
-                    { id: 'no_flap_streak', text: 'Pass 10 pipes without flapping', target: 10, condition: 'noFlapStreak' },
-                    { id: 'exact_score', text: 'Score exactly 42 points', target: 42, condition: 'exact' },
-                    { id: 'five_near_misses', text: 'Get 5 near-miss bonuses', target: 5, condition: 'nearMisses' },
-                    { id: 'quick_start', text: 'Pass 5 pipes in first 10 seconds', target: 5, condition: 'quickStart' }
-                ];
-                
-                this.dailyChallenge = challenges[Math.floor(Math.random() * challenges.length)];
-                this.dailyChallenge.progress = 0;
-                localStorage.setItem('flappybot_dailyChallenge', JSON.stringify(this.dailyChallenge));
-            },
-            
-            updateChallengeUI() {
-                const banner = document.getElementById('challengeBanner');
-                const text = document.getElementById('challengeText');
-                
-                if (this.dailyChallenge && !this.challengeCompleted) {
-                    banner.classList.add('active');
-                    text.textContent = this.dailyChallenge.text;
-                } else if (this.challengeCompleted) {
-                    banner.classList.add('active');
-                    text.textContent = '✅ Challenge Complete!';
-                    banner.style.background = 'linear-gradient(135deg, #22C55E, #16A34A)';
-                } else {
-                    banner.classList.remove('active');
+            flap() {
+                if (this.state === 'playing') {
+                    this.bird.velocity = FLAP_STRENGTH;
+                    this.flapsThisGame++;
+                    this.createParticles(this.bird.x - 10, this.bird.y + 12, 3, '#22C55E');
                 }
             },
             
-            checkChallengeProgress(type, value) {
-                if (!this.dailyChallenge || this.challengeCompleted) return;
+            spawnPipe() {
+                const minHeight = 80;
+                const maxHeight = canvas.height - PIPE_GAP - minHeight;
+                const topHeight = Math.floor(Math.random() * (maxHeight - minHeight) + minHeight);
                 
-                let completed = false;
-                
-                switch (this.dailyChallenge.condition) {
-                    case 'noTrail':
-                        if (type === 'score' && value >= this.dailyChallenge.target && this.currentTrail === 'none') {
-                            completed = true;
-                        }
-                        break;
-                    case 'classicBot':
-                        if (type === 'score' && value >= this.dailyChallenge.target && this.currentBot === 'classic') {
-                            completed = true;
-                        }
-                        break;
-                    case 'noFlapStreak':
-                        if (type === 'noFlapStreak' && value >= this.dailyChallenge.target) {
-                            completed = true;
-                        }
-                        break;
-                    case 'exact':
-                        if (type === 'score' && value === this.dailyChallenge.target) {
-                            completed = true;
-                        }
-                        break;
-                    case 'nearMisses':
-                        if (type === 'nearMiss' && value >= this.dailyChallenge.target) {
-                            completed = true;
-                        }
-                        break;
-                    case 'quickStart':
-                        if (type === 'quickPipes' && value >= this.dailyChallenge.target) {
-                            completed = true;
-                        }
-                        break;
-                }
-                
-                if (completed) {
-                    this.challengeCompleted = true;
-                    localStorage.setItem('flappybot_challengeCompleted', 'true');
-                    this.updateChallengeUI();
-                    this.showUnlockNotification('🎯 Daily Challenge Complete! +100 Bonus');
-                    this.score += 100; // Bonus points
-                }
+                this.pipes.push({
+                    x: canvas.width,
+                    topHeight: topHeight,
+                    bottomY: topHeight + PIPE_GAP,
+                    width: 60,
+                    passed: false,
+                    nearMissTriggered: false
+                });
             },
             
-            // Mastery Rank System
-            getMasteryRank(theme, score) {
-                if (score >= 100) return 'platinum';
-                if (score >= 75) return 'gold';
-                if (score >= 50) return 'silver';
-                if (score >= 25) return 'bronze';
-                return null;
-            },
-            
-            updateMasteryRank(theme, score) {
-                const rank = this.getMasteryRank(theme, score);
-                if (!rank) return;
-                
-                const currentRank = this.masteryRanks[theme];
-                const rankLevels = { bronze: 1, silver: 2, gold: 3, platinum: 4 };
-                
-                if (!currentRank || rankLevels[rank] > rankLevels[currentRank]) {
-                    this.masteryRanks[theme] = rank;
-                    localStorage.setItem('flappybot_mastery', JSON.stringify(this.masteryRanks));
-                    this.showUnlockNotification(`🏆 New ${rank.toUpperCase()} Rank in ${theme}!`);
+            update() {
+                if (this.state !== 'playing') {
+                    if (this.shakeIntensity > 0) this.shakeIntensity *= 0.9;
+                    return;
                 }
-            },
-            
-            updateMasteryBadge() {
-                const badge = document.getElementById('masteryBadge');
-                const rank = this.masteryRanks[this.currentTheme];
                 
-                if (rank) {
-                    badge.className = `mastery-badge ${rank}`;
-                    badge.textContent = rank;
-                } else {
-                    badge.className = 'mastery-badge';
-                    badge.style.display = 'none';
+                this.frames++;
+                
+                // Bird physics
+                this.bird.velocity += GRAVITY;
+                this.bird.y += this.bird.velocity;
+                this.bird.rotation = Math.min(Math.PI / 4, Math.max(-Math.PI / 4, (this.bird.velocity * 0.1)));
+                
+                // Ceiling collision
+                if (this.bird.y < 0) {
+                    this.bird.y = 0;
+                    this.bird.velocity = 0;
                 }
+                
+                // Floor collision
+                if (this.bird.y + this.bird.height > canvas.height) {
+                    this.gameOver();
+                    return;
+                }
+                
+                // Spawn pipes
+                if (this.frames % 100 === 0) this.spawnPipe();
+                
+                // Update pipes
+                for (let i = this.pipes.length - 1; i >= 0; i--) {
+                    const pipe = this.pipes[i];
+                    pipe.x -= PIPE_SPEED;
+                    
+                    // Collision
+                    if (this.bird.x + this.bird.width > pipe.x && this.bird.x < pipe.x + pipe.width) {
+                        if (this.bird.y < pipe.topHeight || this.bird.y + this.bird.height > pipe.bottomY) {
+                            this.gameOver();
+                            return;
+                        }
+                        // Near miss check
+                        this.checkNearMiss(pipe);
+                    }
+                    
+                    // Score
+                    if (!pipe.passed && pipe.x + pipe.width < this.bird.x) {
+                        pipe.passed = true;
+                        this.score++;
+                        document.getElementById('scoreDisplay').textContent = this.score;
+                        playCoinSound(1 + (this.score % 10) * 0.1); // Escalating pitch
+                        this.createCoinParticles();
+                    }
+                    
+                    if (pipe.x + pipe.width < 0) this.pipes.splice(i, 1);
+                }
+                
+                // Update particles
+                for (let i = this.particles.length - 1; i >= 0; i--) {
+                    const p = this.particles[i];
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.life -= 0.03;
+                    if (p.life <= 0) this.particles.splice(i, 1);
+                }
+                
+                // Screen shake decay
+                if (this.shakeIntensity > 0) this.shakeIntensity *= 0.9;
             },
             
-            // Near Miss Detection
             checkNearMiss(pipe) {
-                const bird = this.bird;
-                const margin = 15; // pixels considered "near"
-                
-                // Check if bird is close to top or bottom pipe
-                const nearTop = bird.y < pipe.topHeight + margin && bird.y > pipe.topHeight - margin;
-                const nearBottom = bird.y + bird.height > canvas.height - pipe.bottomHeight - margin && 
-                                  bird.y + bird.height < canvas.height - pipe.bottomHeight + margin;
+                const margin = 12;
+                const nearTop = this.bird.y < pipe.topHeight + margin && this.bird.y > pipe.topHeight - margin;
+                const nearBottom = this.bird.y + this.bird.height > pipe.bottomY - margin && this.bird.y + this.bird.height < pipe.bottomY + margin;
                 
                 if ((nearTop || nearBottom) && !pipe.nearMissTriggered) {
                     pipe.nearMissTriggered = true;
@@ -1277,1088 +351,191 @@
             },
             
             triggerNearMiss() {
-                this.nearMissBonus++;
+                this.nearMissCount++;
                 this.score += 5;
+                document.getElementById('scoreDisplay').textContent = this.score;
                 
-                // Show notification
-                const nearMissEl = document.getElementById('nearMiss');
-                nearMissEl.classList.remove('show');
-                void nearMissEl.offsetWidth; // Trigger reflow
-                nearMissEl.classList.add('show');
+                const el = document.getElementById('nearMiss');
+                el.classList.remove('show');
+                void el.offsetWidth;
+                el.classList.add('show');
                 
-                // Screen shake
-                this.shakeIntensity = 5;
-                
-                // Check challenge
-                this.checkChallengeProgress('nearMiss', this.nearMissBonus);
-                
-                // Play sound (if we had audio)
-                // this.playSound('nearMiss');
+                this.shakeIntensity = 4;
+                playNearMissSound();
             },
             
-            // Secret Unlocks
-            checkSecretUnlocks() {
-                // Secret: Ninja Master - Pass 10 pipes without flapping
-                if (this.pipesPassedWithoutFlapping >= 10 && !this.secretUnlocks.includes('ninja_master')) {
-                    this.secretUnlocks.push('ninja_master');
-                    localStorage.setItem('flappybot_secrets', JSON.stringify(this.secretUnlocks));
-                    this.showUnlockNotification('🥷 SECRET UNLOCKED: Ninja Master!');
-                }
-                
-                // Secret: Perfect Run - Score 50 without any near misses
-                if (this.score >= 50 && this.nearMissBonus === 0 && !this.secretUnlocks.includes('perfect_run')) {
-                    this.secretUnlocks.push('perfect_run');
-                    localStorage.setItem('flappybot_secrets', JSON.stringify(this.secretUnlocks));
-                    this.showUnlockNotification('✨ SECRET UNLOCKED: Perfect Run!');
+            createParticles(x, y, count, color) {
+                for (let i = 0; i < count; i++) {
+                    this.particles.push({
+                        x: x, y: y,
+                        vx: (Math.random() - 0.5) * 4,
+                        vy: (Math.random() - 0.5) * 4,
+                        life: 1, color: color
+                    });
                 }
             },
             
-            // Leaderboard
-            openLeaderboard() {
-                this.updateLeaderboard();
-                document.getElementById('leaderboardModal').classList.add('show');
+            createCoinParticles() {
+                for (let i = 0; i < 5; i++) {
+                    this.particles.push({
+                        x: this.bird.x + 20,
+                        y: this.bird.y + 10,
+                        vx: (Math.random() - 0.3) * 3,
+                        vy: (Math.random() - 0.5) * 3,
+                        life: 1, color: '#FFD700'
+                    });
+                }
             },
             
-            closeLeaderboard() {
-                document.getElementById('leaderboardModal').classList.remove('show');
-            },
-            
-            updateLeaderboard() {
-                // Get weekly scores
-                const weekStart = this.getWeekStart();
-                const leaderboardKey = `flappybot_leaderboard_${weekStart}`;
-                let leaderboard = JSON.parse(localStorage.getItem(leaderboardKey)) || [];
+            draw() {
+                // Clear
+                ctx.fillStyle = '#000000';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
                 
-                // Add/update player's score
-                const playerEntry = leaderboard.find(e => e.isPlayer);
-                if (playerEntry) {
-                    playerEntry.score = Math.max(playerEntry.score, this.bestScore);
-                } else {
-                    leaderboard.push({ name: 'You', score: this.bestScore, isPlayer: true });
+                // Apply screen shake
+                ctx.save();
+                if (this.shakeIntensity > 0.5) {
+                    const dx = (Math.random() - 0.5) * this.shakeIntensity;
+                    const dy = (Math.random() - 0.5) * this.shakeIntensity;
+                    ctx.translate(dx, dy);
                 }
                 
-                // Sort by score
-                leaderboard.sort((a, b) => b.score - a.score);
+                // Draw stars
+                ctx.fillStyle = 'rgba(255,255,255,0.3)';
+                for (let i = 0; i < 50; i++) {
+                    const x = (i * 73 + this.frames * 0.5) % canvas.width;
+                    const y = (i * 37) % canvas.height;
+                    ctx.fillRect(x, y, 2, 2);
+                }
                 
-                // Keep top 10
-                leaderboard = leaderboard.slice(0, 10);
+                // Draw pipes
+                ctx.fillStyle = '#22C55E';
+                ctx.shadowColor = '#22C55E';
+                ctx.shadowBlur = 20;
+                for (const pipe of this.pipes) {
+                    ctx.fillRect(pipe.x, 0, pipe.width, pipe.topHeight);
+                    ctx.fillRect(pipe.x, pipe.bottomY, pipe.width, canvas.height - pipe.bottomY);
+                }
+                ctx.shadowBlur = 0;
                 
-                // Save
-                localStorage.setItem(leaderboardKey, JSON.stringify(leaderboard));
+                // Draw bird
+                ctx.save();
+                ctx.translate(this.bird.x + this.bird.width/2, this.bird.y + this.bird.height/2);
+                ctx.rotate(this.bird.rotation);
+                ctx.fillStyle = '#FFFFFF';
+                ctx.fillRect(-this.bird.width/2, -this.bird.height/2, this.bird.width, this.bird.height);
+                ctx.fillStyle = '#22C55E';
+                ctx.fillRect(-5, -8, 8, 8); // Eye
+                ctx.fillStyle = '#FFD700';
+                ctx.fillRect(5, 2, 10, 6); // Beak
+                ctx.restore();
                 
-                // Update UI
-                const list = document.getElementById('leaderboardList');
-                list.innerHTML = leaderboard.map((entry, i) => {
-                    const rankClass = i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
-                    const rankEmoji = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}.`;
-                    return `
-                        <div class="leaderboard-entry">
-                            <div class="leaderboard-rank ${rankClass}">${rankEmoji}</div>
-                            <div class="leaderboard-name">${entry.name}</div>
-                            <div class="leaderboard-score">${entry.score}</div>
-                        </div>
-                    `;
-                }).join('');
+                // Draw particles
+                for (const p of this.particles) {
+                    ctx.globalAlpha = p.life;
+                    ctx.fillStyle = p.color;
+                    ctx.fillRect(p.x, p.y, 4, 4);
+                }
+                ctx.globalAlpha = 1;
+                
+                ctx.restore();
             },
             
-            getWeekStart() {
-                const now = new Date();
-                const day = now.getDay();
-                const diff = now.getDate() - day + (day === 0 ? -6 : 1); // Monday start
-                const monday = new Date(now.setDate(diff));
-                monday.setHours(0, 0, 0, 0);
-                return monday.toDateString();
+            gameOver() {
+                this.state = 'gameover';
+                this.shakeIntensity = 15;
+                
+                if (this.score > this.bestScore) {
+                    this.bestScore = this.score;
+                    localStorage.setItem('flappybot_best', this.bestScore);
+                }
+                
+                document.getElementById('finalScore').textContent = this.score;
+                document.getElementById('finalBest').textContent = this.bestScore;
+                document.getElementById('finalScore').className = 'stats-value' + (this.score >= this.bestScore && this.score > 0 ? ' new-best' : '');
+                document.getElementById('gameOverScreen').style.display = 'flex';
+                document.getElementById('bestScore').textContent = this.bestScore;
+                
+                this.updateUnlocks();
             },
             
-            themeUnlocks: {
-                deepSpace: 0,
-                nebula: 10,
-                galaxy: 20,
-                sunset: 30,
-                matrix: 50,
-                aurora: 75,
-                volcano: 100,
-                cyber: 150
+            updateUnlocks() {
+                let newUnlocks = false;
+                
+                for (const [theme, required] of Object.entries(this.themeUnlocks)) {
+                    if (this.bestScore >= required && !this.unlockedThemes.includes(theme)) {
+                        this.unlockedThemes.push(theme);
+                        newUnlocks = true;
+                    }
+                }
+                
+                for (const [bot, required] of Object.entries(this.botUnlocks)) {
+                    if (this.bestScore >= required && !this.unlockedBots.includes(bot)) {
+                        this.unlockedBots.push(bot);
+                        newUnlocks = true;
+                    }
+                }
+                
+                if (newUnlocks) {
+                    localStorage.setItem('flappybot_unlockedThemes', JSON.stringify(this.unlockedThemes));
+                    localStorage.setItem('flappybot_unlockedBots', JSON.stringify(this.unlockedBots));
+                }
+                
+                this.updateSettingsUI();
             },
             
-            botUnlocks: {
-                classic: 0,
-                gold: 25,
-                neon: 40,
-                ninja: 60,
-                alien: 80
+            setTheme(theme) {
+                if (!this.unlockedThemes.includes(theme)) return;
+                this.currentTheme = theme;
+                localStorage.setItem('flappybot_theme', theme);
+                document.querySelectorAll('[data-theme]').forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.theme === theme);
+                });
+                this.updateStartScreenIndicators();
             },
             
-            trailUnlocks: {
-                none: 0,
-                coins: 5,
-                rainbow: 15,
-                fire: 35,
-                sparkles: 55,
-                bubbles: 90,
-                neon: 120
+            setBot(bot) {
+                if (!this.unlockedBots.includes(bot)) return;
+                this.currentBot = bot;
+                localStorage.setItem('flappybot_bot', bot);
+                document.querySelectorAll('[data-bot]').forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.bot === bot);
+                });
+                this.updateStartScreenIndicators();
+            },
+            
+            updateStartScreenIndicators() {
+                const botIcons = { classic: '🤖', gold: '🥇', neon: '🌈', ninja: '🥷' };
+                const themeIcons = { deepSpace: '🌌', nebula: '🌸', galaxy: '🌀', sunset: '🌅', matrix: '💻' };
+                document.getElementById('currentBotIcon').textContent = botIcons[this.currentBot] || '🤖';
+                document.getElementById('currentThemeIcon').textContent = themeIcons[this.currentTheme] || '🌌';
+            },
+            
+            updateSettingsUI() {
+                document.querySelectorAll('[data-bot]').forEach(btn => {
+                    const bot = btn.dataset.bot;
+                    btn.classList.toggle('locked', !this.unlockedBots.includes(bot));
+                    btn.classList.toggle('active', this.currentBot === bot);
+                });
+                document.querySelectorAll('[data-theme]').forEach(btn => {
+                    const theme = btn.dataset.theme;
+                    btn.classList.toggle('locked', !this.unlockedThemes.includes(theme));
+                    btn.classList.toggle('active', this.currentTheme === theme);
+                });
             },
             
             openSettings() {
                 document.getElementById('settingsModal').classList.add('show');
                 this.switchTab('bots');
-                this.updateSettingsUI();
             },
             
             closeSettings() {
                 document.getElementById('settingsModal').classList.remove('show');
             },
             
-            switchTab(tabName) {
-                // Update tab buttons
-                document.querySelectorAll('.tab-btn').forEach(btn => {
-                    btn.classList.remove('active');
-                    if (btn.dataset.tab === tabName) {
-                        btn.classList.add('active');
-                    }
-                });
-                
-                // Update tab content
-                document.querySelectorAll('.tab-content').forEach(content => {
-                    content.classList.remove('active');
-                });
-                document.getElementById(`tab-${tabName}`).classList.add('active');
-            },
-            
-            updateSettingsUI() {
-                // Update bot grid buttons
-                document.querySelectorAll('#tab-bots .grid-btn').forEach(btn => {
-                    const bot = btn.dataset.bot;
-                    btn.classList.remove('active', 'locked');
-                    
-                    if (this.unlockedBots.includes(bot)) {
-                        if (this.currentBot === bot) {
-                            btn.classList.add('active');
-                        }
-                    } else {
-                        btn.classList.add('locked');
-                    }
-                });
-                
-                // Update theme grid buttons
-                document.querySelectorAll('#tab-themes .grid-btn').forEach(btn => {
-                    const theme = btn.dataset.theme;
-                    btn.classList.remove('active', 'locked');
-                    
-                    if (this.unlockedThemes.includes(theme)) {
-                        if (this.currentTheme === theme) {
-                            btn.classList.add('active');
-                        }
-                    } else {
-                        btn.classList.add('locked');
-                    }
-                });
-                
-                // Update trail grid buttons
-                document.querySelectorAll('#tab-trails .grid-btn').forEach(btn => {
-                    const trail = btn.dataset.trail;
-                    btn.classList.remove('active', 'locked');
-                    
-                    if (this.unlockedTrails.includes(trail)) {
-                        if (this.currentTrail === trail) {
-                            btn.classList.add('active');
-                        }
-                    } else {
-                        btn.classList.add('locked');
-                    }
-                });
-            },
-            
-            updateUnlocks() {
-                // Check theme unlocks
-                for (const [theme, required] of Object.entries(this.themeUnlocks)) {
-                    if (this.bestScore >= required && !this.unlockedThemes.includes(theme)) {
-                        this.unlockedThemes.push(theme);
-                    }
-                }
-                
-                // Check bot unlocks
-                for (const [bot, required] of Object.entries(this.botUnlocks)) {
-                    if (this.bestScore >= required && !this.unlockedBots.includes(bot)) {
-                        this.unlockedBots.push(bot);
-                    }
-                }
-                
-                // Check trail unlocks
-                for (const [trail, required] of Object.entries(this.trailUnlocks)) {
-                    if (this.bestScore >= required && !this.unlockedTrails.includes(trail)) {
-                        this.unlockedTrails.push(trail);
-                    }
-                }
-                
-                // Save unlocks
-                localStorage.setItem('flappybot_unlockedThemes', JSON.stringify(this.unlockedThemes));
-                localStorage.setItem('flappybot_unlockedBots', JSON.stringify(this.unlockedBots));
-                localStorage.setItem('flappybot_unlockedTrails', JSON.stringify(this.unlockedTrails));
-                
-                // Update UI
-                this.updateUnlockUI();
-            },
-            
-            updateUnlockUI() {
-                // Update theme buttons
-                document.querySelectorAll('.theme-btn').forEach(btn => {
-                    const theme = btn.dataset.theme;
-                    const required = this.themeUnlocks[theme];
-                    if (this.unlockedThemes.includes(theme)) {
-                        btn.classList.remove('locked');
-                        btn.title = theme.charAt(0).toUpperCase() + theme.slice(1);
-                    } else {
-                        btn.classList.add('locked');
-                        btn.title = `Unlock at ${required} pts`;
-                    }
-                });
-                
-                // Update bot buttons
-                document.querySelectorAll('.bot-btn').forEach(btn => {
-                    const bot = btn.dataset.bot;
-                    const required = this.botUnlocks[bot];
-                    if (this.unlockedBots.includes(bot)) {
-                        btn.classList.remove('locked');
-                        btn.title = bot.charAt(0).toUpperCase() + bot.slice(1) + ' Bot';
-                    } else {
-                        btn.classList.add('locked');
-                        btn.title = `Unlock at ${required} pts`;
-                    }
-                });
-            },
-            
-            setTheme(themeName) {
-                // Check if unlocked
-                if (!this.unlockedThemes.includes(themeName)) {
-                    const required = this.themeUnlocks[themeName];
-                    alert(`Unlock ${themeName} by scoring ${required} points!`);
-                    return;
-                }
-                
-                this.currentTheme = themeName;
-                
-                // Update all theme buttons
-                document.querySelectorAll('[data-theme]').forEach(btn => {
-                    btn.classList.remove('active');
-                    if (btn.dataset.theme === themeName) {
-                        btn.classList.add('active');
-                    }
-                });
-                
-                // Save preference
-                localStorage.setItem('flappybot_theme', themeName);
-                
-                // Update start screen indicator
-                const themeIcons = {
-                    deepSpace: '🌌',
-                    nebula: '🌸',
-                    galaxy: '🌀',
-                    sunset: '🌅',
-                    matrix: '💻',
-                    aurora: '🌟',
-                    volcano: '🌋',
-                    cyber: '⚡'
-                };
-                const iconEl = document.getElementById('currentThemeIcon');
-                if (iconEl) {
-                    iconEl.textContent = themeIcons[themeName] || '🌌';
-                }
-            },
-            
-            setBot(botName) {
-                // Check if unlocked
-                if (!this.unlockedBots.includes(botName)) {
-                    const required = this.botUnlocks[botName];
-                    alert(`Unlock ${botName} bot by scoring ${required} points!`);
-                    return;
-                }
-                
-                this.currentBot = botName;
-                
-                // Update all bot buttons
-                document.querySelectorAll('[data-bot]').forEach(btn => {
-                    btn.classList.remove('active');
-                    if (btn.dataset.bot === botName) {
-                        btn.classList.add('active');
-                    }
-                });
-                
-                // Save preference
-                localStorage.setItem('flappybot_bot', botName);
-                
-                // Apply bot effects (color filters, etc.)
-                this.applyBotEffect(botName);
-                
-                // Update start screen indicator
-                const botIcons = {
-                    classic: '🤖',
-                    gold: '🥇',
-                    neon: '🌈',
-                    ninja: '🥷',
-                    alien: '👽'
-                };
-                const iconEl = document.getElementById('currentBotIcon');
-                if (iconEl) {
-                    iconEl.textContent = botIcons[botName] || '🤖';
-                }
-            },
-            
-            applyBotEffect(botName) {
-                // Bot effects will be applied during drawing
-                this.botEffect = botName;
-            },
-            
-            setTrail(trailName) {
-                // Check if unlocked
-                if (!this.unlockedTrails.includes(trailName)) {
-                    const required = this.trailUnlocks[trailName];
-                    alert(`Unlock ${trailName} trail by scoring ${required} points!`);
-                    return;
-                }
-                
-                this.currentTrail = trailName;
-                
-                // Update all trail buttons
-                document.querySelectorAll('[data-trail]').forEach(btn => {
-                    btn.classList.remove('active');
-                    if (btn.dataset.trail === trailName) {
-                        btn.classList.add('active');
-                    }
-                });
-                
-                // Save preference
-                localStorage.setItem('flappybot_trail', trailName);
-            },
-            
-            start() {
-                this.state = 'playing';
-                this.score = 0;
-                this.combo = 0;
-                this.frames = 0;
-                this.pipes = [];
-                this.particles = [];
-                this.bird.y = canvas.height / 2;
-                this.bird.velocity = 0;
-                this.bird.rotation = 0;
-                
-                // Reset addictive features
-                this.nearMissBonus = 0;
-                this.pipesPassedWithoutFlapping = 0;
-                this.gameStartTime = Date.now();
-                
-                document.getElementById('startScreen').style.display = 'none';
-                document.getElementById('gameOverScreen').style.display = 'none';
-                document.getElementById('scoreDisplay').textContent = '0';
-                document.getElementById('medal').className = 'medal';
-                document.getElementById('nearMiss').classList.remove('show');
-                
-                // Update mastery badge visibility
-                this.updateMasteryBadge();
-                
-                this.spawnPipe();
-            },
-            
-            flap() {
-                if (this.state === 'playing') {
-                    this.bird.velocity = FLAP_STRENGTH;
-                    this.createParticles(this.bird.x - 10, this.bird.y + 12, 5, '#22C55E');
-                    // Add coin trail particles
-                    this.createCoinTrail(3);
-                }
-            },
-            
-            createCoinTrail(count) {
-                const trailColors = {
-                    none: null,
-                    coins: '#FFD700',
-                    rainbow: `hsl(${(this.frames * 10) % 360}, 100%, 50%)`,
-                    fire: ['#FF4500', '#FF6347', '#FFA500'][Math.floor(Math.random() * 3)],
-                    sparkles: '#FFFFFF',
-                    bubbles: ['#00BFFF', '#87CEEB', '#ADD8E6'][Math.floor(Math.random() * 3)],
-                    neon: ['#FF00FF', '#00FFFF', '#39FF14'][Math.floor(Math.random() * 3)]
-                };
-                
-                const color = trailColors[this.currentTrail];
-                if (!color) return; // No trail
-                
-                for (let i = 0; i < count; i++) {
-                    const particle = {
-                        x: this.bird.x - 25 - i * 20,
-                        y: this.bird.y + 25 + (Math.random() - 0.5) * 15,
-                        vx: -3 - Math.random() * 3,
-                        vy: (Math.random() - 0.5) * 3,
-                        life: 1,
-                        color: color,
-                        size: 10 + Math.random() * 8,
-                        isCoin: true,
-                        hasTrail: true
-                    };
-                    
-                    // Special effects for different trails
-                    if (this.currentTrail === 'sparkles') {
-                        particle.size = 5 + Math.random() * 10;
-                        particle.twinkle = true;
-                    } else if (this.currentTrail === 'bubbles') {
-                        particle.vy = -1 - Math.random() * 2; // Float up
-                    } else if (this.currentTrail === 'neon') {
-                        particle.glow = true;
-                    }
-                    
-                    this.particles.push(particle);
-                }
-            },
-            
-            spawnPipe() {
-                const minHeight = 50;
-                const maxHeight = canvas.height - PIPE_GAP - minHeight - 100;
-                const topHeight = Math.random() * (maxHeight - minHeight) + minHeight;
-                
-                this.pipes.push({
-                    x: canvas.width,
-                    topHeight: topHeight,
-                    bottomY: topHeight + PIPE_GAP,
-                    width: 60,
-                    passed: false,
-                    color: Math.random() > 0.5 ? '#22C55E' : '#16A34A'
-                });
-            },
-            
-            createParticles(x, y, count, color) {
-                for (let i = 0; i < count; i++) {
-                    this.particles.push({
-                        x: x,
-                        y: y,
-                        vx: (Math.random() - 0.5) * 6,
-                        vy: (Math.random() - 0.5) * 6,
-                        life: 1,
-                        color: color,
-                        size: Math.random() * 6 + 3,
-                        glow: true
-                    });
-                }
-            },
-            
-            createCoinParticles(x, y) {
-                for (let i = 0; i < 10; i++) {
-                    this.particles.push({
-                        x: x,
-                        y: y,
-                        vx: (Math.random() - 0.5) * 8,
-                        vy: (Math.random() - 0.5) * 8 - 2,
-                        life: 1,
-                        color: '#FFD700',
-                        size: Math.random() * 6 + 4,
-                        isCoin: true
-                    });
-                }
-            },
-            
-            update() {
-                if (this.state !== 'playing') return;
-                
-                this.frames++;
-                
-                // Update bird
-                this.bird.velocity += GRAVITY;
-                this.bird.y += this.bird.velocity;
-                this.bird.rotation = Math.min(Math.PI / 4, Math.max(-Math.PI / 4, (this.bird.velocity * 0.1)));
-                this.bird.wingFrame = Math.floor(this.frames / 5) % 3;
-                
-                // Add coin trail during flight
-                if (this.frames % 10 === 0) {
-                    this.createCoinTrail(1);
-                }
-                
-                // Check ceiling collision only (no ground in space)
-                if (this.bird.y < 0) {
-                    this.gameOver();
-                    return;
-                }
-                
-                // Wrap around bottom (space has no ground)
-                if (this.bird.y > canvas.height) {
-                    this.bird.y = canvas.height;
-                    this.bird.velocity = 0;
-                }
-                
-                // Update pipes
-                if (this.frames % PIPE_SPAWN_RATE === 0) {
-                    this.spawnPipe();
-                }
-                
-                for (let i = this.pipes.length - 1; i >= 0; i--) {
-                    const pipe = this.pipes[i];
-                    pipe.x -= PIPE_SPEED;
-                    
-                    // Check collision
-                    if (this.bird.x + this.bird.width > pipe.x && 
-                        this.bird.x < pipe.x + pipe.width) {
-                        if (this.bird.y < pipe.topHeight || 
-                            this.bird.y + this.bird.height > pipe.bottomY) {
-                            this.gameOver();
-                            return;
-                        }
-                        
-                        // Check for near miss (only when passing through gap)
-                        this.checkNearMiss(pipe);
-                    }
-                    
-                    // Score point
-                    if (!pipe.passed && pipe.x + pipe.width < this.bird.x) {
-                        pipe.passed = true;
-                        this.score++;
-                        this.combo++;
-                        document.getElementById('scoreDisplay').textContent = this.score;
-                        this.createCoinParticles(pipe.x + pipe.width / 2, canvas.height / 2);
-                        
-                        // Show combo
-                        if (this.combo >= 5) {
-                            const comboDisplay = document.getElementById('comboDisplay');
-                            comboDisplay.textContent = '🔥 x' + this.combo;
-                            comboDisplay.classList.remove('show');
-                            void comboDisplay.offsetWidth;
-                            comboDisplay.classList.add('show');
-                        }
-                        
-                        // Update medal
-                        this.updateMedal();
-                    }
-                    
-                    // Remove off-screen pipes
-                    if (pipe.x + pipe.width < 0) {
-                        this.pipes.splice(i, 1);
-                    }
-                }
-                
-                // Update particles
-                for (let i = this.particles.length - 1; i >= 0; i--) {
-                    const p = this.particles[i];
-                    p.x += p.vx;
-                    p.y += p.vy;
-                    p.vy += 0.2;
-                    p.life -= 0.02;
-                    
-                    if (p.life <= 0) {
-                        this.particles.splice(i, 1);
-                    }
-                }
-                
-                // Update backgrounds
-                this.bgOffset -= 0.5;
-                this.groundOffset -= PIPE_SPEED;
-                if (this.groundOffset <= -24) this.groundOffset = 0;
-            },
-            
-            updateMedal() {
-                const medal = document.getElementById('medal');
-                if (this.score >= 50) {
-                    medal.className = 'medal platinum';
-                    medal.textContent = '💎';
-                } else if (this.score >= 30) {
-                    medal.className = 'medal gold';
-                    medal.textContent = '🥇';
-                } else if (this.score >= 15) {
-                    medal.className = 'medal silver';
-                    medal.textContent = '🥈';
-                } else if (this.score >= 5) {
-                    medal.className = 'medal bronze';
-                    medal.textContent = '🥉';
-                }
-            },
-            
-            draw() {
-                // Screen shake effect
-                let shakeX = 0, shakeY = 0;
-                if (this.shakeIntensity > 0) {
-                    shakeX = (Math.random() - 0.5) * this.shakeIntensity;
-                    shakeY = (Math.random() - 0.5) * this.shakeIntensity;
-                    this.shakeIntensity *= 0.9;
-                    if (this.shakeIntensity < 0.5) this.shakeIntensity = 0;
-                }
-                
-                ctx.save();
-                ctx.translate(shakeX, shakeY);
-                
-                // Clear canvas
-                ctx.clearRect(-shakeX, -shakeY, canvas.width, canvas.height);
-                
-                // Draw space background
-                this.drawSpace();
-                
-                // Draw green glowy aura barriers
-                for (const pipe of this.pipes) {
-                    // Strong glow effect for aura
-                    ctx.shadowBlur = 40;
-                    ctx.shadowColor = '#00E676';
-                    
-                    // Top aura bar - glowing green gradient
-                    const topGradient = ctx.createLinearGradient(pipe.x - 20, 0, pipe.x + pipe.width + 20, 0);
-                    topGradient.addColorStop(0, 'rgba(0, 230, 118, 0)');
-                    topGradient.addColorStop(0.3, 'rgba(0, 230, 118, 0.4)');
-                    topGradient.addColorStop(0.5, 'rgba(0, 230, 118, 0.8)');
-                    topGradient.addColorStop(0.7, 'rgba(0, 230, 118, 0.4)');
-                    topGradient.addColorStop(1, 'rgba(0, 230, 118, 0)');
-                    ctx.fillStyle = topGradient;
-                    ctx.fillRect(pipe.x - 30, 0, pipe.width + 60, pipe.topHeight);
-                    
-                    // Aura core - brighter center
-                    ctx.shadowBlur = 20;
-                    const coreGradient = ctx.createLinearGradient(pipe.x, 0, pipe.x + pipe.width, 0);
-                    coreGradient.addColorStop(0, 'rgba(0, 255, 150, 0.3)');
-                    coreGradient.addColorStop(0.5, 'rgba(0, 255, 150, 0.9)');
-                    coreGradient.addColorStop(1, 'rgba(0, 255, 150, 0.3)');
-                    ctx.fillStyle = coreGradient;
-                    ctx.fillRect(pipe.x, 0, pipe.width, pipe.topHeight);
-                    
-                    // Bottom aura bar
-                    ctx.shadowBlur = 40;
-                    ctx.fillStyle = topGradient;
-                    ctx.fillRect(pipe.x - 30, pipe.bottomY, pipe.width + 60, canvas.height - pipe.bottomY);
-                    
-                    // Bottom aura core
-                    ctx.shadowBlur = 20;
-                    ctx.fillStyle = coreGradient;
-                    ctx.fillRect(pipe.x, pipe.bottomY, pipe.width, canvas.height - pipe.bottomY);
-                    
-                    // Pulsing energy effect
-                    const pulseIntensity = Math.sin(this.frames * 0.1) * 0.3 + 0.7;
-                    ctx.fillStyle = `rgba(255, 255, 255, ${pulseIntensity * 0.5})`;
-                    ctx.fillRect(pipe.x + 10, 0, 5, pipe.topHeight);
-                    ctx.fillRect(pipe.x + 10, pipe.bottomY, 5, canvas.height - pipe.bottomY);
-                    
-                    ctx.shadowBlur = 0;
-                }
-                
-                // Draw particles with glow
-                for (const p of this.particles) {
-                    ctx.globalAlpha = p.life;
-                    if (p.glow) {
-                        ctx.shadowBlur = 10;
-                        ctx.shadowColor = p.color;
-                    }
-                    if (p.isCoin) {
-                        // Motion blur trail for coins
-                        if (p.hasTrail) {
-                            const trailGradient = ctx.createLinearGradient(p.x + p.size, p.y, p.x - p.size * 2, p.y);
-                            trailGradient.addColorStop(0, 'rgba(255, 215, 0, 0.6)');
-                            trailGradient.addColorStop(1, 'rgba(255, 215, 0, 0)');
-                            ctx.fillStyle = trailGradient;
-                            ctx.beginPath();
-                            ctx.ellipse(p.x - p.size, p.y, p.size * 1.5, p.size * 0.6, 0, 0, Math.PI * 2);
-                            ctx.fill();
-                        }
-                        // Coin body with 3D gradient
-                        const coinGradient = ctx.createRadialGradient(p.x - 2, p.y - 2, 1, p.x, p.y, p.size);
-                        coinGradient.addColorStop(0, '#FFECB3');
-                        coinGradient.addColorStop(0.4, '#FFD700');
-                        coinGradient.addColorStop(1, '#FFA000');
-                        ctx.fillStyle = coinGradient;
-                        ctx.beginPath();
-                        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                        ctx.fill();
-                        // Coin border
-                        ctx.strokeStyle = '#FF8F00';
-                        ctx.lineWidth = 2;
-                        ctx.stroke();
-                        // Coin highlight
-                        ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
-                        ctx.beginPath();
-                        ctx.arc(p.x - 3, p.y - 3, p.size * 0.3, 0, Math.PI * 2);
-                        ctx.fill();
-                    } else {
-                        ctx.fillStyle = p.color;
-                        ctx.beginPath();
-                        ctx.arc(p.x, p.y, p.size / 2, 0, Math.PI * 2);
-                        ctx.fill();
-                    }
-                    ctx.shadowBlur = 0;
-                    ctx.globalAlpha = 1;
-                }
-                
-                // Draw MoneyBot character using Gemini-generated sprite
-                ctx.save();
-                ctx.translate(this.bird.x + this.bird.width / 2, this.bird.y + this.bird.height / 2);
-                ctx.rotate(this.bird.rotation * 0.3);
-                
-                if (this.playerImageLoaded && this.playerImage.width > 0) {
-                    // Wider, less tall character
-                    const imgWidth = 110;
-                    const imgHeight = 85;
-                    ctx.drawImage(this.playerImage, -imgWidth/2, -imgHeight/2, imgWidth, imgHeight);
-                }
-                
-                ctx.restore();
-                
-                // End screen shake
-                ctx.restore();
-            },
-            
-            drawSpace() {
-                const themes = {
-                    deepSpace: () => {
-                        // Pure black with white stars
-                        ctx.fillStyle = '#000000';
-                        ctx.fillRect(0, 0, canvas.width, canvas.height);
-                        this.drawStars('#FFFFFF');
-                        this.drawPlanets(['#FFD700', '#FF6B6B', '#4ECDC4']);
-                    },
-                    nebula: () => {
-                        // Purple/pink nebula background
-                        const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-                        gradient.addColorStop(0, '#0a001a');
-                        gradient.addColorStop(0.5, '#1a0a2e');
-                        gradient.addColorStop(1, '#2d1b4e');
-                        ctx.fillStyle = gradient;
-                        ctx.fillRect(0, 0, canvas.width, canvas.height);
-                        
-                        // Nebula clouds
-                        this.drawNebulaClouds();
-                        this.drawStars('#FFE4E1');
-                        this.drawPlanets(['#FF69B4', '#9370DB', '#00CED1']);
-                    },
-                    galaxy: () => {
-                        // Blue spiral galaxy theme
-                        const gradient = ctx.createRadialGradient(canvas.width/2, canvas.height/2, 0, canvas.width/2, canvas.height/2, canvas.width);
-                        gradient.addColorStop(0, '#0a1628');
-                        gradient.addColorStop(0.5, '#1a3a5c');
-                        gradient.addColorStop(1, '#000000');
-                        ctx.fillStyle = gradient;
-                        ctx.fillRect(0, 0, canvas.width, canvas.height);
-                        
-                        this.drawGalaxySpiral();
-                        this.drawStars('#E0F7FA');
-                        this.drawPlanets(['#4169E1', '#00BFFF', '#87CEEB']);
-                    },
-                    sunset: () => {
-                        // Orange/red sunset space
-                        const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-                        gradient.addColorStop(0, '#2d1810');
-                        gradient.addColorStop(0.5, '#4a2512');
-                        gradient.addColorStop(1, '#1a0f0a');
-                        ctx.fillStyle = gradient;
-                        ctx.fillRect(0, 0, canvas.width, canvas.height);
-                        
-                        this.drawStars('#FFD700');
-                        this.drawPlanets(['#FF4500', '#FF6347', '#FFA500']);
-                    },
-                    matrix: () => {
-                        // Green digital rain theme
-                        ctx.fillStyle = '#000500';
-                        ctx.fillRect(0, 0, canvas.width, canvas.height);
-                        
-                        this.drawMatrixRain();
-                        this.drawStars('#00FF41');
-                        this.drawPlanets(['#00FF00', '#32CD32', '#90EE90']);
-                    }
-                };
-                
-                // Use current theme or default to deepSpace
-                const currentTheme = this.currentTheme || 'deepSpace';
-                if (themes[currentTheme]) {
-                    themes[currentTheme]();
-                } else {
-                    themes.deepSpace();
-                }
-            },
-            
-            drawNebulaClouds() {
-                const nebulaOffset = (this.frames * 0.1) % canvas.width;
-                const nebulas = [
-                    { x: 200 - nebulaOffset, y: 200, color: 'rgba(138, 43, 226, 0.3)', size: 150 },
-                    { x: 600 - nebulaOffset, y: 400, color: 'rgba(255, 20, 147, 0.2)', size: 200 },
-                    { x: 1000 - nebulaOffset, y: 150, color: 'rgba(75, 0, 130, 0.25)', size: 180 },
-                ];
-                
-                for (const nebula of nebulas) {
-                    const gradient = ctx.createRadialGradient(nebula.x, nebula.y, 0, nebula.x, nebula.y, nebula.size);
-                    gradient.addColorStop(0, nebula.color);
-                    gradient.addColorStop(1, 'transparent');
-                    ctx.fillStyle = gradient;
-                    ctx.beginPath();
-                    ctx.arc(nebula.x, nebula.y, nebula.size, 0, Math.PI * 2);
-                    ctx.fill();
-                }
-            },
-            
-            drawGalaxySpiral() {
-                const centerX = canvas.width / 2;
-                const centerY = canvas.height / 2;
-                ctx.save();
-                ctx.translate(centerX, centerY);
-                ctx.rotate(this.frames * 0.002);
-                
-                // Draw spiral arms
-                for (let arm = 0; arm < 3; arm++) {
-                    ctx.rotate((Math.PI * 2) / 3);
-                    ctx.strokeStyle = 'rgba(100, 149, 237, 0.3)';
-                    ctx.lineWidth = 20;
-                    ctx.beginPath();
-                    for (let i = 0; i < 100; i++) {
-                        const angle = i * 0.1;
-                        const radius = i * 3;
-                        const x = Math.cos(angle) * radius;
-                        const y = Math.sin(angle) * radius;
-                        if (i === 0) ctx.moveTo(x, y);
-                        else ctx.lineTo(x, y);
-                    }
-                    ctx.stroke();
-                }
-                ctx.restore();
-            },
-            
-            drawMatrixRain() {
-                if (!this.matrixDrops) {
-                    this.matrixDrops = [];
-                    for (let i = 0; i < 30; i++) {
-                        this.matrixDrops.push({
-                            x: Math.random() * canvas.width,
-                            y: Math.random() * canvas.height,
-                            speed: 2 + Math.random() * 3,
-                            length: 10 + Math.random() * 20
-                        });
-                    }
-                }
-                
-                ctx.fillStyle = '#00FF41';
-                ctx.font = '14px monospace';
-                for (const drop of this.matrixDrops) {
-                    const char = String.fromCharCode(0x30A0 + Math.random() * 96);
-                    ctx.fillText(char, drop.x, drop.y);
-                    drop.y += drop.speed;
-                    if (drop.y > canvas.height) {
-                        drop.y = -20;
-                        drop.x = Math.random() * canvas.width;
-                    }
-                }
-            },
-            
-            drawStars(color = '#FFFFFF') {
-                // Twinkling stars
-                const starOffset = (this.frames * 0.2) % canvas.width;
-                
-                // Static stars
-                ctx.fillStyle = color;
-                for (let i = 0; i < 100; i++) {
-                    const x = (i * 137.5 + starOffset) % canvas.width;
-                    const y = (i * 73.3) % canvas.height;
-                    const size = (i % 3) + 1;
-                    const twinkle = Math.sin(this.frames * 0.1 + i) * 0.5 + 0.5;
-                    ctx.globalAlpha = 0.3 + twinkle * 0.7;
-                    ctx.beginPath();
-                    ctx.arc(x, y, size, 0, Math.PI * 2);
-                    ctx.fill();
-                }
-                ctx.globalAlpha = 1;
-                
-                // Shooting stars
-                if (this.frames % 200 === 0) {
-                    this.shootingStar = {
-                        x: Math.random() * canvas.width,
-                        y: Math.random() * canvas.height * 0.5,
-                        vx: -5 - Math.random() * 5,
-                        vy: 2 + Math.random() * 2,
-                        life: 30
-                    };
-                }
-                
-                if (this.shootingStar && this.shootingStar.life > 0) {
-                    ctx.strokeStyle = color;
-                    ctx.lineWidth = 2;
-                    ctx.beginPath();
-                    ctx.moveTo(this.shootingStar.x, this.shootingStar.y);
-                    ctx.lineTo(this.shootingStar.x - this.shootingStar.vx * 5, this.shootingStar.y - this.shootingStar.vy * 5);
-                    ctx.stroke();
-                    
-                    this.shootingStar.x += this.shootingStar.vx;
-                    this.shootingStar.y += this.shootingStar.vy;
-                    this.shootingStar.life--;
-                }
-            },
-            
-            drawNebula() {
-                // Purple/pink nebula clouds
-                const nebulaOffset = (this.frames * 0.1) % canvas.width;
-                
-                const nebulas = [
-                    { x: 200 - nebulaOffset, y: 200, color: 'rgba(138, 43, 226, 0.3)', size: 150 },
-                    { x: 600 - nebulaOffset, y: 400, color: 'rgba(255, 20, 147, 0.2)', size: 200 },
-                    { x: 1000 - nebulaOffset, y: 150, color: 'rgba(75, 0, 130, 0.25)', size: 180 },
-                    { x: canvas.width + 200 - nebulaOffset, y: 200, color: 'rgba(138, 43, 226, 0.3)', size: 150 },
-                    { x: canvas.width + 600 - nebulaOffset, y: 400, color: 'rgba(255, 20, 147, 0.2)', size: 200 },
-                ];
-                
-                for (const nebula of nebulas) {
-                    const gradient = ctx.createRadialGradient(nebula.x, nebula.y, 0, nebula.x, nebula.y, nebula.size);
-                    gradient.addColorStop(0, nebula.color);
-                    gradient.addColorStop(1, 'transparent');
-                    ctx.fillStyle = gradient;
-                    ctx.beginPath();
-                    ctx.arc(nebula.x, nebula.y, nebula.size, 0, Math.PI * 2);
-                    ctx.fill();
-                }
-            },
-            
-            drawPlanets(colors = ['#FFD700', '#FF6B6B', '#4ECDC4']) {
-                const planetOffset = (this.frames * 0.05) % canvas.width;
-                
-                // Planet 1 - Saturn-like with customizable color
-                const saturnX = 150 - planetOffset;
-                const saturnY = 120;
-                const saturnGradient = ctx.createRadialGradient(saturnX - 20, saturnY - 20, 0, saturnX, saturnY, 40);
-                saturnGradient.addColorStop(0, colors[0]);
-                saturnGradient.addColorStop(0.5, colors[0]);
-                saturnGradient.addColorStop(1, colors[0]);
-                ctx.fillStyle = saturnGradient;
-                ctx.beginPath();
-                ctx.arc(saturnX, saturnY, 35, 0, Math.PI * 2);
-                ctx.fill();
-                
-                // Rings
-                ctx.strokeStyle = colors[0] + '99'; // Add transparency
-                ctx.lineWidth = 8;
-                ctx.beginPath();
-                ctx.ellipse(saturnX, saturnY, 60, 20, Math.PI / 6, 0, Math.PI * 2);
-                ctx.stroke();
-                
-                // Planet 2
-                const blueX = canvas.width - 100 - planetOffset;
-                const blueY = canvas.height - 200;
-                const blueGradient = ctx.createRadialGradient(blueX - 15, blueY - 15, 0, blueX, blueY, 30);
-                blueGradient.addColorStop(0, colors[1]);
-                blueGradient.addColorStop(0.5, colors[1]);
-                blueGradient.addColorStop(1, colors[1]);
-                ctx.fillStyle = blueGradient;
-                ctx.beginPath();
-                ctx.arc(blueX, blueY, 25, 0, Math.PI * 2);
-                ctx.fill();
-                
-                // Wrap around planets
-                if (saturnX < -100) {
-                    const wrapX = saturnX + canvas.width + 200;
-                    ctx.fillStyle = saturnGradient;
-                    ctx.beginPath();
-                    ctx.arc(wrapX, saturnY, 35, 0, Math.PI * 2);
-                    ctx.fill();
-                    ctx.strokeStyle = colors[0] + '99';
-                    ctx.lineWidth = 8;
-                    ctx.beginPath();
-                    ctx.ellipse(wrapX, saturnY, 60, 20, Math.PI / 6, 0, Math.PI * 2);
-                    ctx.stroke();
-                }
-            },
-            
-            gameOver() {
-                this.state = 'gameover';
-                this.shakeIntensity = 20; // Screen shake on death
-                
-                // Check for new unlocks based on this game's score
-                const prevBest = this.bestScore;
-                
-                // Create explosion particles
-                this.createParticles(this.bird.x, this.bird.y, 30, '#FF4444');
-                this.createParticles(this.bird.x, this.bird.y, 20, '#FFD700');
-                
-                // Update best score
-                if (this.score > this.bestScore) {
-                    this.bestScore = this.score;
-                    localStorage.setItem('flappybot_best', this.bestScore);
-                }
-                
-                // Update mastery rank for current theme
-                this.updateMasteryRank(this.currentTheme, this.bestScore);
-                
-                // Check daily challenge
-                this.checkChallengeProgress('score', this.score);
-                
-                // Check secret unlocks
-                this.checkSecretUnlocks();
-                
-                // Show game over screen
-                document.getElementById('finalScore').textContent = this.score;
-                document.getElementById('finalBest').textContent = this.bestScore;
-                
-                if (this.score >= this.bestScore && this.score > 0) {
-                    document.getElementById('finalScore').classList.add('new-best');
-                } else {
-                    document.getElementById('finalScore').classList.remove('new-best');
-                }
-                
-                document.getElementById('gameOverScreen').style.display = 'flex';
-                document.getElementById('bestScore').textContent = this.bestScore;
-                
-                // Check for new unlocks
-                this.updateUnlocks();
-                
-                // Show unlock notification if something new was unlocked
-                if (this.bestScore > prevBest) {
-                    this.checkNewUnlocks(prevBest, this.bestScore);
-                }
-                
-                // Update leaderboard
-                this.updateLeaderboard();
-            },
-            
-            checkNewUnlocks(oldScore, newScore) {
-                const newThemes = [];
-                const newBots = [];
-                
-                for (const [theme, required] of Object.entries(this.themeUnlocks)) {
-                    if (oldScore < required && newScore >= required) {
-                        newThemes.push(theme);
-                    }
-                }
-                
-                for (const [bot, required] of Object.entries(this.botUnlocks)) {
-                    if (oldScore < required && newScore >= required) {
-                        newBots.push(bot);
-                    }
-                }
-                
-                const newTrails = [];
-                for (const [trail, required] of Object.entries(this.trailUnlocks)) {
-                    if (oldScore < required && newScore >= required) {
-                        newTrails.push(trail);
-                    }
-                }
-                
-                if (newThemes.length > 0 || newBots.length > 0 || newTrails.length > 0) {
-                    let message = '🎉 NEW UNLOCKS! 🎉\n\n';
-                    if (newThemes.length > 0) {
-                        message += 'Themes: ' + newThemes.join(', ') + '\n';
-                    }
-                    if (newBots.length > 0) {
-                        message += 'Bots: ' + newBots.join(', ') + '\n';
-                    }
-                    if (newTrails.length > 0) {
-                        message += 'Trails: ' + newTrails.join(', ') + '\n';
-                    }
-                    setTimeout(() => alert(message), 500);
-                }
-            },
-            
-            restart() {
-                document.getElementById('gameOverScreen').style.display = 'none';
-                
-                // Reset addictive features
-                this.nearMissBonus = 0;
-                this.pipesPassedWithoutFlapping = 0;
-                
-                this.start();
-            },
-            
-            share() {
-                const text = `I scored ${this.score} in FlappyBot! Can you beat me? 🐦💰`;
-                if (navigator.share) {
-                    navigator.share({
-                        title: 'FlappyBot',
-                        text: text,
-                        url: window.location.href
-                    });
-                } else {
-                    navigator.clipboard.writeText(text + ' ' + window.location.href);
-                    alert('Score copied to clipboard!');
-                }
+            switchTab(tab) {
+                document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.tab === tab));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.toggle('active', c.id === 'tab-' + tab));
             },
             
             loop() {
@@ -2368,7 +545,6 @@
             }
         };
         
-        // Initialize game
         game.init();
     </script>
 </body>
