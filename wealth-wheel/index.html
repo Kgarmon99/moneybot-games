@@ -8,30 +8,30 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: manipulation; user-select: none; }
-        :root { --moneybot-dark: #0F172A; --moneybot-green: #22C55E; --moneybot-neon-light: #33FFB5; --moneybot-graphite: #0F172A; --moneybot-charcoal: #1E293B; --moneybot-white: #FFFFFF; --moneybot-gray: #888888; --moneybot-blue: #3B82F6; --moneybot-purple: #8B5CF6; --moneybot-gold: #FBBF24; --moneybot-red: #EF4444; --glow-neon: 0 0 10px #22C55E, 0 0 20px #22C55E; --glow-strong: 0 0 20px #22C55E, 0 0 40px #22C55E; }
+        :root { --moneybot-dark: #FFFFFF; --moneybot-green: #22C55E; --moneybot-neon-light: #33FFB5; --moneybot-graphite: #FFFFFF; --moneybot-charcoal: #F8FAFC; --moneybot-white: #FFFFFF; --moneybot-gray: #888888; --moneybot-blue: #3B82F6; --moneybot-purple: #8B5CF6; --moneybot-gold: #FBBF24; --moneybot-red: #EF4444; --glow-neon: 0 0 10px #22C55E, 0 0 20px #22C55E; --glow-strong: 0 0 20px #22C55E, 0 0 40px #22C55E; }
         body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--moneybot-black); min-height: 100vh; overflow: hidden; }
         body::before { content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-image: linear-gradient(rgba(0, 255, 153, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 255, 153, 0.03) 1px, transparent 1px); background-size: 80px 80px; pointer-events: none; z-index: 0; }
         body::after { content: ''; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 600px; height: 600px; background: radial-gradient(circle, rgba(0, 255, 153, 0.08) 0%, transparent 70%); pointer-events: none; z-index: 0; animation: pulse 4s ease-in-out infinite; }
         @keyframes pulse { 0%, 100% { opacity: 0.3; transform: translate(-50%, -50%) scale(1); } 50% { opacity: 0.6; transform: translate(-50%, -50%) scale(1.2); } }
         .app { max-width: 430px; margin: 0 auto; min-height: 100vh; position: relative; z-index: 1; display: flex; flex-direction: column; }
-        .header { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(20px); padding: 16px; display: flex; justify-content: space-between; align-items: center; z-index: 100; border-bottom: 1px solid rgba(34, 197, 94, 0.2); }
+        .header { background: rgba(0, 0, 0, 0.05); backdrop-filter: blur(20px); padding: 16px; display: flex; justify-content: space-between; align-items: center; z-index: 100; border-bottom: 1px solid rgba(34, 197, 94, 0.2); }
         .header-logo { display: flex; align-items: center; gap: 12px; }
         .moneybot-brand { display: flex; align-items: center; gap: 8px; }
         .moneybot-icon { width: 32px; height: 32px; background: linear-gradient(135deg, var(--moneybot-neon), var(--moneybot-blue)); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; box-shadow: var(--glow-neon); }
         .back-btn { width: 44px; height: 44px; border-radius: 8px; background: rgba(34, 197, 94, 0.2); border: none; color: var(--moneybot-neon); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 20px; text-decoration: none; transition: all 0.2s; }
         .back-btn:hover { background: rgba(34, 197, 94, 0.2); transform: scale(1.05); }
         .back-btn:active { transform: scale(0.95); }
-        .header-title { font-weight: 800; font-size: 18px; color: var(--moneybot-white); }
+        .header-title { font-weight: 800; font-size: 18px; color: #0F172A; }
         .score-pill { background: linear-gradient(135deg, var(--moneybot-neon), var(--moneybot-blue)); color: var(--moneybot-black); padding: 10px 20px; border-radius: 25px; font-weight: 700; font-size: 16px; box-shadow: var(--glow-neon); }
         .game-area { flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px; }
-        #gameCanvas { background: var(--moneybot-graphite); border-radius: 16px; box-shadow: var(--glow-neon); }
+        #gameCanvas { background: #FFFFFF; border-radius: 16px; box-shadow: var(--glow-neon); }
         .overlay-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.95); backdrop-filter: blur(20px); z-index: 200; padding: 40px; }
         .overlay-screen.hidden { display: none; }
         .game-icon { width: 80px; height: 80px; background: linear-gradient(135deg, var(--moneybot-neon), var(--moneybot-blue)); border-radius: 32px; display: flex; align-items: center; justify-content: center; font-size: 40px; margin-bottom: 30px; box-shadow: var(--glow-strong); animation: spin 3s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .game-title { font-size: 40px; font-weight: 800; color: var(--moneybot-white); margin-bottom: 12px; }
+        .game-title { font-size: 40px; font-weight: 800; color: #0F172A; margin-bottom: 12px; }
         .game-subtitle { color: var(--moneybot-gray); font-size: 17px; margin-bottom: 40px; text-align: center; }
-        .stats-card { background: var(--moneybot-graphite); border-radius: 16px; padding: 24px 40px; margin-bottom: 30px; text-align: center; border: 1px solid rgba(34, 197, 94, 0.2); }
+        .stats-card { background: #FFFFFF; border-radius: 16px; padding: 24px 40px; margin-bottom: 30px; text-align: center; border: 1px solid rgba(34, 197, 94, 0.2); }
         .stats-label { font-size: 13px; color: var(--moneybot-gray); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
         .stats-value { font-size: 40px; font-weight: 800; color: var(--moneybot-neon); }
         .primary-btn { background: linear-gradient(135deg, var(--moneybot-neon), var(--moneybot-blue)); color: var(--moneybot-black); border: none; padding: 16px 32px; font-size: 18px; font-weight: 700; border-radius: 16px; cursor: pointer; box-shadow: var(--glow-neon); transition: all 0.3s; width: 100%; max-width: 280px; }
@@ -130,7 +130,7 @@
             }
         }
         function draw() {
-            ctx.fillStyle = '#0F172A';
+            ctx.fillStyle = '#FFFFFF';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             const centerX = canvas.width / 2;
             const centerY = canvas.height / 2;
@@ -145,13 +145,13 @@
                 ctx.arc(0, 0, radius, i * sliceAngle, (i + 1) * sliceAngle);
                 ctx.fillStyle = prize.color;
                 ctx.fill();
-                ctx.strokeStyle = '#0F172A';
+                ctx.strokeStyle = '#FFFFFF';
                 ctx.lineWidth = 3;
                 ctx.stroke();
                 ctx.save();
                 ctx.rotate(i * sliceAngle + sliceAngle / 2);
                 ctx.textAlign = 'right';
-                ctx.fillStyle = '#0F172A';
+                ctx.fillStyle = '#FFFFFF';
                 ctx.font = 'bold 16px Inter';
                 ctx.fillText(prize.label, radius - 20, 5);
                 ctx.restore();
@@ -161,10 +161,10 @@
             ctx.arc(centerX, centerY, 30, 0, Math.PI * 2);
             ctx.fillStyle = '#22C55E';
             ctx.fill();
-            ctx.strokeStyle = '#0F172A';
+            ctx.strokeStyle = '#FFFFFF';
             ctx.lineWidth = 3;
             ctx.stroke();
-            ctx.fillStyle = '#0F172A';
+            ctx.fillStyle = '#FFFFFF';
             ctx.font = 'bold 14px Inter';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';

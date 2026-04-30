@@ -111,7 +111,7 @@
         
         .score-display {
             background: linear-gradient(135deg, var(--moneybot-green), var(--moneybot-green-dark));
-            color: white;
+            color: #0F172A;
             padding: 8px 16px;
             border-radius: 16px;
             font-weight: 700;
@@ -237,7 +237,7 @@
         .title {
             font-size: 32px;
             font-weight: 800;
-            color: white;
+            color: #0F172A;
             margin-bottom: 10px;
         }
         
@@ -251,7 +251,7 @@
         
         .start-btn {
             background: linear-gradient(135deg, var(--moneybot-green), var(--moneybot-green-dark));
-            color: white;
+            color: #0F172A;
             border: none;
             padding: 16px 32px;
             font-size: 20px;
@@ -369,11 +369,11 @@
         
         function draw() {
             // Clear board
-            ctx.fillStyle = '#0F172A';
+            ctx.fillStyle = '#FFFFFF';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
             // Draw grid lines
-            ctx.strokeStyle = '#1E293B';
+            ctx.strokeStyle = '#F8FAFC';
             ctx.lineWidth = 1;
             for (let i = 0; i <= COLS; i++) {
                 ctx.beginPath();

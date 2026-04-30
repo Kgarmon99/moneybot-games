@@ -20,11 +20,11 @@
         
         :root {
             /* MoneyBot Brand System */
-            --moneybot-dark: #0F172A;
+            --moneybot-dark: #FFFFFF;
             --moneybot-green: #22C55E;
             --moneybot-neon-light: #33FFB5;
-            --moneybot-graphite: #0F172A;
-            --moneybot-charcoal: #1E293B;
+            --moneybot-graphite: #FFFFFF;
+            --moneybot-charcoal: #F8FAFC;
             --moneybot-white: #FFFFFF;
             --moneybot-gray: #888888;
             --moneybot-blue: #3B82F6;
@@ -39,7 +39,7 @@
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             background: var(--moneybot-black);
             min-height: 100vh;
-            color: var(--moneybot-white);
+            color: #0F172A;
         }
         
         /* MoneyBot Brand System - Black dominates, Neon green is earned */
@@ -86,7 +86,7 @@
         
         /* Header - Glass panel effect */
         .header {
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(0, 0, 0, 0.05);
             backdrop-filter: blur(20px);
             padding: 16px 24px;
             display: flex;
@@ -120,7 +120,7 @@
         .logo-text {
             font-weight: 800;
             font-size: 1.5rem;
-            background: linear-gradient(135deg, var(--moneybot-white) 0%, var(--moneybot-neon) 100%);
+            background: linear-gradient(135deg, #0F172A 0%, var(--moneybot-neon) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
@@ -172,7 +172,7 @@
         .welcome-title {
             font-size: 2.5rem;
             font-weight: 800;
-            background: linear-gradient(135deg, var(--moneybot-white) 0%, var(--moneybot-neon) 100%);
+            background: linear-gradient(135deg, #0F172A 0%, var(--moneybot-neon) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             margin-bottom: 12px;
@@ -193,7 +193,7 @@
             font-size: 1.125rem;
             font-weight: 700;
             margin-bottom: 16px;
-            color: var(--moneybot-white);
+            color: #0F172A;
         }
         
         .actions-grid {
@@ -218,7 +218,7 @@
         
         .action-card.primary {
             background: var(--moneybot-green);
-            color: white;
+            color: #0F172A;
         }
         
         .action-card.primary:hover {
@@ -283,11 +283,11 @@
         
         /* Game cards - Graphite base, neon on hover */
         .game-card {
-            background: var(--moneybot-graphite);
+            background: #FFFFFF;
             border-radius: 16px;
             overflow: hidden;
             transition: all 0.2s;
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 0, 0, 0.05);
         }
         
         .game-card:hover {
@@ -300,7 +300,7 @@
             height: 140px;
             position: relative;
             overflow: hidden;
-            background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+            background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -346,7 +346,7 @@
             top: 12px;
             right: 12px;
             background: var(--moneybot-green);
-            color: white;
+            color: #0F172A;
             padding: 4px 10px;
             border-radius: 16px;
             font-size: 0.6875rem;
@@ -362,7 +362,7 @@
             font-weight: 700;
             font-size: 1rem;
             margin-bottom: 6px;
-            color: var(--moneybot-white);
+            color: #0F172A;
         }
         
         .game-desc {
@@ -507,7 +507,7 @@
             <div class="logo-text">MoneyBot Gaming</div>
         </div>
         <div class="user-menu">
-            <div class="stat-badge coins" style="background: var(--moneybot-charcoal); border: 1px solid var(--moneybot-neon); color: var(--moneybot-neon);">
+            <div class="stat-badge coins" style="background: #F1F5F9; border: 1px solid var(--moneybot-neon); color: var(--moneybot-neon);">
                 <span>🪙</span>
                 <span id="totalCoins">0</span>
             </div>
@@ -538,7 +538,7 @@
             <div class="games-grid">
                 <!-- FEATURED GAME: Budget Slice -->
                 <div class="game-card" style="grid-column: 1 / -1; border: 2px solid var(--moneybot-green);">
-                    <div class="game-preview" style="height: 160px; background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);">
+                    <div class="game-preview" style="height: 160px; background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%);">
                         <img src="assets/thumbnails/debt-destroyer.svg" class="game-thumbnail" style="font-size: 80px;" style="width: 80px; height: 80px; object-fit: contain;" />
                         <span class="game-badge" style="background: linear-gradient(135deg, #FBBF24, #D97706); font-size: 12px; padding: 6px 14px;">⭐ FEATURED</span>
                     </div>
