@@ -355,7 +355,7 @@
             init() {
                 // Load player image
                 this.playerImage = new Image();
-                this.playerImage.src = 'assets/player.png';
+                this.playerImage.src = 'assets/player-new.png';
                 this.playerImage.onload = () => {
                     this.playerImageLoaded = true;
                 };
@@ -714,148 +714,15 @@
                     ctx.globalAlpha = 1;
                 }
                 
-                // Draw MoneyBot character - Enhanced 3D-style white robot
+                // Draw MoneyBot character using Gemini-generated sprite
                 ctx.save();
                 ctx.translate(this.bird.x + this.bird.width / 2, this.bird.y + this.bird.height / 2);
                 ctx.rotate(this.bird.rotation * 0.3);
                 
-                const scale = 0.55;
-                ctx.scale(scale, scale);
-                
-                // Drop shadow
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
-                ctx.beginPath();
-                ctx.ellipse(5, 55, 30, 15, 0, 0, Math.PI * 2);
-                ctx.fill();
-                
-                // Robot body (rounded pear shape with 3D gradient)
-                const bodyGradient = ctx.createRadialGradient(-10, 15, 5, 0, 25, 45);
-                bodyGradient.addColorStop(0, '#FFFFFF');
-                bodyGradient.addColorStop(0.5, '#F0F0F0');
-                bodyGradient.addColorStop(1, '#D0D0D0');
-                ctx.fillStyle = bodyGradient;
-                ctx.beginPath();
-                ctx.moveTo(-25, 5);
-                ctx.bezierCurveTo(-35, 5, -40, 20, -40, 35);
-                ctx.bezierCurveTo(-40, 60, -20, 70, 0, 70);
-                ctx.bezierCurveTo(20, 70, 40, 60, 40, 35);
-                ctx.bezierCurveTo(40, 15, 30, 5, 15, 5);
-                ctx.closePath();
-                ctx.fill();
-                
-                // Body highlight (3D shine)
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
-                ctx.beginPath();
-                ctx.ellipse(-12, 20, 12, 20, -0.3, 0, Math.PI * 2);
-                ctx.fill();
-                
-                // Gray arm/wing (3D styled)
-                const armGradient = ctx.createLinearGradient(-35, 10, -45, 40);
-                armGradient.addColorStop(0, '#B0B0B0');
-                armGradient.addColorStop(0.5, '#909090');
-                armGradient.addColorStop(1, '#707070');
-                ctx.fillStyle = armGradient;
-                ctx.beginPath();
-                ctx.ellipse(-35, 25, 10, 22, -0.4, 0, Math.PI * 2);
-                ctx.fill();
-                
-                // White arm tip
-                ctx.fillStyle = '#F8F8F8';
-                ctx.beginPath();
-                ctx.ellipse(-38, 42, 7, 14, -0.4, 0, Math.PI * 2);
-                ctx.fill();
-                
-                // Robot head (3D sphere)
-                const headGradient = ctx.createRadialGradient(-8, -25, 5, 0, -15, 35);
-                headGradient.addColorStop(0, '#FFFFFF');
-                headGradient.addColorStop(0.6, '#F0F0F0');
-                headGradient.addColorStop(1, '#C0C0C0');
-                ctx.fillStyle = headGradient;
-                ctx.beginPath();
-                ctx.arc(0, -15, 32, 0, Math.PI * 2);
-                ctx.fill();
-                
-                // Head highlight
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
-                ctx.beginPath();
-                ctx.ellipse(-10, -25, 10, 14, -0.5, 0, Math.PI * 2);
-                ctx.fill();
-                
-                // Gray circular ear/bumper (3D)
-                const earGradient = ctx.createRadialGradient(-25, -20, 2, -28, -15, 12);
-                earGradient.addColorStop(0, '#D0D0D0');
-                earGradient.addColorStop(1, '#A0A0A0');
-                ctx.fillStyle = earGradient;
-                ctx.beginPath();
-                ctx.arc(-28, -15, 12, 0, Math.PI * 2);
-                ctx.fill();
-                
-                // Ear highlight
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
-                ctx.beginPath();
-                ctx.arc(-30, -18, 4, 0, Math.PI * 2);
-                ctx.fill();
-                
-                // Green LED face screen with animated stripes
-                const faceGradient = ctx.createLinearGradient(8, -30, 8, -5);
-                faceGradient.addColorStop(0, '#00E676');
-                faceGradient.addColorStop(0.5, '#00C853');
-                faceGradient.addColorStop(1, '#00E676');
-                ctx.fillStyle = faceGradient;
-                ctx.shadowBlur = 15;
-                ctx.shadowColor = 'rgba(0, 230, 118, 0.8)';
-                ctx.beginPath();
-                ctx.roundRect(8, -30, 20, 25, 5);
-                ctx.fill();
-                ctx.shadowBlur = 0;
-                
-                // Animated diagonal stripes on face
-                const stripeOffset = (this.frames * 2) % 20;
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
-                for (let i = -20; i < 30; i += 8) {
-                    const x = 8 + i + stripeOffset;
-                    ctx.beginPath();
-                    ctx.moveTo(x, -30);
-                    ctx.lineTo(x + 4, -30);
-                    ctx.lineTo(x - 4, -5);
-                    ctx.lineTo(x - 8, -5);
-                    ctx.closePath();
-                    ctx.fill();
+                if (this.playerImageLoaded && this.playerImage.width > 0) {
+                    const imgSize = 90;
+                    ctx.drawImage(this.playerImage, -imgSize/2, -imgSize/2, imgSize, imgSize);
                 }
-                
-                // Face screen border
-                ctx.strokeStyle = '#00B248';
-                ctx.lineWidth = 2;
-                ctx.beginPath();
-                ctx.roundRect(8, -30, 20, 25, 5);
-                ctx.stroke();
-                
-                // Antenna stem (3D)
-                const antennaGradient = ctx.createLinearGradient(-2, -47, 2, -65);
-                antennaGradient.addColorStop(0, '#606060');
-                antennaGradient.addColorStop(0.5, '#404040');
-                antennaGradient.addColorStop(1, '#202020');
-                ctx.fillStyle = antennaGradient;
-                ctx.fillRect(-3, -65, 6, 18);
-                
-                // Gold antenna disc (3D)
-                const discGradient = ctx.createRadialGradient(-3, -72, 2, 0, -70, 16);
-                discGradient.addColorStop(0, '#FFECB3');
-                discGradient.addColorStop(0.4, '#FFD700');
-                discGradient.addColorStop(1, '#FFA000');
-                ctx.fillStyle = discGradient;
-                ctx.shadowBlur = 10;
-                ctx.shadowColor = 'rgba(255, 215, 0, 0.5)';
-                ctx.beginPath();
-                ctx.ellipse(0, -70, 16, 7, 0, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.shadowBlur = 0;
-                
-                // Disc highlight
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
-                ctx.beginPath();
-                ctx.ellipse(-4, -72, 4, 2, 0, 0, Math.PI * 2);
-                ctx.fill();
                 
                 ctx.restore();
                 
