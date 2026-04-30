@@ -711,7 +711,7 @@
             shakeIntensity: 0,
             nearMissCount: 0,
             
-            bird: { x: 100, y: 0, velocity: 0, width: 34, height: 24, rotation: 0 },
+            bird: { x: 100, y: 0, velocity: 0, width: 50, height: 50, rotation: 0 },
             
             // Unlock thresholds
             themeUnlocks: { void: 0, nebula: 0, galaxy: 0, matrix: 0, sunset: 30, moneyverse: 60, aurora: 80, cyberpunk: 120, volcano: 200 },
@@ -741,6 +741,14 @@
             },
             
             init() {
+                // Load MoneyBot image
+                this.playerImage = new Image();
+                this.playerImage.src = 'assets/player-rembg.png';
+                this.playerImageLoaded = false;
+                this.playerImage.onload = () => {
+                    this.playerImageLoaded = true;
+                };
+                
                 this.resize();
                 window.addEventListener('resize', () => this.resize());
                 
@@ -1004,27 +1012,31 @@
                 }
                 ctx.shadowBlur = 0;
                 
-                // Draw bird with bot color
+                // Draw MoneyBot character
                 ctx.save();
                 ctx.translate(this.bird.x + this.bird.width/2, this.bird.y + this.bird.height/2);
                 ctx.rotate(this.bird.rotation);
                 
-                const botColor = this.botColors[this.currentBot] || '#FFFFFF';
-                ctx.fillStyle = botColor;
-                ctx.shadowColor = botColor;
-                ctx.shadowBlur = 10;
-                ctx.fillRect(-this.bird.width/2, -this.bird.height/2, this.bird.width, this.bird.height);
-                ctx.shadowBlur = 0;
-                
-                // Eye
-                ctx.fillStyle = '#000';
-                ctx.fillRect(-2, -8, 6, 6);
-                ctx.fillStyle = '#FFF';
-                ctx.fillRect(0, -6, 2, 2);
-                
-                // Beak
-                ctx.fillStyle = '#F97316';
-                ctx.fillRect(8, 0, 10, 6);
+                if (this.playerImageLoaded && this.playerImage) {
+                    // Draw actual MoneyBot image
+                    const size = 50;
+                    ctx.drawImage(this.playerImage, -size/2, -size/2, size, size);
+                    
+                    // Add bot-specific glow
+                    const botColor = this.botColors[this.currentBot];
+                    if (botColor && botColor !== '#FFFFFF') {
+                        ctx.globalCompositeOperation = 'overlay';
+                        ctx.fillStyle = botColor;
+                        ctx.globalAlpha = 0.3;
+                        ctx.fillRect(-size/2, -size/2, size, size);
+                        ctx.globalAlpha = 1;
+                        ctx.globalCompositeOperation = 'source-over';
+                    }
+                } else {
+                    // Fallback rectangle
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.fillRect(-this.bird.width/2, -this.bird.height/2, this.bird.width, this.bird.height);
+                }
                 
                 ctx.restore();
                 
