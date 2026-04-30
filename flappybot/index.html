@@ -767,10 +767,16 @@
             resize() {
                 canvas.width = window.innerWidth;
                 canvas.height = window.innerHeight;
-                this.bird.y = canvas.height / 2;
+                if (this.state === 'menu') {
+                    this.bird.y = canvas.height / 2;
+                    this.bird.velocity = 0;
+                }
             },
             
             start() {
+                // Make sure canvas is sized
+                this.resize();
+                
                 this.state = 'playing';
                 this.score = 0;
                 this.frames = 0;
