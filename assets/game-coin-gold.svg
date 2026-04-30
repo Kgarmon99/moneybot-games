@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Glow -->
+  <circle cx="50" cy="50" r="48" fill="#FBBF24" opacity="0.4">
+    <animate attributeName="r" values="48;55;48" dur="1.5s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.4;0.6;0.4" dur="1.5s" repeatCount="indefinite"/>
+  </circle>
+  
+  <!-- Outer Ring -->
+  <circle cx="50" cy="50" r="40" fill="#D97706"/>
+  <circle cx="50" cy="50" r="38" fill="#FBBF24"/>
+  <circle cx="50" cy="50" r="38" fill="url(#coinGradGold)"/>
+  
+  <!-- Inner Detail -->
+  <circle cx="50" cy="50" r="30" fill="none" stroke="#D97706" stroke-width="2"/>
+  <circle cx="50" cy="50" r="25" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+  
+  <!-- Shine -->
+  <ellipse cx="35" cy="35" rx="12" ry="8" fill="rgba(255,255,255,0.6)" transform="rotate(-45, 35, 35)"/>
+  
+  <!-- Dollar Sign -->
+  <text x="50" y="62" font-family="Arial, sans-serif" font-size="36" font-weight="bold" fill="#0F172A" text-anchor="middle">$</text>
+  
+  <!-- Sparkles -->
+  <g>
+    <animateTransform attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="8s" repeatCount="indefinite"/>
+    <path d="M 50 8 L 52 14 L 58 16 L 52 18 L 50 24 L 48 18 L 42 16 L 48 14 Z" fill="#FFFFFF" opacity="0.9"/>
+  </g>
+
+  <defs>
+    <radialGradient id="coinGradGold" cx="30%" cy="30%">
+      <stop offset="0%" style="stop-color:#FCD34D"/>
+      <stop offset="100%" style="stop-color:#D97706"/>
+    </radialGradient>
+  </defs>
+</svg>
