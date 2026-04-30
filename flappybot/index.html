@@ -199,6 +199,173 @@
             box-shadow: 0 0 15px rgba(34, 197, 94, 0.6);
         }
         
+        /* Near Miss Notification */
+        .near-miss {
+            position: absolute;
+            top: 40%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 28px;
+            font-weight: 900;
+            color: #FFD700;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+            opacity: 0;
+            pointer-events: none;
+            z-index: 150;
+        }
+        
+        .near-miss.show {
+            animation: nearMissPop 1s ease-out forwards;
+        }
+        
+        @keyframes nearMissPop {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+            20% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+            80% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            100% { opacity: 0; transform: translate(-50%, -80%) scale(0.8); }
+        }
+        
+        /* Daily Challenge */
+        .challenge-banner {
+            position: absolute;
+            top: 120px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #000;
+            z-index: 100;
+            display: none;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+        }
+        
+        .challenge-banner.active {
+            display: block;
+            animation: challengePulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes challengePulse {
+            0%, 100% { box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4); }
+            50% { box-shadow: 0 4px 25px rgba(255, 215, 0, 0.8); }
+        }
+        
+        /* Mastery Rank Badge */
+        .mastery-badge {
+            position: absolute;
+            top: 180px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            z-index: 100;
+            display: none;
+        }
+        
+        .mastery-badge.bronze { background: linear-gradient(135deg, #CD7F32, #8B4513); color: white; display: block; }
+        .mastery-badge.silver { background: linear-gradient(135deg, #C0C0C0, #808080); color: white; display: block; }
+        .mastery-badge.gold { background: linear-gradient(135deg, #FFD700, #FFA500); color: #000; display: block; }
+        .mastery-badge.platinum { background: linear-gradient(135deg, #E5E4E2, #7B68EE); color: #000; display: block; box-shadow: 0 0 20px rgba(123, 104, 238, 0.6); }
+        
+        /* Leaderboard */
+        .leaderboard-btn {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 1000;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+            transition: transform 0.2s;
+        }
+        
+        .leaderboard-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        .leaderboard-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 3000;
+        }
+        
+        .leaderboard-modal.show {
+            display: flex;
+        }
+        
+        .leaderboard-content {
+            background: linear-gradient(135deg, #1a1a2e, #2d2d44);
+            border-radius: 24px;
+            padding: 25px;
+            width: 90%;
+            max-width: 350px;
+            border: 2px solid #FFD700;
+            max-height: 80%;
+            overflow-y: auto;
+        }
+        
+        .leaderboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .leaderboard-title {
+            font-size: 20px;
+            font-weight: 800;
+            color: #FFD700;
+        }
+        
+        .leaderboard-entry {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            margin-bottom: 8px;
+        }
+        
+        .leaderboard-rank {
+            width: 30px;
+            font-size: 18px;
+            font-weight: 800;
+        }
+        
+        .leaderboard-rank.gold { color: #FFD700; }
+        .leaderboard-rank.silver { color: #C0C0C0; }
+        .leaderboard-rank.bronze { color: #CD7F32; }
+        
+        .leaderboard-name {
+            flex: 1;
+            font-size: 14px;
+            color: white;
+        }
+        
+        .leaderboard-score {
+            font-size: 16px;
+            font-weight: 800;
+            color: #22C55E;
+        }
+        
         .theme-btn.locked {
             opacity: 0.5;
             cursor: not-allowed;
@@ -626,6 +793,17 @@
         
         <div class="medal" id="medal"></div>
         
+        <!-- Near Miss Notification -->
+        <div class="near-miss" id="nearMiss">CLOSE CALL! +5</div>
+        
+        <!-- Daily Challenge Banner -->
+        <div class="challenge-banner" id="challengeBanner">
+            🎯 Daily: <span id="challengeText">Score 50 without using trails</span>
+        </div>
+        
+        <!-- Mastery Rank Badge -->
+        <div class="mastery-badge" id="masteryBadge">BRONZE</div>
+        
         <div class="combo-display" id="comboDisplay">🔥 x2</div>
         
         <div class="streak-flames" id="streakFlames">🔥🔥🔥</div>
@@ -780,6 +958,29 @@
         <button class="btn" onclick="game.restart()">PLAY AGAIN</button>
         <button class="btn share-btn" onclick="game.share()">📤 SHARE SCORE</button>
     </div>
+    
+    <!-- Leaderboard Button -->
+    <button class="leaderboard-btn" onclick="game.openLeaderboard()" title="Leaderboard">🏆</button>
+    
+    <!-- Leaderboard Modal -->
+    <div class="leaderboard-modal" id="leaderboardModal">
+        <div class="leaderboard-content">
+            <div class="leaderboard-header">
+                <div class="leaderboard-title">🏆 Weekly Leaderboard</div>
+                <button class="close-btn" onclick="game.closeLeaderboard()">×</button>
+            </div>
+            <div id="leaderboardList">
+                <div class="leaderboard-entry">
+                    <div class="leaderboard-rank gold">🥇</div>
+                    <div class="leaderboard-name">You</div>
+                    <div class="leaderboard-score" id="leaderboardYourScore">0</div>
+                </div>
+            </div>
+            <div style="text-align: center; margin-top: 15px; font-size: 12px; color: #888;">
+                Resets every Monday
+            </div>
+        </div>
+    </div>
 
     <script>
         const canvas = document.getElementById('gameCanvas');
@@ -806,6 +1007,17 @@
             frames: 0,
             combo: 0,
             lastPipeX: 0,
+            
+            // Addictive features
+            nearMissBonus: 0,
+            pipesPassedWithoutFlapping: 0,
+            challengeProgress: 0,
+            masteryRanks: JSON.parse(localStorage.getItem('flappybot_mastery')) || {},
+            secretUnlocks: JSON.parse(localStorage.getItem('flappybot_secrets')) || [],
+            
+            // Daily challenge
+            dailyChallenge: null,
+            challengeCompleted: false,
             
             // Bird
             bird: {
@@ -853,6 +1065,12 @@
                 
                 // Update unlocks based on best score
                 this.updateUnlocks();
+                
+                // Initialize daily challenge
+                this.initDailyChallenge();
+                
+                // Update mastery badge
+                this.updateMasteryBadge();
                 
                 this.resize();
                 window.addEventListener('resize', () => this.resize());
@@ -906,6 +1124,250 @@
                 
                 if (botIconEl) botIconEl.textContent = botIcons[this.currentBot] || '🤖';
                 if (themeIconEl) themeIconEl.textContent = themeIcons[this.currentTheme] || '🌌';
+            },
+            
+            // Daily Challenge System
+            initDailyChallenge() {
+                const today = new Date().toDateString();
+                const savedDate = localStorage.getItem('flappybot_challengeDate');
+                
+                if (savedDate !== today) {
+                    // New day, new challenge
+                    this.generateDailyChallenge();
+                    localStorage.setItem('flappybot_challengeDate', today);
+                    localStorage.setItem('flappybot_challengeCompleted', 'false');
+                    this.challengeCompleted = false;
+                } else {
+                    // Load existing challenge
+                    this.dailyChallenge = JSON.parse(localStorage.getItem('flappybot_dailyChallenge'));
+                    this.challengeCompleted = localStorage.getItem('flappybot_challengeCompleted') === 'true';
+                }
+                
+                this.updateChallengeUI();
+            },
+            
+            generateDailyChallenge() {
+                const challenges = [
+                    { id: 'no_trail', text: 'Score 30 without using trails', target: 30, condition: 'noTrail' },
+                    { id: 'classic_bot', text: 'Score 40 with Classic bot', target: 40, condition: 'classicBot' },
+                    { id: 'no_flap_streak', text: 'Pass 10 pipes without flapping', target: 10, condition: 'noFlapStreak' },
+                    { id: 'exact_score', text: 'Score exactly 42 points', target: 42, condition: 'exact' },
+                    { id: 'five_near_misses', text: 'Get 5 near-miss bonuses', target: 5, condition: 'nearMisses' },
+                    { id: 'quick_start', text: 'Pass 5 pipes in first 10 seconds', target: 5, condition: 'quickStart' }
+                ];
+                
+                this.dailyChallenge = challenges[Math.floor(Math.random() * challenges.length)];
+                this.dailyChallenge.progress = 0;
+                localStorage.setItem('flappybot_dailyChallenge', JSON.stringify(this.dailyChallenge));
+            },
+            
+            updateChallengeUI() {
+                const banner = document.getElementById('challengeBanner');
+                const text = document.getElementById('challengeText');
+                
+                if (this.dailyChallenge && !this.challengeCompleted) {
+                    banner.classList.add('active');
+                    text.textContent = this.dailyChallenge.text;
+                } else if (this.challengeCompleted) {
+                    banner.classList.add('active');
+                    text.textContent = '✅ Challenge Complete!';
+                    banner.style.background = 'linear-gradient(135deg, #22C55E, #16A34A)';
+                } else {
+                    banner.classList.remove('active');
+                }
+            },
+            
+            checkChallengeProgress(type, value) {
+                if (!this.dailyChallenge || this.challengeCompleted) return;
+                
+                let completed = false;
+                
+                switch (this.dailyChallenge.condition) {
+                    case 'noTrail':
+                        if (type === 'score' && value >= this.dailyChallenge.target && this.currentTrail === 'none') {
+                            completed = true;
+                        }
+                        break;
+                    case 'classicBot':
+                        if (type === 'score' && value >= this.dailyChallenge.target && this.currentBot === 'classic') {
+                            completed = true;
+                        }
+                        break;
+                    case 'noFlapStreak':
+                        if (type === 'noFlapStreak' && value >= this.dailyChallenge.target) {
+                            completed = true;
+                        }
+                        break;
+                    case 'exact':
+                        if (type === 'score' && value === this.dailyChallenge.target) {
+                            completed = true;
+                        }
+                        break;
+                    case 'nearMisses':
+                        if (type === 'nearMiss' && value >= this.dailyChallenge.target) {
+                            completed = true;
+                        }
+                        break;
+                    case 'quickStart':
+                        if (type === 'quickPipes' && value >= this.dailyChallenge.target) {
+                            completed = true;
+                        }
+                        break;
+                }
+                
+                if (completed) {
+                    this.challengeCompleted = true;
+                    localStorage.setItem('flappybot_challengeCompleted', 'true');
+                    this.updateChallengeUI();
+                    this.showUnlockNotification('🎯 Daily Challenge Complete! +100 Bonus');
+                    this.score += 100; // Bonus points
+                }
+            },
+            
+            // Mastery Rank System
+            getMasteryRank(theme, score) {
+                if (score >= 100) return 'platinum';
+                if (score >= 75) return 'gold';
+                if (score >= 50) return 'silver';
+                if (score >= 25) return 'bronze';
+                return null;
+            },
+            
+            updateMasteryRank(theme, score) {
+                const rank = this.getMasteryRank(theme, score);
+                if (!rank) return;
+                
+                const currentRank = this.masteryRanks[theme];
+                const rankLevels = { bronze: 1, silver: 2, gold: 3, platinum: 4 };
+                
+                if (!currentRank || rankLevels[rank] > rankLevels[currentRank]) {
+                    this.masteryRanks[theme] = rank;
+                    localStorage.setItem('flappybot_mastery', JSON.stringify(this.masteryRanks));
+                    this.showUnlockNotification(`🏆 New ${rank.toUpperCase()} Rank in ${theme}!`);
+                }
+            },
+            
+            updateMasteryBadge() {
+                const badge = document.getElementById('masteryBadge');
+                const rank = this.masteryRanks[this.currentTheme];
+                
+                if (rank) {
+                    badge.className = `mastery-badge ${rank}`;
+                    badge.textContent = rank;
+                } else {
+                    badge.className = 'mastery-badge';
+                    badge.style.display = 'none';
+                }
+            },
+            
+            // Near Miss Detection
+            checkNearMiss(pipe) {
+                const bird = this.bird;
+                const margin = 15; // pixels considered "near"
+                
+                // Check if bird is close to top or bottom pipe
+                const nearTop = bird.y < pipe.topHeight + margin && bird.y > pipe.topHeight - margin;
+                const nearBottom = bird.y + bird.height > canvas.height - pipe.bottomHeight - margin && 
+                                  bird.y + bird.height < canvas.height - pipe.bottomHeight + margin;
+                
+                if ((nearTop || nearBottom) && !pipe.nearMissTriggered) {
+                    pipe.nearMissTriggered = true;
+                    this.triggerNearMiss();
+                }
+            },
+            
+            triggerNearMiss() {
+                this.nearMissBonus++;
+                this.score += 5;
+                
+                // Show notification
+                const nearMissEl = document.getElementById('nearMiss');
+                nearMissEl.classList.remove('show');
+                void nearMissEl.offsetWidth; // Trigger reflow
+                nearMissEl.classList.add('show');
+                
+                // Screen shake
+                this.shakeIntensity = 5;
+                
+                // Check challenge
+                this.checkChallengeProgress('nearMiss', this.nearMissBonus);
+                
+                // Play sound (if we had audio)
+                // this.playSound('nearMiss');
+            },
+            
+            // Secret Unlocks
+            checkSecretUnlocks() {
+                // Secret: Ninja Master - Pass 10 pipes without flapping
+                if (this.pipesPassedWithoutFlapping >= 10 && !this.secretUnlocks.includes('ninja_master')) {
+                    this.secretUnlocks.push('ninja_master');
+                    localStorage.setItem('flappybot_secrets', JSON.stringify(this.secretUnlocks));
+                    this.showUnlockNotification('🥷 SECRET UNLOCKED: Ninja Master!');
+                }
+                
+                // Secret: Perfect Run - Score 50 without any near misses
+                if (this.score >= 50 && this.nearMissBonus === 0 && !this.secretUnlocks.includes('perfect_run')) {
+                    this.secretUnlocks.push('perfect_run');
+                    localStorage.setItem('flappybot_secrets', JSON.stringify(this.secretUnlocks));
+                    this.showUnlockNotification('✨ SECRET UNLOCKED: Perfect Run!');
+                }
+            },
+            
+            // Leaderboard
+            openLeaderboard() {
+                this.updateLeaderboard();
+                document.getElementById('leaderboardModal').classList.add('show');
+            },
+            
+            closeLeaderboard() {
+                document.getElementById('leaderboardModal').classList.remove('show');
+            },
+            
+            updateLeaderboard() {
+                // Get weekly scores
+                const weekStart = this.getWeekStart();
+                const leaderboardKey = `flappybot_leaderboard_${weekStart}`;
+                let leaderboard = JSON.parse(localStorage.getItem(leaderboardKey)) || [];
+                
+                // Add/update player's score
+                const playerEntry = leaderboard.find(e => e.isPlayer);
+                if (playerEntry) {
+                    playerEntry.score = Math.max(playerEntry.score, this.bestScore);
+                } else {
+                    leaderboard.push({ name: 'You', score: this.bestScore, isPlayer: true });
+                }
+                
+                // Sort by score
+                leaderboard.sort((a, b) => b.score - a.score);
+                
+                // Keep top 10
+                leaderboard = leaderboard.slice(0, 10);
+                
+                // Save
+                localStorage.setItem(leaderboardKey, JSON.stringify(leaderboard));
+                
+                // Update UI
+                const list = document.getElementById('leaderboardList');
+                list.innerHTML = leaderboard.map((entry, i) => {
+                    const rankClass = i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
+                    const rankEmoji = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}.`;
+                    return `
+                        <div class="leaderboard-entry">
+                            <div class="leaderboard-rank ${rankClass}">${rankEmoji}</div>
+                            <div class="leaderboard-name">${entry.name}</div>
+                            <div class="leaderboard-score">${entry.score}</div>
+                        </div>
+                    `;
+                }).join('');
+            },
+            
+            getWeekStart() {
+                const now = new Date();
+                const day = now.getDay();
+                const diff = now.getDate() - day + (day === 0 ? -6 : 1); // Monday start
+                const monday = new Date(now.setDate(diff));
+                monday.setHours(0, 0, 0, 0);
+                return monday.toDateString();
             },
             
             themeUnlocks: {
@@ -1180,10 +1642,19 @@
                 this.bird.velocity = 0;
                 this.bird.rotation = 0;
                 
+                // Reset addictive features
+                this.nearMissBonus = 0;
+                this.pipesPassedWithoutFlapping = 0;
+                this.gameStartTime = Date.now();
+                
                 document.getElementById('startScreen').style.display = 'none';
                 document.getElementById('gameOverScreen').style.display = 'none';
                 document.getElementById('scoreDisplay').textContent = '0';
                 document.getElementById('medal').className = 'medal';
+                document.getElementById('nearMiss').classList.remove('show');
+                
+                // Update mastery badge visibility
+                this.updateMasteryBadge();
                 
                 this.spawnPipe();
             },
@@ -1328,6 +1799,9 @@
                             this.gameOver();
                             return;
                         }
+                        
+                        // Check for near miss (only when passing through gap)
+                        this.checkNearMiss(pipe);
                     }
                     
                     // Score point
@@ -1791,6 +2265,15 @@
                     localStorage.setItem('flappybot_best', this.bestScore);
                 }
                 
+                // Update mastery rank for current theme
+                this.updateMasteryRank(this.currentTheme, this.bestScore);
+                
+                // Check daily challenge
+                this.checkChallengeProgress('score', this.score);
+                
+                // Check secret unlocks
+                this.checkSecretUnlocks();
+                
                 // Show game over screen
                 document.getElementById('finalScore').textContent = this.score;
                 document.getElementById('finalBest').textContent = this.bestScore;
@@ -1811,6 +2294,9 @@
                 if (this.bestScore > prevBest) {
                     this.checkNewUnlocks(prevBest, this.bestScore);
                 }
+                
+                // Update leaderboard
+                this.updateLeaderboard();
             },
             
             checkNewUnlocks(oldScore, newScore) {
@@ -1853,6 +2339,11 @@
             
             restart() {
                 document.getElementById('gameOverScreen').style.display = 'none';
+                
+                // Reset addictive features
+                this.nearMissBonus = 0;
+                this.pipesPassedWithoutFlapping = 0;
+                
                 this.start();
             },
             
