@@ -59,8 +59,14 @@
             font-size: 72px;
             font-weight: 900;
             color: #22C55E;
-            text-shadow: 0 0 20px rgba(34, 197, 94, 0.8), 0 0 40px rgba(34, 197, 94, 0.4);
+            text-shadow: 0 0 20px rgba(34, 197, 94, 0.8), 0 0 40px rgba(34, 197, 94, 0.4), 0 0 60px rgba(34, 197, 94, 0.2);
             line-height: 1;
+            animation: scorePulse 1s ease-in-out infinite;
+        }
+        
+        @keyframes scorePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
         }
         
         .best-score {
@@ -339,6 +345,9 @@
             playerImage: null,
             playerImageLoaded: false,
             
+            // Screen shake
+            shakeIntensity: 0,
+            
             init() {
                 // Load player image
                 this.playerImage = new Image();
@@ -420,11 +429,12 @@
                     this.particles.push({
                         x: x,
                         y: y,
-                        vx: (Math.random() - 0.5) * 4,
-                        vy: (Math.random() - 0.5) * 4,
+                        vx: (Math.random() - 0.5) * 6,
+                        vy: (Math.random() - 0.5) * 6,
                         life: 1,
                         color: color,
-                        size: Math.random() * 4 + 2
+                        size: Math.random() * 6 + 3,
+                        glow: true
                     });
                 }
             },
@@ -544,8 +554,20 @@
             },
             
             draw() {
+                // Screen shake effect
+                let shakeX = 0, shakeY = 0;
+                if (this.shakeIntensity > 0) {
+                    shakeX = (Math.random() - 0.5) * this.shakeIntensity;
+                    shakeY = (Math.random() - 0.5) * this.shakeIntensity;
+                    this.shakeIntensity *= 0.9;
+                    if (this.shakeIntensity < 0.5) this.shakeIntensity = 0;
+                }
+                
+                ctx.save();
+                ctx.translate(shakeX, shakeY);
+                
                 // Clear canvas
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.clearRect(-shakeX, -shakeY, canvas.width, canvas.height);
                 
                 // Draw space background
                 this.drawSpace();
@@ -619,9 +641,13 @@
                     ctx.shadowBlur = 0;
                 }
                 
-                // Draw particles
+                // Draw particles with glow
                 for (const p of this.particles) {
                     ctx.globalAlpha = p.life;
+                    if (p.glow) {
+                        ctx.shadowBlur = 10;
+                        ctx.shadowColor = p.color;
+                    }
                     if (p.isCoin) {
                         ctx.fillStyle = p.color;
                         ctx.beginPath();
@@ -632,8 +658,11 @@
                         ctx.stroke();
                     } else {
                         ctx.fillStyle = p.color;
-                        ctx.fillRect(p.x, p.y, p.size, p.size);
+                        ctx.beginPath();
+                        ctx.arc(p.x, p.y, p.size / 2, 0, Math.PI * 2);
+                        ctx.fill();
                     }
+                    ctx.shadowBlur = 0;
                     ctx.globalAlpha = 1;
                 }
                 
@@ -674,6 +703,9 @@
                 ctx.lineTo(canvas.width, canvas.height - 80);
                 ctx.stroke();
                 ctx.shadowBlur = 0;
+                
+                // End screen shake
+                ctx.restore();
                 
                 // Platform grid pattern
                 ctx.strokeStyle = 'rgba(34, 197, 94, 0.3)';
@@ -838,6 +870,11 @@
             
             gameOver() {
                 this.state = 'gameover';
+                this.shakeIntensity = 20; // Screen shake on death
+                
+                // Create explosion particles
+                this.createParticles(this.bird.x, this.bird.y, 30, '#FF4444');
+                this.createParticles(this.bird.x, this.bird.y, 20, '#FFD700');
                 
                 // Update best score
                 if (this.score > this.bestScore) {
