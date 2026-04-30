@@ -316,7 +316,7 @@
             max-height: 180px;
         }
         
-        .game-preview .game-thumbnail, .game-preview .game-emoji {
+        .game-preview .game-emoji {
             font-size: 40px;
             filter: drop-shadow(0 10px 30px rgba(0, 230, 118, 0.3));
             animation: float 3s ease-in-out infinite;
@@ -539,7 +539,7 @@
                 <!-- FEATURED GAME: Budget Slice -->
                 <div class="game-card" style="grid-column: 1 / -1; border: 2px solid var(--moneybot-green);">
                     <div class="game-preview" style="height: 160px; background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);">
-                        <img src="../assets/thumbnails/debt-destroyer.svg" class="game-thumbnail" style="font-size: 80px;" style="width: 80px; height: 80px; object-fit: contain;" />
+                        <span class="game-emoji" style="font-size: 80px;">⚔️</span>
                         <span class="game-badge" style="background: linear-gradient(135deg, #FBBF24, #D97706); font-size: 12px; padding: 6px 14px;">⭐ FEATURED</span>
                     </div>
                     <div class="game-info">
@@ -554,7 +554,7 @@
                 
                 <div class="game-card">
                     <div class="game-preview">
-                        <img src="../assets/thumbnails/bank-heist.svg" class="game-thumbnail" style="width: 80px; height: 80px; object-fit: contain;" />
+                        <span class="game-emoji">🏦</span>
                         <span class="game-badge">Popular</span>
                     </div>
                     <div class="game-info">
@@ -569,7 +569,7 @@
                 
                 <div class="game-card">
                     <div class="game-preview">
-                        <img src="../assets/thumbnails/portfolio-balancer.svg" class="game-thumbnail" style="width: 80px; height: 80px; object-fit: contain;" />
+                        <span class="game-emoji">🍬</span>
                     </div>
                     <div class="game-info">
                         <div class="game-title">Portfolio Balancer</div>
@@ -583,7 +583,7 @@
                 
                 <div class="game-card">
                     <div class="game-preview">
-                        <img src="../assets/thumbnails/wealth-tower.svg" class="game-thumbnail" style="width: 80px; height: 80px; object-fit: contain;" />
+                        <span class="game-emoji">🏢</span>
                     </div>
                     <div class="game-info">
                         <div class="game-title">Wealth Tower</div>
@@ -597,7 +597,7 @@
                 
                 <div class="game-card">
                     <div class="game-preview">
-                        <img src="../assets/thumbnails/financial-wordle.svg" class="game-thumbnail" style="width: 80px; height: 80px; object-fit: contain;" />
+                        <span class="game-emoji">📝</span>
                         <span class="game-badge">New</span>
                     </div>
                     <div class="game-info">
@@ -612,7 +612,7 @@
                 
                 <div class="game-card">
                     <div class="game-preview">
-                        <img src="../assets/thumbnails/market-racer.svg" class="game-thumbnail" style="width: 80px; height: 80px; object-fit: contain;" />
+                        <span class="game-emoji">🏎️</span>
                     </div>
                     <div class="game-info">
                         <div class="game-title">Market Racer</div>
@@ -626,7 +626,7 @@
                 
                 <div class="game-card">
                     <div class="game-preview">
-                        <img src="../assets/thumbnails/compound-2048.svg" class="game-thumbnail" style="width: 80px; height: 80px; object-fit: contain;" />
+                        <span class="game-emoji">🔢</span>
                     </div>
                     <div class="game-info">
                         <div class="game-title">Compound 2048</div>
@@ -640,7 +640,7 @@
                 
                 <div class="game-card">
                     <div class="game-preview">
-                        <img src="../assets/thumbnails/diversification-drop.svg" class="game-thumbnail" style="width: 80px; height: 80px; object-fit: contain;" />
+                        <span class="game-emoji">🎲</span>
                     </div>
                     <div class="game-info">
                         <div class="game-title">Diversification Drop</div>
@@ -654,7 +654,7 @@
                 
                 <div class="game-card">
                     <div class="game-preview">
-                        <img src="../assets/thumbnails/risk-tetris.svg" class="game-thumbnail" style="width: 80px; height: 80px; object-fit: contain;" />
+                        <span class="game-emoji">🧩</span>
                     </div>
                     <div class="game-info">
                         <div class="game-title">Risk Tetris</div>
@@ -668,7 +668,7 @@
                 
                 <div class="game-card">
                     <div class="game-preview">
-                        <img src="../assets/thumbnails/market-surfers.svg" class="game-thumbnail" style="width: 80px; height: 80px; object-fit: contain;" />
+                        <span class="game-emoji">🏄</span>
                         <span class="game-badge">Hot</span>
                     </div>
                     <div class="game-info">
@@ -683,7 +683,7 @@
                 
                 <div class="game-card">
                     <div class="game-preview">
-                        <img src="../assets/thumbnails/debt-destroyer.svg" class="game-thumbnail" style="width: 80px; height: 80px; object-fit: contain;" />
+                        <span class="game-emoji">⚔️</span>
                         <span class="game-badge">NEW</span>
                     </div>
                     <div class="game-info">
@@ -698,7 +698,7 @@
                 
                 <div class="game-card">
                     <div class="game-preview">
-                        <img src="../assets/thumbnails/money-invaders.svg" class="game-thumbnail" style="width: 80px; height: 80px; object-fit: contain;" />
+                        <span class="game-emoji">💣</span>
                         <span class="game-badge">NEW</span>
                     </div>
                     <div class="game-info">
@@ -713,7 +713,7 @@
                 
                 <div class="game-card">
                     <div class="game-preview">
-                        <img src="../assets/thumbnails/coin-collector.svg" class="game-thumbnail" style="width: 80px; height: 80px; object-fit: contain;" />
+                        <span class="game-emoji">🟡</span>
                         <span class="game-badge">NEW</span>
                     </div>
                     <div class="game-info">
@@ -728,7 +728,7 @@
                 
                 <div class="game-card">
                     <div class="game-preview">
-                        <img src="../assets/thumbnails/moneybot-rush-pro.svg" class="game-thumbnail" style="width: 80px; height: 80px; object-fit: contain;" />
+                        <span class="game-emoji">🤖</span>
                         <span class="game-badge" style="background: linear-gradient(135deg, #8B5CF6, #EC4899);">3D</span>
                     </div>
                     <div class="game-info">
@@ -744,7 +744,7 @@
                 <!-- NEW GAMES -->
                 <div class="game-card">
                     <div class="game-preview">
-                        <img src="../assets/thumbnails/fiscal-frogger.svg" class="game-thumbnail" style="width: 80px; height: 80px; object-fit: contain;" />
+                        <span class="game-emoji">👾</span>
                         <span class="game-badge" style="background: linear-gradient(135deg, #00E676, #00C853);">NEW</span>
                     </div>
                     <div class="game-info">
@@ -759,7 +759,7 @@
                 
                 <div class="game-card">
                     <div class="game-preview">
-                        <img src="../assets/thumbnails/savings-snake.svg" class="game-thumbnail" style="width: 80px; height: 80px; object-fit: contain;" />
+                        <span class="game-emoji">🐍</span>
                         <span class="game-badge" style="background: linear-gradient(135deg, #00E676, #00C853);">NEW</span>
                     </div>
                     <div class="game-info">
@@ -774,7 +774,7 @@
                 
                 <div class="game-card">
                     <div class="game-preview">
-                        <img src="../assets/thumbnails/tax-tetris.svg" class="game-thumbnail" style="width: 80px; height: 80px; object-fit: contain;" />
+                        <span class="game-emoji">🧱</span>
                         <span class="game-badge" style="background: linear-gradient(135deg, #00E676, #00C853);">NEW</span>
                     </div>
                     <div class="game-info">
@@ -789,7 +789,7 @@
                 
                 <div class="game-card">
                     <div class="game-preview">
-                        <img src="../assets/thumbnails/coin-pong.svg" class="game-thumbnail" style="width: 80px; height: 80px; object-fit: contain;" />
+                        <span class="game-emoji">🏓</span>
                         <span class="game-badge" style="background: linear-gradient(135deg, #00E676, #00C853);">NEW</span>
                     </div>
                     <div class="game-info">
@@ -804,7 +804,7 @@
                 
                 <div class="game-card">
                     <div class="game-preview">
-                        <img src="../assets/thumbnails/budget-breakout.svg" class="game-thumbnail" style="width: 80px; height: 80px; object-fit: contain;" />
+                        <span class="game-emoji">🐸</span>
                         <span class="game-badge" style="background: linear-gradient(135deg, #00E676, #00C853);">NEW</span>
                     </div>
                     <div class="game-info">
@@ -819,7 +819,7 @@
                 
                 <div class="game-card">
                     <div class="game-preview">
-                        <img src="../assets/thumbnails/moneybot-official.svg" class="game-thumbnail" style="width: 80px; height: 80px; object-fit: contain;" />
+                        <span class="game-emoji">📋</span>
                         <span class="game-badge" style="background: linear-gradient(135deg, #00E676, #00C853);">NEW</span>
                     </div>
                     <div class="game-info">
@@ -834,7 +834,7 @@
                 
                 <div class="game-card">
                     <div class="game-preview">
-                        <img src="../assets/thumbnails/interest-match.svg" class="game-thumbnail" style="width: 80px; height: 80px; object-fit: contain;" />
+                        <span class="game-emoji">🧠</span>
                         <span class="game-badge" style="background: linear-gradient(135deg, #00E676, #00C853);">NEW</span>
                     </div>
                     <div class="game-info">
@@ -849,7 +849,7 @@
                 
                 <div class="game-card">
                     <div class="game-preview">
-                        <img src="../assets/thumbnails/compound-2048.svg" class="game-thumbnail" style="width: 80px; height: 80px; object-fit: contain;" />
+                        <span class="game-emoji">🔢</span>
                         <span class="game-badge" style="background: linear-gradient(135deg, #00E676, #00C853);">NEW</span>
                     </div>
                     <div class="game-info">
@@ -864,7 +864,7 @@
                 
                 <div class="game-card">
                     <div class="game-preview">
-                        <img src="../assets/thumbnails/moneybot-official.svg" class="game-thumbnail" style="width: 80px; height: 80px; object-fit: contain;" />
+                        <span class="game-emoji">🔄</span>
                         <span class="game-badge" style="background: linear-gradient(135deg, #00E676, #00C853);">NEW</span>
                     </div>
                     <div class="game-info">
@@ -879,7 +879,7 @@
                 
                 <div class="game-card">
                     <div class="game-preview">
-                        <img src="../assets/thumbnails/moneybot-official.svg" class="game-thumbnail" style="width: 80px; height: 80px; object-fit: contain;" />
+                        <span class="game-emoji">💵</span>
                         <span class="game-badge" style="background: linear-gradient(135deg, #00E676, #00C853);">NEW</span>
                     </div>
                     <div class="game-info">
@@ -894,7 +894,7 @@
                 
                 <div class="game-card">
                     <div class="game-preview">
-                        <img src="../assets/thumbnails/empire-builder.svg" class="game-thumbnail" style="width: 80px; height: 80px; object-fit: contain;" />
+                        <span class="game-emoji">🏗️</span>
                         <span class="game-badge" style="background: linear-gradient(135deg, #00E676, #00C853);">NEW</span>
                     </div>
                     <div class="game-info">
@@ -909,7 +909,7 @@
                 
                 <div class="game-card">
                     <div class="game-preview">
-                        <img src="../assets/thumbnails/stock-tycoon.svg" class="game-thumbnail" style="width: 80px; height: 80px; object-fit: contain;" />
+                        <span class="game-emoji">📈</span>
                         <span class="game-badge" style="background: linear-gradient(135deg, #00E676, #00C853);">NEW</span>
                     </div>
                     <div class="game-info">
@@ -924,7 +924,7 @@
                 
                 <div class="game-card">
                     <div class="game-preview">
-                        <img src="../assets/thumbnails/crypto-miner.svg" class="game-thumbnail" style="width: 80px; height: 80px; object-fit: contain;" />
+                        <span class="game-emoji">⛏️</span>
                         <span class="game-badge" style="background: linear-gradient(135deg, #00E676, #00C853);">NEW</span>
                     </div>
                     <div class="game-info">
@@ -992,7 +992,7 @@
 </html>
                 <div class="game-card">
                     <div class="game-preview">
-                        <img src="../assets/thumbnails/moneybot-official.svg" class="game-thumbnail" style="width: 80px; height: 80px; object-fit: contain;" />
+                        <span class="game-emoji">🏘️</span>
                         <span class="game-badge" style="background: linear-gradient(135deg, #00E676, #00C853);">NEW</span>
                     </div>
                     <div class="game-info">
@@ -1007,7 +1007,7 @@
                 
                 <div class="game-card">
                     <div class="game-preview">
-                        <img src="../assets/thumbnails/moneybot-official.svg" class="game-thumbnail" style="width: 80px; height: 80px; object-fit: contain;" />
+                        <span class="game-emoji">🦹</span>
                         <span class="game-badge" style="background: linear-gradient(135deg, #00E676, #00C853);">NEW</span>
                     </div>
                     <div class="game-info">
@@ -1022,7 +1022,7 @@
                 
                 <div class="game-card">
                     <div class="game-preview">
-                        <img src="../assets/thumbnails/moneybot-official.svg" class="game-thumbnail" style="width: 80px; height: 80px; object-fit: contain;" />
+                        <span class="game-emoji">🐂</span>
                         <span class="game-badge" style="background: linear-gradient(135deg, #00E676, #00C853);">NEW</span>
                     </div>
                     <div class="game-info">
@@ -1037,7 +1037,7 @@
                 
                 <div class="game-card">
                     <div class="game-preview">
-                        <img src="../assets/thumbnails/ipo-launch.svg" class="game-thumbnail" style="width: 80px; height: 80px; object-fit: contain;" />
+                        <span class="game-emoji">🚀</span>
                         <span class="game-badge" style="background: linear-gradient(135deg, #00E676, #00C853);">NEW</span>
                     </div>
                     <div class="game-info">
@@ -1052,7 +1052,7 @@
                 
                 <div class="game-card">
                     <div class="game-preview">
-                        <img src="../assets/thumbnails/cash-dash.svg" class="game-thumbnail" style="width: 80px; height: 80px; object-fit: contain;" />
+                        <span class="game-emoji">💨</span>
                         <span class="game-badge" style="background: linear-gradient(135deg, #00E676, #00C853);">NEW</span>
                     </div>
                     <div class="game-info">
@@ -1067,7 +1067,7 @@
                 
                 <div class="game-card">
                     <div class="game-preview">
-                        <img src="../assets/thumbnails/dividend-defense.svg" class="game-thumbnail" style="width: 80px; height: 80px; object-fit: contain;" />
+                        <span class="game-emoji">🛡️</span>
                         <span class="game-badge" style="background: linear-gradient(135deg, #00E676, #00C853);">NEW</span>
                     </div>
                     <div class="game-info">
@@ -1082,7 +1082,7 @@
                 
                 <div class="game-card">
                     <div class="game-preview">
-                        <img src="../assets/thumbnails/ipo-launch.svg" class="game-thumbnail" style="width: 80px; height: 80px; object-fit: contain;" />
+                        <span class="game-emoji">🚀</span>
                         <span class="game-badge" style="background: linear-gradient(135deg, #00E676, #00C853);">NEW</span>
                     </div>
                     <div class="game-info">
