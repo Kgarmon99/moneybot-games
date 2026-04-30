@@ -551,6 +551,37 @@
             margin-top: 15px;
         }
         
+        .current-selection {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin: 15px 0;
+        }
+        
+        .selection-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .selection-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid #22C55E;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        
+        .selection-label {
+            font-size: 11px;
+            color: #888;
+        }
+        
         .combo-display {
             position: absolute;
             top: 50%;
@@ -737,26 +768,17 @@
         <div class="logo">🤖 FLAPPYBOT</div>
         <div class="subtitle">Fly through the market volatility!<br>Tap to flap, avoid the red zones</div>
         
-        <div style="font-size: 14px; color: #888; margin-bottom: 10px;">Choose Your Bot</div>
-        <div class="bot-selector" id="botSelector">
-            <button class="bot-btn active" onclick="game.setBot('classic')" data-bot="classic" title="Classic Bot (Unlocked)">🤖</button>
-            <button class="bot-btn locked" onclick="game.setBot('gold')" data-bot="gold" title="Gold Bot">🥇</button>
-            <button class="bot-btn locked" onclick="game.setBot('neon')" data-bot="neon" title="Neon Bot">🌈</button>
-            <button class="bot-btn locked" onclick="game.setBot('ninja')" data-bot="ninja" title="Ninja Bot">🥷</button>
-            <button class="bot-btn locked" onclick="game.setBot('alien')" data-bot="alien" title="Alien Bot">👽</button>
+        <div class="current-selection">
+            <div class="selection-item">
+                <div class="selection-icon" id="currentBotIcon">🤖</div>
+                <div class="selection-label">Bot</div>
+            </div>
+            <div class="selection-item">
+                <div class="selection-icon" id="currentThemeIcon" style="background: linear-gradient(135deg, #000000, #1a1a2e);"></div>
+                <div class="selection-label">Theme</div>
+            </div>
         </div>
         
-        <div style="font-size: 14px; color: #888; margin-bottom: 10px;">Choose Theme</div>
-        <div class="theme-selector" id="themeSelector">
-            <button class="theme-btn theme-deepSpace active" onclick="game.setTheme('deepSpace')" data-theme="deepSpace" title="Deep Space (Unlocked)">🌌</button>
-            <button class="theme-btn theme-nebula" onclick="game.setTheme('nebula')" data-theme="nebula" title="Nebula - Unlock at 10 pts">🌸</button>
-            <button class="theme-btn theme-galaxy" onclick="game.setTheme('galaxy')" data-theme="galaxy" title="Galaxy - Unlock at 20 pts">🌀</button>
-            <button class="theme-btn theme-sunset locked" onclick="game.setTheme('sunset')" data-theme="sunset" title="Sunset - Unlock at 30 pts">🌅</button>
-            <button class="theme-btn theme-matrix locked" onclick="game.setTheme('matrix')" data-theme="matrix" title="Matrix - Unlock at 50 pts">💻</button>
-            <button class="theme-btn theme-aurora locked" onclick="game.setTheme('aurora')" data-theme="aurora" title="Aurora - Unlock at 75 pts">🌟</button>
-            <button class="theme-btn theme-volcano locked" onclick="game.setTheme('volcano')" data-theme="volcano" title="Volcano - Unlock at 100 pts">🌋</button>
-            <button class="theme-btn theme-cyber locked" onclick="game.setTheme('cyber')" data-theme="cyber" title="Cyber - Unlock at 150 pts">⚡</button>
-        </div>
         <button class="btn" onclick="game.start()">PLAY NOW</button>
         <div class="instructions">
             <div class="tap-icon">👆</div>
@@ -844,6 +866,9 @@
                 this.setBot(this.currentBot);
                 this.setTrail(this.currentTrail);
                 
+                // Update start screen indicators
+                this.updateStartScreenIndicators();
+                
                 // Update unlocks based on best score
                 this.updateUnlocks();
                 
@@ -873,6 +898,32 @@
                 canvas.width = window.innerWidth;
                 canvas.height = window.innerHeight;
                 this.bird.y = canvas.height / 2;
+            },
+            
+            updateStartScreenIndicators() {
+                const botIcons = {
+                    classic: '🤖',
+                    gold: '🥇',
+                    neon: '🌈',
+                    ninja: '🥷',
+                    alien: '👽'
+                };
+                const themeIcons = {
+                    deepSpace: '🌌',
+                    nebula: '🌸',
+                    galaxy: '🌀',
+                    sunset: '🌅',
+                    matrix: '💻',
+                    aurora: '🌟',
+                    volcano: '🌋',
+                    cyber: '⚡'
+                };
+                
+                const botIconEl = document.getElementById('currentBotIcon');
+                const themeIconEl = document.getElementById('currentThemeIcon');
+                
+                if (botIconEl) botIconEl.textContent = botIcons[this.currentBot] || '🤖';
+                if (themeIconEl) themeIconEl.textContent = themeIcons[this.currentTheme] || '🌌';
             },
             
             themeUnlocks: {
@@ -1053,6 +1104,22 @@
                 
                 // Save preference
                 localStorage.setItem('flappybot_theme', themeName);
+                
+                // Update start screen indicator
+                const themeIcons = {
+                    deepSpace: '🌌',
+                    nebula: '🌸',
+                    galaxy: '🌀',
+                    sunset: '🌅',
+                    matrix: '💻',
+                    aurora: '🌟',
+                    volcano: '🌋',
+                    cyber: '⚡'
+                };
+                const iconEl = document.getElementById('currentThemeIcon');
+                if (iconEl) {
+                    iconEl.textContent = themeIcons[themeName] || '🌌';
+                }
             },
             
             setBot(botName) {
@@ -1078,6 +1145,19 @@
                 
                 // Apply bot effects (color filters, etc.)
                 this.applyBotEffect(botName);
+                
+                // Update start screen indicator
+                const botIcons = {
+                    classic: '🤖',
+                    gold: '🥇',
+                    neon: '🌈',
+                    ninja: '🥷',
+                    alien: '👽'
+                };
+                const iconEl = document.getElementById('currentBotIcon');
+                if (iconEl) {
+                    iconEl.textContent = botIcons[botName] || '🤖';
+                }
             },
             
             applyBotEffect(botName) {
