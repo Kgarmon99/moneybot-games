@@ -7,7 +7,7 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: manipulation; user-select: none; }
-        :root { --moneybot-black: #000000; --moneybot-neon: #00FF99; --moneybot-graphite: #0D0D0D; --moneybot-white: #FFFFFF; --moneybot-gray: #888888; --moneybot-blue: #00D4FF; --moneybot-purple: #7B61FF; --moneybot-gold: #FFD700; --glow-neon: 0 0 10px #00FF99, 0 0 20px #00FF99; }
+        :root { --moneybot-dark: #0F172A; --moneybot-green: #22C55E; --moneybot-graphite: #0F172A; --moneybot-white: #FFFFFF; --moneybot-gray: #888888; --moneybot-blue: #3B82F6; --moneybot-purple: #8B5CF6; --moneybot-gold: #FBBF24; --glow-neon: 0 0 10px #22C55E, 0 0 20px #22C55E; }
         body { font-family: 'Inter', sans-serif; background: var(--moneybot-black); min-height: 100vh; overflow: hidden; }
         body::before { content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-image: linear-gradient(rgba(0, 255, 153, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 255, 153, 0.03) 1px, transparent 1px); background-size: 80px 80px; pointer-events: none; z-index: 0; }
         .app { max-width: 430px; margin: 0 auto; min-height: 100vh; position: relative; z-index: 1; display: flex; flex-direction: column; }
@@ -73,10 +73,10 @@
         let gameLoop;
         document.getElementById('highScore').textContent = '$' + highScore;
         const islandTypes = [
-            { name: 'Stock', icon: '📈', cost: 500, income: 50, color: '#00D4FF' },
-            { name: 'Bond', icon: '📜', cost: 1000, income: 80, color: '#00FF99' },
-            { name: 'Real Estate', icon: '🏢', cost: 2000, income: 150, color: '#FFD700' },
-            { name: 'Crypto', icon: '₿', cost: 3000, income: 200, color: '#7B61FF' }
+            { name: 'Stock', icon: '📈', cost: 500, income: 50, color: '#3B82F6' },
+            { name: 'Bond', icon: '📜', cost: 1000, income: 80, color: '#22C55E' },
+            { name: 'Real Estate', icon: '🏢', cost: 2000, income: 150, color: '#FBBF24' },
+            { name: 'Crypto', icon: '₿', cost: 3000, income: 200, color: '#8B5CF6' }
         ];
         function initIslands() {
             islands = [];
@@ -139,14 +139,14 @@
         }
         function updateScore() { document.getElementById('wealth').textContent = Math.floor(wealth); }
         function draw() {
-            ctx.fillStyle = '#000000';
+            ctx.fillStyle = '#0F172A';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             ctx.font = '40px Arial';
             ctx.textAlign = 'center';
             islands.forEach((island, i) => {
-                ctx.fillStyle = island.built ? island.type.color : '#1A1A1A';
+                ctx.fillStyle = island.built ? island.type.color : '#1E293B';
                 ctx.fillRect(island.x, island.y, 120, 140);
-                ctx.fillStyle = '#000000';
+                ctx.fillStyle = '#0F172A';
                 ctx.fillText(island.type.icon, island.x + 60, island.y + 60);
                 ctx.font = '12px Inter';
                 ctx.fillStyle = '#FFFFFF';

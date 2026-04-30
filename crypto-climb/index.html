@@ -7,7 +7,7 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: none; user-select: none; }
-        :root { --moneybot-black: #000000; --moneybot-neon: #00FF99; --moneybot-neon-light: #33FFB5; --moneybot-graphite: #0D0D0D; --moneybot-charcoal: #1A1A1A; --moneybot-white: #FFFFFF; --moneybot-gray: #888888; --moneybot-blue: #00D4FF; --moneybot-purple: #7B61FF; --moneybot-gold: #FFD700; --moneybot-red: #FF4D4D; --glow-neon: 0 0 10px #00FF99, 0 0 20px #00FF99; --glow-strong: 0 0 20px #00FF99, 0 0 40px #00FF99; }
+        :root { --moneybot-dark: #0F172A; --moneybot-green: #22C55E; --moneybot-neon-light: #33FFB5; --moneybot-graphite: #0F172A; --moneybot-charcoal: #1E293B; --moneybot-white: #FFFFFF; --moneybot-gray: #888888; --moneybot-blue: #3B82F6; --moneybot-purple: #8B5CF6; --moneybot-gold: #FBBF24; --moneybot-red: #EF4444; --glow-neon: 0 0 10px #22C55E, 0 0 20px #22C55E; --glow-strong: 0 0 20px #22C55E, 0 0 40px #22C55E; }
         body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--moneybot-black); min-height: 100vh; overflow: hidden; }
         body::before { content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-image: linear-gradient(rgba(0, 255, 153, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 255, 153, 0.03) 1px, transparent 1px); background-size: 80px 80px; pointer-events: none; z-index: 0; }
         body::after { content: ''; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 600px; height: 600px; background: radial-gradient(circle, rgba(0, 255, 153, 0.08) 0%, transparent 70%); pointer-events: none; z-index: 0; animation: pulse 4s ease-in-out infinite; }
@@ -162,12 +162,12 @@
             document.getElementById('btc').textContent = btc.toFixed(3);
         }
         function draw() {
-            ctx.fillStyle = '#000000';
+            ctx.fillStyle = '#0F172A';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             ctx.save();
             ctx.translate(0, -camera);
             candles.forEach(candle => {
-                ctx.fillStyle = candle.isGreen ? '#00FF99' : '#FF4D4D';
+                ctx.fillStyle = candle.isGreen ? '#22C55E' : '#EF4444';
                 ctx.fillRect(candle.x, candle.y, candle.width, candle.height);
                 ctx.fillStyle = 'rgba(255,255,255,0.3)';
                 ctx.fillRect(candle.x, candle.y, candle.width, 3);
@@ -176,7 +176,7 @@
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             ctx.shadowBlur = 20;
-            ctx.shadowColor = '#00FF99';
+            ctx.shadowColor = '#22C55E';
             ctx.fillText('🚀', player.x, player.y);
             ctx.shadowBlur = 0;
             ctx.restore();

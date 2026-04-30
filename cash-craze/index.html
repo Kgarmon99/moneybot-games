@@ -7,7 +7,7 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: manipulation; user-select: none; }
-        :root { --moneybot-black: #000000; --moneybot-neon: #00FF99; --moneybot-graphite: #0D0D0D; --moneybot-white: #FFFFFF; --moneybot-gray: #888888; --moneybot-blue: #00D4FF; --moneybot-gold: #FFD700; --moneybot-red: #FF4D4D; --glow-neon: 0 0 10px #00FF99, 0 0 20px #00FF99; }
+        :root { --moneybot-dark: #0F172A; --moneybot-green: #22C55E; --moneybot-graphite: #0F172A; --moneybot-white: #FFFFFF; --moneybot-gray: #888888; --moneybot-blue: #3B82F6; --moneybot-gold: #FBBF24; --moneybot-red: #EF4444; --glow-neon: 0 0 10px #22C55E, 0 0 20px #22C55E; }
         body { font-family: 'Inter', sans-serif; background: var(--moneybot-black); min-height: 100vh; overflow: hidden; }
         body::before { content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-image: linear-gradient(rgba(0, 255, 153, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 255, 153, 0.03) 1px, transparent 1px); background-size: 80px 80px; pointer-events: none; z-index: 0; }
         .app { max-width: 430px; margin: 0 auto; min-height: 100vh; position: relative; z-index: 1; display: flex; flex-direction: column; }
@@ -133,17 +133,17 @@
         }
         function updateScore() { document.getElementById('score').textContent = score; }
         function draw() {
-            ctx.fillStyle = '#000000';
+            ctx.fillStyle = '#0F172A';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             for (let y = 0; y < GRID_SIZE; y++) {
                 for (let x = 0; x < GRID_SIZE; x++) {
                     const px = x * CELL_SIZE + 25;
                     const py = y * CELL_SIZE + 25;
                     if (selected && selected.x === x && selected.y === y) {
-                        ctx.fillStyle = '#00FF99';
+                        ctx.fillStyle = '#22C55E';
                         ctx.fillRect(px - 2, py - 2, CELL_SIZE + 4, CELL_SIZE + 4);
                     }
-                    ctx.fillStyle = '#1A1A1A';
+                    ctx.fillStyle = '#1E293B';
                     ctx.fillRect(px, py, CELL_SIZE, CELL_SIZE);
                     ctx.font = '30px Arial';
                     ctx.textAlign = 'center';

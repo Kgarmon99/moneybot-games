@@ -7,7 +7,7 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: manipulation; user-select: none; }
-        :root { --moneybot-black: #000000; --moneybot-neon: #00FF99; --moneybot-neon-light: #33FFB5; --moneybot-graphite: #0D0D0D; --moneybot-charcoal: #1A1A1A; --moneybot-white: #FFFFFF; --moneybot-gray: #888888; --moneybot-blue: #00D4FF; --moneybot-purple: #7B61FF; --moneybot-gold: #FFD700; --moneybot-red: #FF4D4D; --glow-neon: 0 0 10px #00FF99, 0 0 20px #00FF99; --glow-strong: 0 0 20px #00FF99, 0 0 40px #00FF99; }
+        :root { --moneybot-dark: #0F172A; --moneybot-green: #22C55E; --moneybot-neon-light: #33FFB5; --moneybot-graphite: #0F172A; --moneybot-charcoal: #1E293B; --moneybot-white: #FFFFFF; --moneybot-gray: #888888; --moneybot-blue: #3B82F6; --moneybot-purple: #8B5CF6; --moneybot-gold: #FBBF24; --moneybot-red: #EF4444; --glow-neon: 0 0 10px #22C55E, 0 0 20px #22C55E; --glow-strong: 0 0 20px #22C55E, 0 0 40px #22C55E; }
         body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--moneybot-black); min-height: 100vh; overflow: hidden; }
         body::before { content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-image: linear-gradient(rgba(0, 255, 153, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 255, 153, 0.03) 1px, transparent 1px); background-size: 80px 80px; pointer-events: none; z-index: 0; }
         body::after { content: ''; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 600px; height: 600px; background: radial-gradient(circle, rgba(0, 255, 153, 0.08) 0%, transparent 70%); pointer-events: none; z-index: 0; animation: pulse 4s ease-in-out infinite; }
@@ -79,13 +79,13 @@
         let spinVelocity = 0;
         let isSpinning = false;
         const prizes = [
-            { label: '$10', value: 10, color: '#00FF99' },
-            { label: '$50', value: 50, color: '#00D4FF' },
-            { label: '$100', value: 100, color: '#7B61FF' },
-            { label: '$25', value: 25, color: '#FFD700' },
-            { label: '$500', value: 500, color: '#FF4D4D' },
-            { label: '$75', value: 75, color: '#00FF99' },
-            { label: '$200', value: 200, color: '#00D4FF' },
+            { label: '$10', value: 10, color: '#22C55E' },
+            { label: '$50', value: 50, color: '#3B82F6' },
+            { label: '$100', value: 100, color: '#8B5CF6' },
+            { label: '$25', value: 25, color: '#FBBF24' },
+            { label: '$500', value: 500, color: '#EF4444' },
+            { label: '$75', value: 75, color: '#22C55E' },
+            { label: '$200', value: 200, color: '#3B82F6' },
             { label: '$5', value: 5, color: '#888888' }
         ];
         document.getElementById('highScore').textContent = '$' + highScore;
@@ -129,7 +129,7 @@
             }
         }
         function draw() {
-            ctx.fillStyle = '#000000';
+            ctx.fillStyle = '#0F172A';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             const centerX = canvas.width / 2;
             const centerY = canvas.height / 2;
@@ -144,13 +144,13 @@
                 ctx.arc(0, 0, radius, i * sliceAngle, (i + 1) * sliceAngle);
                 ctx.fillStyle = prize.color;
                 ctx.fill();
-                ctx.strokeStyle = '#000000';
+                ctx.strokeStyle = '#0F172A';
                 ctx.lineWidth = 3;
                 ctx.stroke();
                 ctx.save();
                 ctx.rotate(i * sliceAngle + sliceAngle / 2);
                 ctx.textAlign = 'right';
-                ctx.fillStyle = '#000000';
+                ctx.fillStyle = '#0F172A';
                 ctx.font = 'bold 16px Inter';
                 ctx.fillText(prize.label, radius - 20, 5);
                 ctx.restore();
@@ -158,12 +158,12 @@
             ctx.restore();
             ctx.beginPath();
             ctx.arc(centerX, centerY, 30, 0, Math.PI * 2);
-            ctx.fillStyle = '#00FF99';
+            ctx.fillStyle = '#22C55E';
             ctx.fill();
-            ctx.strokeStyle = '#000000';
+            ctx.strokeStyle = '#0F172A';
             ctx.lineWidth = 3;
             ctx.stroke();
-            ctx.fillStyle = '#000000';
+            ctx.fillStyle = '#0F172A';
             ctx.font = 'bold 14px Inter';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
@@ -173,7 +173,7 @@
             ctx.lineTo(centerX - 15, centerY - radius - 30);
             ctx.lineTo(centerX + 15, centerY - radius - 30);
             ctx.closePath();
-            ctx.fillStyle = '#FFD700';
+            ctx.fillStyle = '#FBBF24';
             ctx.fill();
         }
         canvas.addEventListener('click', spin);
