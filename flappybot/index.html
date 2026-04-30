@@ -245,6 +245,14 @@
             },
             
             init() {
+                // Load MoneyBot image
+                this.playerImage = new Image();
+                this.playerImage.src = 'assets/player-rembg.png';
+                this.playerImageLoaded = false;
+                this.playerImage.onload = () => {
+                    this.playerImageLoaded = true;
+                };
+                
                 this.resize();
                 window.addEventListener('resize', () => this.resize());
                 
@@ -500,16 +508,25 @@
                 }
                 ctx.shadowBlur = 0;
                 
-                // Draw bird
+                // Draw MoneyBot character
                 ctx.save();
                 ctx.translate(this.bird.x + this.bird.width/2, this.bird.y + this.bird.height/2);
                 ctx.rotate(this.bird.rotation);
-                ctx.fillStyle = '#FFFFFF';
-                ctx.fillRect(-this.bird.width/2, -this.bird.height/2, this.bird.width, this.bird.height);
-                ctx.fillStyle = '#22C55E';
-                ctx.fillRect(-5, -8, 8, 8); // Eye
-                ctx.fillStyle = '#FFD700';
-                ctx.fillRect(5, 2, 10, 6); // Beak
+                
+                if (this.playerImageLoaded && this.playerImage) {
+                    // Draw actual MoneyBot image with transparency
+                    const size = 40;
+                    ctx.drawImage(this.playerImage, -size/2, -size/2, size, size);
+                } else {
+                    // Fallback rectangle
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.fillRect(-this.bird.width/2, -this.bird.height/2, this.bird.width, this.bird.height);
+                    ctx.fillStyle = '#22C55E';
+                    ctx.fillRect(-5, -8, 8, 8);
+                    ctx.fillStyle = '#FFD700';
+                    ctx.fillRect(5, 2, 10, 6);
+                }
+                
                 ctx.restore();
                 
                 // Draw particles
@@ -595,54 +612,69 @@
             },
             
             gameOver() {
+                if (this.state === 'gameover') return; // Prevent multiple calls
+                
                 this.state = 'gameover';
                 this.shakeIntensity = 15;
                 
-                if (this.score > this.bestScore) {
-                    this.bestScore = this.score;
-                    localStorage.setItem('flappybot_best', this.bestScore);
+                try {
+                    if (this.score > this.bestScore) {
+                        this.bestScore = this.score;
+                        localStorage.setItem('flappybot_best', this.bestScore);
+                    }
+                    
+                    const finalScoreEl = document.getElementById('finalScore');
+                    const finalBestEl = document.getElementById('finalBest');
+                    const gameOverScreen = document.getElementById('gameOverScreen');
+                    const bestScoreEl = document.getElementById('bestScore');
+                    
+                    if (finalScoreEl) finalScoreEl.textContent = this.score;
+                    if (finalBestEl) finalBestEl.textContent = this.bestScore;
+                    if (finalScoreEl) finalScoreEl.className = 'stats-value' + (this.score >= this.bestScore && this.score > 0 ? ' new-best' : '');
+                    if (gameOverScreen) gameOverScreen.style.display = 'flex';
+                    if (bestScoreEl) bestScoreEl.textContent = this.bestScore;
+                    
+                    this.updateUnlocks();
+                } catch (e) {
+                    console.error('Game over error:', e);
                 }
-                
-                document.getElementById('finalScore').textContent = this.score;
-                document.getElementById('finalBest').textContent = this.bestScore;
-                document.getElementById('finalScore').className = 'stats-value' + (this.score >= this.bestScore && this.score > 0 ? ' new-best' : '');
-                document.getElementById('gameOverScreen').style.display = 'flex';
-                document.getElementById('bestScore').textContent = this.bestScore;
-                
-                this.updateUnlocks();
             },
             
             updateUnlocks() {
-                let newUnlocks = false;
-                
-                for (const [theme, required] of Object.entries(this.themeUnlocks)) {
-                    if (this.bestScore >= required && !this.unlockedThemes.includes(theme)) {
-                        this.unlockedThemes.push(theme);
-                        newUnlocks = true;
+                try {
+                    let newUnlocks = false;
+                    
+                    for (const [theme, required] of Object.entries(this.themeUnlocks)) {
+                        if (this.bestScore >= required && !this.unlockedThemes.includes(theme)) {
+                            this.unlockedThemes.push(theme);
+                            newUnlocks = true;
+                        }
                     }
-                }
-                
-                for (const [bot, required] of Object.entries(this.botUnlocks)) {
-                    if (this.bestScore >= required && !this.unlockedBots.includes(bot)) {
-                        this.unlockedBots.push(bot);
-                        newUnlocks = true;
+                    
+                    for (const [bot, required] of Object.entries(this.botUnlocks)) {
+                        if (this.bestScore >= required && !this.unlockedBots.includes(bot)) {
+                            this.unlockedBots.push(bot);
+                            newUnlocks = true;
+                        }
                     }
-                }
-                
-                for (const [trail, required] of Object.entries(this.trailUnlocks)) {
-                    if (this.bestScore >= required && !this.unlockedTrails.includes(trail)) {
-                        this.unlockedTrails.push(trail);
-                        newUnlocks = true;
+                    
+                    for (const [trail, required] of Object.entries(this.trailUnlocks)) {
+                        if (this.bestScore >= required && !this.unlockedTrails.includes(trail)) {
+                            this.unlockedTrails.push(trail);
+                            newUnlocks = true;
+                        }
                     }
+                    
+                    if (newUnlocks) {
+                        localStorage.setItem('flappybot_unlockedThemes', JSON.stringify(this.unlockedThemes));
+                        localStorage.setItem('flappybot_unlockedBots', JSON.stringify(this.unlockedBots));
+                        localStorage.setItem('flappybot_unlockedTrails', JSON.stringify(this.unlockedTrails));
+                    }
+                    
+                    this.updateSettingsUI();
+                } catch (e) {
+                    console.error('Update unlocks error:', e);
                 }
-                
-                if (newUnlocks) {
-                    localStorage.setItem('flappybot_unlockedThemes', JSON.stringify(this.unlockedThemes));
-                    localStorage.setItem('flappybot_unlockedBots', JSON.stringify(this.unlockedBots));
-                    localStorage.setItem('flappybot_unlockedTrails', JSON.stringify(this.unlockedTrails));
-                }
-                
-                this.updateSettingsUI();
             },
             
             setTheme(theme) {
