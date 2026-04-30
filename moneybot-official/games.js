@@ -1,7 +1,4 @@
-// MoneyBot Games Data
-const gamesData = 
-{
-  "games": [
+const gamesData = [
     {
       "id": "bot-achievement-hunt",
       "name": "achievement hunt",
@@ -1263,5 +1260,5 @@ const gamesData =
     }
 
   ]
-}
-;
+
+];
