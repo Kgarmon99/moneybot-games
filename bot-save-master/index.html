@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MoneyBot - Bot Emergency Fund</title>
+    <title>MoneyBot - Bot Save Master</title>
     <link rel="icon" type="image/jpeg" href="assets/moneybot-logo-1.jpg">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
@@ -41,7 +41,7 @@
             <div class="header-logo">
                 <a href="../moneybot-official/" class="back-btn">←</a>
                 <div class="moneybot-icon"><img src="assets/moneybot-logo-1.jpg" /></div>
-                <span class="header-title">Bot Emergency Fund</span>
+                <span class="header-title">Bot Save Master</span>
             </div>
         </header>
         
@@ -60,14 +60,14 @@
             <canvas id="gameCanvas" width="390" height="400"></canvas>
             
             <div class="game-controls">
-                <button class="control-btn" onclick="game.action()">🚨 Play</button>
+                <button class="control-btn" onclick="game.action()">💎 Play</button>
             </div>
         </div>
     </div>
     
     <div class="overlay" id="startOverlay">
-        <div class="game-icon">🚨</div>
-        <div class="game-title">Bot Emergency Fund</div>
+        <div class="game-icon">💎</div>
+        <div class="game-title">Bot Save Master</div>
         <div class="game-desc">Master your money skills! Tap to play, collect coins, avoid debt.</div>
         <button class="start-btn" onclick="game.start()">Start Playing</button>
     </div>
@@ -78,7 +78,7 @@
         
         const game = {
             score: 0,
-            highScore: localStorage.getItem('bot-emergency-fund_highscore') || 0,
+            highScore: localStorage.getItem('bot-save-master_highscore') || 0,
             running: false,
             entities: [],
             
@@ -137,7 +137,7 @@
                 // Check for new high score
                 if (this.score > this.highScore) {
                     this.highScore = this.score;
-                    localStorage.setItem('bot-emergency-fund_highscore', this.highScore);
+                    localStorage.setItem('bot-save-master_highscore', this.highScore);
                     document.getElementById('highScore').textContent = this.highScore;
                 }
             },
