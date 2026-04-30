@@ -172,6 +172,39 @@
             text-align: center;
         }
         
+        .theme-selector {
+            margin: 20px 0;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .theme-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            border: 3px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 24px;
+        }
+        
+        .theme-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        .theme-btn.active {
+            border-color: #22C55E;
+            box-shadow: 0 0 15px rgba(34, 197, 94, 0.6);
+        }
+        
+        .theme-deepSpace { background: linear-gradient(135deg, #000000, #1a1a2e); }
+        .theme-nebula { background: linear-gradient(135deg, #2d1b4e, #1a0a2e); }
+        .theme-galaxy { background: linear-gradient(135deg, #0a1628, #1a3a5c); }
+        .theme-sunset { background: linear-gradient(135deg, #2d1810, #4a2512); }
+        .theme-matrix { background: linear-gradient(135deg, #000500, #003300); }
+        
         .tap-icon {
             font-size: 40px;
             animation: tapPulse 1s ease-in-out infinite;
@@ -284,6 +317,13 @@
     <div class="start-screen" id="startScreen">
         <div class="logo">🤖 FLAPPYBOT</div>
         <div class="subtitle">Fly through the market volatility!<br>Tap to flap, avoid the red zones</div>
+        <div class="theme-selector">
+            <button class="theme-btn theme-deepSpace active" onclick="game.setTheme('deepSpace')" title="Deep Space">🌌</button>
+            <button class="theme-btn theme-nebula" onclick="game.setTheme('nebula')" title="Nebula">🌸</button>
+            <button class="theme-btn theme-galaxy" onclick="game.setTheme('galaxy')" title="Galaxy">🌀</button>
+            <button class="theme-btn theme-sunset" onclick="game.setTheme('sunset')" title="Sunset">🌅</button>
+            <button class="theme-btn theme-matrix" onclick="game.setTheme('matrix')" title="Matrix">💻</button>
+        </div>
         <button class="btn" onclick="game.start()">PLAY NOW</button>
         <div class="instructions">
             <div class="tap-icon">👆</div>
@@ -320,6 +360,7 @@
             state: 'menu', // menu, playing, gameover
             score: 0,
             bestScore: parseInt(localStorage.getItem('flappybot_best')) || 0,
+            currentTheme: localStorage.getItem('flappybot_theme') || 'deepSpace',
             frames: 0,
             combo: 0,
             lastPipeX: 0,
@@ -359,6 +400,10 @@
                 this.playerImage.onload = () => {
                     this.playerImageLoaded = true;
                 };
+                
+                // Set initial theme
+                this.setTheme(this.currentTheme);
+                
                 this.resize();
                 window.addEventListener('resize', () => this.resize());
                 
@@ -385,6 +430,19 @@
                 canvas.width = window.innerWidth;
                 canvas.height = window.innerHeight;
                 this.bird.y = canvas.height / 2;
+            },
+            
+            setTheme(themeName) {
+                this.currentTheme = themeName;
+                
+                // Update button states
+                document.querySelectorAll('.theme-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                document.querySelector(`.theme-${themeName}`).classList.add('active');
+                
+                // Save preference
+                localStorage.setItem('flappybot_theme', themeName);
             },
             
             start() {
@@ -714,23 +772,150 @@
             },
             
             drawSpace() {
-                // Pure black background
-                ctx.fillStyle = '#000000';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                const themes = {
+                    deepSpace: () => {
+                        // Pure black with white stars
+                        ctx.fillStyle = '#000000';
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                        this.drawStars('#FFFFFF');
+                        this.drawPlanets(['#FFD700', '#FF6B6B', '#4ECDC4']);
+                    },
+                    nebula: () => {
+                        // Purple/pink nebula background
+                        const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+                        gradient.addColorStop(0, '#0a001a');
+                        gradient.addColorStop(0.5, '#1a0a2e');
+                        gradient.addColorStop(1, '#2d1b4e');
+                        ctx.fillStyle = gradient;
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                        
+                        // Nebula clouds
+                        this.drawNebulaClouds();
+                        this.drawStars('#FFE4E1');
+                        this.drawPlanets(['#FF69B4', '#9370DB', '#00CED1']);
+                    },
+                    galaxy: () => {
+                        // Blue spiral galaxy theme
+                        const gradient = ctx.createRadialGradient(canvas.width/2, canvas.height/2, 0, canvas.width/2, canvas.height/2, canvas.width);
+                        gradient.addColorStop(0, '#0a1628');
+                        gradient.addColorStop(0.5, '#1a3a5c');
+                        gradient.addColorStop(1, '#000000');
+                        ctx.fillStyle = gradient;
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                        
+                        this.drawGalaxySpiral();
+                        this.drawStars('#E0F7FA');
+                        this.drawPlanets(['#4169E1', '#00BFFF', '#87CEEB']);
+                    },
+                    sunset: () => {
+                        // Orange/red sunset space
+                        const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+                        gradient.addColorStop(0, '#2d1810');
+                        gradient.addColorStop(0.5, '#4a2512');
+                        gradient.addColorStop(1, '#1a0f0a');
+                        ctx.fillStyle = gradient;
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                        
+                        this.drawStars('#FFD700');
+                        this.drawPlanets(['#FF4500', '#FF6347', '#FFA500']);
+                    },
+                    matrix: () => {
+                        // Green digital rain theme
+                        ctx.fillStyle = '#000500';
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                        
+                        this.drawMatrixRain();
+                        this.drawStars('#00FF41');
+                        this.drawPlanets(['#00FF00', '#32CD32', '#90EE90']);
+                    }
+                };
                 
-                // Draw stars
-                this.drawStars();
-                
-                // Draw planets
-                this.drawPlanets();
+                // Use current theme or default to deepSpace
+                const currentTheme = this.currentTheme || 'deepSpace';
+                if (themes[currentTheme]) {
+                    themes[currentTheme]();
+                } else {
+                    themes.deepSpace();
+                }
             },
             
-            drawStars() {
+            drawNebulaClouds() {
+                const nebulaOffset = (this.frames * 0.1) % canvas.width;
+                const nebulas = [
+                    { x: 200 - nebulaOffset, y: 200, color: 'rgba(138, 43, 226, 0.3)', size: 150 },
+                    { x: 600 - nebulaOffset, y: 400, color: 'rgba(255, 20, 147, 0.2)', size: 200 },
+                    { x: 1000 - nebulaOffset, y: 150, color: 'rgba(75, 0, 130, 0.25)', size: 180 },
+                ];
+                
+                for (const nebula of nebulas) {
+                    const gradient = ctx.createRadialGradient(nebula.x, nebula.y, 0, nebula.x, nebula.y, nebula.size);
+                    gradient.addColorStop(0, nebula.color);
+                    gradient.addColorStop(1, 'transparent');
+                    ctx.fillStyle = gradient;
+                    ctx.beginPath();
+                    ctx.arc(nebula.x, nebula.y, nebula.size, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            },
+            
+            drawGalaxySpiral() {
+                const centerX = canvas.width / 2;
+                const centerY = canvas.height / 2;
+                ctx.save();
+                ctx.translate(centerX, centerY);
+                ctx.rotate(this.frames * 0.002);
+                
+                // Draw spiral arms
+                for (let arm = 0; arm < 3; arm++) {
+                    ctx.rotate((Math.PI * 2) / 3);
+                    ctx.strokeStyle = 'rgba(100, 149, 237, 0.3)';
+                    ctx.lineWidth = 20;
+                    ctx.beginPath();
+                    for (let i = 0; i < 100; i++) {
+                        const angle = i * 0.1;
+                        const radius = i * 3;
+                        const x = Math.cos(angle) * radius;
+                        const y = Math.sin(angle) * radius;
+                        if (i === 0) ctx.moveTo(x, y);
+                        else ctx.lineTo(x, y);
+                    }
+                    ctx.stroke();
+                }
+                ctx.restore();
+            },
+            
+            drawMatrixRain() {
+                if (!this.matrixDrops) {
+                    this.matrixDrops = [];
+                    for (let i = 0; i < 30; i++) {
+                        this.matrixDrops.push({
+                            x: Math.random() * canvas.width,
+                            y: Math.random() * canvas.height,
+                            speed: 2 + Math.random() * 3,
+                            length: 10 + Math.random() * 20
+                        });
+                    }
+                }
+                
+                ctx.fillStyle = '#00FF41';
+                ctx.font = '14px monospace';
+                for (const drop of this.matrixDrops) {
+                    const char = String.fromCharCode(0x30A0 + Math.random() * 96);
+                    ctx.fillText(char, drop.x, drop.y);
+                    drop.y += drop.speed;
+                    if (drop.y > canvas.height) {
+                        drop.y = -20;
+                        drop.x = Math.random() * canvas.width;
+                    }
+                }
+            },
+            
+            drawStars(color = '#FFFFFF') {
                 // Twinkling stars
                 const starOffset = (this.frames * 0.2) % canvas.width;
                 
                 // Static stars
-                ctx.fillStyle = 'white';
+                ctx.fillStyle = color;
                 for (let i = 0; i < 100; i++) {
                     const x = (i * 137.5 + starOffset) % canvas.width;
                     const y = (i * 73.3) % canvas.height;
@@ -755,7 +940,7 @@
                 }
                 
                 if (this.shootingStar && this.shootingStar.life > 0) {
-                    ctx.strokeStyle = 'white';
+                    ctx.strokeStyle = color;
                     ctx.lineWidth = 2;
                     ctx.beginPath();
                     ctx.moveTo(this.shootingStar.x, this.shootingStar.y);
@@ -791,37 +976,35 @@
                 }
             },
             
-            drawPlanets() {
+            drawPlanets(colors = ['#FFD700', '#FF6B6B', '#4ECDC4']) {
                 const planetOffset = (this.frames * 0.05) % canvas.width;
                 
-                // Saturn-like planet
+                // Planet 1 - Saturn-like with customizable color
                 const saturnX = 150 - planetOffset;
                 const saturnY = 120;
-                
-                // Planet body
                 const saturnGradient = ctx.createRadialGradient(saturnX - 20, saturnY - 20, 0, saturnX, saturnY, 40);
-                saturnGradient.addColorStop(0, '#FFD700');
-                saturnGradient.addColorStop(0.5, '#FFA500');
-                saturnGradient.addColorStop(1, '#FF8C00');
+                saturnGradient.addColorStop(0, colors[0]);
+                saturnGradient.addColorStop(0.5, colors[0]);
+                saturnGradient.addColorStop(1, colors[0]);
                 ctx.fillStyle = saturnGradient;
                 ctx.beginPath();
                 ctx.arc(saturnX, saturnY, 35, 0, Math.PI * 2);
                 ctx.fill();
                 
                 // Rings
-                ctx.strokeStyle = 'rgba(255, 215, 0, 0.6)';
+                ctx.strokeStyle = colors[0] + '99'; // Add transparency
                 ctx.lineWidth = 8;
                 ctx.beginPath();
                 ctx.ellipse(saturnX, saturnY, 60, 20, Math.PI / 6, 0, Math.PI * 2);
                 ctx.stroke();
                 
-                // Blue planet
+                // Planet 2
                 const blueX = canvas.width - 100 - planetOffset;
                 const blueY = canvas.height - 200;
                 const blueGradient = ctx.createRadialGradient(blueX - 15, blueY - 15, 0, blueX, blueY, 30);
-                blueGradient.addColorStop(0, '#4169E1');
-                blueGradient.addColorStop(0.5, '#0000CD');
-                blueGradient.addColorStop(1, '#00008B');
+                blueGradient.addColorStop(0, colors[1]);
+                blueGradient.addColorStop(0.5, colors[1]);
+                blueGradient.addColorStop(1, colors[1]);
                 ctx.fillStyle = blueGradient;
                 ctx.beginPath();
                 ctx.arc(blueX, blueY, 25, 0, Math.PI * 2);
@@ -834,7 +1017,7 @@
                     ctx.beginPath();
                     ctx.arc(wrapX, saturnY, 35, 0, Math.PI * 2);
                     ctx.fill();
-                    ctx.strokeStyle = 'rgba(255, 215, 0, 0.6)';
+                    ctx.strokeStyle = colors[0] + '99';
                     ctx.lineWidth = 8;
                     ctx.beginPath();
                     ctx.ellipse(wrapX, saturnY, 60, 20, Math.PI / 6, 0, Math.PI * 2);
