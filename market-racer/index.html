@@ -50,7 +50,7 @@
             top: 0;
             left: 0;
             right: 0;
-            padding: 16px 20px;
+            padding: 16px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -61,7 +61,7 @@
         .back-btn {
             width: 44px;
             height: 44px;
-            border-radius: 14px;
+            border-radius: 8px;
             background: rgba(255,255,255,0.15);
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255,255,255,0.1);
@@ -107,7 +107,7 @@
             background: rgba(251, 191, 36, 0.2);
             border: 1px solid var(--moneybot-gold);
             padding: 6px 14px;
-            border-radius: 20px;
+            border-radius: 16px;
             margin-top: 4px;
         }
         
@@ -159,8 +159,8 @@
         }
         
         .title {
-            font-size: 36px;
-            font-weight: 900;
+            font-size: 40px;
+            font-weight: 800;
             background: linear-gradient(135deg, #fff 0%, var(--moneybot-green) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -288,7 +288,7 @@
         </div>
         
         <div class="game-over-screen" id="gameOverScreen">
-            <div class="logo" style="font-size: 60px; margin-bottom: 10px;">💥</div>
+            <div class="logo" style="font-size: 40px; margin-bottom: 10px;">💥</div>
             <div class="title" style="font-size: 32px;">Crash!</div>
             <div class="subtitle">You raced <span id="finalScore">0</span>m</div>
             <button class="start-btn" onclick="restartGame()">Race Again</button>
