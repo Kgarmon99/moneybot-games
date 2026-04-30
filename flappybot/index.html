@@ -26,7 +26,7 @@
         
         body { 
             font-family: 'Inter', sans-serif; 
-            background: linear-gradient(180deg, #87CEEB 0%, #E0F6FF 100%);
+            background: #0a0a1a;
             min-height: 100vh;
             overflow: hidden;
         }
@@ -58,16 +58,16 @@
         .score-number {
             font-size: 72px;
             font-weight: 900;
-            color: white;
-            text-shadow: 4px 4px 0 rgba(0,0,0,0.3), -2px -2px 0 rgba(0,0,0,0.1);
+            color: #22C55E;
+            text-shadow: 0 0 20px rgba(34, 197, 94, 0.8), 0 0 40px rgba(34, 197, 94, 0.4);
             line-height: 1;
         }
         
         .best-score {
             font-size: 16px;
             font-weight: 600;
-            color: white;
-            text-shadow: 2px 2px 0 rgba(0,0,0,0.3);
+            color: #22C55E;
+            text-shadow: 0 0 10px rgba(34, 197, 94, 0.8);
             margin-top: 5px;
         }
         
@@ -537,46 +537,76 @@
                 // Clear canvas
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 
-                // Draw sky gradient
-                const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-                gradient.addColorStop(0, '#87CEEB');
-                gradient.addColorStop(0.7, '#E0F6FF');
-                gradient.addColorStop(1, '#B8E6B8');
-                ctx.fillStyle = gradient;
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                // Draw space background
+                this.drawSpace();
                 
-                // Draw clouds
-                this.drawClouds();
-                
-                // Draw pipes
-                ctx.strokeStyle = '#0F172A';
-                ctx.lineWidth = 3;
+                // Draw space laser barriers
                 for (const pipe of this.pipes) {
-                    // Top pipe
-                    ctx.fillStyle = pipe.color;
+                    // Glow effect
+                    ctx.shadowBlur = 20;
+                    ctx.shadowColor = '#22C55E';
+                    
+                    // Top laser beam
+                    const topGradient = ctx.createLinearGradient(pipe.x, 0, pipe.x + pipe.width, 0);
+                    topGradient.addColorStop(0, 'rgba(34, 197, 94, 0.3)');
+                    topGradient.addColorStop(0.5, 'rgba(34, 197, 94, 0.8)');
+                    topGradient.addColorStop(1, 'rgba(34, 197, 94, 0.3)');
+                    ctx.fillStyle = topGradient;
                     ctx.fillRect(pipe.x, 0, pipe.width, pipe.topHeight);
-                    ctx.strokeRect(pipe.x, 0, pipe.width, pipe.topHeight);
                     
-                    // Pipe cap
-                    ctx.fillRect(pipe.x - 3, pipe.topHeight - 30, pipe.width + 6, 30);
-                    ctx.strokeRect(pipe.x - 3, pipe.topHeight - 30, pipe.width + 6, 30);
+                    // Laser core - top
+                    ctx.fillStyle = '#22C55E';
+                    ctx.fillRect(pipe.x + 20, 0, 20, pipe.topHeight);
                     
-                    // Bottom pipe
+                    // Energy pulses on laser
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                    const pulseY = (this.frames * 2) % pipe.topHeight;
+                    ctx.fillRect(pipe.x + 15, pulseY - 10, 30, 20);
+                    
+                    // Top emitter
+                    ctx.fillStyle = '#1a1a3a';
+                    ctx.fillRect(pipe.x - 5, pipe.topHeight - 25, pipe.width + 10, 25);
+                    ctx.strokeStyle = '#22C55E';
+                    ctx.lineWidth = 3;
+                    ctx.strokeRect(pipe.x - 5, pipe.topHeight - 25, pipe.width + 10, 25);
+                    
+                    // Emitter lights
+                    ctx.fillStyle = '#22C55E';
+                    ctx.beginPath();
+                    ctx.arc(pipe.x + 15, pipe.topHeight - 12, 5, 0, Math.PI * 2);
+                    ctx.arc(pipe.x + 45, pipe.topHeight - 12, 5, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    // Bottom laser beam
+                    const bottomGradient = ctx.createLinearGradient(pipe.x, pipe.bottomY, pipe.x + pipe.width, pipe.bottomY);
+                    bottomGradient.addColorStop(0, 'rgba(34, 197, 94, 0.3)');
+                    bottomGradient.addColorStop(0.5, 'rgba(34, 197, 94, 0.8)');
+                    bottomGradient.addColorStop(1, 'rgba(34, 197, 94, 0.3)');
+                    ctx.fillStyle = bottomGradient;
                     ctx.fillRect(pipe.x, pipe.bottomY, pipe.width, canvas.height - pipe.bottomY);
-                    ctx.strokeRect(pipe.x, pipe.bottomY, pipe.width, canvas.height - pipe.bottomY);
                     
-                    // Bottom cap
-                    ctx.fillRect(pipe.x - 3, pipe.bottomY, pipe.width + 6, 30);
-                    ctx.strokeRect(pipe.x - 3, pipe.bottomY, pipe.width + 6, 30);
+                    // Laser core - bottom
+                    ctx.fillStyle = '#22C55E';
+                    ctx.fillRect(pipe.x + 20, pipe.bottomY, 20, canvas.height - pipe.bottomY);
                     
-                    // Money pattern on pipes
-                    ctx.fillStyle = 'rgba(255,255,255,0.3)';
-                    for (let i = 10; i < pipe.topHeight - 40; i += 30) {
-                        ctx.fillRect(pipe.x + 15, i, 30, 20);
-                    }
-                    for (let i = pipe.bottomY + 40; i < canvas.height - 100; i += 30) {
-                        ctx.fillRect(pipe.x + 15, i, 30, 20);
-                    }
+                    // Energy pulses on bottom laser
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                    const bottomPulseY = pipe.bottomY + (this.frames * 2) % (canvas.height - pipe.bottomY);
+                    ctx.fillRect(pipe.x + 15, bottomPulseY - 10, 30, 20);
+                    
+                    // Bottom emitter
+                    ctx.fillStyle = '#1a1a3a';
+                    ctx.fillRect(pipe.x - 5, pipe.bottomY, pipe.width + 10, 25);
+                    ctx.strokeRect(pipe.x - 5, pipe.bottomY, pipe.width + 10, 25);
+                    
+                    // Emitter lights
+                    ctx.fillStyle = '#22C55E';
+                    ctx.beginPath();
+                    ctx.arc(pipe.x + 15, pipe.bottomY + 12, 5, 0, Math.PI * 2);
+                    ctx.arc(pipe.x + 45, pipe.bottomY + 12, 5, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    ctx.shadowBlur = 0;
                 }
                 
                 // Draw particles
@@ -704,49 +734,183 @@
                 
                 ctx.restore();
                 
-                // Draw ground
-                ctx.fillStyle = '#D4A574';
+                // Draw space station platform at bottom
+                const platformGradient = ctx.createLinearGradient(0, canvas.height - 80, 0, canvas.height);
+                platformGradient.addColorStop(0, '#2a2a4a');
+                platformGradient.addColorStop(0.5, '#1a1a3a');
+                platformGradient.addColorStop(1, '#0a0a1a');
+                ctx.fillStyle = platformGradient;
                 ctx.fillRect(0, canvas.height - 80, canvas.width, 80);
-                ctx.strokeStyle = '#8B6914';
-                ctx.lineWidth = 3;
-                ctx.strokeRect(0, canvas.height - 80, canvas.width, 80);
                 
-                // Ground pattern
-                ctx.fillStyle = '#C49464';
-                for (let x = this.groundOffset; x < canvas.width; x += 24) {
+                // Platform edge glow
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = '#22C55E';
+                ctx.strokeStyle = '#22C55E';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(0, canvas.height - 80);
+                ctx.lineTo(canvas.width, canvas.height - 80);
+                ctx.stroke();
+                ctx.shadowBlur = 0;
+                
+                // Platform grid pattern
+                ctx.strokeStyle = 'rgba(34, 197, 94, 0.3)';
+                ctx.lineWidth = 1;
+                for (let x = this.groundOffset; x < canvas.width; x += 40) {
                     ctx.beginPath();
                     ctx.moveTo(x, canvas.height - 80);
-                    ctx.lineTo(x + 12, canvas.height - 60);
-                    ctx.lineTo(x + 24, canvas.height - 80);
-                    ctx.fill();
+                    ctx.lineTo(x, canvas.height);
+                    ctx.stroke();
+                }
+                for (let y = canvas.height - 80; y < canvas.height; y += 20) {
+                    ctx.beginPath();
+                    ctx.moveTo(0, y);
+                    ctx.lineTo(canvas.width, y);
+                    ctx.stroke();
                 }
                 
-                // Grass on top
+                // Platform lights
                 ctx.fillStyle = '#22C55E';
-                ctx.fillRect(0, canvas.height - 85, canvas.width, 10);
-                ctx.strokeStyle = '#15803d';
-                ctx.strokeRect(0, canvas.height - 85, canvas.width, 10);
+                for (let x = this.groundOffset; x < canvas.width; x += 80) {
+                    ctx.beginPath();
+                    ctx.arc(x + 40, canvas.height - 70, 4, 0, Math.PI * 2);
+                    ctx.fill();
+                }
             },
             
-            drawClouds() {
-                ctx.fillStyle = 'rgba(255,255,255,0.8)';
-                const cloudOffset = (this.frames * 0.5) % canvas.width;
+            drawSpace() {
+                // Deep space gradient
+                const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+                gradient.addColorStop(0, '#0a0a1a');
+                gradient.addColorStop(0.5, '#1a1a3a');
+                gradient.addColorStop(1, '#2a1a4a');
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
                 
-                const clouds = [
-                    { x: 100 - cloudOffset, y: 80, scale: 1 },
-                    { x: 400 - cloudOffset, y: 150, scale: 0.8 },
-                    { x: 700 - cloudOffset, y: 60, scale: 1.2 },
-                    { x: 1000 - cloudOffset, y: 120, scale: 0.9 },
-                    { x: canvas.width + 100 - cloudOffset, y: 80, scale: 1 },
-                    { x: canvas.width + 400 - cloudOffset, y: 150, scale: 0.8 },
+                // Draw stars
+                this.drawStars();
+                
+                // Draw nebula
+                this.drawNebula();
+                
+                // Draw planets
+                this.drawPlanets();
+            },
+            
+            drawStars() {
+                // Twinkling stars
+                const starOffset = (this.frames * 0.2) % canvas.width;
+                
+                // Static stars
+                ctx.fillStyle = 'white';
+                for (let i = 0; i < 100; i++) {
+                    const x = (i * 137.5 + starOffset) % canvas.width;
+                    const y = (i * 73.3) % canvas.height;
+                    const size = (i % 3) + 1;
+                    const twinkle = Math.sin(this.frames * 0.1 + i) * 0.5 + 0.5;
+                    ctx.globalAlpha = 0.3 + twinkle * 0.7;
+                    ctx.beginPath();
+                    ctx.arc(x, y, size, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                ctx.globalAlpha = 1;
+                
+                // Shooting stars
+                if (this.frames % 200 === 0) {
+                    this.shootingStar = {
+                        x: Math.random() * canvas.width,
+                        y: Math.random() * canvas.height * 0.5,
+                        vx: -5 - Math.random() * 5,
+                        vy: 2 + Math.random() * 2,
+                        life: 30
+                    };
+                }
+                
+                if (this.shootingStar && this.shootingStar.life > 0) {
+                    ctx.strokeStyle = 'white';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.moveTo(this.shootingStar.x, this.shootingStar.y);
+                    ctx.lineTo(this.shootingStar.x - this.shootingStar.vx * 5, this.shootingStar.y - this.shootingStar.vy * 5);
+                    ctx.stroke();
+                    
+                    this.shootingStar.x += this.shootingStar.vx;
+                    this.shootingStar.y += this.shootingStar.vy;
+                    this.shootingStar.life--;
+                }
+            },
+            
+            drawNebula() {
+                // Purple/pink nebula clouds
+                const nebulaOffset = (this.frames * 0.1) % canvas.width;
+                
+                const nebulas = [
+                    { x: 200 - nebulaOffset, y: 200, color: 'rgba(138, 43, 226, 0.3)', size: 150 },
+                    { x: 600 - nebulaOffset, y: 400, color: 'rgba(255, 20, 147, 0.2)', size: 200 },
+                    { x: 1000 - nebulaOffset, y: 150, color: 'rgba(75, 0, 130, 0.25)', size: 180 },
+                    { x: canvas.width + 200 - nebulaOffset, y: 200, color: 'rgba(138, 43, 226, 0.3)', size: 150 },
+                    { x: canvas.width + 600 - nebulaOffset, y: 400, color: 'rgba(255, 20, 147, 0.2)', size: 200 },
                 ];
                 
-                for (const cloud of clouds) {
+                for (const nebula of nebulas) {
+                    const gradient = ctx.createRadialGradient(nebula.x, nebula.y, 0, nebula.x, nebula.y, nebula.size);
+                    gradient.addColorStop(0, nebula.color);
+                    gradient.addColorStop(1, 'transparent');
+                    ctx.fillStyle = gradient;
                     ctx.beginPath();
-                    ctx.arc(cloud.x, cloud.y, 30 * cloud.scale, 0, Math.PI * 2);
-                    ctx.arc(cloud.x + 25 * cloud.scale, cloud.y - 10 * cloud.scale, 35 * cloud.scale, 0, Math.PI * 2);
-                    ctx.arc(cloud.x + 50 * cloud.scale, cloud.y, 30 * cloud.scale, 0, Math.PI * 2);
+                    ctx.arc(nebula.x, nebula.y, nebula.size, 0, Math.PI * 2);
                     ctx.fill();
+                }
+            },
+            
+            drawPlanets() {
+                const planetOffset = (this.frames * 0.05) % canvas.width;
+                
+                // Saturn-like planet
+                const saturnX = 150 - planetOffset;
+                const saturnY = 120;
+                
+                // Planet body
+                const saturnGradient = ctx.createRadialGradient(saturnX - 20, saturnY - 20, 0, saturnX, saturnY, 40);
+                saturnGradient.addColorStop(0, '#FFD700');
+                saturnGradient.addColorStop(0.5, '#FFA500');
+                saturnGradient.addColorStop(1, '#FF8C00');
+                ctx.fillStyle = saturnGradient;
+                ctx.beginPath();
+                ctx.arc(saturnX, saturnY, 35, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Rings
+                ctx.strokeStyle = 'rgba(255, 215, 0, 0.6)';
+                ctx.lineWidth = 8;
+                ctx.beginPath();
+                ctx.ellipse(saturnX, saturnY, 60, 20, Math.PI / 6, 0, Math.PI * 2);
+                ctx.stroke();
+                
+                // Blue planet
+                const blueX = canvas.width - 100 - planetOffset;
+                const blueY = canvas.height - 200;
+                const blueGradient = ctx.createRadialGradient(blueX - 15, blueY - 15, 0, blueX, blueY, 30);
+                blueGradient.addColorStop(0, '#4169E1');
+                blueGradient.addColorStop(0.5, '#0000CD');
+                blueGradient.addColorStop(1, '#00008B');
+                ctx.fillStyle = blueGradient;
+                ctx.beginPath();
+                ctx.arc(blueX, blueY, 25, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Wrap around planets
+                if (saturnX < -100) {
+                    const wrapX = saturnX + canvas.width + 200;
+                    ctx.fillStyle = saturnGradient;
+                    ctx.beginPath();
+                    ctx.arc(wrapX, saturnY, 35, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.strokeStyle = 'rgba(255, 215, 0, 0.6)';
+                    ctx.lineWidth = 8;
+                    ctx.beginPath();
+                    ctx.ellipse(wrapX, saturnY, 60, 20, Math.PI / 6, 0, Math.PI * 2);
+                    ctx.stroke();
                 }
             },
             
