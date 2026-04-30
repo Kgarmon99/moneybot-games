@@ -104,6 +104,12 @@
                     <button class="grid-btn locked" onclick="game.setBot('fire')" data-bot="fire"><div class="grid-icon">🔥</div><div class="grid-name">Fire</div><div class="grid-unlock">100</div></button>
                     <button class="grid-btn locked" onclick="game.setBot('pixel')" data-bot="pixel"><div class="grid-icon">👾</div><div class="grid-name">Pixel</div><div class="grid-unlock">150</div></button>
                     <button class="grid-btn locked" onclick="game.setBot('alien')" data-bot="alien"><div class="grid-icon">👽</div><div class="grid-name">Alien</div><div class="grid-unlock">200</div></button>
+                    <button class="grid-btn locked" onclick="game.setBot('ice')" data-bot="ice"><div class="grid-icon">❄️</div><div class="grid-name">Ice</div><div class="grid-unlock">250</div></button>
+                    <button class="grid-btn locked" onclick="game.setBot('inferno')" data-bot="inferno"><div class="grid-icon">🔥</div><div class="grid-name">Inferno</div><div class="grid-unlock">300</div></button>
+                    <button class="grid-btn locked" onclick="game.setBot('galaxy')" data-bot="galaxy"><div class="grid-icon">🌌</div><div class="grid-name">Galaxy</div><div class="grid-unlock">350</div></button>
+                    <button class="grid-btn locked" onclick="game.setBot('cyber')" data-bot="cyber"><div class="grid-icon">⚡</div><div class="grid-name">Cyber</div><div class="grid-unlock">400</div></button>
+                    <button class="grid-btn locked" onclick="game.setBot('zombie')" data-bot="zombie"><div class="grid-icon">💀</div><div class="grid-name">Zombie</div><div class="grid-unlock">450</div></button>
+                    <button class="grid-btn locked" onclick="game.setBot('flame')" data-bot="flame"><div class="grid-icon">🔥</div><div class="grid-name">Flame</div><div class="grid-unlock">500</div></button>
                 </div>
             </div>
             <div class="tab-content" id="tab-themes">
@@ -221,7 +227,7 @@
             trailParticles: [],
             
             themeUnlocks: { deepSpace: 0, nebula: 0, galaxy: 0, matrix: 0, sunset: 30, moneyverse: 60, aurora: 80, cyberpunk: 120, volcano: 200 },
-            botUnlocks: { classic: 0, gold: 25, neon: 50, ninja: 75, fire: 100, pixel: 150, alien: 200 },
+            botUnlocks: { classic: 0, gold: 25, neon: 50, ninja: 75, fire: 100, pixel: 150, alien: 200, ice: 250, inferno: 300, galaxy: 350, cyber: 400, zombie: 450, flame: 500 },
             trailUnlocks: { none: 0, cash: 0, coins: 0, green: 20, fire: 40, rainbow: 70, neon: 100, stars: 150, bubbles: 250 },
             
             trailColors: {
@@ -257,7 +263,13 @@
                     ninja: this.loadImage('assets/bot-dark-rembg.png'),
                     alien: this.loadImage('assets/player-rembg.png'),
                     fire: this.loadImage('assets/bot-fire-rembg.png'),
-                    pixel: this.loadImage('assets/bot-pixel-rembg.png')
+                    pixel: this.loadImage('assets/bot-pixel-rembg.png'),
+                    ice: this.loadImage('assets/bot-ice-rembg.png'),
+                    inferno: this.loadImage('assets/bot-inferno-rembg.png'),
+                    galaxy: this.loadImage('assets/bot-galaxy-rembg.png'),
+                    cyber: this.loadImage('assets/bot-cyber-rembg.png'),
+                    zombie: this.loadImage('assets/bot-zombie-rembg.png'),
+                    flame: this.loadImage('assets/bot-flame-rembg.png')
                 };
                 
                 this.resize();
@@ -732,7 +744,7 @@
             },
             
             updateStartScreenIndicators() {
-                const botIcons = { classic: '🤖', gold: '🥇', neon: '🌈', ninja: '🥷', fire: '🔥', pixel: '👾', alien: '👽' };
+                const botIcons = { classic: '🤖', gold: '🥇', neon: '🌈', ninja: '🥷', fire: '🔥', pixel: '👾', alien: '👽', ice: '❄️', inferno: '🔥', galaxy: '🌌', cyber: '⚡', zombie: '💀', flame: '🔥' };
                 const themeIcons = { deepSpace: '🌌', nebula: '🌸', galaxy: '🌀', matrix: '💻', sunset: '🌅', moneyverse: '💚', aurora: '🌟', cyberpunk: '🌃', volcano: '🌋' };
                 const trailIcons = { none: '❌', cash: '💵', coins: '🪙', green: '💚', fire: '🔥', rainbow: '🌈', neon: '⚡', stars: '⭐', bubbles: '🫧' };
                 document.getElementById('currentBotIcon').textContent = botIcons[this.currentBot] || '🤖';
