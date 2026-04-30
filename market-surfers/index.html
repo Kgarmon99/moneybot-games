@@ -50,7 +50,7 @@
             justify-content: space-between;
             align-items: center;
             z-index: 100;
-            background: linear-gradient(to bottom, rgba(15, 23, 42, 0.9) 0%, transparent 100%);
+            background: #FFFFFF 0%, transparent 100%);
         }
         
         .back-btn {
@@ -58,7 +58,7 @@
             height: 44px;
             border-radius: 8px;
             background: rgba(255,255,255,0.15);
-            backdrop-filter: blur(20px);
+            
             border: 1px solid rgba(255,255,255,0.1);
             color: #0F172A;
             display: flex;
@@ -128,7 +128,7 @@
             left: 0;
             right: 0;
             padding: 20px;
-            background: linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 100%);
+            background: #FFFFFF 0%, transparent 100%);
             pointer-events: none;
         }
         
@@ -143,7 +143,7 @@
             height: 50px;
             border-radius: 8px;
             background: rgba(255,255,255,0.15);
-            backdrop-filter: blur(20px);
+            
             border: 1px solid rgba(255,255,255,0.2);
             display: flex;
             align-items: center;
@@ -169,8 +169,8 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(180deg, rgba(15, 23, 42, 0.98) 0%, rgba(0, 0, 0, 0.95) 100%);
-            backdrop-filter: blur(20px);
+            background: #FFFFFF 0%, transparent 100%);
+            
             z-index: 200;
         }
         
@@ -197,7 +197,7 @@
         .title {
             font-size: 40px;
             font-weight: 800;
-            background: linear-gradient(135deg, #fff 0%, var(--moneybot-green) 100%);
+            background: #FFFFFF 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             margin-bottom: 8px;
@@ -236,7 +236,7 @@
         }
         
         .start-btn {
-            background: linear-gradient(135deg, var(--moneybot-green), var(--moneybot-green-dark));
+            background: #FFFFFF, var(--moneybot-green-dark));
             color: #0F172A;
             border: none;
             padding: 22px 70px;
@@ -720,7 +720,7 @@
             
             // Shadow
             if (!player.jumping) {
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+                ctx.fillStyle = 'transparent';
                 ctx.beginPath();
                 ctx.ellipse(playerX, player.y + 45, 25, 10, 0, 0, Math.PI * 2);
                 ctx.fill();

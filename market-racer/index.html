@@ -56,7 +56,7 @@
             justify-content: space-between;
             align-items: center;
             z-index: 100;
-            background: linear-gradient(to bottom, rgba(15, 23, 42, 0.95) 0%, transparent 100%);
+            background: #FFFFFF 0%, transparent 100%);
         }
         
         .back-btn {
@@ -64,7 +64,7 @@
             height: 44px;
             border-radius: 8px;
             background: rgba(255,255,255,0.15);
-            backdrop-filter: blur(20px);
+            
             border: 1px solid rgba(255,255,255,0.1);
             color: #0F172A;
             display: flex;
@@ -138,8 +138,8 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(180deg, rgba(15, 23, 42, 0.98) 0%, rgba(0, 0, 0, 0.95) 100%);
-            backdrop-filter: blur(20px);
+            background: #FFFFFF 0%, transparent 100%);
+            
             z-index: 200;
         }
         
@@ -162,7 +162,7 @@
         .title {
             font-size: 40px;
             font-weight: 800;
-            background: linear-gradient(135deg, #fff 0%, var(--moneybot-green) 100%);
+            background: #FFFFFF 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             margin-bottom: 10px;
@@ -201,7 +201,7 @@
         }
         
         .start-btn {
-            background: linear-gradient(135deg, var(--moneybot-green), var(--moneybot-green-dark));
+            background: #FFFFFF, var(--moneybot-green-dark));
             color: #0F172A;
             border: none;
             padding: 22px 70px;
@@ -434,7 +434,7 @@
             }
             
             // Draw ground
-            ctx.fillStyle = '#F8FAFC';
+            ctx.fillStyle = '#FFFFFF';
             ctx.fillRect(0, canvas.height - 100, canvas.width, 100);
             
             // Lane markers
@@ -451,7 +451,7 @@
             
             // Moving grid on ground
             groundOffset = (groundOffset + speed) % 40;
-            ctx.strokeStyle = 'rgba(0, 0, 0, 0.1)';
+            ctx.strokeStyle = 'transparent';
             ctx.lineWidth = 1;
             for (let i = -40; i < canvas.width + 40; i += 40) {
                 ctx.beginPath();

@@ -126,7 +126,7 @@
         }
         
         .score-card {
-            background: linear-gradient(135deg, var(--moneybot-green) 0%, var(--moneybot-green-dark) 100%);
+            background: #FFFFFF 0%, var(--moneybot-green-dark) 100%);
             border-radius: 24px;
             padding: 24px;
             margin-bottom: 20px;
@@ -222,8 +222,8 @@
             100% { transform: scale(1); }
         }
         
-        .tile[data-value="2"] { background: #F1F5F9; color: #64748B; }
-        .tile[data-value="4"] { background: #E2E8F0; color: #64748B; }
+        .tile[data-value="2"] { background: #FFFFFF; color: #64748B; }
+        .tile[data-value="4"] { background: #FFFFFF; color: #64748B; }
         .tile[data-value="8"] { background: #BFDBFE; color: #1E40AF; }
         .tile[data-value="16"] { background: #93C5FD; color: #1E3A8A; }
         .tile[data-value="32"] { background: #60A5FA; color: #0F172A; }
@@ -231,8 +231,8 @@
         .tile[data-value="128"] { background: #2563EB; color: #0F172A; }
         .tile[data-value="256"] { background: var(--moneybot-green); color: #0F172A; }
         .tile[data-value="512"] { background: var(--moneybot-green-dark); color: #0F172A; }
-        .tile[data-value="1024"] { background: linear-gradient(135deg, #FBBF24, #D97706); color: #0F172A; font-size: 14px; }
-        .tile[data-value="2048"] { background: linear-gradient(135deg, var(--moneybot-green), var(--moneybot-gold)); color: #0F172A; font-size: 14px; box-shadow: 0 0 20px rgba(0, 230, 118, 0.5); }
+        .tile[data-value="1024"] { background: #FFFFFF; color: #0F172A; font-size: 14px; }
+        .tile[data-value="2048"] { background: #FFFFFF, var(--moneybot-gold)); color: #0F172A; font-size: 14px; box-shadow: 0 0 20px rgba(0, 230, 118, 0.5); }
         
         .controls {
             display: flex;
@@ -293,7 +293,7 @@
             align-items: center;
             justify-content: center;
             z-index: 1000;
-            backdrop-filter: blur(20px);
+            
         }
         
         .game-over-overlay.show {

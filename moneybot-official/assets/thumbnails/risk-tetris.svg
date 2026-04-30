@@ -1,33 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
-  <defs>
-    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#FFFFFF;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#F8FAFC;stop-opacity:1" />
-    </linearGradient>
-    <filter id="glow">
-      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
-      <feMerge>
-        <feMergeNode in="coloredBlur"/>
-        <feMergeNode in="SourceGraphic"/>
-      </feMerge>
-    </filter>
-    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#22C55E" flood-opacity="0.2"/>
-    </filter>
-  </defs>
-  
-  <!-- White Background -->
-  <rect width="200" height="200" fill="url(#bgGrad)" rx="20"/>
-  
-  <!-- Subtle border -->
-  <rect x="2" y="2" width="196" height="196" fill="none" stroke="#22C55E" stroke-width="2" rx="18" opacity="0.3"/>
-  
-  <!-- Game Icon -->
-  <g transform="translate(100, 100)" filter="url(#shadow)">
-    <rect x="-50" y="30" width="100" height="20" fill="#22C55E" rx="2"/><rect x="-50" y="0" width="60" height="20" fill="#0F172A" rx="2" opacity="0.9"/><rect x="-50" y="-30" width="40" height="20" fill="#0F172A" rx="2" opacity="0.7"/><rect x="0" y="-30" width="20" height="20" fill="#0F172A" rx="2" opacity="0.5"/>
+  <rect width="200" height="200" fill="#FFFFFF" rx="16"/>
+  <rect x="2" y="2" width="196" height="196" fill="none" stroke="#22C55E" stroke-width="3" rx="14"/>
+  <g transform="translate(100, 100)">
+    <rect x="-50" y="30" width="100" height="20" fill="#22C55E" rx="2"/><rect x="-50" y="0" width="60" height="20" fill="#22C55E" rx="2" opacity="0.7"/><rect x="-50" y="-30" width="40" height="20" fill="#22C55E" rx="2" opacity="0.4"/><rect x="0" y="-30" width="20" height="20" fill="#22C55E" rx="2" opacity="0.2"/>
   </g>
-  
-  <!-- MoneyBot Green accent corner -->
-  <circle cx="170" cy="30" r="15" fill="#22C55E" opacity="0.1"/>
-  <circle cx="170" cy="30" r="8" fill="#22C55E"/>
+  <circle cx="170" cy="30" r="10" fill="#22C55E"/>
 </svg>
