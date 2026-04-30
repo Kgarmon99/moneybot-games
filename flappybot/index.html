@@ -266,6 +266,43 @@
             margin-top: 2px;
         }
         
+        .trail-selector {
+            margin: 15px 0;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .trail-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            border: 3px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        
+        .trail-btn:hover {
+            transform: scale(1.1);
+            background: rgba(255,255,255,0.2);
+        }
+        
+        .trail-btn.active {
+            border-color: #22C55E;
+            box-shadow: 0 0 15px rgba(34, 197, 94, 0.6);
+        }
+        
+        .trail-btn.locked {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
         .settings-btn {
             position: fixed;
             top: 20px;
@@ -273,16 +310,17 @@
             width: 50px;
             height: 50px;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.1);
-            border: 2px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.4);
             color: white;
             font-size: 24px;
             cursor: pointer;
-            z-index: 1000;
+            z-index: 9999;
             display: flex;
             align-items: center;
             justify-content: center;
             backdrop-filter: blur(10px);
+            pointer-events: auto;
         }
         
         .settings-btn:hover {
@@ -494,6 +532,19 @@
                     <button class="theme-btn theme-cyber locked" onclick="game.setTheme('cyber')" data-theme="cyber">⚡</button>
                 </div>
             </div>
+            
+            <div class="settings-section">
+                <div class="settings-label">Choose Trail Effect</div>
+                <div class="trail-selector" id="settingsTrailSelector">
+                    <button class="trail-btn active" onclick="game.setTrail('none')" data-trail="none" title="No Trail">❌</button>
+                    <button class="trail-btn" onclick="game.setTrail('coins')" data-trail="coins" title="Coins - 5 pts">🪙</button>
+                    <button class="trail-btn locked" onclick="game.setTrail('rainbow')" data-trail="rainbow" title="Rainbow - 15 pts">🌈</button>
+                    <button class="trail-btn locked" onclick="game.setTrail('fire')" data-trail="fire" title="Fire - 35 pts">🔥</button>
+                    <button class="trail-btn locked" onclick="game.setTrail('sparkles')" data-trail="sparkles" title="Sparkles - 55 pts">✨</button>
+                    <button class="trail-btn locked" onclick="game.setTrail('bubbles')" data-trail="bubbles" title="Bubbles - 90 pts">🫧</button>
+                    <button class="trail-btn locked" onclick="game.setTrail('neon')" data-trail="neon" title="Neon - 120 pts">💫</button>
+                </div>
+            </div>
         </div>
     </div>
     
@@ -559,8 +610,10 @@
             bestScore: parseInt(localStorage.getItem('flappybot_best')) || 0,
             currentTheme: localStorage.getItem('flappybot_theme') || 'deepSpace',
             currentBot: localStorage.getItem('flappybot_bot') || 'classic',
+            currentTrail: localStorage.getItem('flappybot_trail') || 'coins',
             unlockedThemes: JSON.parse(localStorage.getItem('flappybot_unlockedThemes')) || ['deepSpace'],
             unlockedBots: JSON.parse(localStorage.getItem('flappybot_unlockedBots')) || ['classic'],
+            unlockedTrails: JSON.parse(localStorage.getItem('flappybot_unlockedTrails')) || ['none', 'coins'],
             frames: 0,
             combo: 0,
             lastPipeX: 0,
@@ -601,9 +654,10 @@
                     this.playerImageLoaded = true;
                 };
                 
-                // Set initial theme and bot
+                // Set initial theme, bot, and trail
                 this.setTheme(this.currentTheme);
                 this.setBot(this.currentBot);
+                this.setTrail(this.currentTrail);
                 
                 // Update unlocks based on best score
                 this.updateUnlocks();
@@ -655,6 +709,16 @@
                 alien: 80
             },
             
+            trailUnlocks: {
+                none: 0,
+                coins: 5,
+                rainbow: 15,
+                fire: 35,
+                sparkles: 55,
+                bubbles: 90,
+                neon: 120
+            },
+            
             openSettings() {
                 document.getElementById('settingsModal').classList.add('show');
                 this.updateSettingsUI();
@@ -692,6 +756,20 @@
                         btn.classList.add('locked');
                     }
                 });
+                
+                // Update trail buttons in settings
+                document.querySelectorAll('#settingsTrailSelector .trail-btn').forEach(btn => {
+                    const trail = btn.dataset.trail;
+                    btn.classList.remove('active', 'locked');
+                    
+                    if (this.unlockedTrails.includes(trail)) {
+                        if (this.currentTrail === trail) {
+                            btn.classList.add('active');
+                        }
+                    } else {
+                        btn.classList.add('locked');
+                    }
+                });
             },
             
             updateUnlocks() {
@@ -709,9 +787,17 @@
                     }
                 }
                 
+                // Check trail unlocks
+                for (const [trail, required] of Object.entries(this.trailUnlocks)) {
+                    if (this.bestScore >= required && !this.unlockedTrails.includes(trail)) {
+                        this.unlockedTrails.push(trail);
+                    }
+                }
+                
                 // Save unlocks
                 localStorage.setItem('flappybot_unlockedThemes', JSON.stringify(this.unlockedThemes));
                 localStorage.setItem('flappybot_unlockedBots', JSON.stringify(this.unlockedBots));
+                localStorage.setItem('flappybot_unlockedTrails', JSON.stringify(this.unlockedTrails));
                 
                 // Update UI
                 this.updateUnlockUI();
@@ -797,6 +883,28 @@
                 this.botEffect = botName;
             },
             
+            setTrail(trailName) {
+                // Check if unlocked
+                if (!this.unlockedTrails.includes(trailName)) {
+                    const required = this.trailUnlocks[trailName];
+                    alert(`Unlock ${trailName} trail by scoring ${required} points!`);
+                    return;
+                }
+                
+                this.currentTrail = trailName;
+                
+                // Update button states
+                document.querySelectorAll('.trail-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                    if (btn.dataset.trail === trailName) {
+                        btn.classList.add('active');
+                    }
+                });
+                
+                // Save preference
+                localStorage.setItem('flappybot_trail', trailName);
+            },
+            
             start() {
                 this.state = 'playing';
                 this.score = 0;
@@ -826,18 +934,43 @@
             },
             
             createCoinTrail(count) {
+                const trailColors = {
+                    none: null,
+                    coins: '#FFD700',
+                    rainbow: `hsl(${(this.frames * 10) % 360}, 100%, 50%)`,
+                    fire: ['#FF4500', '#FF6347', '#FFA500'][Math.floor(Math.random() * 3)],
+                    sparkles: '#FFFFFF',
+                    bubbles: ['#00BFFF', '#87CEEB', '#ADD8E6'][Math.floor(Math.random() * 3)],
+                    neon: ['#FF00FF', '#00FFFF', '#39FF14'][Math.floor(Math.random() * 3)]
+                };
+                
+                const color = trailColors[this.currentTrail];
+                if (!color) return; // No trail
+                
                 for (let i = 0; i < count; i++) {
-                    this.particles.push({
+                    const particle = {
                         x: this.bird.x - 25 - i * 20,
                         y: this.bird.y + 25 + (Math.random() - 0.5) * 15,
                         vx: -3 - Math.random() * 3,
                         vy: (Math.random() - 0.5) * 3,
                         life: 1,
-                        color: '#FFD700',
+                        color: color,
                         size: 10 + Math.random() * 8,
                         isCoin: true,
                         hasTrail: true
-                    });
+                    };
+                    
+                    // Special effects for different trails
+                    if (this.currentTrail === 'sparkles') {
+                        particle.size = 5 + Math.random() * 10;
+                        particle.twinkle = true;
+                    } else if (this.currentTrail === 'bubbles') {
+                        particle.vy = -1 - Math.random() * 2; // Float up
+                    } else if (this.currentTrail === 'neon') {
+                        particle.glow = true;
+                    }
+                    
+                    this.particles.push(particle);
                 }
             },
             
@@ -1432,13 +1565,23 @@
                     }
                 }
                 
-                if (newThemes.length > 0 || newBots.length > 0) {
+                const newTrails = [];
+                for (const [trail, required] of Object.entries(this.trailUnlocks)) {
+                    if (oldScore < required && newScore >= required) {
+                        newTrails.push(trail);
+                    }
+                }
+                
+                if (newThemes.length > 0 || newBots.length > 0 || newTrails.length > 0) {
                     let message = '🎉 NEW UNLOCKS! 🎉\n\n';
                     if (newThemes.length > 0) {
                         message += 'Themes: ' + newThemes.join(', ') + '\n';
                     }
                     if (newBots.length > 0) {
                         message += 'Bots: ' + newBots.join(', ') + '\n';
+                    }
+                    if (newTrails.length > 0) {
+                        message += 'Trails: ' + newTrails.join(', ') + '\n';
                     }
                     setTimeout(() => alert(message), 500);
                 }
