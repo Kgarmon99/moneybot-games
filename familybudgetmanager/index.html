@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MoneyBot - familybudgetmanager</title>
+    <link rel="icon" type="image/svg+xml" href="assets/moneybot-logo-1.jpg">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: manipulation; user-select: none; }
+        body { font-family: 'Inter', sans-serif; background: #FFFFFF; min-height: 100vh; color: #0F172A; }
+        .app { max-width: 430px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; }
+        .header { background: #FFFFFF; padding: 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #22C55E; }
+        .header-logo { display: flex; align-items: center; gap: 12px; }
+        .moneybot-icon { width: 40px; height: 40px; border-radius: 8px; overflow: hidden; }
+        .moneybot-icon img { width: 100%; height: 100%; object-fit: cover; }
+        .header-title { font-weight: 800; font-size: 20px; color: #0F172A; }
+        .back-btn { width: 44px; height: 44px; border-radius: 12px; background: #22C55E; border: none; color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 20px; text-decoration: none; }
+        .game-area { flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .overlay-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #FFFFFF; z-index: 200; padding: 40px; }
+        .overlay-screen.hidden { display: none; }
+        .game-icon { width: 120px; height: 120px; background: #22C55E; border-radius: 24px; display: flex; align-items: center; justify-content: center; font-size: 60px; margin-bottom: 30px; }
+        .game-title { font-size: 36px; font-weight: 800; color: #0F172A; margin-bottom: 12px; text-transform: capitalize; }
+        .game-subtitle { color: #64748B; font-size: 17px; margin-bottom: 40px; text-align: center; }
+        .primary-btn { background: #22C55E; color: white; border: none; padding: 20px 60px; font-size: 18px; font-weight: 700; border-radius: 12px; cursor: pointer; width: 100%; max-width: 280px; }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <header class="header">
+            <div class="header-logo">
+                <a href="../moneybot-official/" class="back-btn">←</a>
+                <div class="moneybot-icon"><img src="assets/moneybot-logo-1.jpg" /></div>
+                <span class="header-title">familybudgetmanager</span>
+            </div>
+        </header>
+        <div class="game-area">
+            <canvas id="gameCanvas" width="350" height="500"></canvas>
+        </div>
+    </div>
+    <div class="overlay-screen" id="startScreen">
+        <div class="game-icon">🎮</div>
+        <div class="game-title">familybudgetmanager</div>
+        <div class="game-subtitle">Master your money skills!<br>Coming soon to MoneyBot</div>
+        <button class="primary-btn" onclick="startGame()">Start Game</button>
+    </div>
+    <script>
+        function startGame() {
+            document.getElementById('startScreen').classList.add('hidden');
+            const canvas = document.getElementById('gameCanvas');
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#22C55E';
+            ctx.font = '24px Inter';
+            ctx.textAlign = 'center';
+            ctx.fillText('familybudgetmanager Coming Soon!', canvas.width/2, canvas.height/2);
+        }
+    </script>
+</body>
+</html>
