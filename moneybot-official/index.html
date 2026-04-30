@@ -2,187 +2,509 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MoneyBot Gaming - 140 Financial Education Games</title>
-    <link rel="icon" type="image/jpeg" href="assets/moneybot-logo-1.jpg">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MoneyBot Gaming</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        :root { --moneybot-green: #22C55E; --moneybot-black: #0F172A; --moneybot-white: #FFFFFF; --moneybot-gray: #64748B; --moneybot-gray-light: #F1F5F9; }
-        body { font-family: 'Inter', sans-serif; background: var(--moneybot-white); min-height: 100vh; color: var(--moneybot-black); }
-        .header { background: var(--moneybot-white); padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid var(--moneybot-green); position: sticky; top: 0; z-index: 100; }
-        .logo { display: flex; align-items: center; gap: 12px; }
-        .logo-icon { width: 44px; height: 44px; border-radius: 12px; overflow: hidden; border: 2px solid var(--moneybot-green); }
-        .logo-icon img { width: 100%; height: 100%; object-fit: cover; }
-        .logo-text { font-weight: 800; font-size: 24px; color: var(--moneybot-black); }
-        .logo-text span { color: var(--moneybot-green); }
-        .hero { background: linear-gradient(135deg, var(--moneybot-green) 0%, #16A34A 100%); padding: 40px 20px; text-align: center; color: white; }
-        .hero-badge { display: inline-block; background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: 600; margin-bottom: 16px; }
-        .hero-title { font-size: 32px; font-weight: 900; margin-bottom: 12px; }
-        .hero-subtitle { font-size: 16px; opacity: 0.9; margin-bottom: 24px; }
-        .hero-stats { display: flex; justify-content: center; gap: 40px; }
-        .hero-stat { text-align: center; }
-        .hero-stat-number { font-size: 36px; font-weight: 800; }
-        .hero-stat-label { font-size: 12px; opacity: 0.8; text-transform: uppercase; letter-spacing: 1px; }
-        .search-section { padding: 20px; background: var(--moneybot-gray-light); }
-        .search-bar { display: flex; align-items: center; background: white; border: 2px solid var(--moneybot-green); border-radius: 12px; padding: 12px 16px; gap: 12px; }
-        .search-bar input { flex: 1; border: none; outline: none; font-size: 16px; font-family: inherit; }
-        .search-bar input::placeholder { color: var(--moneybot-gray); }
-        .categories { display: flex; gap: 8px; padding: 16px 20px; overflow-x: auto; scrollbar-width: none; background: var(--moneybot-white); border-bottom: 1px solid #E2E8F0; }
-        .categories::-webkit-scrollbar { display: none; }
-        .category-tab { padding: 10px 20px; border-radius: 20px; border: 2px solid #E2E8F0; background: white; color: var(--moneybot-gray); font-weight: 600; font-size: 14px; cursor: pointer; white-space: nowrap; transition: all 0.2s; }
-        .category-tab:hover, .category-tab.active { background: var(--moneybot-green); border-color: var(--moneybot-green); color: white; }
-        .section { padding: 24px 20px; }
-        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-        .section-title { font-size: 20px; font-weight: 700; color: var(--moneybot-black); }
-        .section-link { color: var(--moneybot-green); font-weight: 600; font-size: 14px; text-decoration: none; }
-        .games-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-        .game-card { background: white; border-radius: 16px; overflow: hidden; border: 2px solid #E2E8F0; transition: all 0.2s; cursor: pointer; }
-        .game-card:hover { border-color: var(--moneybot-green); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(34, 197, 94, 0.15); }
-        .game-thumbnail { width: 100%; aspect-ratio: 1; background: var(--moneybot-gray-light); display: flex; align-items: center; justify-content: center; position: relative; }
-        .game-thumbnail img { width: 60%; height: 60%; object-fit: contain; }
-        .game-difficulty { position: absolute; top: 8px; right: 8px; padding: 4px 8px; border-radius: 12px; font-size: 10px; font-weight: 700; text-transform: uppercase; }
-        .game-difficulty.easy { background: var(--moneybot-green); color: white; }
-        .game-difficulty.medium { background: #FBBF24; color: white; }
-        .game-difficulty.hard { background: #EF4444; color: white; }
-        .game-info { padding: 12px; }
-        .game-name { font-weight: 700; font-size: 14px; color: var(--moneybot-black); margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .game-meta { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--moneybot-gray); }
-        .game-reward { display: flex; align-items: center; gap: 4px; color: var(--moneybot-green); font-weight: 600; }
-        .progress-section { background: var(--moneybot-gray-light); padding: 20px; margin: 0 20px 20px; border-radius: 16px; }
-        .progress-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-        .progress-title { font-weight: 700; font-size: 16px; }
-        .progress-value { color: var(--moneybot-green); font-weight: 700; }
-        .progress-bar { height: 8px; background: #E2E8F0; border-radius: 4px; overflow: hidden; }
-        .progress-fill { height: 100%; background: var(--moneybot-green); border-radius: 4px; width: 0%; }
-        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid #E2E8F0; padding: 12px 20px; display: flex; justify-content: space-around; z-index: 100; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--moneybot-gray); text-decoration: none; font-size: 12px; font-weight: 500; }
-        .nav-item.active { color: var(--moneybot-green); }
-        .nav-icon { font-size: 24px; }
-        .spacer { height: 80px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #fff; }
+        .header { background: #fff; padding: 16px 20px; border-bottom: 2px solid #22C55E; display: flex; align-items: center; gap: 12px; }
+        .header img { width: 44px; height: 44px; border-radius: 8px; }
+        .header h1 { font-size: 24px; font-weight: 800; }
+        .header h1 span { color: #22C55E; }
+        .hero { background: linear-gradient(135deg, #22C55E 0%, #16A34A 100%); padding: 40px 20px; text-align: center; color: white; }
+        .hero h2 { font-size: 32px; margin-bottom: 8px; }
+        .hero p { opacity: 0.9; }
+        .games { padding: 20px; display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+        .game { background: white; border: 2px solid #E2E8F0; border-radius: 12px; padding: 16px; text-align: center; cursor: pointer; transition: all 0.2s; }
+        .game:hover { border-color: #22C55E; transform: translateY(-2px); }
+        .game-icon { font-size: 40px; margin-bottom: 8px; }
+        .game-name { font-weight: 700; font-size: 14px; color: #0F172A; }
     </style>
 </head>
 <body>
-    <header class="header">
-        <div class="logo">
-            <div class="logo-icon"><img src="assets/moneybot-logo-1.jpg" alt="MoneyBot"></div>
-            <div class="logo-text">Money<span>Bot</span></div>
-        </div>
-    </header>
-    
-    <section class="hero">
-        <div class="hero-badge">World's Largest</div>
-        <h1 class="hero-title">MoneyBot Gaming</h1>
-        <p class="hero-subtitle">Master money skills through play</p>
-        <div class="hero-stats">
-            <div class="hero-stat"><div class="hero-stat-number" id="totalGames">140</div><div class="hero-stat-label">Games</div></div>
-            <div class="hero-stat"><div class="hero-stat-number">8</div><div class="hero-stat-label">Categories</div></div>
-            <div class="hero-stat"><div class="hero-stat-number">∞</div><div class="hero-stat-label">Fun</div></div>
-        </div>
-    </section>
-    
-    <section class="search-section">
-        <div class="search-bar">
-            <span>🔍</span>
-            <input type="text" placeholder="Search games..." id="searchInput">
-        </div>
-    </section>
-    
-    <div class="categories">
-        <button class="category-tab active" data-category="all">All Games</button>
-        <button class="category-tab" data-category="basics">💡 Basics</button>
-        <button class="category-tab" data-category="budget">💰 Budget</button>
-        <button class="category-tab" data-category="save">💎 Save</button>
-        <button class="category-tab" data-category="invest">📈 Invest</button>
-        <button class="category-tab" data-category="career">💼 Career</button>
-        <button class="category-tab" data-category="life">🏠 Life</button>
-        <button class="category-tab" data-category="arcade">🎮 Arcade</button>
-        <button class="category-tab" data-category="multiplayer">👥 Multiplayer</button>
+    <div class="header">
+        <img src="assets/moneybot-logo-1.jpg" alt="MoneyBot">
+        <h1>Money<span>Bot</span></h1>
     </div>
     
-    <div class="progress-section">
-        <div class="progress-header">
-            <span class="progress-title">Your Progress</span>
-            <span class="progress-value" id="progressText">0/140 Games</span>
-        </div>
-        <div class="progress-bar"><div class="progress-fill" id="progressBar"></div></div>
+    <div class="hero">
+        <h2>140 Money Games</h2>
+        <p>Master money skills through play</p>
     </div>
     
-    <section class="section">
-        <div class="section-header">
-            <h2 class="section-title">🎮 All Games</h2>
+    <div class="games" id="games">
+        <div class="game" onclick="location.href='../bot-achievement-hunt/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">achievement hunt</div>
         </div>
-        <div class="games-grid" id="gamesGrid">
-            <!-- Games will be rendered here -->
+        <div class="game" onclick="location.href='../bot-angel-investor/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">angel investor</div>
         </div>
-    </section>
-    
-    <div class="spacer"></div>
-    
-    <nav class="bottom-nav">
-        <a href="#" class="nav-item active"><span class="nav-icon">🎮</span><span>Games</span></a>
-        <a href="#" class="nav-item"><span class="nav-icon">🏆</span><span>Achieve</span></a>
-        <a href="#" class="nav-item"><span class="nav-icon">📊</span><span>Progress</span></a>
-        <a href="#" class="nav-item"><span class="nav-icon">👤</span><span>Profile</span></a>
-    </nav>
-    
-    <script src="games.js"></script>
-    <script>
-        // gamesData is loaded from games.js
-        
-        function renderGames(category = 'all') {
-            const grid = document.getElementById('gamesGrid');
-            const filtered = category === 'all' ? gamesData : gamesData.filter(g => g.category === category);
-            
-            grid.innerHTML = filtered.map(game => `
-                <div class="game-card" onclick="location.href='../${game.id}/'">
-                    <div class="game-thumbnail">
-                        <img src="assets/thumbnails/${game.id}.svg" alt="${game.name}" onerror="this.src='assets/moneybot-logo-1.jpg'">
-                        <span class="game-difficulty ${game.difficulty}">${game.difficulty}</span>
-                    </div>
-                    <div class="game-info">
-                        <div class="game-name">${game.name}</div>
-                        <div class="game-meta">
-                            <span>⭐ ${game.xp}</span>
-                            <span class="game-reward">🪙 ${game.coins}</span>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-        }
-        
-        document.querySelectorAll('.category-tab').forEach(tab => {
-            tab.addEventListener('click', () => {
-                document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
-                renderGames(tab.dataset.category);
-            });
-        });
-        
-        document.getElementById('searchInput').addEventListener('input', (e) => {
-            const search = e.target.value.toLowerCase();
-            const filtered = gamesData.filter(g => g.name.toLowerCase().includes(search));
-            document.getElementById('gamesGrid').innerHTML = filtered.map(game => `
-                <div class="game-card" onclick="location.href='../${game.id}/'">
-                    <div class="game-thumbnail">
-                        <img src="assets/thumbnails/${game.id}.svg" alt="${game.name}" onerror="this.src='assets/moneybot-logo-1.jpg'">
-                        <span class="game-difficulty ${game.difficulty}">${game.difficulty}</span>
-                    </div>
-                    <div class="game-info">
-                        <div class="game-name">${game.name}</div>
-                        <div class="game-meta">
-                            <span>⭐ ${game.xp}</span>
-                            <span class="game-reward">🪙 ${game.coins}</span>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-        });
-        
-        // Initial render
-        renderGames();
-        document.getElementById('totalGames').textContent = gamesData.length;
-        document.getElementById('progressText').textContent = '0/' + gamesData.length + ' Games';
-    </script>
+        <div class="game" onclick="location.href='../bot-asset-allocation/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">asset allocation</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-bill-boss/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">bill boss</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-budget-battles/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">budget battles</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-budget-blaster/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">budget blaster</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-budget-breakout/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">budget breakout</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-budget-slice/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">budget slice</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-budget-sudoku/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">budget sudoku</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-bull-bear-battle/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">bull bear battle</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-buy-low-sell-high/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">buy low sell high</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-career-path/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">career path</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-cash-craze/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">cash craze</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-cash-dash/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">cash dash</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-cash-grab/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">cash grab</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-cashflow-master/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">cashflow master</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-champion-league/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">champion league</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-class-competition/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">class competition</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-coin-catch/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">coin catch</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-coin-collector/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">coin collector</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-coin-pong/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">coin pong</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-college-decisions/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">college decisions</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-compound-2048/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">compound 2048</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-compound-king/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">compound king</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-credit-climber/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">credit climber</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-crypto-climb/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">crypto climb</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-crypto-miner/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">crypto miner</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-daily-challenge/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">daily challenge</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-daytrader-dash/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">daytrader dash</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-debt-destroyer/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">debt destroyer</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-debt-dodge/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">debt dodge</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-discount-dash/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">discount dash</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-diversification-drop/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">diversification drop</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-dividend-defense/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">dividend defense</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-dividend-dynasty/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">dividend dynasty</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-dollar-drop/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">dollar drop</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-elite-investor/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">elite investor</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-emergency-fund/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">emergency fund</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-empire-builder/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">empire builder</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-etf-empire/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">etf empire</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-expense-escape/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">expense escape</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-family-budget/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">family budget</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-financial-wordle/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">financial wordle</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-first-apartment/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">first apartment</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-first-car/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">first car</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-first-job/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">first job</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-fiscal-frogger/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">fiscal frogger</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-grocery-game/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">grocery game</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-group-economy/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">group economy</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-higher-lower/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">higher lower</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-income-builder/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">income builder</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-insurance-iq/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">insurance iq</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-interest-impact/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">interest impact</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-interest-match/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">interest match</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-invest-island/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">invest island</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-investment-wars/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">investment wars</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-investor-life/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">investor life</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-ipo-launch/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">ipo launch</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-lemonade-empire/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">lemonade empire</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-longterm-legend/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">longterm legend</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-lucky-investment/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">lucky investment</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-market-madness/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">market madness</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-market-racer/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">market racer</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-market-surfers/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">market surfers</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-move-out/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">move out</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-needs-wants/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">needs wants</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-networth-builder/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">networth builder</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-passive-income/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">passive income</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-portfolio-balance/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">portfolio balance</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-portfolio-builder/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">portfolio builder</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-price-check/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">price check</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-price-guess/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">price guess</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-profit-pinball/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">profit pinball</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-quick-budget/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">quick budget</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-real-life/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">real life</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-realestate-mogul/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">realestate mogul</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-realestate-tycoon/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">realestate tycoon</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-recession-survival/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">recession survival</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-rent-vs-buy/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">rent vs buy</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-retirement-run/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">retirement run</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-risk-runner/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">risk runner</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-risk-tetris/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">risk tetris</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-salary-negotiate/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">salary negotiate</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-save-challenge/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">save challenge</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-save-streak/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">save streak</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-savings-snake/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">savings snake</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-savings-sprint/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">savings sprint</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-side-hustle/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">side hustle</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-smart-split/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">smart split</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-spend-challenge/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">spend challenge</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-spend-smart/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">spend smart</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-spin-market/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">spin market</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-stack-cash/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">stack cash</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-start-business/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">start business</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-startup-investor/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">startup investor</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-stock-stack/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">stock stack</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-stock-tycoon/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">stock tycoon</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-streak-master/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">streak master</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-subscription-slayer/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">subscription slayer</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-survival-30day/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">survival 30day</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-swipe-save/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">swipe save</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-tap-invest/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">tap invest</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-tap-trend/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">tap trend</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-tax-tactician/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">tax tactician</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-tax-tetris/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">tax tetris</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-team-tycoon/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">team tycoon</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-unexpected-expense/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">unexpected expense</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-wealth-ladder/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">wealth ladder</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-wealth-rank/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">wealth rank</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-wealth-tower/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">wealth tower</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-wealth-wheel/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">wealth wheel</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-weekly-boss/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">weekly boss</div>
+        </div>
+        <div class="game" onclick="location.href='../bot-would-you-rather/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">would you rather</div>
+        </div>
+        <div class="game" onclick="location.href='../money-asset-flow/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">asset flow</div>
+        </div>
+        <div class="game" onclick="location.href='../money-bank-heist/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">bank heist</div>
+        </div>
+        <div class="game" onclick="location.href='../money-invaders/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">invaders</div>
+        </div>
+        <div class="game" onclick="location.href='../money-jump/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">jump</div>
+        </div>
+        <div class="game" onclick="location.href='../money-maze/'">
+            <div class="game-icon">🎮</div>
+            <div class="game-name">maze</div>
+        </div>
+    </div>
 </body>
 </html>
