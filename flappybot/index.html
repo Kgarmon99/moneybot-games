@@ -2,60 +2,744 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MoneyBot - flappybot</title>
-    <link rel="icon" type="image/svg+xml" href="assets/moneybot-logo-1.jpg">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>FlappyBot - Fly to Financial Freedom</title>
+    <link rel="icon" type="image/jpeg" href="assets/moneybot-logo-1.jpg">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: manipulation; user-select: none; }
-        body { font-family: 'Inter', sans-serif; background: #FFFFFF; min-height: 100vh; color: #0F172A; }
-        .app { max-width: 430px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; }
-        .header { background: #FFFFFF; padding: 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #22C55E; }
-        .header-logo { display: flex; align-items: center; gap: 12px; }
-        .moneybot-icon { width: 40px; height: 40px; border-radius: 8px; overflow: hidden; }
-        .moneybot-icon img { width: 100%; height: 100%; object-fit: cover; }
-        .header-title { font-weight: 800; font-size: 20px; color: #0F172A; }
-        .back-btn { width: 44px; height: 44px; border-radius: 12px; background: #22C55E; border: none; color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 20px; text-decoration: none; }
-        .game-area { flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px; }
-        .overlay-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #FFFFFF; z-index: 200; padding: 40px; }
-        .overlay-screen.hidden { display: none; }
-        .game-icon { width: 120px; height: 120px; background: #22C55E; border-radius: 24px; display: flex; align-items: center; justify-content: center; font-size: 60px; margin-bottom: 30px; }
-        .game-title { font-size: 36px; font-weight: 800; color: #0F172A; margin-bottom: 12px; text-transform: capitalize; }
-        .game-subtitle { color: #64748B; font-size: 17px; margin-bottom: 40px; text-align: center; }
-        .primary-btn { background: #22C55E; color: white; border: none; padding: 20px 60px; font-size: 18px; font-weight: 700; border-radius: 12px; cursor: pointer; width: 100%; max-width: 280px; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
+        
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+            -webkit-tap-highlight-color: transparent; 
+            touch-action: manipulation; 
+            user-select: none; 
+        }
+        
+        :root { 
+            --moneybot-green: #22C55E; 
+            --moneybot-dark: #0F172A; 
+            --moneybot-white: #FFFFFF;
+            --moneybot-gold: #FFD700;
+        }
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: linear-gradient(180deg, #87CEEB 0%, #E0F6FF 100%);
+            min-height: 100vh;
+            overflow: hidden;
+        }
+        
+        #gameCanvas {
+            display: block;
+            width: 100%;
+            height: 100vh;
+        }
+        
+        .ui-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        
+        .score-display {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            z-index: 100;
+        }
+        
+        .score-number {
+            font-size: 72px;
+            font-weight: 900;
+            color: white;
+            text-shadow: 4px 4px 0 rgba(0,0,0,0.3), -2px -2px 0 rgba(0,0,0,0.1);
+            line-height: 1;
+        }
+        
+        .best-score {
+            font-size: 16px;
+            font-weight: 600;
+            color: white;
+            text-shadow: 2px 2px 0 rgba(0,0,0,0.3);
+            margin-top: 5px;
+        }
+        
+        .medal {
+            position: absolute;
+            top: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            animation: medalPop 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+        
+        .medal.bronze { background: linear-gradient(135deg, #CD7F32, #8B4513); display: flex; }
+        .medal.silver { background: linear-gradient(135deg, #C0C0C0, #808080); display: flex; }
+        .medal.gold { background: linear-gradient(135deg, #FFD700, #FFA500); display: flex; }
+        .medal.platinum { background: linear-gradient(135deg, #E5E4E2, #A0A0A0); display: flex; }
+        
+        @keyframes medalPop {
+            0% { transform: translateX(-50%) scale(0) rotate(-180deg); }
+            100% { transform: translateX(-50%) scale(1) rotate(0deg); }
+        }
+        
+        .start-screen, .game-over-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0,0,0,0.6);
+            pointer-events: auto;
+            backdrop-filter: blur(5px);
+        }
+        
+        .game-over-screen { display: none; }
+        
+        .logo {
+            font-size: 48px;
+            font-weight: 900;
+            color: white;
+            text-shadow: 4px 4px 0 var(--moneybot-green), 8px 8px 0 rgba(0,0,0,0.3);
+            margin-bottom: 10px;
+            animation: float 2s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .subtitle {
+            font-size: 18px;
+            color: rgba(255,255,255,0.9);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, var(--moneybot-green), #16A34A);
+            color: white;
+            border: none;
+            padding: 20px 50px;
+            border-radius: 50px;
+            font-size: 24px;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 8px 30px rgba(34,197,94,0.4), 0 4px 0 #15803d;
+            transition: all 0.1s;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 4px 15px rgba(34,197,94,0.4), 0 0 0 #15803d;
+        }
+        
+        .instructions {
+            margin-top: 30px;
+            color: rgba(255,255,255,0.8);
+            font-size: 16px;
+            text-align: center;
+        }
+        
+        .tap-icon {
+            font-size: 40px;
+            animation: tapPulse 1s ease-in-out infinite;
+        }
+        
+        @keyframes tapPulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(0.9); opacity: 0.7; }
+        }
+        
+        .stats-box {
+            background: white;
+            border-radius: 20px;
+            padding: 25px 40px;
+            margin-bottom: 20px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        
+        .stats-label {
+            font-size: 14px;
+            color: #64748B;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+        
+        .stats-value {
+            font-size: 48px;
+            font-weight: 900;
+            color: var(--moneybot-dark);
+        }
+        
+        .new-best {
+            color: var(--moneybot-green);
+            animation: pulse 0.5s ease-in-out 3;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        .share-btn {
+            background: linear-gradient(135deg, #1DA1F2, #0d8bd9);
+            margin-top: 15px;
+        }
+        
+        .combo-display {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 48px;
+            font-weight: 900;
+            color: var(--moneybot-gold);
+            text-shadow: 3px 3px 0 rgba(0,0,0,0.5);
+            opacity: 0;
+            pointer-events: none;
+            z-index: 50;
+        }
+        
+        .combo-display.show {
+            animation: comboAnim 1s ease-out forwards;
+        }
+        
+        @keyframes comboAnim {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+            20% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+            80% { opacity: 1; transform: translate(-50%, -70%) scale(1); }
+            100% { opacity: 0; transform: translate(-50%, -100%) scale(0.8); }
+        }
+        
+        .streak-flames {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            font-size: 30px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .streak-flames.active {
+            opacity: 1;
+            animation: flames 0.5s ease-in-out infinite alternate;
+        }
+        
+        @keyframes flames {
+            from { transform: scale(1); }
+            to { transform: scale(1.2); }
+        }
     </style>
 </head>
 <body>
-    <div class="app">
-        <header class="header">
-            <div class="header-logo">
-                <a href="../moneybot-official/" class="back-btn">←</a>
-                <div class="moneybot-icon"><img src="assets/moneybot-logo-1.jpg" /></div>
-                <span class="header-title">flappybot</span>
-            </div>
-        </header>
-        <div class="game-area">
-            <canvas id="gameCanvas" width="350" height="500"></canvas>
+    <canvas id="gameCanvas"></canvas>
+    
+    <div class="ui-layer">
+        <div class="score-display">
+            <div class="score-number" id="scoreDisplay">0</div>
+            <div class="best-score">Best: <span id="bestScore">0</span></div>
+        </div>
+        
+        <div class="medal" id="medal"></div>
+        
+        <div class="combo-display" id="comboDisplay">🔥 x2</div>
+        
+        <div class="streak-flames" id="streakFlames">🔥🔥🔥</div>
+    </div>
+    
+    <div class="start-screen" id="startScreen">
+        <div class="logo">🐦 FLAPPYBOT</div>
+        <div class="subtitle">Fly through the market volatility!<br>Tap to flap, avoid the red zones</div>
+        <button class="btn" onclick="game.start()">PLAY NOW</button>
+        <div class="instructions">
+            <div class="tap-icon">👆</div>
+            <div>Tap or press SPACE to fly</div>
         </div>
     </div>
-    <div class="overlay-screen" id="startScreen">
-        <div class="game-icon">🎮</div>
-        <div class="game-title">flappybot</div>
-        <div class="game-subtitle">Master your money skills!<br>Coming soon to MoneyBot</div>
-        <button class="primary-btn" onclick="startGame()">Start Game</button>
+    
+    <div class="game-over-screen" id="gameOverScreen">
+        <div class="stats-box">
+            <div class="stats-label">Score</div>
+            <div class="stats-value" id="finalScore">0</div>
+        </div>
+        <div class="stats-box">
+            <div class="stats-label">Best</div>
+            <div class="stats-value" id="finalBest">0</div>
+        </div>
+        <button class="btn" onclick="game.restart()">PLAY AGAIN</button>
+        <button class="btn share-btn" onclick="game.share()">📤 SHARE SCORE</button>
     </div>
+
     <script>
-        function startGame() {
-            document.getElementById('startScreen').classList.add('hidden');
-            const canvas = document.getElementById('gameCanvas');
-            const ctx = canvas.getContext('2d');
-            ctx.fillStyle = '#FFFFFF';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = '#22C55E';
-            ctx.font = '24px Inter';
-            ctx.textAlign = 'center';
-            ctx.fillText('flappybot Coming Soon!', canvas.width/2, canvas.height/2);
-        }
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Game constants
+        const GRAVITY = 0.4;
+        const FLAP_STRENGTH = -7;
+        const PIPE_SPEED = 3;
+        const PIPE_SPAWN_RATE = 120;
+        const PIPE_GAP = 160;
+        
+        // Game state
+        const game = {
+            state: 'menu', // menu, playing, gameover
+            score: 0,
+            bestScore: parseInt(localStorage.getItem('flappybot_best')) || 0,
+            frames: 0,
+            combo: 0,
+            lastPipeX: 0,
+            
+            // Bird
+            bird: {
+                x: 100,
+                y: 0,
+                velocity: 0,
+                width: 34,
+                height: 24,
+                rotation: 0,
+                wingFrame: 0
+            },
+            
+            // Pipes
+            pipes: [],
+            
+            // Particles
+            particles: [],
+            
+            // Background
+            bgOffset: 0,
+            groundOffset: 0,
+            
+            init() {
+                this.resize();
+                window.addEventListener('resize', () => this.resize());
+                
+                // Input handlers
+                canvas.addEventListener('click', () => this.flap());
+                canvas.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    this.flap();
+                });
+                document.addEventListener('keydown', (e) => {
+                    if (e.code === 'Space' || e.code === 'ArrowUp') {
+                        e.preventDefault();
+                        this.flap();
+                    }
+                });
+                
+                document.getElementById('bestScore').textContent = this.bestScore;
+                
+                // Start loop
+                this.loop();
+            },
+            
+            resize() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                this.bird.y = canvas.height / 2;
+            },
+            
+            start() {
+                this.state = 'playing';
+                this.score = 0;
+                this.combo = 0;
+                this.frames = 0;
+                this.pipes = [];
+                this.particles = [];
+                this.bird.y = canvas.height / 2;
+                this.bird.velocity = 0;
+                this.bird.rotation = 0;
+                
+                document.getElementById('startScreen').style.display = 'none';
+                document.getElementById('gameOverScreen').style.display = 'none';
+                document.getElementById('scoreDisplay').textContent = '0';
+                document.getElementById('medal').className = 'medal';
+                
+                this.spawnPipe();
+            },
+            
+            flap() {
+                if (this.state === 'playing') {
+                    this.bird.velocity = FLAP_STRENGTH;
+                    this.createParticles(this.bird.x - 10, this.bird.y + 12, 5, '#22C55E');
+                }
+            },
+            
+            spawnPipe() {
+                const minHeight = 50;
+                const maxHeight = canvas.height - PIPE_GAP - minHeight - 100;
+                const topHeight = Math.random() * (maxHeight - minHeight) + minHeight;
+                
+                this.pipes.push({
+                    x: canvas.width,
+                    topHeight: topHeight,
+                    bottomY: topHeight + PIPE_GAP,
+                    width: 60,
+                    passed: false,
+                    color: Math.random() > 0.5 ? '#22C55E' : '#16A34A'
+                });
+            },
+            
+            createParticles(x, y, count, color) {
+                for (let i = 0; i < count; i++) {
+                    this.particles.push({
+                        x: x,
+                        y: y,
+                        vx: (Math.random() - 0.5) * 4,
+                        vy: (Math.random() - 0.5) * 4,
+                        life: 1,
+                        color: color,
+                        size: Math.random() * 4 + 2
+                    });
+                }
+            },
+            
+            createCoinParticles(x, y) {
+                for (let i = 0; i < 10; i++) {
+                    this.particles.push({
+                        x: x,
+                        y: y,
+                        vx: (Math.random() - 0.5) * 8,
+                        vy: (Math.random() - 0.5) * 8 - 2,
+                        life: 1,
+                        color: '#FFD700',
+                        size: Math.random() * 6 + 4,
+                        isCoin: true
+                    });
+                }
+            },
+            
+            update() {
+                if (this.state !== 'playing') return;
+                
+                this.frames++;
+                
+                // Update bird
+                this.bird.velocity += GRAVITY;
+                this.bird.y += this.bird.velocity;
+                this.bird.rotation = Math.min(Math.PI / 4, Math.max(-Math.PI / 4, (this.bird.velocity * 0.1)));
+                this.bird.wingFrame = Math.floor(this.frames / 5) % 3;
+                
+                // Check ground/ceiling collision
+                if (this.bird.y + this.bird.height > canvas.height - 80 || this.bird.y < 0) {
+                    this.gameOver();
+                    return;
+                }
+                
+                // Update pipes
+                if (this.frames % PIPE_SPAWN_RATE === 0) {
+                    this.spawnPipe();
+                }
+                
+                for (let i = this.pipes.length - 1; i >= 0; i--) {
+                    const pipe = this.pipes[i];
+                    pipe.x -= PIPE_SPEED;
+                    
+                    // Check collision
+                    if (this.bird.x + this.bird.width > pipe.x && 
+                        this.bird.x < pipe.x + pipe.width) {
+                        if (this.bird.y < pipe.topHeight || 
+                            this.bird.y + this.bird.height > pipe.bottomY) {
+                            this.gameOver();
+                            return;
+                        }
+                    }
+                    
+                    // Score point
+                    if (!pipe.passed && pipe.x + pipe.width < this.bird.x) {
+                        pipe.passed = true;
+                        this.score++;
+                        this.combo++;
+                        document.getElementById('scoreDisplay').textContent = this.score;
+                        this.createCoinParticles(pipe.x + pipe.width / 2, canvas.height / 2);
+                        
+                        // Show combo
+                        if (this.combo >= 5) {
+                            const comboDisplay = document.getElementById('comboDisplay');
+                            comboDisplay.textContent = '🔥 x' + this.combo;
+                            comboDisplay.classList.remove('show');
+                            void comboDisplay.offsetWidth;
+                            comboDisplay.classList.add('show');
+                        }
+                        
+                        // Update medal
+                        this.updateMedal();
+                    }
+                    
+                    // Remove off-screen pipes
+                    if (pipe.x + pipe.width < 0) {
+                        this.pipes.splice(i, 1);
+                    }
+                }
+                
+                // Update particles
+                for (let i = this.particles.length - 1; i >= 0; i--) {
+                    const p = this.particles[i];
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.vy += 0.2;
+                    p.life -= 0.02;
+                    
+                    if (p.life <= 0) {
+                        this.particles.splice(i, 1);
+                    }
+                }
+                
+                // Update backgrounds
+                this.bgOffset -= 0.5;
+                this.groundOffset -= PIPE_SPEED;
+                if (this.groundOffset <= -24) this.groundOffset = 0;
+            },
+            
+            updateMedal() {
+                const medal = document.getElementById('medal');
+                if (this.score >= 50) {
+                    medal.className = 'medal platinum';
+                    medal.textContent = '💎';
+                } else if (this.score >= 30) {
+                    medal.className = 'medal gold';
+                    medal.textContent = '🥇';
+                } else if (this.score >= 15) {
+                    medal.className = 'medal silver';
+                    medal.textContent = '🥈';
+                } else if (this.score >= 5) {
+                    medal.className = 'medal bronze';
+                    medal.textContent = '🥉';
+                }
+            },
+            
+            draw() {
+                // Clear canvas
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                // Draw sky gradient
+                const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+                gradient.addColorStop(0, '#87CEEB');
+                gradient.addColorStop(0.7, '#E0F6FF');
+                gradient.addColorStop(1, '#B8E6B8');
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                // Draw clouds
+                this.drawClouds();
+                
+                // Draw pipes
+                ctx.strokeStyle = '#0F172A';
+                ctx.lineWidth = 3;
+                for (const pipe of this.pipes) {
+                    // Top pipe
+                    ctx.fillStyle = pipe.color;
+                    ctx.fillRect(pipe.x, 0, pipe.width, pipe.topHeight);
+                    ctx.strokeRect(pipe.x, 0, pipe.width, pipe.topHeight);
+                    
+                    // Pipe cap
+                    ctx.fillRect(pipe.x - 3, pipe.topHeight - 30, pipe.width + 6, 30);
+                    ctx.strokeRect(pipe.x - 3, pipe.topHeight - 30, pipe.width + 6, 30);
+                    
+                    // Bottom pipe
+                    ctx.fillRect(pipe.x, pipe.bottomY, pipe.width, canvas.height - pipe.bottomY);
+                    ctx.strokeRect(pipe.x, pipe.bottomY, pipe.width, canvas.height - pipe.bottomY);
+                    
+                    // Bottom cap
+                    ctx.fillRect(pipe.x - 3, pipe.bottomY, pipe.width + 6, 30);
+                    ctx.strokeRect(pipe.x - 3, pipe.bottomY, pipe.width + 6, 30);
+                    
+                    // Money pattern on pipes
+                    ctx.fillStyle = 'rgba(255,255,255,0.3)';
+                    for (let i = 10; i < pipe.topHeight - 40; i += 30) {
+                        ctx.fillRect(pipe.x + 15, i, 30, 20);
+                    }
+                    for (let i = pipe.bottomY + 40; i < canvas.height - 100; i += 30) {
+                        ctx.fillRect(pipe.x + 15, i, 30, 20);
+                    }
+                }
+                
+                // Draw particles
+                for (const p of this.particles) {
+                    ctx.globalAlpha = p.life;
+                    if (p.isCoin) {
+                        ctx.fillStyle = p.color;
+                        ctx.beginPath();
+                        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.strokeStyle = '#FFA500';
+                        ctx.lineWidth = 2;
+                        ctx.stroke();
+                    } else {
+                        ctx.fillStyle = p.color;
+                        ctx.fillRect(p.x, p.y, p.size, p.size);
+                    }
+                    ctx.globalAlpha = 1;
+                }
+                
+                // Draw bird
+                ctx.save();
+                ctx.translate(this.bird.x + this.bird.width / 2, this.bird.y + this.bird.height / 2);
+                ctx.rotate(this.bird.rotation);
+                
+                // Body
+                ctx.fillStyle = '#FFD700';
+                ctx.beginPath();
+                ctx.ellipse(0, 0, 17, 12, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = '#0F172A';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                
+                // Eye
+                ctx.fillStyle = 'white';
+                ctx.beginPath();
+                ctx.arc(8, -4, 6, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = '#0F172A';
+                ctx.stroke();
+                
+                ctx.fillStyle = 'black';
+                ctx.beginPath();
+                ctx.arc(10, -4, 3, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Beak
+                ctx.fillStyle = '#FF6B35';
+                ctx.beginPath();
+                ctx.moveTo(12, 0);
+                ctx.lineTo(22, 4);
+                ctx.lineTo(12, 8);
+                ctx.closePath();
+                ctx.fill();
+                ctx.stroke();
+                
+                // Wing
+                ctx.fillStyle = '#FFA500';
+                ctx.beginPath();
+                ctx.ellipse(-5, 5, 10, 6, 0.3, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+                
+                ctx.restore();
+                
+                // Draw ground
+                ctx.fillStyle = '#D4A574';
+                ctx.fillRect(0, canvas.height - 80, canvas.width, 80);
+                ctx.strokeStyle = '#8B6914';
+                ctx.lineWidth = 3;
+                ctx.strokeRect(0, canvas.height - 80, canvas.width, 80);
+                
+                // Ground pattern
+                ctx.fillStyle = '#C49464';
+                for (let x = this.groundOffset; x < canvas.width; x += 24) {
+                    ctx.beginPath();
+                    ctx.moveTo(x, canvas.height - 80);
+                    ctx.lineTo(x + 12, canvas.height - 60);
+                    ctx.lineTo(x + 24, canvas.height - 80);
+                    ctx.fill();
+                }
+                
+                // Grass on top
+                ctx.fillStyle = '#22C55E';
+                ctx.fillRect(0, canvas.height - 85, canvas.width, 10);
+                ctx.strokeStyle = '#15803d';
+                ctx.strokeRect(0, canvas.height - 85, canvas.width, 10);
+            },
+            
+            drawClouds() {
+                ctx.fillStyle = 'rgba(255,255,255,0.8)';
+                const cloudOffset = (this.frames * 0.5) % canvas.width;
+                
+                const clouds = [
+                    { x: 100 - cloudOffset, y: 80, scale: 1 },
+                    { x: 400 - cloudOffset, y: 150, scale: 0.8 },
+                    { x: 700 - cloudOffset, y: 60, scale: 1.2 },
+                    { x: 1000 - cloudOffset, y: 120, scale: 0.9 },
+                    { x: canvas.width + 100 - cloudOffset, y: 80, scale: 1 },
+                    { x: canvas.width + 400 - cloudOffset, y: 150, scale: 0.8 },
+                ];
+                
+                for (const cloud of clouds) {
+                    ctx.beginPath();
+                    ctx.arc(cloud.x, cloud.y, 30 * cloud.scale, 0, Math.PI * 2);
+                    ctx.arc(cloud.x + 25 * cloud.scale, cloud.y - 10 * cloud.scale, 35 * cloud.scale, 0, Math.PI * 2);
+                    ctx.arc(cloud.x + 50 * cloud.scale, cloud.y, 30 * cloud.scale, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            },
+            
+            gameOver() {
+                this.state = 'gameover';
+                
+                // Update best score
+                if (this.score > this.bestScore) {
+                    this.bestScore = this.score;
+                    localStorage.setItem('flappybot_best', this.bestScore);
+                }
+                
+                // Show game over screen
+                document.getElementById('finalScore').textContent = this.score;
+                document.getElementById('finalBest').textContent = this.bestScore;
+                
+                if (this.score >= this.bestScore && this.score > 0) {
+                    document.getElementById('finalScore').classList.add('new-best');
+                } else {
+                    document.getElementById('finalScore').classList.remove('new-best');
+                }
+                
+                document.getElementById('gameOverScreen').style.display = 'flex';
+                document.getElementById('bestScore').textContent = this.bestScore;
+            },
+            
+            restart() {
+                document.getElementById('gameOverScreen').style.display = 'none';
+                this.start();
+            },
+            
+            share() {
+                const text = `I scored ${this.score} in FlappyBot! Can you beat me? 🐦💰`;
+                if (navigator.share) {
+                    navigator.share({
+                        title: 'FlappyBot',
+                        text: text,
+                        url: window.location.href
+                    });
+                } else {
+                    navigator.clipboard.writeText(text + ' ' + window.location.href);
+                    alert('Score copied to clipboard!');
+                }
+            },
+            
+            loop() {
+                this.update();
+                this.draw();
+                requestAnimationFrame(() => this.loop());
+            }
+        };
+        
+        // Initialize game
+        game.init();
     </script>
 </body>
 </html>
