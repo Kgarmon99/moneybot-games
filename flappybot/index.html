@@ -245,28 +245,57 @@
             },
             
             init() {
-                // Load MoneyBot image
-                this.playerImage = new Image();
-                this.playerImage.src = 'assets/player-rembg.png';
-                this.playerImageLoaded = false;
-                this.playerImage.onload = () => {
-                    this.playerImageLoaded = true;
+                // Load bot images
+                this.botImages = {
+                    classic: this.loadImage('assets/player-rembg.png'),
+                    gold: this.loadImage('assets/player-rembg.png'),
+                    neon: this.loadImage('assets/bot-rainbow.jpg'),
+                    ninja: this.loadImage('assets/bot-dark.jpg'),
+                    alien: this.loadImage('assets/player-rembg.png'),
+                    fire: this.loadImage('assets/bot-fire.jpg'),
+                    pixel: this.loadImage('assets/bot-pixel.jpg')
                 };
                 
                 this.resize();
-                window.addEventListener('resize', () => this.resize());
-                
-                canvas.addEventListener('click', () => this.flap());
-                canvas.addEventListener('touchstart', (e) => { e.preventDefault(); this.flap(); });
-                document.addEventListener('keydown', (e) => {
-                    if (e.code === 'Space') { e.preventDefault(); this.flap(); }
-                });
+                this.initEventListeners();
                 
                 document.getElementById('bestScore').textContent = this.bestScore;
                 this.updateStartScreenIndicators();
                 this.updateUnlocks();
                 this.updateSettingsUI();
                 this.loop();
+                window.addEventListener('resize', () => this.resize());
+            },
+            
+            loadImage(src) {
+                const img = new Image();
+                img.src = src;
+                img.loaded = false;
+                img.onload = () => { img.loaded = true; };
+                return img;
+            },
+            
+            getCurrentBotImage() {
+                // Map bot types to images
+                const botImageMap = {
+                    classic: 'classic',
+                    gold: 'classic',
+                    neon: 'neon',
+                    ninja: 'ninja',
+                    alien: 'classic',
+                    fire: 'fire',
+                    pixel: 'pixel'
+                };
+                const imageKey = botImageMap[this.currentBot] || 'classic';
+                return this.botImages[imageKey];
+            },
+            
+            initEventListeners() {
+                canvas.addEventListener('click', () => this.flap());
+                canvas.addEventListener('touchstart', (e) => { e.preventDefault(); this.flap(); });
+                document.addEventListener('keydown', (e) => {
+                    if (e.code === 'Space') { e.preventDefault(); this.flap(); }
+                });
             },
             
             resize() {
@@ -513,10 +542,11 @@
                 ctx.translate(this.bird.x + this.bird.width/2, this.bird.y + this.bird.height/2);
                 ctx.rotate(this.bird.rotation);
                 
-                if (this.playerImageLoaded && this.playerImage) {
-                    // Draw actual MoneyBot image with transparency
-                    const size = 40;
-                    ctx.drawImage(this.playerImage, -size/2, -size/2, size, size);
+                const botImg = this.getCurrentBotImage();
+                if (botImg && botImg.loaded) {
+                    // Draw bot image with transparency
+                    const size = 45;
+                    ctx.drawImage(botImg, -size/2, -size/2, size, size);
                 } else {
                     // Fallback rectangle
                     ctx.fillStyle = '#FFFFFF';
