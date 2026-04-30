@@ -553,33 +553,21 @@
         
         .current-selection {
             display: flex;
-            gap: 20px;
+            gap: 15px;
             justify-content: center;
-            margin: 15px 0;
-        }
-        
-        .selection-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 5px;
+            margin: 20px 0;
         }
         
         .selection-icon {
-            width: 50px;
-            height: 50px;
-            border-radius: 12px;
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
             background: rgba(255,255,255,0.1);
-            border: 2px solid #22C55E;
+            border: 2px solid rgba(34, 197, 94, 0.5);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 24px;
-        }
-        
-        .selection-label {
-            font-size: 11px;
-            color: #888;
+            font-size: 22px;
         }
         
         .combo-display {
@@ -769,14 +757,8 @@
         <div class="subtitle">Fly through the market volatility!<br>Tap to flap, avoid the red zones</div>
         
         <div class="current-selection">
-            <div class="selection-item">
-                <div class="selection-icon" id="currentBotIcon">🤖</div>
-                <div class="selection-label">Bot</div>
-            </div>
-            <div class="selection-item">
-                <div class="selection-icon" id="currentThemeIcon" style="background: linear-gradient(135deg, #000000, #1a1a2e);"></div>
-                <div class="selection-label">Theme</div>
-            </div>
+            <div class="selection-icon" id="currentBotIcon">🤖</div>
+            <div class="selection-icon" id="currentThemeIcon">🌌</div>
         </div>
         
         <button class="btn" onclick="game.start()">PLAY NOW</button>
