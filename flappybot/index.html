@@ -406,6 +406,23 @@
                 if (this.state === 'playing') {
                     this.bird.velocity = FLAP_STRENGTH;
                     this.createParticles(this.bird.x - 10, this.bird.y + 12, 5, '#22C55E');
+                    // Add coin trail particles
+                    this.createCoinTrail(3);
+                }
+            },
+            
+            createCoinTrail(count) {
+                for (let i = 0; i < count; i++) {
+                    this.particles.push({
+                        x: this.bird.x - 20 - i * 15,
+                        y: this.bird.y + 20 + (Math.random() - 0.5) * 10,
+                        vx: -2 - Math.random() * 2,
+                        vy: (Math.random() - 0.5) * 2,
+                        life: 1,
+                        color: '#FFD700',
+                        size: 8 + Math.random() * 6,
+                        isCoin: true
+                    });
                 }
             },
             
@@ -464,6 +481,11 @@
                 this.bird.y += this.bird.velocity;
                 this.bird.rotation = Math.min(Math.PI / 4, Math.max(-Math.PI / 4, (this.bird.velocity * 0.1)));
                 this.bird.wingFrame = Math.floor(this.frames / 5) % 3;
+                
+                // Add coin trail during flight
+                if (this.frames % 10 === 0) {
+                    this.createCoinTrail(1);
+                }
                 
                 // Check ground/ceiling collision
                 if (this.bird.y + this.bird.height > canvas.height - 80 || this.bird.y < 0) {
@@ -666,22 +688,106 @@
                     ctx.globalAlpha = 1;
                 }
                 
-                // Draw MoneyBot character - Using Gemini-generated sprite
+                // Draw MoneyBot character - White robot with antenna, green face, gray accents
                 ctx.save();
                 ctx.translate(this.bird.x + this.bird.width / 2, this.bird.y + this.bird.height / 2);
                 ctx.rotate(this.bird.rotation * 0.3);
                 
-                if (this.playerImageLoaded) {
-                    // Draw the MoneyBot image sprite
-                    const imgSize = 80;
-                    ctx.drawImage(this.playerImage, -imgSize/2, -imgSize/2, imgSize, imgSize);
-                } else {
-                    // Fallback: simple placeholder while image loads
-                    ctx.fillStyle = '#22C55E';
-                    ctx.beginPath();
-                    ctx.arc(0, 0, 20, 0, Math.PI * 2);
-                    ctx.fill();
-                }
+                const scale = 0.6;
+                ctx.scale(scale, scale);
+                
+                // Shadow/glow
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = 'rgba(0, 230, 118, 0.4)';
+                
+                // Robot body (lower oval)
+                ctx.fillStyle = '#F5F5F5';
+                ctx.beginPath();
+                ctx.ellipse(0, 25, 35, 40, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = '#E0E0E0';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                
+                // Gray arm/wing on left
+                ctx.fillStyle = '#9E9E9E';
+                ctx.beginPath();
+                ctx.ellipse(-30, 20, 12, 25, -0.3, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = '#757575';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                
+                // White arm tip
+                ctx.fillStyle = '#FFFFFF';
+                ctx.beginPath();
+                ctx.ellipse(-32, 35, 8, 15, -0.3, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = '#E0E0E0';
+                ctx.stroke();
+                
+                // Robot head (upper circle)
+                ctx.fillStyle = '#F5F5F5';
+                ctx.beginPath();
+                ctx.arc(0, -15, 32, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = '#E0E0E0';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                
+                // Gray circular ear/bumper on left
+                ctx.fillStyle = '#BDBDBD';
+                ctx.beginPath();
+                ctx.arc(-28, -15, 12, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = '#9E9E9E';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                
+                // Green LED face screen
+                ctx.fillStyle = '#00E676';
+                ctx.beginPath();
+                ctx.roundRect(5, -25, 22, 20, 4);
+                ctx.fill();
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = '#00E676';
+                ctx.strokeStyle = '#00C853';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                
+                // LED grid lines on face
+                ctx.strokeStyle = 'rgba(0, 0, 0, 0.3)';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(11, -25);
+                ctx.lineTo(11, -5);
+                ctx.moveTo(16, -25);
+                ctx.lineTo(16, -5);
+                ctx.moveTo(21, -25);
+                ctx.lineTo(21, -5);
+                ctx.stroke();
+                
+                // Antenna stem
+                ctx.strokeStyle = '#424242';
+                ctx.lineWidth = 4;
+                ctx.beginPath();
+                ctx.moveTo(0, -47);
+                ctx.lineTo(0, -65);
+                ctx.stroke();
+                
+                // Gold antenna disc
+                ctx.fillStyle = '#FFD700';
+                ctx.shadowBlur = 8;
+                ctx.shadowColor = 'rgba(255, 215, 0, 0.6)';
+                ctx.beginPath();
+                ctx.ellipse(0, -68, 15, 6, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = '#FFA000';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                
+                // Reset shadow
+                ctx.shadowBlur = 0;
                 
                 ctx.restore();
                 
