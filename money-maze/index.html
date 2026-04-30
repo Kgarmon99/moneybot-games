@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Money Maze | MoneyBot Gaming</title>
+    <title>MoneyBot - Money Maze | MoneyBot Gaming</title>
     <link rel="icon" type="image/svg+xml" href="../assets/moneybot-idle.svg">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
@@ -45,7 +45,7 @@
                 <a href="../moneybot-official/" class="back-btn">←</a>
                 <div class="moneybot-brand">
                     <div class="moneybot-icon" style="background: url(../assets/moneybot-idle.svg) center/contain no-repeat, linear-gradient(135deg, #22C55E, #3B82F6);"></div>
-                    <span class="header-title">Money Maze</span>
+                    <span class="header-title">MoneyBot</span>
                 </div>
             </div>
             <div class="score-pill">$<span id="score">0</span></div>
@@ -174,7 +174,7 @@
             ctx.fillText('🚪', exit.x * CELL_SIZE + CELL_SIZE / 2, exit.y * CELL_SIZE + CELL_SIZE / 2);
             ctx.shadowBlur = 20;
             ctx.shadowColor = var(--moneybot-neon);
-            ctx.fillText('🤖', player.x * CELL_SIZE + CELL_SIZE / 2, player.y * CELL_SIZE + CELL_SIZE / 2);
+            ctx.fillText('MoneyBot', player.x * CELL_SIZE + CELL_SIZE / 2, player.y * CELL_SIZE + CELL_SIZE / 2);
             ctx.shadowBlur = 0;
         }
         document.addEventListener('keydown', (e) => {
