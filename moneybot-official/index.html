@@ -3,448 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MoneyBot Gaming - 142 Financial Education Games</title>
+    <title>MoneyBot Gaming - 140 Financial Education Games</title>
     <link rel="icon" type="image/jpeg" href="assets/moneybot-logo-1.jpg">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-        
-        :root {
-            --moneybot-green: #22C55E;
-            --moneybot-green-light: #4ADE80;
-            --moneybot-green-dark: #16A34A;
-            --moneybot-black: #0F172A;
-            --moneybot-white: #FFFFFF;
-            --moneybot-gray: #64748B;
-            --moneybot-gray-light: #F1F5F9;
-        }
-        
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: var(--moneybot-white);
-            min-height: 100vh;
-            color: var(--moneybot-black);
-        }
-        
-        /* Header */
-        .header {
-            background: var(--moneybot-white);
-            padding: 16px 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border-bottom: 2px solid var(--moneybot-green);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-        
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        
-        .logo-icon {
-            width: 44px;
-            height: 44px;
-            border-radius: 12px;
-            overflow: hidden;
-            border: 2px solid var(--moneybot-green);
-        }
-        
-        .logo-icon img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        
-        .logo-text {
-            font-weight: 800;
-            font-size: 24px;
-            color: var(--moneybot-black);
-        }
-        
-        .logo-text span {
-            color: var(--moneybot-green);
-        }
-        
-        /* Hero Section */
-        .hero {
-            background: linear-gradient(135deg, var(--moneybot-green) 0%, var(--moneybot-green-dark) 100%);
-            padding: 40px 20px;
-            text-align: center;
-            color: white;
-        }
-        
-        .hero-badge {
-            display: inline-block;
-            background: rgba(255,255,255,0.2);
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 16px;
-        }
-        
-        .hero-title {
-            font-size: 32px;
-            font-weight: 900;
-            margin-bottom: 12px;
-        }
-        
-        .hero-subtitle {
-            font-size: 16px;
-            opacity: 0.9;
-            margin-bottom: 24px;
-        }
-        
-        .hero-stats {
-            display: flex;
-            justify-content: center;
-            gap: 40px;
-        }
-        
-        .hero-stat {
-            text-align: center;
-        }
-        
-        .hero-stat-number {
-            font-size: 36px;
-            font-weight: 800;
-        }
-        
-        .hero-stat-label {
-            font-size: 12px;
-            opacity: 0.8;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        
-        /* Search Bar */
-        .search-section {
-            padding: 20px;
-            background: var(--moneybot-gray-light);
-        }
-        
-        .search-bar {
-            display: flex;
-            align-items: center;
-            background: white;
-            border: 2px solid var(--moneybot-green);
-            border-radius: 12px;
-            padding: 12px 16px;
-            gap: 12px;
-        }
-        
-        .search-bar input {
-            flex: 1;
-            border: none;
-            outline: none;
-            font-size: 16px;
-            font-family: inherit;
-        }
-        
-        .search-bar input::placeholder {
-            color: var(--moneybot-gray);
-        }
-        
-        /* Category Tabs */
-        .categories {
-            display: flex;
-            gap: 8px;
-            padding: 16px 20px;
-            overflow-x: auto;
-            scrollbar-width: none;
-            background: var(--moneybot-white);
-            border-bottom: 1px solid #E2E8F0;
-        }
-        
-        .categories::-webkit-scrollbar {
-            display: none;
-        }
-        
-        .category-tab {
-            padding: 10px 20px;
-            border-radius: 20px;
-            border: 2px solid #E2E8F0;
-            background: white;
-            color: var(--moneybot-gray);
-            font-weight: 600;
-            font-size: 14px;
-            cursor: pointer;
-            white-space: nowrap;
-            transition: all 0.2s;
-        }
-        
-        .category-tab:hover,
-        .category-tab.active {
-            background: var(--moneybot-green);
-            border-color: var(--moneybot-green);
-            color: white;
-        }
-        
-        /* Featured Section */
-        .section {
-            padding: 24px 20px;
-        }
-        
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
-        }
-        
-        .section-title {
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--moneybot-black);
-        }
-        
-        .section-link {
-            color: var(--moneybot-green);
-            font-weight: 600;
-            font-size: 14px;
-            text-decoration: none;
-        }
-        
-        /* Game Cards */
-        .games-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-        }
-        
-        .game-card {
-            background: white;
-            border-radius: 16px;
-            overflow: hidden;
-            border: 2px solid #E2E8F0;
-            transition: all 0.2s;
-            cursor: pointer;
-        }
-        
-        .game-card:hover {
-            border-color: var(--moneybot-green);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.15);
-        }
-        
-        .game-thumbnail {
-            width: 100%;
-            aspect-ratio: 1;
-            background: var(--moneybot-gray-light);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-        }
-        
-        .game-thumbnail img {
-            width: 60%;
-            height: 60%;
-            object-fit: contain;
-        }
-        
-        .game-difficulty {
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 10px;
-            font-weight: 700;
-            text-transform: uppercase;
-        }
-        
-        .game-difficulty.easy {
-            background: var(--moneybot-green);
-            color: white;
-        }
-        
-        .game-difficulty.medium {
-            background: #FBBF24;
-            color: white;
-        }
-        
-        .game-difficulty.hard {
-            background: #EF4444;
-            color: white;
-        }
-        
-        .game-info {
-            padding: 12px;
-        }
-        
-        .game-name {
-            font-weight: 700;
-            font-size: 14px;
-            color: var(--moneybot-black);
-            margin-bottom: 4px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        
-        .game-meta {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 12px;
-            color: var(--moneybot-gray);
-        }
-        
-        .game-reward {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            color: var(--moneybot-green);
-            font-weight: 600;
-        }
-        
-        /* Horizontal Scroll Section */
-        .horizontal-scroll {
-            display: flex;
-            gap: 12px;
-            overflow-x: auto;
-            padding-bottom: 8px;
-            scrollbar-width: none;
-        }
-        
-        .horizontal-scroll::-webkit-scrollbar {
-            display: none;
-        }
-        
-        .game-card-wide {
-            min-width: 280px;
-            background: white;
-            border-radius: 16px;
-            overflow: hidden;
-            border: 2px solid #E2E8F0;
-        }
-        
-        .game-card-wide .game-thumbnail {
-            aspect-ratio: 16/9;
-        }
-        
-        /* Progress Section */
-        .progress-section {
-            background: var(--moneybot-gray-light);
-            padding: 20px;
-            margin: 0 20px 20px;
-            border-radius: 16px;
-        }
-        
-        .progress-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-        
-        .progress-title {
-            font-weight: 700;
-            font-size: 16px;
-        }
-        
-        .progress-value {
-            color: var(--moneybot-green);
-            font-weight: 700;
-        }
-        
-        .progress-bar {
-            height: 8px;
-            background: #E2E8F0;
-            border-radius: 4px;
-            overflow: hidden;
-        }
-        
-        .progress-fill {
-            height: 100%;
-            background: var(--moneybot-green);
-            border-radius: 4px;
-            width: 23%;
-        }
-        
-        /* Bottom Nav */
-        .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: white;
-            border-top: 1px solid #E2E8F0;
-            padding: 12px 20px;
-            display: flex;
-            justify-content: space-around;
-            z-index: 100;
-        }
-        
-        .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-            color: var(--moneybot-gray);
-            text-decoration: none;
-            font-size: 12px;
-            font-weight: 500;
-        }
-        
-        .nav-item.active {
-            color: var(--moneybot-green);
-        }
-        
-        .nav-icon {
-            font-size: 24px;
-        }
-        
-        /* Spacer for bottom nav */
-        .spacer {
-            height: 80px;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        :root { --moneybot-green: #22C55E; --moneybot-black: #0F172A; --moneybot-white: #FFFFFF; --moneybot-gray: #64748B; --moneybot-gray-light: #F1F5F9; }
+        body { font-family: 'Inter', sans-serif; background: var(--moneybot-white); min-height: 100vh; color: var(--moneybot-black); }
+        .header { background: var(--moneybot-white); padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid var(--moneybot-green); position: sticky; top: 0; z-index: 100; }
+        .logo { display: flex; align-items: center; gap: 12px; }
+        .logo-icon { width: 44px; height: 44px; border-radius: 12px; overflow: hidden; border: 2px solid var(--moneybot-green); }
+        .logo-icon img { width: 100%; height: 100%; object-fit: cover; }
+        .logo-text { font-weight: 800; font-size: 24px; color: var(--moneybot-black); }
+        .logo-text span { color: var(--moneybot-green); }
+        .hero { background: linear-gradient(135deg, var(--moneybot-green) 0%, #16A34A 100%); padding: 40px 20px; text-align: center; color: white; }
+        .hero-badge { display: inline-block; background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: 600; margin-bottom: 16px; }
+        .hero-title { font-size: 32px; font-weight: 900; margin-bottom: 12px; }
+        .hero-subtitle { font-size: 16px; opacity: 0.9; margin-bottom: 24px; }
+        .hero-stats { display: flex; justify-content: center; gap: 40px; }
+        .hero-stat { text-align: center; }
+        .hero-stat-number { font-size: 36px; font-weight: 800; }
+        .hero-stat-label { font-size: 12px; opacity: 0.8; text-transform: uppercase; letter-spacing: 1px; }
+        .search-section { padding: 20px; background: var(--moneybot-gray-light); }
+        .search-bar { display: flex; align-items: center; background: white; border: 2px solid var(--moneybot-green); border-radius: 12px; padding: 12px 16px; gap: 12px; }
+        .search-bar input { flex: 1; border: none; outline: none; font-size: 16px; font-family: inherit; }
+        .search-bar input::placeholder { color: var(--moneybot-gray); }
+        .categories { display: flex; gap: 8px; padding: 16px 20px; overflow-x: auto; scrollbar-width: none; background: var(--moneybot-white); border-bottom: 1px solid #E2E8F0; }
+        .categories::-webkit-scrollbar { display: none; }
+        .category-tab { padding: 10px 20px; border-radius: 20px; border: 2px solid #E2E8F0; background: white; color: var(--moneybot-gray); font-weight: 600; font-size: 14px; cursor: pointer; white-space: nowrap; transition: all 0.2s; }
+        .category-tab:hover, .category-tab.active { background: var(--moneybot-green); border-color: var(--moneybot-green); color: white; }
+        .section { padding: 24px 20px; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .section-title { font-size: 20px; font-weight: 700; color: var(--moneybot-black); }
+        .section-link { color: var(--moneybot-green); font-weight: 600; font-size: 14px; text-decoration: none; }
+        .games-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+        .game-card { background: white; border-radius: 16px; overflow: hidden; border: 2px solid #E2E8F0; transition: all 0.2s; cursor: pointer; }
+        .game-card:hover { border-color: var(--moneybot-green); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(34, 197, 94, 0.15); }
+        .game-thumbnail { width: 100%; aspect-ratio: 1; background: var(--moneybot-gray-light); display: flex; align-items: center; justify-content: center; position: relative; }
+        .game-thumbnail img { width: 60%; height: 60%; object-fit: contain; }
+        .game-difficulty { position: absolute; top: 8px; right: 8px; padding: 4px 8px; border-radius: 12px; font-size: 10px; font-weight: 700; text-transform: uppercase; }
+        .game-difficulty.easy { background: var(--moneybot-green); color: white; }
+        .game-difficulty.medium { background: #FBBF24; color: white; }
+        .game-difficulty.hard { background: #EF4444; color: white; }
+        .game-info { padding: 12px; }
+        .game-name { font-weight: 700; font-size: 14px; color: var(--moneybot-black); margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .game-meta { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--moneybot-gray); }
+        .game-reward { display: flex; align-items: center; gap: 4px; color: var(--moneybot-green); font-weight: 600; }
+        .progress-section { background: var(--moneybot-gray-light); padding: 20px; margin: 0 20px 20px; border-radius: 16px; }
+        .progress-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .progress-title { font-weight: 700; font-size: 16px; }
+        .progress-value { color: var(--moneybot-green); font-weight: 700; }
+        .progress-bar { height: 8px; background: #E2E8F0; border-radius: 4px; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--moneybot-green); border-radius: 4px; width: 0%; }
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid #E2E8F0; padding: 12px 20px; display: flex; justify-content: space-around; z-index: 100; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--moneybot-gray); text-decoration: none; font-size: 12px; font-weight: 500; }
+        .nav-item.active { color: var(--moneybot-green); }
+        .nav-icon { font-size: 24px; }
+        .spacer { height: 80px; }
     </style>
 </head>
 <body>
-    <!-- Header -->
     <header class="header">
         <div class="logo">
-            <div class="logo-icon">
-                <img src="assets/moneybot-logo-1.jpg" alt="MoneyBot">
-            </div>
+            <div class="logo-icon"><img src="assets/moneybot-logo-1.jpg" alt="MoneyBot"></div>
             <div class="logo-text">Money<span>Bot</span></div>
         </div>
     </header>
     
-    <!-- Hero Section -->
     <section class="hero">
-        <div class="hero-badge">🎮 World's Largest</div>
+        <div class="hero-badge">World's Largest</div>
         <h1 class="hero-title">MoneyBot Gaming</h1>
         <p class="hero-subtitle">Master money skills through play</p>
         <div class="hero-stats">
-            <div class="hero-stat">
-                <div class="hero-stat-number">142</div>
-                <div class="hero-stat-label">Games</div>
-            </div>
-            <div class="hero-stat">
-                <div class="hero-stat-number">12</div>
-                <div class="hero-stat-label">Categories</div>
-            </div>
-            <div class="hero-stat">
-                <div class="hero-stat-number">∞</div>
-                <div class="hero-stat-label">Fun</div>
-            </div>
+            <div class="hero-stat"><div class="hero-stat-number" id="totalGames">140</div><div class="hero-stat-label">Games</div></div>
+            <div class="hero-stat"><div class="hero-stat-number">8</div><div class="hero-stat-label">Categories</div></div>
+            <div class="hero-stat"><div class="hero-stat-number">∞</div><div class="hero-stat-label">Fun</div></div>
         </div>
     </section>
     
-    <!-- Search -->
     <section class="search-section">
         <div class="search-bar">
             <span>🔍</span>
@@ -452,7 +88,6 @@
         </div>
     </section>
     
-    <!-- Categories -->
     <div class="categories">
         <button class="category-tab active" data-category="all">All Games</button>
         <button class="category-tab" data-category="basics">💡 Basics</button>
@@ -465,112 +100,1309 @@
         <button class="category-tab" data-category="multiplayer">👥 Multiplayer</button>
     </div>
     
-    <!-- Progress -->
     <div class="progress-section">
         <div class="progress-header">
             <span class="progress-title">Your Progress</span>
-            <span class="progress-value">33/142 Games</span>
+            <span class="progress-value" id="progressText">0/140 Games</span>
         </div>
-        <div class="progress-bar">
-            <div class="progress-fill"></div>
-        </div>
+        <div class="progress-bar"><div class="progress-fill" id="progressBar"></div></div>
     </div>
     
-    <!-- Featured Games -->
-    <section class="section">
-        <div class="section-header">
-            <h2 class="section-title">🔥 Featured</h2>
-            <a href="#" class="section-link">See All</a>
-        </div>
-        <div class="horizontal-scroll">
-            <div class="game-card-wide" onclick="location.href='../bot-budget-slice/'">
-                <div class="game-thumbnail">
-                    <img src="assets/thumbnails/bot-budget-slice.svg" alt="Budget Slice">
-                    <span class="game-difficulty easy">Easy</span>
-                </div>
-                <div class="game-info">
-                    <div class="game-name">Bot Budget Slice</div>
-                    <div class="game-meta">
-                        <span>⭐ 50 XP</span>
-                        <span class="game-reward">🪙 25</span>
-                    </div>
-                </div>
-            </div>
-            <div class="game-card-wide" onclick="location.href='../bot-stock-tycoon/'">
-                <div class="game-thumbnail">
-                    <img src="assets/thumbnails/bot-stock-tycoon.svg" alt="Stock Tycoon">
-                    <span class="game-difficulty medium">Medium</span>
-                </div>
-                <div class="game-info">
-                    <div class="game-name">Bot Stock Tycoon</div>
-                    <div class="game-meta">
-                        <span>⭐ 100 XP</span>
-                        <span class="game-reward">🪙 75</span>
-                    </div>
-                </div>
-            </div>
-            <div class="game-card-wide" onclick="location.href='../bot-crypto-miner/'">
-                <div class="game-thumbnail">
-                    <img src="assets/thumbnails/bot-crypto-miner.svg" alt="Crypto Miner">
-                    <span class="game-difficulty hard">Hard</span>
-                </div>
-                <div class="game-info">
-                    <div class="game-name">Bot Crypto Miner</div>
-                    <div class="game-meta">
-                        <span>⭐ 150 XP</span>
-                        <span class="game-reward">🪙 100</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-    
-    <!-- All Games -->
     <section class="section">
         <div class="section-header">
             <h2 class="section-title">🎮 All Games</h2>
-            <a href="#" class="section-link">Filter</a>
         </div>
         <div class="games-grid" id="gamesGrid">
-            <!-- Games will be loaded here -->
+            <!-- Games will be rendered here -->
         </div>
     </section>
     
     <div class="spacer"></div>
     
-    <!-- Bottom Navigation -->
     <nav class="bottom-nav">
-        <a href="#" class="nav-item active">
-            <span class="nav-icon">🎮</span>
-            <span>Games</span>
-        </a>
-        <a href="#" class="nav-item">
-            <span class="nav-icon">🏆</span>
-            <span>Achieve</span>
-        </a>
-        <a href="#" class="nav-item">
-            <span class="nav-icon">📊</span>
-            <span>Progress</span>
-        </a>
-        <a href="#" class="nav-item">
-            <span class="nav-icon">👤</span>
-            <span>Profile</span>
-        </a>
+        <a href="#" class="nav-item active"><span class="nav-icon">🎮</span><span>Games</span></a>
+        <a href="#" class="nav-item"><span class="nav-icon">🏆</span><span>Achieve</span></a>
+        <a href="#" class="nav-item"><span class="nav-icon">📊</span><span>Progress</span></a>
+        <a href="#" class="nav-item"><span class="nav-icon">👤</span><span>Profile</span></a>
     </nav>
     
     <script>
-        // Game data - will be loaded from JSON
-        let games = [];
+        // Embedded games data
+        {
+          "games": [
+            {
+              "id": "bot-achievement-hunt",
+              "name": "achievement hunt",
+              "category": "basics",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "bot-angel-investor",
+              "name": "angel investor",
+              "category": "invest",
+              "difficulty": "medium",
+              "xp": 100,
+              "coins": 75
+            }
+        ,
+            {
+              "id": "bot-asset-allocation",
+              "name": "asset allocation",
+              "category": "invest",
+              "difficulty": "medium",
+              "xp": 100,
+              "coins": 75
+            }
+        ,
+            {
+              "id": "bot-bill-boss",
+              "name": "bill boss",
+              "category": "budget",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "bot-budget-battles",
+              "name": "budget battles",
+              "category": "budget",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "bot-budget-blaster",
+              "name": "budget blaster",
+              "category": "budget",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "bot-budget-breakout",
+              "name": "budget breakout",
+              "category": "budget",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "bot-budget-slice",
+              "name": "budget slice",
+              "category": "budget",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "bot-budget-sudoku",
+              "name": "budget sudoku",
+              "category": "budget",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "bot-bull-bear-battle",
+              "name": "bull bear battle",
+              "category": "multiplayer",
+              "difficulty": "hard",
+              "xp": 150,
+              "coins": 100
+            }
+        ,
+            {
+              "id": "bot-buy-low-sell-high",
+              "name": "buy low sell high",
+              "category": "basics",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "bot-career-path",
+              "name": "career path",
+              "category": "career",
+              "difficulty": "medium",
+              "xp": 100,
+              "coins": 75
+            }
+        ,
+            {
+              "id": "bot-cash-craze",
+              "name": "cash craze",
+              "category": "arcade",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "bot-cash-dash",
+              "name": "cash dash",
+              "category": "arcade",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "bot-cash-grab",
+              "name": "cash grab",
+              "category": "basics",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "bot-cashflow-master",
+              "name": "cashflow master",
+              "category": "budget",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "bot-champion-league",
+              "name": "champion league",
+              "category": "basics",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "bot-class-competition",
+              "name": "class competition",
+              "category": "multiplayer",
+              "difficulty": "hard",
+              "xp": 150,
+              "coins": 100
+            }
+        ,
+            {
+              "id": "bot-coin-catch",
+              "name": "coin catch",
+              "category": "arcade",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "bot-coin-collector",
+              "name": "coin collector",
+              "category": "basics",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "bot-coin-pong",
+              "name": "coin pong",
+              "category": "arcade",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "bot-college-decisions",
+              "name": "college decisions",
+              "category": "life",
+              "difficulty": "medium",
+              "xp": 100,
+              "coins": 75
+            }
+        ,
+            {
+              "id": "bot-compound-2048",
+              "name": "compound 2048",
+              "category": "invest",
+              "difficulty": "medium",
+              "xp": 100,
+              "coins": 75
+            }
+        ,
+            {
+              "id": "bot-compound-king",
+              "name": "compound king",
+              "category": "invest",
+              "difficulty": "medium",
+              "xp": 100,
+              "coins": 75
+            }
+        ,
+            {
+              "id": "bot-credit-climber",
+              "name": "credit climber",
+              "category": "arcade",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "bot-crypto-climb",
+              "name": "crypto climb",
+              "category": "invest",
+              "difficulty": "medium",
+              "xp": 100,
+              "coins": 75
+            }
+        ,
+            {
+              "id": "bot-crypto-miner",
+              "name": "crypto miner",
+              "category": "invest",
+              "difficulty": "medium",
+              "xp": 100,
+              "coins": 75
+            }
+        ,
+            {
+              "id": "bot-daily-challenge",
+              "name": "daily challenge",
+              "category": "multiplayer",
+              "difficulty": "hard",
+              "xp": 150,
+              "coins": 100
+            }
+        ,
+            {
+              "id": "bot-daytrader-dash",
+              "name": "daytrader dash",
+              "category": "arcade",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "bot-debt-destroyer",
+              "name": "debt destroyer",
+              "category": "basics",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "bot-debt-dodge",
+              "name": "debt dodge",
+              "category": "basics",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "bot-discount-dash",
+              "name": "discount dash",
+              "category": "save",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "bot-diversification-drop",
+              "name": "diversification drop",
+              "category": "arcade",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "bot-dividend-defense",
+              "name": "dividend defense",
+              "category": "invest",
+              "difficulty": "medium",
+              "xp": 100,
+              "coins": 75
+            }
+        ,
+            {
+              "id": "bot-dividend-dynasty",
+              "name": "dividend dynasty",
+              "category": "invest",
+              "difficulty": "medium",
+              "xp": 100,
+              "coins": 75
+            }
+        ,
+            {
+              "id": "bot-dollar-drop",
+              "name": "dollar drop",
+              "category": "arcade",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "bot-elite-investor",
+              "name": "elite investor",
+              "category": "invest",
+              "difficulty": "medium",
+              "xp": 100,
+              "coins": 75
+            }
+        ,
+            {
+              "id": "bot-emergency-fund",
+              "name": "emergency fund",
+              "category": "save",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "bot-empire-builder",
+              "name": "empire builder",
+              "category": "basics",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "bot-etf-empire",
+              "name": "etf empire",
+              "category": "basics",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "bot-expense-escape",
+              "name": "expense escape",
+              "category": "budget",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "bot-family-budget",
+              "name": "family budget",
+              "category": "budget",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "bot-financial-wordle",
+              "name": "financial wordle",
+              "category": "arcade",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "bot-first-apartment",
+              "name": "first apartment",
+              "category": "life",
+              "difficulty": "medium",
+              "xp": 100,
+              "coins": 75
+            }
+        ,
+            {
+              "id": "bot-first-car",
+              "name": "first car",
+              "category": "life",
+              "difficulty": "medium",
+              "xp": 100,
+              "coins": 75
+            }
+        ,
+            {
+              "id": "bot-first-job",
+              "name": "first job",
+              "category": "career",
+              "difficulty": "medium",
+              "xp": 100,
+              "coins": 75
+            }
+        ,
+            {
+              "id": "bot-fiscal-frogger",
+              "name": "fiscal frogger",
+              "category": "arcade",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "bot-grocery-game",
+              "name": "grocery game",
+              "category": "life",
+              "difficulty": "medium",
+              "xp": 100,
+              "coins": 75
+            }
+        ,
+            {
+              "id": "bot-group-economy",
+              "name": "group economy",
+              "category": "multiplayer",
+              "difficulty": "hard",
+              "xp": 150,
+              "coins": 100
+            }
+        ,
+            {
+              "id": "bot-higher-lower",
+              "name": "higher lower",
+              "category": "basics",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "bot-income-builder",
+              "name": "income builder",
+              "category": "career",
+              "difficulty": "medium",
+              "xp": 100,
+              "coins": 75
+            }
+        ,
+            {
+              "id": "bot-insurance-iq",
+              "name": "insurance iq",
+              "category": "life",
+              "difficulty": "medium",
+              "xp": 100,
+              "coins": 75
+            }
+        ,
+            {
+              "id": "bot-interest-impact",
+              "name": "interest impact",
+              "category": "basics",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "bot-interest-match",
+              "name": "interest match",
+              "category": "basics",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "bot-invest-island",
+              "name": "invest island",
+              "category": "invest",
+              "difficulty": "medium",
+              "xp": 100,
+              "coins": 75
+            }
+        ,
+            {
+              "id": "bot-investment-wars",
+              "name": "investment wars",
+              "category": "invest",
+              "difficulty": "medium",
+              "xp": 100,
+              "coins": 75
+            }
+        ,
+            {
+              "id": "bot-investor-life",
+              "name": "investor life",
+              "category": "invest",
+              "difficulty": "medium",
+              "xp": 100,
+              "coins": 75
+            }
+        ,
+            {
+              "id": "bot-ipo-launch",
+              "name": "ipo launch",
+              "category": "basics",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "bot-lemonade-empire",
+              "name": "lemonade empire",
+              "category": "basics",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "bot-longterm-legend",
+              "name": "longterm legend",
+              "category": "basics",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "bot-lucky-investment",
+              "name": "lucky investment",
+              "category": "invest",
+              "difficulty": "medium",
+              "xp": 100,
+              "coins": 75
+            }
+        ,
+            {
+              "id": "bot-market-madness",
+              "name": "market madness",
+              "category": "invest",
+              "difficulty": "medium",
+              "xp": 100,
+              "coins": 75
+            }
+        ,
+            {
+              "id": "bot-market-racer",
+              "name": "market racer",
+              "category": "invest",
+              "difficulty": "medium",
+              "xp": 100,
+              "coins": 75
+            }
+        ,
+            {
+              "id": "bot-market-surfers",
+              "name": "market surfers",
+              "category": "invest",
+              "difficulty": "medium",
+              "xp": 100,
+              "coins": 75
+            }
+        ,
+            {
+              "id": "bot-move-out",
+              "name": "move out",
+              "category": "basics",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "bot-needs-wants",
+              "name": "needs wants",
+              "category": "basics",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "bot-networth-builder",
+              "name": "networth builder",
+              "category": "basics",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "bot-passive-income",
+              "name": "passive income",
+              "category": "career",
+              "difficulty": "medium",
+              "xp": 100,
+              "coins": 75
+            }
+        ,
+            {
+              "id": "bot-portfolio-balance",
+              "name": "portfolio balance",
+              "category": "invest",
+              "difficulty": "medium",
+              "xp": 100,
+              "coins": 75
+            }
+        ,
+            {
+              "id": "bot-portfolio-builder",
+              "name": "portfolio builder",
+              "category": "invest",
+              "difficulty": "medium",
+              "xp": 100,
+              "coins": 75
+            }
+        ,
+            {
+              "id": "bot-price-check",
+              "name": "price check",
+              "category": "basics",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "bot-price-guess",
+              "name": "price guess",
+              "category": "basics",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "bot-profit-pinball",
+              "name": "profit pinball",
+              "category": "arcade",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "bot-quick-budget",
+              "name": "quick budget",
+              "category": "budget",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "bot-real-life",
+              "name": "real life",
+              "category": "life",
+              "difficulty": "medium",
+              "xp": 100,
+              "coins": 75
+            }
+        ,
+            {
+              "id": "bot-realestate-mogul",
+              "name": "realestate mogul",
+              "category": "basics",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "bot-realestate-tycoon",
+              "name": "realestate tycoon",
+              "category": "basics",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "bot-recession-survival",
+              "name": "recession survival",
+              "category": "basics",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "bot-rent-vs-buy",
+              "name": "rent vs buy",
+              "category": "life",
+              "difficulty": "medium",
+              "xp": 100,
+              "coins": 75
+            }
+        ,
+            {
+              "id": "bot-retirement-run",
+              "name": "retirement run",
+              "category": "life",
+              "difficulty": "medium",
+              "xp": 100,
+              "coins": 75
+            }
+        ,
+            {
+              "id": "bot-risk-runner",
+              "name": "risk runner",
+              "category": "arcade",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "bot-risk-tetris",
+              "name": "risk tetris",
+              "category": "arcade",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "bot-salary-negotiate",
+              "name": "salary negotiate",
+              "category": "career",
+              "difficulty": "medium",
+              "xp": 100,
+              "coins": 75
+            }
+        ,
+            {
+              "id": "bot-save-challenge",
+              "name": "save challenge",
+              "category": "save",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "bot-save-streak",
+              "name": "save streak",
+              "category": "save",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "bot-savings-snake",
+              "name": "savings snake",
+              "category": "arcade",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "bot-savings-sprint",
+              "name": "savings sprint",
+              "category": "basics",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "bot-side-hustle",
+              "name": "side hustle",
+              "category": "career",
+              "difficulty": "medium",
+              "xp": 100,
+              "coins": 75
+            }
+        ,
+            {
+              "id": "bot-smart-split",
+              "name": "smart split",
+              "category": "basics",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "bot-spend-challenge",
+              "name": "spend challenge",
+              "category": "multiplayer",
+              "difficulty": "hard",
+              "xp": 150,
+              "coins": 100
+            }
+        ,
+            {
+              "id": "bot-spend-smart",
+              "name": "spend smart",
+              "category": "basics",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "bot-spin-market",
+              "name": "spin market",
+              "category": "invest",
+              "difficulty": "medium",
+              "xp": 100,
+              "coins": 75
+            }
+        ,
+            {
+              "id": "bot-stack-cash",
+              "name": "stack cash",
+              "category": "arcade",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "bot-start-business",
+              "name": "start business",
+              "category": "career",
+              "difficulty": "medium",
+              "xp": 100,
+              "coins": 75
+            }
+        ,
+            {
+              "id": "bot-startup-investor",
+              "name": "startup investor",
+              "category": "invest",
+              "difficulty": "medium",
+              "xp": 100,
+              "coins": 75
+            }
+        ,
+            {
+              "id": "bot-stock-stack",
+              "name": "stock stack",
+              "category": "invest",
+              "difficulty": "medium",
+              "xp": 100,
+              "coins": 75
+            }
+        ,
+            {
+              "id": "bot-stock-tycoon",
+              "name": "stock tycoon",
+              "category": "invest",
+              "difficulty": "medium",
+              "xp": 100,
+              "coins": 75
+            }
+        ,
+            {
+              "id": "bot-streak-master",
+              "name": "streak master",
+              "category": "basics",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "bot-subscription-slayer",
+              "name": "subscription slayer",
+              "category": "basics",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "bot-survival-30day",
+              "name": "survival 30day",
+              "category": "basics",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "bot-swipe-save",
+              "name": "swipe save",
+              "category": "save",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "bot-tap-invest",
+              "name": "tap invest",
+              "category": "invest",
+              "difficulty": "medium",
+              "xp": 100,
+              "coins": 75
+            }
+        ,
+            {
+              "id": "bot-tap-trend",
+              "name": "tap trend",
+              "category": "arcade",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "bot-tax-tactician",
+              "name": "tax tactician",
+              "category": "basics",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "bot-tax-tetris",
+              "name": "tax tetris",
+              "category": "arcade",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "bot-team-tycoon",
+              "name": "team tycoon",
+              "category": "multiplayer",
+              "difficulty": "hard",
+              "xp": 150,
+              "coins": 100
+            }
+        ,
+            {
+              "id": "bot-unexpected-expense",
+              "name": "unexpected expense",
+              "category": "budget",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "bot-wealth-ladder",
+              "name": "wealth ladder",
+              "category": "invest",
+              "difficulty": "medium",
+              "xp": 100,
+              "coins": 75
+            }
+        ,
+            {
+              "id": "bot-wealth-rank",
+              "name": "wealth rank",
+              "category": "invest",
+              "difficulty": "medium",
+              "xp": 100,
+              "coins": 75
+            }
+        ,
+            {
+              "id": "bot-wealth-tower",
+              "name": "wealth tower",
+              "category": "invest",
+              "difficulty": "medium",
+              "xp": 100,
+              "coins": 75
+            }
+        ,
+            {
+              "id": "bot-wealth-wheel",
+              "name": "wealth wheel",
+              "category": "invest",
+              "difficulty": "medium",
+              "xp": 100,
+              "coins": 75
+            }
+        ,
+            {
+              "id": "bot-weekly-boss",
+              "name": "weekly boss",
+              "category": "basics",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "bot-would-you-rather",
+              "name": "would you rather",
+              "category": "basics",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "botbalance",
+              "name": "botbalance",
+              "category": "basics",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "botbiztycoon",
+              "name": "botbiztycoon",
+              "category": "basics",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "botbuilder",
+              "name": "botbuilder",
+              "category": "basics",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "botcitybuilder",
+              "name": "botcitybuilder",
+              "category": "basics",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "botdash",
+              "name": "botdash",
+              "category": "arcade",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "botfundmanager",
+              "name": "botfundmanager",
+              "category": "basics",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "bothouse",
+              "name": "bothouse",
+              "category": "basics",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "botjump",
+              "name": "botjump",
+              "category": "arcade",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "botreactiontest",
+              "name": "botreactiontest",
+              "category": "arcade",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "botrunner",
+              "name": "botrunner",
+              "category": "arcade",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "botsquadmissions",
+              "name": "botsquadmissions",
+              "category": "multiplayer",
+              "difficulty": "hard",
+              "xp": 150,
+              "coins": 100
+            }
+        ,
+            {
+              "id": "botvsbot",
+              "name": "botvsbot",
+              "category": "multiplayer",
+              "difficulty": "hard",
+              "xp": 150,
+              "coins": 100
+            }
+        ,
+            {
+              "id": "budgetbot",
+              "name": "budgetbot",
+              "category": "budget",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "cryptobot",
+              "name": "cryptobot",
+              "category": "invest",
+              "difficulty": "medium",
+              "xp": 100,
+              "coins": 75
+            }
+        ,
+            {
+              "id": "flappybot",
+              "name": "flappybot",
+              "category": "arcade",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "money-asset-flow",
+              "name": "asset flow",
+              "category": "invest",
+              "difficulty": "medium",
+              "xp": 100,
+              "coins": 75
+            }
+        ,
+            {
+              "id": "money-bank-heist",
+              "name": "bank heist",
+              "category": "basics",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "money-invaders",
+              "name": "invaders",
+              "category": "arcade",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "money-jump",
+              "name": "jump",
+              "category": "arcade",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "money-maze",
+              "name": "maze",
+              "category": "arcade",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "moneybot-3d-showcase",
+              "name": "money3d showcase",
+              "category": "basics",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "moneybot-rush-pro",
+              "name": "moneyrush pro",
+              "category": "basics",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "moneymatch",
+              "name": "moneymatch",
+              "category": "basics",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "moneyolympics",
+              "name": "moneyolympics",
+              "category": "multiplayer",
+              "difficulty": "hard",
+              "xp": 150,
+              "coins": 100
+            }
+        ,
+            {
+              "id": "moneyverse-games",
+              "name": "moneyverse games",
+              "category": "basics",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
+        ,
+            {
+              "id": "stockbot",
+              "name": "stockbot",
+              "category": "invest",
+              "difficulty": "medium",
+              "xp": 100,
+              "coins": 75
+            }
+        ,
+            {
+              "id": "viralquizbot",
+              "name": "viralquizbot",
+              "category": "arcade",
+              "difficulty": "easy",
+              "xp": 50,
+              "coins": 25
+            }
         
-        // Render games
+          ]
+        }
+        
+        let gamesData = gamesData || games;
+        
         function renderGames(category = 'all') {
             const grid = document.getElementById('gamesGrid');
-            const filteredGames = category === 'all' ? games : games.filter(g => g.category === category);
+            const filtered = category === 'all' ? gamesData : gamesData.filter(g => g.category === category);
             
-            grid.innerHTML = filteredGames.map(game => `
+            grid.innerHTML = filtered.map(game => `
                 <div class="game-card" onclick="location.href='../${game.id}/'">
                     <div class="game-thumbnail">
-                        <img src="assets/thumbnails/${game.id}.svg" alt="${game.name}">
+                        <img src="assets/thumbnails/${game.id}.svg" alt="${game.name}" onerror="this.src='assets/moneybot-logo-1.jpg'">
                         <span class="game-difficulty ${game.difficulty}">${game.difficulty}</span>
                     </div>
                     <div class="game-info">
@@ -584,7 +1416,6 @@
             `).join('');
         }
         
-        // Category tabs
         document.querySelectorAll('.category-tab').forEach(tab => {
             tab.addEventListener('click', () => {
                 document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
@@ -593,16 +1424,13 @@
             });
         });
         
-        // Search
         document.getElementById('searchInput').addEventListener('input', (e) => {
             const search = e.target.value.toLowerCase();
-            const grid = document.getElementById('gamesGrid');
-            const filtered = games.filter(g => g.name.toLowerCase().includes(search));
-            
-            grid.innerHTML = filtered.map(game => `
+            const filtered = gamesData.filter(g => g.name.toLowerCase().includes(search));
+            document.getElementById('gamesGrid').innerHTML = filtered.map(game => `
                 <div class="game-card" onclick="location.href='../${game.id}/'">
                     <div class="game-thumbnail">
-                        <img src="assets/thumbnails/${game.id}.svg" alt="${game.name}">
+                        <img src="assets/thumbnails/${game.id}.svg" alt="${game.name}" onerror="this.src='assets/moneybot-logo-1.jpg'">
                         <span class="game-difficulty ${game.difficulty}">${game.difficulty}</span>
                     </div>
                     <div class="game-info">
@@ -616,51 +1444,10 @@
             `).join('');
         });
         
-        // Load games from JSON
-        // Load games from JSON with better error handling
-        // Fallback games data in case JSON fetch fails
-        const fallbackGames = [
-            { id: "bot-budget-slice", name: "Budget Slice", category: "budget", difficulty: "easy", xp: 50, coins: 25 },
-            { id: "bot-stock-tycoon", name: "Stock Tycoon", category: "invest", difficulty: "medium", xp: 100, coins: 75 },
-            { id: "bot-crypto-miner", name: "Crypto Miner", category: "invest", difficulty: "hard", xp: 150, coins: 100 },
-            { id: "bot-coin-collector", name: "Coin Collector", category: "arcade", difficulty: "easy", xp: 30, coins: 15 },
-            { id: "bot-debt-destroyer", name: "Debt Destroyer", category: "basics", difficulty: "easy", xp: 40, coins: 20 },
-            { id: "bot-save-streak", name: "Save Streak", category: "save", difficulty: "medium", xp: 75, coins: 50 },
-            { id: "bot-market-surfers", name: "Market Surfers", category: "invest", difficulty: "medium", xp: 80, coins: 60 },
-            { id: "bot-wealth-tower", name: "Wealth Tower", category: "invest", difficulty: "easy", xp: 45, coins: 30 },
-            { id: "bot-compound-2048", name: "Compound 2048", category: "arcade", difficulty: "medium", xp: 60, coins: 40 },
-            { id: "bot-risk-tetris", name: "Risk Tetris", category: "arcade", difficulty: "hard", xp: 90, coins: 70 },
-            { id: "bot-money-invaders", name: "Money Invaders", category: "arcade", difficulty: "medium", xp: 55, coins: 35 },
-            { id: "bot-savings-snake", name: "Savings Snake", category: "save", difficulty: "easy", xp: 35, coins: 20 }
-        ];        async function loadGames() {
-            try {
-                const response = await fetch("games.json");
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                const data = await response.json();
-                games = data.games;
-                console.log("Loaded " + games.length + " games");
-                renderGames();
-                // Update hero stats
-                document.querySelector(".hero-stat-number").textContent = games.length;
-                document.querySelector(".progress-value").textContent = "0/" + games.length + " Games";
-            } catch (error) {
-                console.error("Error loading games:", error);
-                document.getElementById("gamesGrid").innerHTML = "<p style=\"text-align:center;color:#64748B;padding:40px;\">Error loading games. Please refresh the page.</p>";
-            }
-        }
-        
-        // Load games when page loads
-        loadGames();                // Update hero stats
-                document.querySelector('.hero-stat-number').textContent = games.length;
-                document.querySelector('.progress-value').textContent = `0/${games.length} Games`;
-            })
-            .catch(error => {
-                console.error('Error loading games:', error);
-                // Fallback: render without games
-                document.getElementById('gamesGrid').innerHTML = '<p style="text-align:center;color:#64748B;">Loading games...</p>';
-            });
+        // Initial render
+        renderGames();
+        document.getElementById('totalGames').textContent = gamesData.length;
+        document.getElementById('progressText').textContent = '0/' + gamesData.length + ' Games';
     </script>
 </body>
 </html>
