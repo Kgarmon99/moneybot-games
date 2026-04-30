@@ -211,8 +211,8 @@
             bestScore: parseInt(localStorage.getItem('flappybot_best')) || 0,
             currentTheme: localStorage.getItem('flappybot_theme') || 'deepSpace',
             currentBot: localStorage.getItem('flappybot_bot') || 'classic',
-            unlockedThemes: JSON.parse(localStorage.getItem('flappybot_unlockedThemes')) || ['deepSpace'],
-            unlockedBots: JSON.parse(localStorage.getItem('flappybot_unlockedBots')) || ['classic'],
+            unlockedThemes: JSON.parse(localStorage.getItem('flappybot_unlockedThemes')) || ['deepSpace', 'nebula', 'galaxy', 'matrix', 'sunset', 'moneyverse', 'aurora', 'cyberpunk', 'volcano'],
+            unlockedBots: JSON.parse(localStorage.getItem('flappybot_unlockedBots')) || ['classic', 'gold', 'neon', 'ninja', 'fire', 'pixel', 'alien', 'ice', 'inferno', 'galaxy', 'cyber', 'zombie', 'flame'],
             frames: 0,
             pipes: [],
             particles: [],
@@ -223,7 +223,7 @@
             bird: { x: 100, y: 0, velocity: 0, width: 34, height: 24, rotation: 0 },
             
             currentTrail: localStorage.getItem('flappybot_trail') || 'cash',
-            unlockedTrails: JSON.parse(localStorage.getItem('flappybot_unlockedTrails')) || ['none', 'cash', 'coins'],
+            unlockedTrails: JSON.parse(localStorage.getItem('flappybot_unlockedTrails')) || ['none', 'cash', 'coins', 'green', 'fire', 'rainbow', 'neon', 'stars', 'bubbles'],
             trailParticles: [],
             
             themeUnlocks: { deepSpace: 0, nebula: 0, galaxy: 0, matrix: 0, sunset: 30, moneyverse: 60, aurora: 80, cyberpunk: 120, volcano: 200 },
