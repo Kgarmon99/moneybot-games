@@ -617,12 +617,42 @@
         });
         
         // Load games from JSON
-        fetch('games.json')
-            .then(response => response.json())
-            .then(data => {
+        // Load games from JSON with better error handling
+        // Fallback games data in case JSON fetch fails
+        const fallbackGames = [
+            { id: "bot-budget-slice", name: "Budget Slice", category: "budget", difficulty: "easy", xp: 50, coins: 25 },
+            { id: "bot-stock-tycoon", name: "Stock Tycoon", category: "invest", difficulty: "medium", xp: 100, coins: 75 },
+            { id: "bot-crypto-miner", name: "Crypto Miner", category: "invest", difficulty: "hard", xp: 150, coins: 100 },
+            { id: "bot-coin-collector", name: "Coin Collector", category: "arcade", difficulty: "easy", xp: 30, coins: 15 },
+            { id: "bot-debt-destroyer", name: "Debt Destroyer", category: "basics", difficulty: "easy", xp: 40, coins: 20 },
+            { id: "bot-save-streak", name: "Save Streak", category: "save", difficulty: "medium", xp: 75, coins: 50 },
+            { id: "bot-market-surfers", name: "Market Surfers", category: "invest", difficulty: "medium", xp: 80, coins: 60 },
+            { id: "bot-wealth-tower", name: "Wealth Tower", category: "invest", difficulty: "easy", xp: 45, coins: 30 },
+            { id: "bot-compound-2048", name: "Compound 2048", category: "arcade", difficulty: "medium", xp: 60, coins: 40 },
+            { id: "bot-risk-tetris", name: "Risk Tetris", category: "arcade", difficulty: "hard", xp: 90, coins: 70 },
+            { id: "bot-money-invaders", name: "Money Invaders", category: "arcade", difficulty: "medium", xp: 55, coins: 35 },
+            { id: "bot-savings-snake", name: "Savings Snake", category: "save", difficulty: "easy", xp: 35, coins: 20 }
+        ];        async function loadGames() {
+            try {
+                const response = await fetch("games.json");
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
                 games = data.games;
+                console.log("Loaded " + games.length + " games");
                 renderGames();
                 // Update hero stats
+                document.querySelector(".hero-stat-number").textContent = games.length;
+                document.querySelector(".progress-value").textContent = "0/" + games.length + " Games";
+            } catch (error) {
+                console.error("Error loading games:", error);
+                document.getElementById("gamesGrid").innerHTML = "<p style=\"text-align:center;color:#64748B;padding:40px;\">Error loading games. Please refresh the page.</p>";
+            }
+        }
+        
+        // Load games when page loads
+        loadGames();                // Update hero stats
                 document.querySelector('.hero-stat-number').textContent = games.length;
                 document.querySelector('.progress-value').textContent = `0/${games.length} Games`;
             })
