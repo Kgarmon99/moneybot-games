@@ -24,7 +24,7 @@
         .near-miss.show { animation: nearMissPop 0.8s ease-out forwards; }
         @keyframes nearMissPop { 0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); } 30% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); } 100% { opacity: 0; transform: translate(-50%, -80%) scale(0.9); } }
         
-        .challenge-banner { position: absolute; top: 110px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #FFD700, #FFA500); padding: 8px 16px; border-radius: 20px; font-size: 12px; font-weight: 700; color: #000; z-index: 100; }
+
         
         .start-screen, .game-over-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(0,0,0,0.7); pointer-events: auto; }
         .game-over-screen { display: none; }
@@ -89,7 +89,7 @@
             <div class="best-score">Best: <span id="bestScore">0</span></div>
         </div>
         <div class="near-miss" id="nearMiss">CLOSE CALL! +5</div>
-        <div class="challenge-banner" id="challengeBanner">🎯 Pass 10 pipes without flapping</div>
+
     </div>
     
     <button class="settings-btn" onclick="game.openSettings()">⚙️</button>
