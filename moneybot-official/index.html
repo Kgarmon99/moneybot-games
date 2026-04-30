@@ -3,154 +3,602 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MoneyBot Gaming - 27 Unique Financial Education Games</title>
+    <title>MoneyBot Gaming - Elite Financial Education Games</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: #fff; }
-        .header { background: #fff; padding: 16px 20px; border-bottom: 2px solid #22C55E; display: flex; align-items: center; gap: 12px; }
-        .header img { width: 44px; height: 44px; border-radius: 8px; }
-        .header h1 { font-size: 24px; font-weight: 800; }
-        .header h1 span { color: #22C55E; }
-        .hero { background: linear-gradient(135deg, #22C55E 0%, #16A34A 100%); padding: 40px 20px; text-align: center; color: white; }
-        .hero h2 { font-size: 32px; margin-bottom: 8px; }
-        .hero p { opacity: 0.9; }
-        .games { padding: 20px; display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 16px; max-width: 1400px; margin: 0 auto; }
-        .game { background: white; border: 2px solid #E2E8F0; border-radius: 16px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.2s; text-decoration: none; color: inherit; }
-        .game:hover { border-color: #22C55E; transform: translateY(-4px); box-shadow: 0 8px 24px rgba(34, 197, 94, 0.15); }
-        .game-icon { font-size: 40px; margin-bottom: 12px; }
-        .game-name { font-weight: 700; font-size: 14px; color: #0F172A; }
-        .section-title { padding: 24px 20px 0; font-size: 20px; font-weight: 700; color: #0F172A; max-width: 1400px; margin: 0 auto; }
+        
+        :root {
+            --neon-green: #22C55E;
+            --neon-green-glow: rgba(34, 197, 94, 0.5);
+            --dark-bg: #0a0a0a;
+            --card-bg: #111111;
+            --card-border: #1a1a1a;
+        }
+        
+        body { 
+            font-family: 'Rajdhani', sans-serif; 
+            background: var(--dark-bg);
+            color: white;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        /* Animated background grid */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(34, 197, 94, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(34, 197, 94, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .header { 
+            background: rgba(10, 10, 10, 0.95); 
+            padding: 20px 40px; 
+            border-bottom: 1px solid rgba(34, 197, 94, 0.3);
+            display: flex; 
+            align-items: center; 
+            gap: 16px;
+            position: relative;
+            z-index: 10;
+            backdrop-filter: blur(10px);
+        }
+        
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--neon-green), transparent);
+            box-shadow: 0 0 20px var(--neon-green);
+        }
+        
+        .header img { 
+            width: 50px; 
+            height: 50px; 
+            border-radius: 12px;
+            filter: drop-shadow(0 0 15px var(--neon-green-glow));
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { filter: drop-shadow(0 0 10px var(--neon-green-glow)); }
+            50% { filter: drop-shadow(0 0 25px var(--neon-green)); }
+        }
+        
+        .header h1 { 
+            font-family: 'Orbitron', sans-serif;
+            font-size: 28px; 
+            font-weight: 900;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        
+        .header h1 span { 
+            color: var(--neon-green);
+            text-shadow: 0 0 20px var(--neon-green);
+        }
+        
+        .hero { 
+            background: linear-gradient(180deg, rgba(34, 197, 94, 0.1) 0%, transparent 100%);
+            padding: 80px 40px 60px; 
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 600px;
+            height: 400px;
+            background: radial-gradient(ellipse, rgba(34, 197, 94, 0.15) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        
+        .hero h2 { 
+            font-family: 'Orbitron', sans-serif;
+            font-size: 56px; 
+            font-weight: 900;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, #fff 0%, var(--neon-green) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            position: relative;
+        }
+        
+        .hero p { 
+            font-size: 20px; 
+            color: #888;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        
+        .stats-bar {
+            display: flex;
+            justify-content: center;
+            gap: 60px;
+            margin-top: 40px;
+            padding: 20px;
+        }
+        
+        .stat {
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 48px;
+            font-weight: 900;
+            color: var(--neon-green);
+            text-shadow: 0 0 30px var(--neon-green-glow);
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 8px;
+        }
+        
+        .section-title { 
+            padding: 60px 40px 30px; 
+            font-family: 'Orbitron', sans-serif;
+            font-size: 24px; 
+            font-weight: 700;
+            color: white;
+            max-width: 1400px; 
+            margin: 0 auto;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 30px;
+            background: var(--neon-green);
+            box-shadow: 0 0 20px var(--neon-green);
+        }
+        
+        .games { 
+            padding: 20px 40px 60px; 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); 
+            gap: 24px; 
+            max-width: 1400px; 
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .game { 
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px; 
+            padding: 0;
+            text-align: center; 
+            cursor: pointer; 
+            transition: all 0.3s ease; 
+            text-decoration: none; 
+            color: inherit;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .game::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, transparent 50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .game:hover::before {
+            opacity: 1;
+        }
+        
+        .game:hover { 
+            border-color: var(--neon-green);
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(34, 197, 94, 0.2), 0 0 60px rgba(34, 197, 94, 0.1);
+        }
+        
+        .game-thumbnail {
+            width: 100%;
+            height: 140px;
+            background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .game-thumbnail::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 50%;
+            background: linear-gradient(to top, var(--card-bg), transparent);
+        }
+        
+        .game-icon { 
+            width: 70px;
+            height: 70px;
+            object-fit: contain;
+            filter: drop-shadow(0 0 20px var(--neon-green-glow));
+            position: relative;
+            z-index: 1;
+            transition: transform 0.3s;
+        }
+        
+        .game:hover .game-icon {
+            transform: scale(1.1);
+        }
+        
+        .game-info {
+            padding: 20px;
+        }
+        
+        .game-name { 
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            font-size: 14px;
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .game-tag {
+            display: inline-block;
+            margin-top: 8px;
+            padding: 4px 12px;
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            border-radius: 20px;
+            font-size: 10px;
+            color: var(--neon-green);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .featured-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--neon-green);
+            color: black;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            z-index: 2;
+        }
+        
+        @media (max-width: 768px) {
+            .hero h2 { font-size: 36px; }
+            .games { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); padding: 20px; }
+            .stats-bar { flex-direction: column; gap: 30px; }
+        }
     </style>
 </head>
 <body>
     <div class="header">
         <img src="assets/moneybot-logo-1.jpg" alt="MoneyBot">
-        <h1>Money<span>Bot</span></h1>
+        <h1>Money<span>Bot</span> Gaming</h1>
     </div>
     
     <div class="hero">
-        <h2>53 Unique Money Games</h2>
-        <p>Each game is completely different - no duplicates!</p>
+        <h2>Elite Financial Gaming</h2>
+        <p>Master Money. Level Up Your Future.</p>
+        <div class="stats-bar">
+            <div class="stat">
+                <div class="stat-number">53</div>
+                <div class="stat-label">Unique Games</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number">∞</div>
+                <div class="stat-label">Learning Potential</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number">100%</div>
+                <div class="stat-label">Fun Guaranteed</div>
+            </div>
+        </div>
     </div>
     
-    <div class="section-title">🎮 All Games - Truly Unique Gameplay</div>
+    <div class="section-title">Featured Games</div>
     
     <div class="games">
         <a href="../flappybot/" class="game">
-            <div class="game-icon"><img src="../flappybot/assets/player-rembg.png" style="width: 40px; height: 40px; object-fit: contain;" alt="FlappyBot"></div>
-            <div class="game-name">FlappyBot</div>
+            <span class="featured-badge">New</span>
+            <div class="game-thumbnail">
+                <img src="../flappybot/assets/player-rembg.png" class="game-icon" alt="FlappyBot">
+            </div>
+            <div class="game-info">
+                <div class="game-name">FlappyBot</div>
+                <span class="game-tag">Arcade</span>
+            </div>
         </a>
         <a href="../bot-achievement-hunt/" class="game">
-            <div class="game-icon">🎮</div>
-            <div class="game-name">achievement hunt</div>
+            <div class="game-thumbnail">
+                <img src="assets/moneybot-logo-1.jpg" class="game-icon" alt="Achievement Hunt">
+            </div>
+            <div class="game-info">
+                <div class="game-name">Achievement Hunt</div>
+                <span class="game-tag">Adventure</span>
+            </div>
         </a>
         <a href="../bot-asset-allocator/" class="game">
-            <div class="game-icon">🎨</div>
-            <div class="game-name">asset allocator</div>
+            <div class="game-thumbnail">
+                <img src="assets/moneybot-logo-1.jpg" class="game-icon" alt="Asset Allocator">
+            </div>
+            <div class="game-info">
+                <div class="game-name">Asset Allocator</div>
+                <span class="game-tag">Strategy</span>
+            </div>
         </a>
         <a href="../bot-budget-blaster/" class="game">
-            <div class="game-icon">🔫</div>
-            <div class="game-name">budget blaster</div>
+            <div class="game-thumbnail">
+                <img src="assets/moneybot-logo-1.jpg" class="game-icon" alt="Budget Blaster">
+            </div>
+            <div class="game-info">
+                <div class="game-name">Budget Blaster</div>
+                <span class="game-tag">Action</span>
+            </div>
         </a>
         <a href="../bot-budget-breakout/" class="game">
-            <div class="game-icon">🧱</div>
-            <div class="game-name">budget breakout</div>
+            <div class="game-thumbnail">
+                <img src="assets/moneybot-logo-1.jpg" class="game-icon" alt="Budget Breakout">
+            </div>
+            <div class="game-info">
+                <div class="game-name">Budget Breakout</div>
+                <span class="game-tag">Arcade</span>
+            </div>
         </a>
         <a href="../bot-budget-slice/" class="game">
-            <div class="game-icon">🎮</div>
-            <div class="game-name">budget slice</div>
+            <div class="game-thumbnail">
+                <img src="assets/moneybot-logo-1.jpg" class="game-icon" alt="Budget Slice">
+            </div>
+            <div class="game-info">
+                <div class="game-name">Budget Slice</div>
+                <span class="game-tag">Puzzle</span>
+            </div>
         </a>
         <a href="../bot-bull-bear-battle/" class="game">
-            <div class="game-icon">🐂</div>
-            <div class="game-name">bull bear battle</div>
+            <div class="game-thumbnail">
+                <img src="assets/moneybot-logo-1.jpg" class="game-icon" alt="Bull Bear Battle">
+            </div>
+            <div class="game-info">
+                <div class="game-name">Bull Bear Battle</div>
+                <span class="game-tag">Fighting</span>
+            </div>
         </a>
         <a href="../bot-cash-craze/" class="game">
-            <div class="game-icon">💎</div>
-            <div class="game-name">cash craze</div>
+            <div class="game-thumbnail">
+                <img src="assets/moneybot-logo-1.jpg" class="game-icon" alt="Cash Craze">
+            </div>
+            <div class="game-info">
+                <div class="game-name">Cash Craze</div>
+                <span class="game-tag">Match-3</span>
+            </div>
         </a>
         <a href="../bot-cash-dash/" class="game">
-            <div class="game-icon">💨</div>
-            <div class="game-name">cash dash</div>
+            <div class="game-thumbnail">
+                <img src="assets/moneybot-logo-1.jpg" class="game-icon" alt="Cash Dash">
+            </div>
+            <div class="game-info">
+                <div class="game-name">Cash Dash</div>
+                <span class="game-tag">Racing</span>
+            </div>
         </a>
         <a href="../bot-coin-pong/" class="game">
-            <div class="game-icon">🏓</div>
-            <div class="game-name">coin pong</div>
+            <div class="game-thumbnail">
+                <img src="assets/moneybot-logo-1.jpg" class="game-icon" alt="Coin Pong">
+            </div>
+            <div class="game-info">
+                <div class="game-name">Coin Pong</div>
+                <span class="game-tag">Arcade</span>
+            </div>
         </a>
         <a href="../bot-crypto-climb/" class="game">
-            <div class="game-icon">📈</div>
-            <div class="game-name">crypto climb</div>
+            <div class="game-thumbnail">
+                <img src="assets/moneybot-logo-1.jpg" class="game-icon" alt="Crypto Climb">
+            </div>
+            <div class="game-info">
+                <div class="game-name">Crypto Climb</div>
+                <span class="game-tag">Platformer</span>
+            </div>
         </a>
         <a href="../bot-debt-destroyer/" class="game">
-            <div class="game-icon">🎮</div>
-            <div class="game-name">debt destroyer</div>
+            <div class="game-thumbnail">
+                <img src="assets/moneybot-logo-1.jpg" class="game-icon" alt="Debt Destroyer">
+            </div>
+            <div class="game-info">
+                <div class="game-name">Debt Destroyer</div>
+                <span class="game-tag">Shooter</span>
+            </div>
         </a>
         <a href="../bot-diversification-drop/" class="game">
-            <div class="game-icon">🎮</div>
-            <div class="game-name">diversification drop</div>
+            <div class="game-thumbnail">
+                <img src="assets/moneybot-logo-1.jpg" class="game-icon" alt="Diversification Drop">
+            </div>
+            <div class="game-info">
+                <div class="game-name">Diversification Drop</div>
+                <span class="game-tag">Puzzle</span>
+            </div>
         </a>
         <a href="../bot-dividend-defense/" class="game">
-            <div class="game-icon">🛡️</div>
-            <div class="game-name">dividend defense</div>
+            <div class="game-thumbnail">
+                <img src="assets/moneybot-logo-1.jpg" class="game-icon" alt="Dividend Defense">
+            </div>
+            <div class="game-info">
+                <div class="game-name">Dividend Defense</div>
+                <span class="game-tag">Tower Defense</span>
+            </div>
         </a>
         <a href="../bot-dollar-drop/" class="game">
-            <div class="game-icon">💵</div>
-            <div class="game-name">dollar drop</div>
+            <div class="game-thumbnail">
+                <img src="assets/moneybot-logo-1.jpg" class="game-icon" alt="Dollar Drop">
+            </div>
+            <div class="game-info">
+                <div class="game-name">Dollar Drop</div>
+                <span class="game-tag">Arcade</span>
+            </div>
         </a>
         <a href="../bot-fiscal-frogger/" class="game">
-            <div class="game-icon">🐸</div>
-            <div class="game-name">fiscal frogger</div>
+            <div class="game-thumbnail">
+                <img src="assets/moneybot-logo-1.jpg" class="game-icon" alt="Fiscal Frogger">
+            </div>
+            <div class="game-info">
+                <div class="game-name">Fiscal Frogger</div>
+                <span class="game-tag">Arcade</span>
+            </div>
         </a>
         <a href="../bot-invest-island/" class="game">
-            <div class="game-icon">🏝️</div>
-            <div class="game-name">invest island</div>
+            <div class="game-thumbnail">
+                <img src="assets/moneybot-logo-1.jpg" class="game-icon" alt="Invest Island">
+            </div>
+            <div class="game-info">
+                <div class="game-name">Invest Island</div>
+                <span class="game-tag">Simulation</span>
+            </div>
         </a>
         <a href="../bot-ipo-launch/" class="game">
-            <div class="game-icon">🚀</div>
-            <div class="game-name">ipo launch</div>
+            <div class="game-thumbnail">
+                <img src="assets/moneybot-logo-1.jpg" class="game-icon" alt="IPO Launch">
+            </div>
+            <div class="game-info">
+                <div class="game-name">IPO Launch</div>
+                <span class="game-tag">Strategy</span>
+            </div>
         </a>
         <a href="../bot-market-racer/" class="game">
-            <div class="game-icon">🎮</div>
-            <div class="game-name">market racer</div>
+            <div class="game-thumbnail">
+                <img src="assets/moneybot-logo-1.jpg" class="game-icon" alt="Market Racer">
+            </div>
+            <div class="game-info">
+                <div class="game-name">Market Racer</div>
+                <span class="game-tag">Racing</span>
+            </div>
         </a>
         <a href="../bot-market-surfers/" class="game">
-            <div class="game-icon">🎮</div>
-            <div class="game-name">market surfers</div>
+            <div class="game-thumbnail">
+                <img src="assets/moneybot-logo-1.jpg" class="game-icon" alt="Market Surfers">
+            </div>
+            <div class="game-info">
+                <div class="game-name">Market Surfers</div>
+                <span class="game-tag">Endless</span>
+            </div>
         </a>
         <a href="../bot-profit-pinball/" class="game">
-            <div class="game-icon">⚪</div>
-            <div class="game-name">profit pinball</div>
+            <div class="game-thumbnail">
+                <img src="assets/moneybot-logo-1.jpg" class="game-icon" alt="Profit Pinball">
+            </div>
+            <div class="game-info">
+                <div class="game-name">Profit Pinball</div>
+                <span class="game-tag">Arcade</span>
+            </div>
         </a>
         <a href="../bot-risk-tetris/" class="game">
-            <div class="game-icon">🎮</div>
-            <div class="game-name">risk tetris</div>
+            <div class="game-thumbnail">
+                <img src="assets/moneybot-logo-1.jpg" class="game-icon" alt="Risk Tetris">
+            </div>
+            <div class="game-info">
+                <div class="game-name">Risk Tetris</div>
+                <span class="game-tag">Puzzle</span>
+            </div>
         </a>
         <a href="../bot-savings-snake/" class="game">
-            <div class="game-icon">🐍</div>
-            <div class="game-name">savings snake</div>
+            <div class="game-thumbnail">
+                <img src="assets/moneybot-logo-1.jpg" class="game-icon" alt="Savings Snake">
+            </div>
+            <div class="game-info">
+                <div class="game-name">Savings Snake</div>
+                <span class="game-tag">Arcade</span>
+            </div>
         </a>
         <a href="../bot-savings-sprint/" class="game">
-            <div class="game-icon">🏃</div>
-            <div class="game-name">savings sprint</div>
+            <div class="game-thumbnail">
+                <img src="assets/moneybot-logo-1.jpg" class="game-icon" alt="Savings Sprint">
+            </div>
+            <div class="game-info">
+                <div class="game-name">Savings Sprint</div>
+                <span class="game-tag">Racing</span>
+            </div>
         </a>
         <a href="../bot-stock-stack/" class="game">
-            <div class="game-icon">📊</div>
-            <div class="game-name">stock stack</div>
+            <div class="game-thumbnail">
+                <img src="assets/moneybot-logo-1.jpg" class="game-icon" alt="Stock Stack">
+            </div>
+            <div class="game-info">
+                <div class="game-name">Stock Stack</div>
+                <span class="game-tag">Puzzle</span>
+            </div>
         </a>
         <a href="../bot-stock-tycoon/" class="game">
-            <div class="game-icon">📈</div>
-            <div class="game-name">stock tycoon</div>
+            <div class="game-thumbnail">
+                <img src="assets/moneybot-logo-1.jpg" class="game-icon" alt="Stock Tycoon">
+            </div>
+            <div class="game-info">
+                <div class="game-name">Stock Tycoon</div>
+                <span class="game-tag">Simulation</span>
+            </div>
         </a>
         <a href="../bot-tax-tetris/" class="game">
-            <div class="game-icon">📋</div>
-            <div class="game-name">tax tetris</div>
+            <div class="game-thumbnail">
+                <img src="assets/moneybot-logo-1.jpg" class="game-icon" alt="Tax Tetris">
+            </div>
+            <div class="game-info">
+                <div class="game-name">Tax Tetris</div>
+                <span class="game-tag">Puzzle</span>
+            </div>
         </a>
         <a href="../bot-wealth-tower/" class="game">
-            <div class="game-icon">🎮</div>
-            <div class="game-name">wealth tower</div>
+            <div class="game-thumbnail">
+                <img src="assets/moneybot-logo-1.jpg" class="game-icon" alt="Wealth Tower">
+            </div>
+            <div class="game-info">
+                <div class="game-name">Wealth Tower</div>
+                <span class="game-tag">Strategy</span>
+            </div>
         </a>
         <a href="../bot-wealth-wheel/" class="game">
-            <div class="game-icon">🎡</div>
-            <div class="game-name">wealth wheel</div>
+            <div class="game-thumbnail">
+                <img src="assets/moneybot-logo-1.jpg" class="game-icon" alt="Wealth Wheel">
+            </div>
+            <div class="game-info">
+                <div class="game-name">Wealth Wheel</div>
+                <span class="game-tag">Casino</span>
+            </div>
         </a>
     </div>
 </body>
