@@ -15,9 +15,11 @@ let state = {
 
 // Upgrades System
 const upgrades = [
-    { id: 'sign', name: 'Neon Sign', cost: 15, desc: '+30% Customer Traffic', icon: '🚥' },
+    { id: 'sign', name: 'Neon Sign', cost: 15, desc: '+30% Traffic', icon: '🚥' },
     { id: 'ice', name: 'Ice Machine', cost: 40, desc: 'Hot weather sales double', icon: '🧊' },
-    { id: 'mascot', name: 'Robot Automation', cost: 100, desc: 'Customers pay any price', icon: '🤖' }
+    { id: 'mascot', name: 'Robot Automation', cost: 100, desc: 'Customers pay any price', icon: '🤖' },
+    { id: 'social', name: 'Viral Marketing', cost: 250, desc: 'Massive Foot Traffic', icon: '📱' },
+    { id: 'truck', name: 'Food Truck', cost: 600, desc: 'Ultimate Empire Status', icon: '🚚' }
 ];
 
 // Daily Random Events (Simplified)
@@ -271,6 +273,8 @@ async function startDay() {
     // Upgrades
     if(state.upgradesOwned.includes('ice') && state.weather === 0) weatherMult *= 2;
     if(state.upgradesOwned.includes('sign')) baseDemand *= 1.3;
+    if(state.upgradesOwned.includes('social')) baseDemand *= 2.5;
+    if(state.upgradesOwned.includes('truck')) baseDemand *= 2.0; // Stacks!
 
     // Price elasticity simplified
     let perceivedValue = 1.5 / state.price; // $1.50 is "fair" baseline
@@ -356,7 +360,8 @@ function endDay() {
     if(net < 0) tip = "💡 Loss! You bought more inventory than you sold. Try dropping your price to drive volume, or investing in the Neon Sign to drive traffic.";
     else if(state.cups === 0) tip = "💡 You sold out! You left money on the table. Buy more batches tomorrow.";
     else if(dailyStats.sold === 0) tip = "💡 Zero sales! If it's raining or your price is too high, customers walk away.";
-    else if(state.cash > 50 && state.upgradesOwned.length < 3) tip = "💡 High cash balance! Reinvest your profits into permanent Business Upgrades.";
+    else if(state.cash > 600 && !state.upgradesOwned.includes('truck')) tip = "💡 You have enough cash to buy the Food Truck! Upgrade to reach the endgame.";
+    else if(state.cash > 50 && state.upgradesOwned.length < 5) tip = "💡 High cash balance! Reinvest your profits into permanent Business Upgrades.";
     else tip = "💡 Solid profit! You're building a real empire. Keep compounding.";
     
     document.getElementById('eod-tip').innerText = tip;
