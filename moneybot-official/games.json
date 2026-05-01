@@ -1135,6 +1135,14 @@
       "difficulty": "easy",
       "xp": 100,
       "coins": 50
+    },
+    {
+      "id": "bot-burn-rate",
+      "name": "Burn Rate Drifter",
+      "category": "basics",
+      "difficulty": "hard",
+      "xp": 150,
+      "coins": 100
     }
   ]
 }

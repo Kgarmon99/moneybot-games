@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Burn Rate Drifter</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Canvas for the game -->
+        <canvas id="gameCanvas"></canvas>
+
+        <!-- HUD -->
+        <header id="hud" class="hidden">
+            <div class="hud-top">
+                <div class="stat-box">
+                    <span class="label">NET WORTH</span>
+                    <span id="score-val" class="val">$0</span>
+                </div>
+                <div class="stat-box warning" id="burn-rate-box">
+                    <span class="label">BURN RATE</span>
+                    <span id="burn-val" class="val">-$1k/mo</span>
+                </div>
+            </div>
+            
+            <div class="runway-container">
+                <div class="runway-label">
+                    <span>RUNWAY (CASH)</span>
+                    <span id="runway-val">12 Months</span>
+                </div>
+                <div class="runway-bar-bg">
+                    <div id="runway-fill" class="runway-bar-fill"></div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Start Screen -->
+        <div id="start-screen" class="screen active">
+            <div class="logo-container">
+                <h1>BURN RATE<br><span class="highlight">DRIFTER</span></h1>
+            </div>
+            <div class="instructions">
+                <div class="instruction-row"><span class="dot green"></span> Collect Cashflow to extend Runway</div>
+                <div class="instruction-row"><span class="dot red"></span> Dodge Lifestyle Creep (Watches, Cars)</div>
+                <div class="instruction-row"><span class="dot gold"></span> Hitting traps PERMANENTLY increases Burn Rate!</div>
+                <p class="swipe-hint">👈 Drag to Steer & Drift 👉</p>
+            </div>
+            <button id="start-btn" class="btn-primary">START DRIVING</button>
+        </div>
+
+        <!-- Game Over Screen -->
+        <div id="game-over-screen" class="screen hidden">
+            <h1 class="danger">OUT OF CASH!</h1>
+            <p class="subtitle">Your runway hit 0.</p>
+            
+            <div class="stats-box">
+                <div class="stat-row">
+                    <span class="stat-label">Final Net Worth</span>
+                    <span id="final-score" class="stat-value highlight">$0</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Final Burn Rate</span>
+                    <span id="final-burn" class="stat-value danger">-$0/mo</span>
+                </div>
+            </div>
+            
+            <div class="tips" id="eod-tip">
+                💡 Lesson: Lifestyle creep (high expenses) drains your cash reserves faster than you can earn it!
+            </div>
+            
+            <button id="restart-btn" class="btn-primary">Try Again</button>
+        </div>
+    </div>
+    
+    <script src="game.js"></script>
+</body>
+</html>
