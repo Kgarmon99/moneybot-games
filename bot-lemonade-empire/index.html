@@ -35,11 +35,14 @@
                 <!-- Inventory -->
                 <div class="panel">
                     <h2>🛒 Restock</h2>
-                    <div class="buy-row">
-                        <div class="buy-info">🍋 Lemonade Mix (<span id="inv-cups">0</span> cups)</div>
-                        <button class="btn-small" onclick="buyMix(10, 5.00)">Buy 10 ($5)</button>
+                    <div class="buy-row" style="padding: 15px; background: rgba(0,0,0,0.2);">
+                        <img src="assets/sugar-transparent.png?v=1" alt="Premium Sugar" style="height: 60px; filter: drop-shadow(0 5px 5px rgba(0,0,0,0.5)); margin-right: 15px;">
+                        <div style="flex: 1; text-align: left;">
+                            <div class="buy-info" style="font-size: 14px;">MoneyBot Mix (<span id="inv-cups" class="accent">0</span>)</div>
+                            <div class="hint" style="margin-top: 2px;">$0.50 / cup</div>
+                        </div>
+                        <button class="btn-small" onclick="buyMix(10, 5.00)" style="padding: 10px 15px;">Buy 10 ($5)</button>
                     </div>
-                    <div class="hint" style="text-align:center; margin-top:5px;">Cost: $0.50 per cup</div>
                 </div>
 
                 <!-- Strategy -->
