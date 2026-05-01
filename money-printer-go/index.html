@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Money Printer GO</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="game-container">
+        <header id="hud">
+            <div class="stat-pill">
+                <span class="label">REAL WEALTH</span>
+                <span id="wealth-display" class="value">0 / 100</span>
+            </div>
+            <div class="stat-pill">
+                <span class="label">TIME LEFT</span>
+                <span id="time-display" class="value">02:00</span>
+            </div>
+        </header>
+
+        <main id="play-area">
+            <div id="store-area">
+                <div class="cash-balance">
+                    <span class="label">CASH ON HAND</span>
+                    <span id="cash-display" class="value">$0</span>
+                </div>
+                <button id="buy-btn" class="mb-btn-primary">
+                    <span class="btn-title">BUY ASSET</span>
+                    <span id="price-display" class="btn-price">$10</span>
+                </button>
+            </div>
+
+            <div id="mascot-area">
+                <img id="mascot-img" src="assets/mascot.png" alt="MoneyBot Mascot">
+                <div id="mascot-speech" class="speech-bubble">Keep inflation low!</div>
+            </div>
+
+            <div id="control-zone">
+                <div class="inflation-container">
+                    <div class="inflation-labels">
+                        <span>Inflation</span>
+                        <span id="inflation-text">0%</span>
+                    </div>
+                    <div class="inflation-track">
+                        <div id="inflation-bar" class="inflation-fill"></div>
+                    </div>
+                </div>
+                <button id="printer-btn" class="printer">
+                    <div class="printer-inner">PRINT</div>
+                </button>
+            </div>
+            <div id="particles"></div>
+        </main>
+
+        <div id="modal" class="modal active">
+            <div class="modal-content">
+                <h1 id="modal-title">Money Printer GO</h1>
+                <p id="modal-desc">Welcome to the Central Bank! Buy 100 Real Assets to win. Don't let inflation hit 1000%!</p>
+                <button id="modal-btn" class="mb-btn-primary">START GAME</button>
+            </div>
+        </div>
+    </div>
+    <script src="game.js"></script>
+</body>
+</html>
