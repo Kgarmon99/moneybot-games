@@ -29,9 +29,9 @@ let state = {
 
 // Item definitions
 const ITEMS = {
-    RAW_TBILL: { id: 'tbill', name: 'T-Bill', color: '#69F0AE', cookTime: 3, burnTime: 8, price: 20 },
-    RAW_CHIP: { id: 'chip', name: 'Blue Chip', color: '#FCD34D', cookTime: 5, burnTime: 12, price: 50 },
-    FOLDER: { id: 'folder', name: 'Folder', color: '#38BDF8' }
+    RAW_TBILL: { id: 'tbill', name: 'Bond', emoji: '📄', cooked: '💵', color: '#69F0AE', cookTime: 3, burnTime: 8, price: 20 },
+    RAW_CHIP: { id: 'chip', name: 'Stock', emoji: '🏢', cooked: '📈', color: '#FCD34D', cookTime: 5, burnTime: 12, price: 50 },
+    FOLDER: { id: 'folder', name: 'Folder', emoji: '📁', filled: '💼', color: '#38BDF8' }
 };
 
 function resize() {
@@ -273,102 +273,156 @@ function draw() {
     ctx.fillStyle = '#0A1526';
     ctx.fillRect(0, state.zones.customers.h, canvas.width, canvas.height - state.zones.customers.h);
     
-    // Draw Grill Background
+    // Draw Grill Background (Yield Engine)
     const gz = state.zones.grillArea;
-    ctx.fillStyle = '#111';
-    ctx.fillRect(gz.x, gz.y, gz.w, gz.h);
-    ctx.strokeStyle = '#333';
-    ctx.lineWidth = 4;
-    for(let i=0; i<gz.w; i+= 15) {
-        ctx.beginPath(); ctx.moveTo(gz.x + i, gz.y); ctx.lineTo(gz.x + i, gz.y + gz.h); ctx.stroke();
+    
+    // Engine Glow
+    const engineGrad = ctx.createLinearGradient(gz.x, gz.y, gz.x, gz.y + gz.h);
+    engineGrad.addColorStop(0, '#0F1E36');
+    engineGrad.addColorStop(1, '#050A12');
+    ctx.fillStyle = engineGrad;
+    ctx.beginPath(); ctx.roundRect(gz.x, gz.y, gz.w, gz.h, 16); ctx.fill();
+    
+    ctx.strokeStyle = 'rgba(0, 230, 118, 0.3)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    
+    // Laser grid
+    ctx.strokeStyle = 'rgba(0, 230, 118, 0.1)';
+    ctx.lineWidth = 1;
+    for(let i=10; i<gz.w; i+= 20) {
+        ctx.beginPath(); ctx.moveTo(gz.x + i, gz.y + 10); ctx.lineTo(gz.x + i, gz.y + gz.h - 10); ctx.stroke();
+    }
+    for(let i=10; i<gz.h; i+= 20) {
+        ctx.beginPath(); ctx.moveTo(gz.x + 10, gz.y + i); ctx.lineTo(gz.x + gz.w - 10, gz.y + i); ctx.stroke();
     }
     
+    // Engine Label
+    ctx.fillStyle = 'rgba(0, 230, 118, 0.5)';
+    ctx.font = 'bold 12px "Inter", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText("YIELD ENGINE v2.0", gz.x + gz.w/2, gz.y - 10);
+    
     // Draw Buttons (Supply)
-    drawButton(state.zones.btnTBill, ITEMS.RAW_TBILL.color, "T-Bill");
-    drawButton(state.zones.btnChip, ITEMS.RAW_CHIP.color, "Blue Chip");
-    drawButton(state.zones.btnFolder, ITEMS.FOLDER.color, "Folder");
+    drawButton(state.zones.btnTBill, ITEMS.RAW_TBILL.color, "📄", "BOND");
+    drawButton(state.zones.btnChip, ITEMS.RAW_CHIP.color, "🏢", "STOCK");
+    drawButton(state.zones.btnFolder, ITEMS.FOLDER.color, "📁", "FOLDER");
     
     // Draw Trash
-    drawButton(state.zones.trash, '#FB7185', "Trash");
+    drawButton(state.zones.trash, '#FB7185', "🗑️", "TRASH");
 
     // Draw Grill Slots
     state.grill.forEach((slot, i) => {
         const r = getGrillSlotRect(i);
-        ctx.fillStyle = 'rgba(255,255,255,0.05)';
-        ctx.fillRect(r.x, r.y, r.w, r.h);
+        
+        ctx.fillStyle = 'rgba(0,0,0,0.4)';
+        ctx.strokeStyle = 'rgba(0, 230, 118, 0.4)';
+        ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.roundRect(r.x, r.y, r.w, r.h, 8); 
+        ctx.fill(); ctx.stroke();
         
         if (slot) {
-            drawItem(r.x + 5, r.y + 5, r.w - 10, r.h - 10, slot);
+            drawItem(r.x + r.w/2, r.y + r.h/2 + 5, slot);
             
             // Progress bar
-            ctx.fillStyle = '#000';
-            ctx.fillRect(r.x, r.y - 10, r.w, 6);
+            ctx.fillStyle = 'rgba(0,0,0,0.6)';
+            ctx.beginPath(); ctx.roundRect(r.x, r.y - 12, r.w, 6, 3); ctx.fill();
+            
             if (slot.state === 'cooking') {
                 ctx.fillStyle = '#FBBF24';
-                ctx.fillRect(r.x, r.y - 10, r.w * (slot.timeCooked / slot.def.cookTime), 6);
+                ctx.shadowBlur = 5; ctx.shadowColor = '#FBBF24';
+                ctx.beginPath(); ctx.roundRect(r.x, r.y - 12, Math.max(4, r.w * (slot.timeCooked / slot.def.cookTime)), 6, 3); ctx.fill();
+                ctx.shadowBlur = 0;
             } else if (slot.state === 'cooked') {
                 ctx.fillStyle = '#00E676';
-                ctx.fillRect(r.x, r.y - 10, r.w, 6);
-                // Burn warning
+                ctx.shadowBlur = 5; ctx.shadowColor = '#00E676';
+                ctx.beginPath(); ctx.roundRect(r.x, r.y - 12, r.w, 6, 3); ctx.fill();
+                ctx.shadowBlur = 0;
+                
+                // Burn warning overlay
                 const burnPct = (slot.timeCooked - slot.def.cookTime) / (slot.def.burnTime - slot.def.cookTime);
                 ctx.fillStyle = '#FB7185';
-                ctx.fillRect(r.x, r.y - 10, r.w * burnPct, 6);
+                ctx.shadowBlur = 10; ctx.shadowColor = '#FB7185';
+                ctx.beginPath(); ctx.roundRect(r.x, r.y - 12, r.w * Math.min(1, burnPct), 6, 3); ctx.fill();
+                ctx.shadowBlur = 0;
+                
+                // Alert flash if near burn
+                if (burnPct > 0.7 && state.frames % 20 < 10) {
+                    ctx.fillStyle = 'rgba(251, 113, 133, 0.3)';
+                    ctx.beginPath(); ctx.roundRect(r.x, r.y, r.w, r.h, 8); ctx.fill();
+                }
             }
         }
     });
     
-    // Draw Plates
+    // Draw Plates (Assembly Line)
     state.plates.forEach((plate, i) => {
         const r = getPlateRect(i);
-        ctx.fillStyle = 'rgba(255,255,255,0.1)';
+        
+        ctx.fillStyle = 'rgba(10, 24, 42, 0.6)';
+        ctx.strokeStyle = 'rgba(255,255,255,0.1)';
         ctx.beginPath();
         ctx.ellipse(r.x + r.w/2, r.y + r.h/2, r.w/2, r.h/4, 0, 0, Math.PI*2);
-        ctx.fill();
+        ctx.fill(); ctx.stroke();
         
         if (plate) {
             if (plate.state === 'empty_folder') {
-                ctx.fillStyle = ITEMS.FOLDER.color;
-                ctx.fillRect(r.x + 10, r.y + 5, r.w - 20, r.h - 10);
+                drawEmoji(r.x + r.w/2, r.y + r.h/2 + 5, ITEMS.FOLDER.emoji, 40);
             } else if (plate.state === 'filled') {
-                ctx.fillStyle = ITEMS.FOLDER.color;
-                ctx.fillRect(r.x + 10, r.y + 5, r.w - 20, r.h - 10);
-                drawItem(r.x + 15, r.y + 10, r.w - 30, r.h - 20, { type: plate.type, state: 'cooked', def: plate.def });
+                drawEmoji(r.x + r.w/2, r.y + r.h/2 + 5, ITEMS.FOLDER.filled, 46);
+                // Draw tiny icon of what's inside
+                drawEmoji(r.x + r.w/2 + 15, r.y + r.h/2 - 10, plate.def.cooked, 20);
             }
         }
     });
     
     // Draw Customers
     const cw = canvas.width / 3;
+    const avatars = ['🤖', '👾', '👽', '🤑', '🧐'];
+    
     state.customers.forEach((c, i) => {
         const cx = i * cw + (cw/2);
-        const cy = state.zones.customers.h - 50;
+        const cy = state.zones.customers.h - 40;
         
-        // Body
-        ctx.fillStyle = `hsl(${(c.id * 360) % 360}, 60%, 60%)`;
-        ctx.beginPath();
-        ctx.arc(cx, cy, 30, 0, Math.PI*2);
-        ctx.fill();
+        // Avatar
+        const avatarIdx = Math.floor(c.id * avatars.length);
+        drawEmoji(cx, cy, avatars[avatarIdx], 60);
         
         // Patience Bar
-        ctx.fillStyle = '#000';
-        ctx.fillRect(cx - 30, cy - 45, 60, 6);
-        ctx.fillStyle = c.patience > 0.5 ? '#00E676' : (c.patience > 0.25 ? '#FBBF24' : '#FB7185');
-        ctx.fillRect(cx - 30, cy - 45, 60 * c.patience, 6);
+        ctx.fillStyle = 'rgba(0,0,0,0.6)';
+        ctx.beginPath(); ctx.roundRect(cx - 30, cy - 45, 60, 6, 3); ctx.fill();
+        
+        const patColor = c.patience > 0.5 ? '#00E676' : (c.patience > 0.25 ? '#FBBF24' : '#FB7185');
+        ctx.fillStyle = patColor;
+        ctx.shadowBlur = 5; ctx.shadowColor = patColor;
+        ctx.beginPath(); ctx.roundRect(cx - 30, cy - 45, 60 * c.patience, 6, 3); ctx.fill();
+        ctx.shadowBlur = 0;
         
         // Order Bubble
-        ctx.fillStyle = '#FFF';
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+        ctx.shadowBlur = 10; ctx.shadowColor = 'rgba(0,0,0,0.5)';
         ctx.beginPath();
-        ctx.roundRect(cx - 50, cy - 110, Math.max(100, c.order.length * 40 + 20), 50, 10);
+        ctx.roundRect(cx - 50, cy - 110, Math.max(100, c.order.length * 40 + 20), 50, 12);
         ctx.fill();
+        
+        // Bubble tail
+        ctx.beginPath();
+        ctx.moveTo(cx, cy - 60);
+        ctx.lineTo(cx - 10, cy - 70);
+        ctx.lineTo(cx + 10, cy - 70);
+        ctx.fill();
+        ctx.shadowBlur = 0;
         
         // Order Items
         c.order.forEach((type, idx) => {
             const ix = cx - 40 + (idx * 40);
             const iy = cy - 100;
             const def = Object.values(ITEMS).find(d => d.id === type);
-            ctx.fillStyle = ITEMS.FOLDER.color;
-            ctx.fillRect(ix, iy, 30, 30);
-            drawItem(ix+2, iy+2, 26, 26, { type: type, state: 'cooked', def: def });
+            
+            // Draw portfolio outline
+            drawEmoji(ix + 15, iy + 15, ITEMS.FOLDER.emoji, 30);
+            // Draw needed asset inside
+            drawEmoji(ix + 15, iy + 15, def.cooked, 16);
         });
     });
     
@@ -385,42 +439,52 @@ function draw() {
     });
 }
 
-function drawButton(rect, color, text) {
-    ctx.fillStyle = color;
-    ctx.shadowBlur = 10;
+function drawButton(rect, color, emoji, text) {
+    ctx.fillStyle = 'rgba(10, 24, 42, 0.8)';
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.roundRect(rect.x, rect.y, rect.w, rect.h, 12); 
+    ctx.fill(); ctx.stroke();
+    
+    // Inner glow
+    ctx.shadowBlur = 15;
     ctx.shadowColor = color;
-    ctx.beginPath(); ctx.roundRect(rect.x, rect.y, rect.w, rect.h, 8); ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,0.05)';
+    ctx.beginPath(); ctx.roundRect(rect.x+2, rect.y+2, rect.w-4, rect.h-4, 10); ctx.fill();
     ctx.shadowBlur = 0;
     
-    ctx.fillStyle = '#000';
-    ctx.font = 'bold 14px sans-serif';
+    ctx.font = '32px sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(text, rect.x + rect.w/2, rect.y + rect.h/2);
-}
-
-function drawItem(x, y, w, h, slot) {
-    let color = slot.def.color;
-    if (slot.state === 'cooked') {
-        // Darker
-        color = slot.type === 'tbill' ? '#00C853' : '#F59E0B';
-    } else if (slot.state === 'burned') {
-        color = '#333';
-    }
+    ctx.fillText(emoji, rect.x + rect.w/2, rect.y + rect.h/2 - 5);
     
     ctx.fillStyle = color;
-    if (slot.type === 'tbill') {
-        ctx.fillRect(x, y, w, h); // Rect
-    } else {
-        ctx.beginPath(); ctx.arc(x + w/2, y + h/2, w/2, 0, Math.PI*2); ctx.fill(); // Circle
+    ctx.font = 'bold 10px "Inter", sans-serif';
+    ctx.fillText(text, rect.x + rect.w/2, rect.y + rect.h - 12);
+}
+
+function drawEmoji(x, y, emoji, size) {
+    ctx.font = `${size}px sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    
+    // Small drop shadow for emojis
+    ctx.shadowBlur = 10;
+    ctx.shadowColor = 'rgba(0,0,0,0.8)';
+    ctx.fillText(emoji, x, y);
+    ctx.shadowBlur = 0;
+}
+
+function drawItem(x, y, slot) {
+    let emoji = slot.def.emoji;
+    
+    if (slot.state === 'cooked') {
+        emoji = slot.def.cooked;
+    } else if (slot.state === 'burned') {
+        emoji = '🔥';
     }
     
-    if (slot.state === 'burned') {
-        ctx.fillStyle = '#FFF';
-        ctx.font = 'bold 12px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText("X", x + w/2, y + h/2 + 4);
-    }
+    drawEmoji(x, y, emoji, 36);
 }
 
 function gameLoop(now) {
