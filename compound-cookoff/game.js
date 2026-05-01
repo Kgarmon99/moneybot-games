@@ -35,7 +35,24 @@ const ITEMS = {
     FOLDER: { id: 'folder', name: 'Portfolio', emoji: '📁', filled: '💼', typeColor: '#38BDF8' },
     LEVERAGE: { id: 'leverage', name: 'Leverage', emoji: '🌶️', typeColor: '#FB7185', price: 15 },
     HEDGE: { id: 'hedge', name: 'Hedge', emoji: '🛡️', typeColor: '#818CF8', price: 15 },
-    CRYPTO: { id: 'crypto', name: 'Crypto', emoji: '🪙', typeColor: '#FBBF24', price: 25 }
+    CRYPTO: { id: 'crypto', name: 'Crypto', emoji: '🪙', typeColor: '#FBBF24', price: 25 },
+    LIQUIDITY: { id: 'liquidity', name: 'Liquidity', emoji: '💧', typeColor: '#38BDF8', price: 10 }
+};
+
+const LOCATIONS = [
+    { day: 1, name: "Basement Desk", target: 150 },
+    { day: 2, name: "Retail Branch", target: 350 },
+    { day: 3, name: "Prop Trading Floor", target: 650 },
+    { day: 4, name: "Wall Street Corner", target: 1000 },
+    { day: 5, name: "Private Island", target: 1600 }
+];
+
+let playerAvatar = {
+    x: 0,
+    targetX: 0,
+    y: 0,
+    expression: '😐', // 😐, 😰 (burning/churn), 🤑 (tips)
+    exprTimeout: 0
 };
 
 function resize() {
@@ -56,15 +73,16 @@ function calculateZones() {
         // Middle: The Countertop (Prep)
         prepArea: { x: w * 0.2, y: h * 0.38, w: w * 0.5, h: h * 0.25 },
         btnFolder: { x: 10, y: h * 0.4, w: 90, h: h * 0.2 }, // Buns (Left of counter)
-        btnLeverage: { x: w * 0.72, y: h * 0.38, w: 50, h: h * 0.12 }, // Ketchup bottle
-        btnHedge: { x: w * 0.72, y: h * 0.52, w: 50, h: h * 0.12 }, // Mustard bottle
-        btnCrypto: { x: w * 0.82, y: h * 0.38, w: 80, h: h * 0.26 }, // Fries (Miner)
+        btnLeverage: { x: w * 0.72, y: h * 0.38, w: 50, h: h * 0.12 }, // Ketchup
+        btnHedge: { x: w * 0.72, y: h * 0.52, w: 50, h: h * 0.12 }, // Mustard
+        btnCrypto: { x: w * 0.82, y: h * 0.38, w: 80, h: h * 0.26 }, // Fries
+        btnLiquid: { x: 10, y: h * 0.62, w: 90, h: h * 0.12 }, // Soda Machine (New)
         
         // Bottom: The Kitchen (Grill)
-        grillArea: { x: w * 0.2, y: h * 0.68, w: w * 0.6, h: h * 0.28 },
-        btnBond: { x: 10, y: h * 0.68, w: 90, h: h * 0.12 }, // Raw Hotdog Box
-        btnStock: { x: 10, y: h * 0.82, w: 90, h: h * 0.12 }, // Raw Burger Box
-        trash: { x: w * 0.85, y: h * 0.75, w: 80, h: h * 0.18 }, // Trash Can
+        grillArea: { x: w * 0.2, y: h * 0.78, w: w * 0.6, h: h * 0.20 },
+        btnBond: { x: 10, y: h * 0.76, w: 90, h: h * 0.10 }, // Raw Hotdog
+        btnStock: { x: 10, y: h * 0.88, w: 90, h: h * 0.10 }, // Raw Burger
+        trash: { x: w * 0.85, y: h * 0.75, w: 80, h: h * 0.18 }, // Trash
     };
     
     const cw = w / 3;
@@ -72,17 +90,33 @@ function calculateZones() {
         slot.x = i * cw;
         slot.w = cw;
     });
+    
+    playerAvatar.y = state.zones.grillArea.y - 40;
+    if (playerAvatar.x === 0) playerAvatar.x = w / 2;
+    playerAvatar.targetX = w / 2;
 }
 
 let cryptoMiner = {
     active: false,
     time: 0,
-    maxTime: 4.0, // seconds to mine
-    readyCount: 0 // how many cryptos ready
+    maxTime: 4.0,
+    readyCount: 0 
+};
+
+let liquidDispenser = {
+    active: false,
+    time: 0,
+    maxTime: 2.0,
+    readyCount: 0
 };
 
 function spawnText(x, y, text, color = '#00E676') {
     state.popTexts.push({ x, y, text, color, life: 1.0 });
+}
+
+function setAvatarExpression(expr, time) {
+    playerAvatar.expression = expr;
+    playerAvatar.exprTimeout = time;
 }
 
 function spawnCustomer() {
@@ -94,8 +128,11 @@ function spawnCustomer() {
     const order = [];
     
     for(let i=0; i<numItems; i++) {
-        // Can they order Crypto?
-        if (state.day >= 4 && Math.random() > 0.6) {
+        // Can they order Crypto or Liquidity?
+        const r = Math.random();
+        if (state.day >= 5 && r > 0.7) {
+            order.push({ asset: 'liquidity', addon: null });
+        } else if (state.day >= 4 && r > 0.5) {
             order.push({ asset: 'crypto', addon: null });
         } else {
             let asset = Math.random() > 0.5 ? 'bond' : 'stock';
@@ -114,6 +151,50 @@ function spawnCustomer() {
     };
 }
 
+function handleLiquidityDispenser() {
+    if (liquidDispenser.active) {
+        if (liquidDispenser.readyCount > 0) {
+            let served = false;
+            for (let slot of state.counter) {
+                if (slot.customer) {
+                    const c = slot.customer;
+                    const needIdx = c.order.findIndex(item => item.asset === 'liquidity');
+                    if (needIdx !== -1) {
+                        c.order.splice(needIdx, 1);
+                        liquidDispenser.readyCount--;
+                        if (liquidDispenser.readyCount === 0) liquidDispenser.active = false;
+                        
+                        const price = ITEMS.LIQUIDITY.price;
+                        served = true;
+                        if (navigator.vibrate) navigator.vibrate([20, 30, 20]);
+                        
+                        if (c.order.length === 0) {
+                            const tip = Math.floor(c.patience * 20);
+                            slot.cash += price + tip;
+                            slot.customer = null;
+                            spawnText(slot.x + slot.w/2, state.zones.customers.h + 20, "DONE!", "#00E676");
+                        } else {
+                            slot.cash += price;
+                            c.patience = Math.min(1.0, c.patience + 0.3);
+                            spawnText(slot.x + slot.w/2, state.zones.customers.h + 20, `+$${price} (Partial)`);
+                        }
+                        break;
+                    }
+                }
+            }
+            if (!served) {
+                liquidDispenser.readyCount--;
+                if (liquidDispenser.readyCount === 0) liquidDispenser.active = false;
+                trashItem(state.zones.btnLiquid.x + 40, state.zones.btnLiquid.y);
+            }
+        }
+    } else {
+        liquidDispenser.active = true;
+        liquidDispenser.time = 0;
+        if (navigator.vibrate) navigator.vibrate(10);
+    }
+}
+
 function handleClick(e) {
     if (!state.isPlaying) return;
     const rect = canvas.getBoundingClientRect();
@@ -126,6 +207,7 @@ function handleClick(e) {
     else if (state.day >= 2 && isInside(x, y, state.zones.btnLeverage)) applyAddon('leverage');
     else if (state.day >= 3 && isInside(x, y, state.zones.btnHedge)) applyAddon('hedge');
     else if (state.day >= 4 && isInside(x, y, state.zones.btnCrypto)) handleCryptoMiner();
+    else if (state.day >= 5 && isInside(x, y, state.zones.btnLiquid)) handleLiquidityDispenser();
     else if (isInside(x, y, state.zones.trash)) { 
         // Find any filled plate to trash
         const pIdx = state.plates.findLastIndex(p => p !== null);
@@ -134,6 +216,8 @@ function handleClick(e) {
             trashItem(state.zones.trash.x + 40, state.zones.trash.y);
         }
     }
+    
+    playerAvatar.targetX = x; // Avatar looks/moves toward click
     
     // Check counter slots for cash
     for (let i = 0; i < 3; i++) {
@@ -192,6 +276,7 @@ function trashItem(x, y) {
     const penalty = 10;
     state.cash = Math.max(0, state.cash - penalty);
     spawnText(x, y, `-$${penalty} WASTE`, "#FB7185");
+    setAvatarExpression('😰', 1.0);
     if (navigator.vibrate) navigator.vibrate([30, 50, 30]);
 }
 
@@ -319,6 +404,7 @@ function collectCash(slotIdx) {
     const slot = state.counter[slotIdx];
     state.cash += slot.cash;
     spawnText(slot.x + slot.w/2, state.zones.customers.h + 20, `+$${slot.cash}`, "#FBBF24");
+    setAvatarExpression('🤑', 1.0);
     slot.cash = 0;
     if (navigator.vibrate) navigator.vibrate([10, 20]);
 }
@@ -343,16 +429,32 @@ function update(dt) {
         }
     }
     
+    if (liquidDispenser.active) {
+        liquidDispenser.time += dt;
+        if (liquidDispenser.time >= liquidDispenser.maxTime) {
+            liquidDispenser.readyCount = 3;
+            liquidDispenser.active = false;
+        }
+    }
+    
     state.counter.forEach(slot => {
         if (slot.customer) {
             slot.customer.patience -= dt / slot.customer.maxWait;
             if (slot.customer.patience <= 0) {
                 slot.customer = null; // Churn
                 spawnText(slot.x + slot.w/2, state.zones.customers.h + 20, "CHURN!", "#FB7185");
+                setAvatarExpression('😰', 1.0);
                 if (navigator.vibrate) navigator.vibrate([50, 100, 50]);
             }
         }
     });
+    
+    // Avatar logic
+    playerAvatar.x += (playerAvatar.targetX - playerAvatar.x) * 0.1;
+    if (playerAvatar.exprTimeout > 0) {
+        playerAvatar.exprTimeout -= dt;
+        if (playerAvatar.exprTimeout <= 0) playerAvatar.expression = '😐';
+    }
     
     if (Math.random() < 0.012 * (1 + (90 - state.time)/45)) spawnCustomer();
     
@@ -526,6 +628,26 @@ function draw() {
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)'; ctx.lineWidth = 2;
     ctx.beginPath(); ctx.moveTo(0, state.zones.grillArea.y - 10); ctx.lineTo(canvas.width, state.zones.grillArea.y - 10); ctx.stroke();
     
+    // Player Avatar (MoneyBot behind counter)
+    ctx.save();
+    ctx.translate(playerAvatar.x, playerAvatar.y);
+    
+    // Body/Shoulders
+    ctx.fillStyle = 'rgba(34, 197, 94, 0.2)';
+    ctx.beginPath(); ctx.roundRect(-40, 20, 80, 50, {tl: 40, tr: 40, bl: 0, br: 0}); ctx.fill();
+    ctx.lineWidth = 2; ctx.strokeStyle = 'rgba(34, 197, 94, 0.5)'; ctx.stroke();
+    
+    // Head / Screen
+    ctx.fillStyle = 'rgba(10, 24, 42, 0.9)';
+    ctx.shadowBlur = 20; ctx.shadowColor = 'rgba(34, 197, 94, 0.5)';
+    ctx.beginPath(); ctx.roundRect(-30, -30, 60, 50, 10); ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.lineWidth = 2; ctx.strokeStyle = '#00E676'; ctx.stroke();
+    
+    // Face Expression
+    drawEmoji(0, -5, playerAvatar.expression, 30);
+    ctx.restore();
+    
     // Yield Engine (Grill)
     const gz = state.zones.grillArea;
     drawRoundRect(gz.x, gz.y, gz.w, gz.h, 24, 'rgba(5, 10, 18, 0.8)', 'rgba(0, 230, 118, 0.4)', '#00E676', 20);
@@ -559,6 +681,31 @@ function draw() {
             ctx.fillStyle = 'rgba(255,255,255,0.5)';
             ctx.font = '10px "Inter", sans-serif';
             ctx.fillText("TAP", mr.x + mr.w/2, mr.y + mr.h/2);
+        }
+    }
+    
+    if (state.day >= 5) {
+        // Draw Liquidity Fountain (Soda)
+        const lq = state.zones.btnLiquid;
+        drawRoundRect(lq.x, lq.y, lq.w, lq.h, 8, 'rgba(10, 20, 35, 0.9)', 'rgba(56, 189, 248, 0.4)', '#38BDF8', 10);
+        ctx.fillStyle = '#38BDF8';
+        ctx.font = 'bold 10px "Inter", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText("LIQUIDITY", lq.x + lq.w/2, lq.y + 12);
+        
+        if (liquidDispenser.readyCount > 0) {
+            drawEmoji(lq.x + lq.w/2, lq.y + lq.h/2 + 5, ITEMS.LIQUIDITY.emoji, 30);
+            ctx.fillStyle = '#FFF';
+            ctx.fillText(`x${liquidDispenser.readyCount}`, lq.x + lq.w/2, lq.y + lq.h - 10);
+        } else if (liquidDispenser.active) {
+            ctx.fillStyle = 'rgba(255,255,255,0.2)';
+            ctx.fillRect(lq.x + 10, lq.y + lq.h/2 - 5, lq.w - 20, 10);
+            ctx.fillStyle = '#38BDF8';
+            ctx.fillRect(lq.x + 10, lq.y + lq.h/2 - 5, (lq.w - 20) * (liquidDispenser.time / liquidDispenser.maxTime), 10);
+        } else {
+            ctx.fillStyle = 'rgba(255,255,255,0.5)';
+            ctx.font = '10px "Inter", sans-serif';
+            ctx.fillText("TAP", lq.x + lq.w/2, lq.y + lq.h/2);
         }
     }
     
@@ -633,6 +780,8 @@ function draw() {
         c.order.forEach((item, idx) => {
             if (item.asset === 'crypto') {
                 drawEmoji(startX + (idx * 40), 20, ITEMS.CRYPTO.emoji, 26);
+            } else if (item.asset === 'liquidity') {
+                drawEmoji(startX + (idx * 40), 20, ITEMS.LIQUIDITY.emoji, 26);
             } else {
                 drawPortfolioFolder(startX + (idx * 40), 20, 30, 24, item.asset, item.addon);
             }
@@ -672,6 +821,7 @@ function startGame() {
         popTexts: []
     };
     cryptoMiner = { active: false, time: 0, maxTime: 4.0, readyCount: 0 };
+    liquidDispenser = { active: false, time: 0, maxTime: 2.0, readyCount: 0 };
     modal.classList.remove('active');
     spawnCustomer();
     requestAnimationFrame(gameLoop);
@@ -680,7 +830,10 @@ function startGame() {
 function startNextDay() {
     state.day++;
     state.cash = 0;
-    state.targetCash = state.day * 150;
+    
+    const loc = LOCATIONS[Math.min(state.day - 1, LOCATIONS.length - 1)];
+    state.targetCash = loc.target;
+    
     state.time = 90;
     state.grill = [null, null, null, null];
     state.plates = [null, null, null, null];
@@ -691,6 +844,7 @@ function startNextDay() {
     ];
     state.popTexts = [];
     cryptoMiner = { active: false, time: 0, maxTime: 4.0, readyCount: 0 };
+    liquidDispenser = { active: false, time: 0, maxTime: 2.0, readyCount: 0 };
     state.isPlaying = true;
     state.lastTick = performance.now();
     modal.classList.remove('active');
@@ -708,16 +862,19 @@ function endDay() {
         
         let unlockText = "";
         if (state.day === 1) unlockText = "<br><br><b>Unlocked: LEVERAGE (🌶️)</b><br>Squeeze it onto a finished portfolio to boost yield!";
-        if (state.day === 2) unlockText = "<br><br><b>Unlocked: HEDGE (🛡️)</b><br>Insure a portfolio to protect against downside!";
+        if (state.day === 2) unlockText = "<br><br><b>Unlocked: HEDGE (🛡️)</b><br>Insure a portfolio to protect downside!";
         if (state.day === 3) unlockText = "<br><br><b>Unlocked: CRYPTO MINER (⛏️)</b><br>Mine raw crypto! Takes 4s, but serves instantly as a side item!";
+        if (state.day === 4) unlockText = "<br><br><b>Unlocked: LIQUIDITY FOUNTAIN (💧)</b><br>Pour instant liquidity to satisfy impatient investors!";
         
-        modalDesc.innerHTML = `You made <b>$${state.cash}</b> and beat the target of $${state.targetCash}! You're moving up in the financial world.${unlockText}`;
+        let nextLoc = LOCATIONS[Math.min(state.day, LOCATIONS.length - 1)];
+        
+        modalDesc.innerHTML = `You made <b>$${state.cash}</b> and beat the target of $${state.targetCash}! You're moving up to the <b>${nextLoc.name}</b>.${unlockText}`;
         modalBtn.textContent = `START DAY ${state.day + 1}`;
         modalBtn.onclick = startNextDay;
     } else {
         modalTitle.textContent = "Bankrupt!";
         modalTitle.style.color = "var(--mb-red)";
-        modalDesc.innerHTML = `You only made <b>$${state.cash}</b> out of $${state.targetCash}. The SEC shut down your operation.`;
+        modalDesc.innerHTML = `You only made <b>$${state.cash}</b> out of $${state.targetCash}. The SEC shut down your operation at the ${LOCATIONS[Math.min(state.day-1, LOCATIONS.length - 1)].name}.`;
         modalBtn.textContent = "START OVER";
         modalBtn.onclick = startGame;
     }
