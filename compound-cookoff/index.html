@@ -11,12 +11,16 @@
     <div id="game-container">
         <header id="hud">
             <div class="stat-pill">
-                <span class="label">CASH EARNED</span>
-                <span id="score-display" class="value">$0</span>
+                <span class="label">DAY</span>
+                <span id="day-display" class="value">1</span>
+            </div>
+            <div class="stat-pill">
+                <span class="label">REVENUE / TARGET</span>
+                <span id="score-display" class="value">$0 / $150</span>
             </div>
             <div class="stat-pill">
                 <span class="label">MARKET CLOSE</span>
-                <span id="time-display" class="value">02:00</span>
+                <span id="time-display" class="value">01:30</span>
             </div>
         </header>
 
@@ -26,17 +30,19 @@
         </main>
 
         <div id="modal" class="modal active">
-            <div class="modal-content">
-                <h1 id="modal-title" style="font-size: 32px;">Yield Farm Diner</h1>
-                <p id="modal-desc" style="text-align: left; font-size: 15px; color: var(--mb-white); line-height: 1.6;">
-                    Run the ultimate MoneyBot Yield Farm! Assemble portfolios for impatient investors.<br><br>
-                    🟢 <b>1. Yield Engine:</b> Tap 📄 (Bonds) or 🏢 (Stocks) to put them in the Compounder.<br>
-                    🔥 <b>2. Compound:</b> Wait for them to mature into 💵 and 📈. Don't let them crash (burn)!<br>
-                    📁 <b>3. Package:</b> Tap empty folders to prep them, then tap matured assets to package them.<br>
-                    💼 <b>4. Serve:</b> Tap a completed portfolio to serve the investors before they leave!<br>
-                    <i>(Tap crashed assets to trash them)</i>
+            <div class="modal-content" style="max-width: 500px;">
+                <h1 id="modal-title" style="font-size: 32px;">Wall Street Outcast</h1>
+                <p id="modal-desc" style="text-align: left; font-size: 14px; color: var(--mb-white); line-height: 1.6;">
+                    <b>STORY:</b> You were a top CEO... until the crash. Now you're selling street-level yield to rebuild your empire!<br><br>
+                    <b>HOW TO PLAY (Hot Dog Bush Style):</b><br>
+                    1. Tap <b>BOND</b> or <b>STOCK</b> to cook them on the Grill.<br>
+                    2. Tap <b>PORTFOLIO</b> to place an empty wrapper on a plate.<br>
+                    3. Tap a cooked asset to move it into a Portfolio wrapper.<br>
+                    4. <i>(Day 2+)</i> Tap <b>LEVERAGE</b> or <b>HEDGE</b> to squirt them onto a completed portfolio.<br>
+                    5. Tap the finished plate to serve it to the matching customer.<br>
+                    Hit the Daily Target to advance to the next day!
                 </p>
-                <button id="modal-btn" class="mb-btn-primary">OPEN DESK</button>
+                <button id="modal-btn" class="mb-btn-primary">START SHIFT</button>
             </div>
         </div>
     </div>
