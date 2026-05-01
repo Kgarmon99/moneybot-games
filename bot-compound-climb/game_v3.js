@@ -67,7 +67,7 @@ function playSound(type) {
 let player = {
     x: 0, y: 0, 
     vx: 0, vy: 0, 
-    radius: 20,
+    radius: 32, // Increased significantly for Doodle Jump feel
     targetX: 0,
     rotation: 0
 };
@@ -311,7 +311,8 @@ function update() {
         if(p.y > height) {
             platforms.splice(i, 1);
             let highestPlatformY = Math.min(...platforms.map(plat => plat.y));
-            spawnPlatform(highestPlatformY - (Math.random() * 60 + 30));
+            // Space platforms out more for Doodle Jump feel (50 to 110px gap)
+            spawnPlatform(highestPlatformY - (Math.random() * 60 + 50));
         }
     }
 
@@ -475,7 +476,7 @@ function draw() {
         ctx.shadowOffsetY = 10;
         
         // Draw the image significantly larger than the physical hitbox for better visibility
-        let visRadius = player.radius * 2.0; 
+        let visRadius = player.radius * 1.5; 
         ctx.drawImage(mascotImg, -visRadius, -visRadius, visRadius*2, visRadius*2);
         
         ctx.shadowBlur = 0;
@@ -517,16 +518,46 @@ function gameOver() {
     draw(); // Draw final frame with shake
 }
 
-// Controls
+// Controls (Relative Touch for mobile, Absolute for Mouse)
+let lastTouchX = null;
+
 function handleInput(e) {
     if(!isPlaying) return;
-    let clientX = e.touches ? e.touches[0].clientX : e.clientX;
-    player.targetX = clientX;
+    if(e.touches && e.touches.length > 0) {
+        let currentTouchX = e.touches[0].clientX;
+        if(lastTouchX !== null) {
+            let dx = currentTouchX - lastTouchX;
+            // Move player relative to drag, slightly accelerated so they don't have to swipe across entire screen
+            player.targetX += dx * 1.3; 
+        }
+        lastTouchX = currentTouchX;
+    } else {
+        player.targetX = e.clientX;
+    }
 }
 
 document.addEventListener('mousemove', handleInput);
 document.addEventListener('touchmove', handleInput, {passive: true});
-document.addEventListener('touchstart', handleInput, {passive: true});
+document.addEventListener('touchstart', (e) => {
+    if(e.touches && e.touches.length > 0) {
+        lastTouchX = e.touches[0].clientX;
+        // Option to tap to instantly jump to a side if they tap far away
+        if(Math.abs(e.touches[0].clientX - player.x) > width / 4) {
+            player.targetX = e.touches[0].clientX;
+        }
+    }
+}, {passive: true});
+document.addEventListener('touchend', () => { lastTouchX = null; });
+document.addEventListener('touchcancel', () => { lastTouchX = null; });
+
+// Add Tilt (Device Orientation) support if available
+window.addEventListener("deviceorientation", (e) => {
+    if(!isPlaying || !e.gamma) return;
+    // e.gamma is roughly -90 to 90 representing left/right tilt
+    let tilt = Math.max(-45, Math.min(45, e.gamma));
+    // Override targetX based on tilt
+    player.targetX = (width / 2) + (tilt * (width / 40));
+}, true);
 
 document.getElementById('start-btn').addEventListener('click', initGame);
 document.getElementById('restart-btn').addEventListener('click', initGame);
