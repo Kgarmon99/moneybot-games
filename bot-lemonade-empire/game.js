@@ -2,13 +2,12 @@
 let state = {
     day: 1,
     cash: 25.00,
-    inv: { lemons: 0, sugar: 0, cups: 0 },
+    cups: 0, // Simplified inventory: just cups ready to sell
     cogs: 0, 
     weather: 0, // 0=Hot, 1=Warm, 2=Cool, 3=Rain
     weatherNames: ['🔥 Heatwave', '☀️ Perfect', '☁️ Cloudy', '🌧️ Stormy'],
     weatherDemand: [2.0, 1.2, 0.6, 0.2], 
     skyClasses: ['hot', 'warm', 'cool', 'rain'],
-    recipeMode: 2, 
     price: 1.50,
     upgradesOwned: [],
     currentEvent: null
@@ -21,13 +20,13 @@ const upgrades = [
     { id: 'mascot', name: 'Robot Automation', cost: 100, desc: 'Customers pay any price', icon: '🤖' }
 ];
 
-// Daily Random Events
+// Daily Random Events (Simplified)
 const events = [
     { text: "Local marathon today! Massive traffic.", effect: (d) => d * 2.0 },
     { text: "Health inspector rumors. People are wary.", effect: (d) => d * 0.7 },
     { text: "Viral TikTok! Lemonade is trending.", effect: (d) => d * 2.5 },
     { text: "Quiet day in the neighborhood.", effect: (d) => d * 1.0 },
-    { text: "Sugar shortage! Sugar costs double today.", effect: (d) => d * 1.0, flag: 'expensive_sugar' }
+    { text: "Supply shortage! Lemonade mix costs double today.", effect: (d) => d * 1.0, flag: 'expensive_mix' }
 ];
 
 let dailyStats = { sold: 0, revenue: 0, cogs: 0 };
@@ -71,12 +70,8 @@ const els = {
     day: document.getElementById('day-val'),
     weather: document.getElementById('weather-val'),
     screens: document.querySelectorAll('.screen'),
-    invLemons: document.getElementById('inv-lemons'),
-    invSugar: document.getElementById('inv-sugar'),
     invCups: document.getElementById('inv-cups'),
-    recipeVal: document.getElementById('recipe-val'),
     priceVal: document.getElementById('price-val'),
-    recipeSlider: document.getElementById('recipe-slider'),
     priceSlider: document.getElementById('price-slider'),
     prepWarning: document.getElementById('prep-warning'),
     simLog: document.getElementById('sim-log'),
@@ -99,9 +94,7 @@ function updateHUD() {
     els.cash.innerText = formatMoney(state.cash);
     els.day.innerText = state.day;
     els.weather.innerText = state.weatherNames[state.weather];
-    els.invLemons.innerText = state.inv.lemons;
-    els.invSugar.innerText = state.inv.sugar;
-    els.invCups.innerText = state.inv.cups;
+    els.invCups.innerText = state.cups;
 }
 
 function showScreen(id) {
@@ -154,19 +147,19 @@ function initPrep() {
     showScreen('prep-screen');
     
     // Check Bankruptcy
-    if(state.cash < 1.0 && state.inv.cups === 0) {
+    if(state.cash < 5.0 && state.cups === 0) { // Costs $5 to buy minimum mix
         document.getElementById('final-days').innerText = state.day - 1;
         showScreen('game-over-screen');
     }
 }
 
-function buy(item, qty, baseCost) {
+function buyMix(qty, baseCost) {
     let cost = baseCost;
-    if(item === 'sugar' && state.currentEvent.flag === 'expensive_sugar') cost *= 2;
+    if(state.currentEvent.flag === 'expensive_mix') cost *= 2;
 
     if(state.cash >= cost) {
         state.cash -= cost;
-        state.inv[item] += qty;
+        state.cups += qty;
         dailyStats.cogs += cost; 
         playSound('buy');
         updateHUD();
@@ -195,22 +188,17 @@ function buyUpgrade(id, cost) {
 }
 
 function updateStrategy() {
-    state.recipeMode = parseInt(els.recipeSlider.value);
     state.price = parseFloat(els.priceSlider.value);
-    
-    const names = ["Diluted 🧊", "Standard 🍋", "Premium 🌟"];
-    els.recipeVal.innerText = names[state.recipeMode - 1];
     els.priceVal.innerText = formatMoney(state.price);
     
-    let reqL = state.recipeMode;
-    let reqS = state.recipeMode;
-    
-    if(state.inv.cups < 1 || state.inv.lemons < reqL || state.inv.sugar < reqS) {
-        els.prepWarning.innerText = "⚠️ You lack supplies to make even one cup!";
+    if(state.cups < 1) {
+        els.prepWarning.innerText = "⚠️ You have 0 cups to sell! Buy restock first.";
         els.prepWarning.style.color = "var(--mb-gold)";
+        document.getElementById('start-day-btn').disabled = true;
     } else {
         els.prepWarning.innerText = "✅ Ready to hustle.";
         els.prepWarning.style.color = "var(--mb-green)";
+        document.getElementById('start-day-btn').disabled = false;
     }
 }
 
@@ -284,8 +272,8 @@ async function startDay() {
     if(state.upgradesOwned.includes('ice') && state.weather === 0) weatherMult *= 2;
     if(state.upgradesOwned.includes('sign')) baseDemand *= 1.3;
 
-    // Price elasticity
-    let perceivedValue = (state.recipeMode * 1.5) / state.price; 
+    // Price elasticity simplified
+    let perceivedValue = 1.5 / state.price; // $1.50 is "fair" baseline
     if(state.upgradesOwned.includes('mascot')) perceivedValue = 2.0; // Mascot hacks demand
     
     let demandMult = Math.min(2.5, Math.max(0.1, perceivedValue));
@@ -296,9 +284,6 @@ async function startDay() {
     let totalCustomers = Math.floor(baseDemand * weatherMult * demandMult);
     totalCustomers += Math.floor((Math.random() - 0.5) * 5); // noise
     if(totalCustomers < 0) totalCustomers = 0;
-    
-    let reqL = state.recipeMode;
-    let reqS = state.recipeMode;
     
     logSim(`Day started! Expecting ~${totalCustomers} foot traffic.`, 'event');
 
@@ -311,11 +296,9 @@ async function startDay() {
             continue;
         }
 
-        if(state.inv.cups >= 1 && state.inv.lemons >= reqL && state.inv.sugar >= reqS) {
+        if(state.cups >= 1) {
             // Sell!
-            state.inv.cups--;
-            state.inv.lemons -= reqL;
-            state.inv.sugar -= reqS;
+            state.cups--;
             state.cash += state.price;
             
             dailyStats.sold++;
@@ -326,7 +309,7 @@ async function startDay() {
             logSim(`Sold a cup for ${formatMoney(state.price)}`, 'success');
         } else {
             spawnVisualCustomer(false);
-            logSim(`Missed sale: Out of supplies!`, 'fail');
+            logSim(`Missed sale: Out of cups!`, 'fail');
             playSound('error');
             break; 
         }
@@ -370,8 +353,8 @@ function endDay() {
     netEl.className = net >= 0 ? 'positive' : 'negative';
     
     let tip = "";
-    if(net < 0) tip = "💡 Loss! You bought more inventory than you sold. Try adjusting your price or investing in the Neon Sign to drive traffic.";
-    else if(state.inv.cups === 0) tip = "💡 You sold out of cups! You left money on the table. Buy more inventory tomorrow.";
+    if(net < 0) tip = "💡 Loss! You bought more inventory than you sold. Try dropping your price to drive volume, or investing in the Neon Sign to drive traffic.";
+    else if(state.cups === 0) tip = "💡 You sold out! You left money on the table. Buy more batches tomorrow.";
     else if(dailyStats.sold === 0) tip = "💡 Zero sales! If it's raining or your price is too high, customers walk away.";
     else if(state.cash > 50 && state.upgradesOwned.length < 3) tip = "💡 High cash balance! Reinvest your profits into permanent Business Upgrades.";
     else tip = "💡 Solid profit! You're building a real empire. Keep compounding.";

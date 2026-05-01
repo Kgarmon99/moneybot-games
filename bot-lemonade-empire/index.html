@@ -34,34 +34,23 @@
 
                 <!-- Inventory -->
                 <div class="panel">
-                    <h2>🛒 Supplies</h2>
+                    <h2>🛒 Restock</h2>
                     <div class="buy-row">
-                        <div class="buy-info">🍋 Lemons (<span id="inv-lemons">0</span>)</div>
-                        <button class="btn-small" onclick="buy('lemons', 10, 5.00)">Buy 10 ($5)</button>
+                        <div class="buy-info">🍋 Lemonade Mix (<span id="inv-cups">0</span> cups)</div>
+                        <button class="btn-small" onclick="buyMix(10, 5.00)">Buy 10 ($5)</button>
                     </div>
-                    <div class="buy-row">
-                        <div class="buy-info">🍚 Sugar (<span id="inv-sugar">0</span>)</div>
-                        <button class="btn-small" onclick="buy('sugar', 10, 2.00)">Buy 10 ($2)</button>
-                    </div>
-                    <div class="buy-row">
-                        <div class="buy-info">🥤 Cups (<span id="inv-cups">0</span>)</div>
-                        <button class="btn-small" onclick="buy('cups', 10, 1.00)">Buy 10 ($1)</button>
-                    </div>
+                    <div class="hint" style="text-align:center; margin-top:5px;">Cost: $0.50 per cup</div>
                 </div>
 
-                <!-- Recipe & Price -->
+                <!-- Strategy -->
                 <div class="panel">
                     <h2>📝 Strategy</h2>
-                    <div class="slider-row">
-                        <label>Recipe: <span id="recipe-val" class="accent">Standard</span></label>
-                        <input type="range" id="recipe-slider" min="1" max="3" value="2" oninput="updateStrategy()">
-                        <div class="hint">Premium recipes drive more demand but cost more.</div>
-                    </div>
-                    <div class="slider-row">
+                    <div class="slider-row" style="margin-bottom:0;">
                         <label>Price per Cup: <span id="price-val" class="accent">$1.00</span></label>
-                        <input type="range" id="price-slider" min="0.5" max="10.0" step="0.25" value="1.00" oninput="updateStrategy()">
+                        <input type="range" id="price-slider" min="0.5" max="5.0" step="0.25" value="1.00" oninput="updateStrategy()">
+                        <div class="hint">Charge more when it's hot, less when it's cold!</div>
                     </div>
-                    <div class="status-message" id="prep-warning"></div>
+                    <div class="status-message" id="prep-warning" style="margin-top:10px; font-weight:800; text-align:center;"></div>
                 </div>
             </div>
 
