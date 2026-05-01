@@ -86,6 +86,8 @@ const els = {
     skyBg: document.getElementById('sky-bg'),
     streetView: document.getElementById('street-view'),
     lemonadeStand: document.getElementById('lemonade-stand'),
+    upgradeSign: document.getElementById('upgrade-sign'),
+    upgradeMascot: document.getElementById('upgrade-mascot'),
     newsText: document.getElementById('news-text'),
     upgradesContainer: document.getElementById('upgrades-container')
 };
@@ -187,8 +189,8 @@ function buyUpgrade(id, cost) {
         renderUpgrades();
         
         // Visual stand upgrade
-        if(id === 'sign') els.lemonadeStand.innerText = "🍋🚥";
-        if(id === 'mascot') els.lemonadeStand.innerText = "🤖🍋";
+        if(id === 'sign') els.upgradeSign.classList.remove('hidden');
+        if(id === 'mascot') els.upgradeMascot.classList.remove('hidden');
     } else {
         playSound('error');
     }
@@ -217,21 +219,27 @@ function updateStrategy() {
 function spawnVisualCustomer(bought) {
     let cust = document.createElement('div');
     cust.className = 'customer';
-    cust.innerText = EMOJIS[Math.floor(Math.random() * EMOJIS.length)];
+    
+    // Assign random color variation
+    const r = Math.random();
+    if(r > 0.75) cust.classList.add('color-1');
+    else if(r > 0.5) cust.classList.add('color-2');
+    else if(r > 0.25) cust.classList.add('color-3');
+    
     els.streetView.appendChild(cust);
 
     setTimeout(() => {
         if(bought) {
             // Stand bounce
             els.lemonadeStand.classList.add('bounce');
-            setTimeout(() => els.lemonadeStand.classList.remove('bounce'), 100);
+            setTimeout(() => els.lemonadeStand.classList.remove('bounce'), 150);
 
             // Float text
             let text = document.createElement('div');
             text.className = 'float-text cash';
             text.innerText = '+' + formatMoney(state.price);
-            text.style.left = '50%';
-            text.style.bottom = '50px';
+            text.style.left = '55%';
+            text.style.bottom = '70px';
             els.streetView.appendChild(text);
             setTimeout(() => text.remove(), 1000);
         } else {
@@ -239,13 +247,13 @@ function spawnVisualCustomer(bought) {
             text.className = 'float-text fail';
             text.innerText = '👎';
             text.style.left = '45%';
-            text.style.bottom = '40px';
+            text.style.bottom = '60px';
             els.streetView.appendChild(text);
             setTimeout(() => text.remove(), 1000);
         }
-    }, 1500); // Trigger mid-walk
+    }, 2000); // Trigger mid-walk
 
-    setTimeout(() => cust.remove(), 3000);
+    setTimeout(() => cust.remove(), 4000);
 }
 
 function spawnRain() {
