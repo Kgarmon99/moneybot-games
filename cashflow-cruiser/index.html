@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Cashflow Cruiser</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="game-container">
+        <header id="hud">
+            <div class="stat-pill">
+                <span class="label">NET WORTH</span>
+                <span id="score-display" class="value">$0</span>
+            </div>
+            <div class="stat-pill">
+                <span class="label">RUNWAY</span>
+                <span id="distance-display" class="value">0m</span>
+            </div>
+        </header>
+
+        <main id="play-area">
+            <canvas id="game-canvas"></canvas>
+            <div id="particles"></div>
+        </main>
+
+        <div id="modal" class="modal active">
+            <div class="modal-content">
+                <h1 id="modal-title">Cashflow Cruiser</h1>
+                <p id="modal-desc">Hold the screen to fire your Cashflow Jetpack and fly up. Release to fall. Dodge the red Debt Lasers and collect Green Dividends to build your Net Worth!</p>
+                <button id="modal-btn" class="mb-btn-primary">START ENGINE</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Hide the image element used for canvas drawing -->
+    <img id="mascot-img" src="assets/mascot.png" style="display:none;" alt="Mascot">
+    
+    <script src="game.js"></script>
+</body>
+</html>
