@@ -232,6 +232,7 @@ printerBtn.addEventListener('touchstart', (e) => { e.preventDefault(); handlePri
 
 buyBtn.addEventListener('click', handleBuy);
 modalBtn.addEventListener('click', startGame);
+modalBtn.addEventListener('touchstart', (e) => { e.preventDefault(); startGame(); }, {passive: false});
 
 // Init state (Modal is visible by default)
 updateHUD();

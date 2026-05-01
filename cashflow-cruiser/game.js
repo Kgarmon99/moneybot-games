@@ -139,11 +139,17 @@ function handleUp() { state.isThrusting = false; }
 
 window.addEventListener('mousedown', handleDown);
 window.addEventListener('mouseup', handleUp);
-window.addEventListener('touchstart', (e) => { e.preventDefault(); handleDown(e); }, {passive: false});
+window.addEventListener('touchstart', (e) => { 
+    if (e.target.tagName !== 'BUTTON' && e.target.tagName !== 'A') {
+        e.preventDefault(); 
+    }
+    handleDown(e); 
+}, {passive: false});
 window.addEventListener('touchend', handleUp);
 window.addEventListener('keydown', (e) => { if(e.code === 'Space') handleDown(e); });
 window.addEventListener('keyup', (e) => { if(e.code === 'Space') handleUp(); });
 modalBtn.addEventListener('click', (e) => { e.stopPropagation(); resetGame(); });
+modalBtn.addEventListener('touchstart', (e) => { e.stopPropagation(); resetGame(); }, {passive: true});
 
 function update() {
     if (state.hitStopFrames > 0) {
