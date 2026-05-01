@@ -341,7 +341,7 @@
             // World
             worldZ: 0,
             obstacles: [],
-            coins: [],
+            coinItems: [],
             particles: [],
             trains: [],
             
@@ -373,7 +373,7 @@
                 this.yVelocity = 0;
                 this.worldZ = 0;
                 this.obstacles = [];
-                this.coins = [];
+                this.coinItems = [];
                 this.particles = [];
                 this.trains = [];
                 
@@ -500,7 +500,7 @@
                     // Line in one lane
                     const lane = Math.floor(Math.random() * SETTINGS.laneCount);
                     for (let i = 0; i < 6; i++) {
-                        this.coins.push({
+                        this.coinItems.push({
                             lane: lane,
                             z: baseZ + i * 80,
                             y: 30,
@@ -512,7 +512,7 @@
                     for (let i = 0; i < 5; i++) {
                         const lane = i;
                         if (lane < SETTINGS.laneCount) {
-                            this.coins.push({
+                            this.coinItems.push({
                                 lane: lane,
                                 z: baseZ + Math.abs(i - 2) * 60,
                                 y: 30 + Math.sin(i * 0.5) * 40,
@@ -524,7 +524,7 @@
                     // Triple line
                     for (let l = 0; l < SETTINGS.laneCount; l++) {
                         for (let i = 0; i < 4; i++) {
-                            this.coins.push({
+                            this.coinItems.push({
                                 lane: l,
                                 z: baseZ + i * 100,
                                 y: 30,
@@ -536,7 +536,7 @@
                     // Jump arc
                     const lane = 1;
                     for (let i = 0; i < 7; i++) {
-                        this.coins.push({
+                        this.coinItems.push({
                             lane: lane,
                             z: baseZ + i * 70,
                             y: 30 + Math.sin(i * 0.4) * 60,
@@ -608,8 +608,8 @@
                 }
                 
                 // Update coins
-                for (let i = this.coins.length - 1; i >= 0; i--) {
-                    const coin = this.coins[i];
+                for (let i = this.coinItems.length - 1; i >= 0; i--) {
+                    const coin = this.coinItems[i];
                     const relativeZ = coin.z - this.worldZ;
                     
                     if (!coin.collected && coin.lane === this.lane && relativeZ > 150 && relativeZ < 250) {
@@ -624,7 +624,7 @@
                     }
                     
                     if (relativeZ < -100) {
-                        this.coins.splice(i, 1);
+                        this.coinItems.splice(i, 1);
                     }
                 }
                 
@@ -663,7 +663,7 @@
                 // Draw objects sorted by Z (back to front)
                 const allObjects = [
                     ...this.trains.map(t => ({ ...t, type: 'train' })),
-                    ...this.coins.map(c => ({ ...c, type: 'coin' }))
+                    ...this.coinItems.map(c => ({ ...c, type: 'coin' }))
                 ].sort((a, b) => b.z - a.z);
                 
                 for (const obj of allObjects) {
