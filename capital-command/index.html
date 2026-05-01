@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#07111F" />
+    <title>Capital Command | MoneyBot</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <main class="game-shell" aria-label="Capital Command financial literacy game">
+      <section class="topbar" aria-label="Game header">
+        <div class="brand-lockup">
+          <div class="coach-mark" aria-hidden="true"><span class="visor"></span></div>
+          <div>
+            <p>MoneyBot</p>
+            <h1>Capital Command</h1>
+          </div>
+        </div>
+        <button class="icon-button" id="pauseButton" type="button" aria-label="Pause game">
+          <span></span><span></span>
+        </button>
+      </section>
+
+      <section class="hud-grid" aria-label="Financial dashboard">
+        <article class="hud-card">
+          <span>Runway</span>
+          <strong id="runwayValue">2.0 mo</strong>
+        </article>
+        <article class="hud-card">
+          <span>Net worth</span>
+          <strong id="netWorthValue">$1,200</strong>
+        </article>
+        <article class="hud-card">
+          <span>Debt</span>
+          <strong id="debtValue">$2,600</strong>
+        </article>
+        <article class="hud-card">
+          <span>Streak</span>
+          <strong id="streakValue">0</strong>
+        </article>
+      </section>
+
+      <section class="wave-band" aria-label="Current wave">
+        <div>
+          <span id="waveLabel">Wave 1 of 6</span>
+          <strong id="waveName">Stabilize</strong>
+        </div>
+        <div class="progress-track" aria-label="Wave progress">
+          <span id="waveFill"></span>
+        </div>
+      </section>
+
+      <section class="coach-panel" aria-live="polite">
+        <div class="coach-avatar" aria-hidden="true"><span class="visor"></span></div>
+        <p id="coachText">Catch income, then tap a system. Bills protect today. Shields protect surprises.</p>
+      </section>
+
+      <section class="play-card" aria-label="Game field">
+        <canvas id="gameCanvas" width="390" height="520" aria-label="Capital Command playfield"></canvas>
+        <div class="held-chip" id="heldChip" aria-live="polite">$0 held</div>
+      </section>
+
+      <section class="system-grid" aria-label="Allocation systems">
+        <button class="system-node bills" type="button" data-system="bills">
+          <span>1</span>
+          <strong>Bills</strong>
+          <small id="billsValue">$0 / $1,100</small>
+        </button>
+        <button class="system-node shield" type="button" data-system="shield">
+          <span>2</span>
+          <strong>Shield</strong>
+          <small id="shieldValue">$700</small>
+        </button>
+        <button class="system-node debt" type="button" data-system="debt">
+          <span>3</span>
+          <strong>Debt</strong>
+          <small id="debtPayValue">$0 paid</small>
+        </button>
+        <button class="system-node invest" type="button" data-system="invest">
+          <span>4</span>
+          <strong>Invest</strong>
+          <small id="investValue">$1,900</small>
+        </button>
+        <button class="system-node learn" type="button" data-system="learn">
+          <span>5</span>
+          <strong>Skill</strong>
+          <small id="learnValue">Level 0</small>
+        </button>
+        <button class="system-node diversify" type="button" data-system="diversify">
+          <span>6</span>
+          <strong>Risk</strong>
+          <small id="riskValue">High</small>
+        </button>
+      </section>
+
+      <section class="action-row">
+        <button class="secondary-button" id="restartButton" type="button">Restart</button>
+        <button class="primary-button" id="deployButton" type="button">Deploy held cash</button>
+      </section>
+    </main>
+
+    <section class="modal is-open" id="startModal" aria-modal="true" role="dialog" aria-labelledby="startTitle">
+      <div class="modal-card">
+        <div class="modal-coach" aria-hidden="true"><span class="visor"></span></div>
+        <p class="eyebrow">MoneyBot arcade sim</p>
+        <h2 id="startTitle">Command the whole money system.</h2>
+        <p>Catch fictional income, avoid pressure, and allocate fast. Fragile upside loses. Resilient cashflow wins.</p>
+        <button class="primary-button" id="startButton" type="button">Start command</button>
+      </div>
+    </section>
+
+    <section class="modal" id="resultModal" aria-modal="true" role="dialog" aria-labelledby="resultTitle">
+      <div class="modal-card">
+        <p class="eyebrow" id="resultEyebrow">Wave clear</p>
+        <h2 id="resultTitle">Runway up.</h2>
+        <p id="resultText">Your system handled the pressure.</p>
+        <div class="result-stats" id="resultStats"></div>
+        <button class="primary-button" id="continueButton" type="button">Next wave</button>
+        <button class="secondary-button" id="modalRestartButton" type="button">Restart</button>
+      </div>
+    </section>
+
+    <div class="toast-layer" id="toastLayer" aria-live="polite"></div>
+    <script src="./game.js"></script>
+  </body>
+</html>
