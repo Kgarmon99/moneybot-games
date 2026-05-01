@@ -23,8 +23,8 @@
             width: 100%;
             height: 100%;
             background: 
-                radial-gradient(ellipse 80% 50% at 50% -20%, rgba(34, 197, 94, 0.15), transparent),
-                radial-gradient(ellipse 60% 40% at 80% 80%, rgba(34, 197, 94, 0.08), transparent);
+                linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.8)),
+                url('assets/hero-bg.png') center/cover no-repeat;
             pointer-events: none;
             z-index: 0;
         }
@@ -355,6 +355,20 @@
             </div>
             
             <div class="games-grid">
+                <a href="../yield-merge/" class="game-card">
+                    <span class="new-badge">New</span>
+                    <div class="game-image">
+                        <img src="../yield-merge/assets/thumb.png" class="game-icon" alt="Yield Merge" style="width: 100%; height: 100%; object-fit: cover; filter: none; border-radius: 0;">
+                    </div>
+                    <div class="game-info">
+                        <div class="game-header">
+                            <span class="game-title">Yield Merge</span>
+                            <span class="game-tag">Puzzle</span>
+                        </div>
+                        <p class="game-desc">Drop and merge financial assets into a physics vault. Build your portfolio up to the ultimate MoneyBot without spilling over the edge!</p>
+                    </div>
+                </a>
+                
                 <a href="../compound-cookoff/" class="game-card">
                     <span class="new-badge">New</span>
                     <div class="game-image">
