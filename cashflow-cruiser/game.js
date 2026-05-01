@@ -325,41 +325,85 @@ function draw() {
     }
     
     // Draw background layers
-    ctx.fillStyle = '#060E1A';
+    ctx.fillStyle = '#050A12';
     ctx.fillRect(0,0,canvas.width,canvas.height);
     
-    ctx.fillStyle = '#0A1526';
+    // Background gradient for atmosphere
+    const bgGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    bgGrad.addColorStop(0, 'rgba(11, 22, 40, 0.8)');
+    bgGrad.addColorStop(1, 'rgba(4, 10, 18, 0.9)');
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+    
+    ctx.fillStyle = 'rgba(10, 20, 35, 0.6)';
     buildings.bg.forEach(b => ctx.fillRect(b.x, canvas.height - b.h, b.w, b.h));
     
-    ctx.fillStyle = '#0F1E36';
-    buildings.mg.forEach(b => ctx.fillRect(b.x, canvas.height - b.h, b.w, b.h));
-
-    // Floor line
-    ctx.fillStyle = 'rgba(105, 240, 174, 0.2)';
-    ctx.fillRect(0, canvas.height - 4, canvas.width, 4);
-
-    // Obstacles
-    ctx.fillStyle = '#FB7185';
-    state.obstacles.forEach(obs => {
-        ctx.fillRect(obs.x, obs.y, obs.w, obs.h);
-        // Laser core
-        ctx.fillStyle = '#FFF';
-        ctx.fillRect(obs.x + obs.w/4, obs.y, obs.w/2, obs.h);
-        ctx.fillStyle = '#FB7185';
+    // City lights
+    buildings.bg.forEach(b => {
+        if (b.w > 120) {
+            ctx.fillStyle = 'rgba(0, 230, 118, 0.1)';
+            ctx.fillRect(b.x + 20, canvas.height - b.h + 20, 4, 4);
+            ctx.fillRect(b.x + 40, canvas.height - b.h + 50, 4, 4);
+        }
     });
 
-    // Coins
-    ctx.fillStyle = '#00E676';
+    ctx.fillStyle = 'rgba(15, 30, 54, 0.8)';
+    buildings.mg.forEach(b => {
+        ctx.fillRect(b.x, canvas.height - b.h, b.w, b.h);
+        // building borders
+        ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(b.x, canvas.height - b.h, b.w, b.h);
+    });
+
+    // Floor line
+    ctx.fillStyle = 'rgba(0, 230, 118, 0.3)';
+    ctx.fillRect(0, canvas.height - 4, canvas.width, 4);
+    ctx.shadowBlur = 15;
+    ctx.shadowColor = '#00E676';
+    ctx.fillRect(0, canvas.height - 2, canvas.width, 2);
+    ctx.shadowBlur = 0;
+
+    // Obstacles (Debt Lasers)
+    state.obstacles.forEach(obs => {
+        // Red Glow
+        ctx.shadowBlur = 25;
+        ctx.shadowColor = '#FB7185';
+        ctx.fillStyle = 'rgba(251, 113, 133, 0.8)';
+        ctx.fillRect(obs.x, obs.y, obs.w, obs.h);
+        
+        // Laser core (white hot)
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = '#FFF';
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(obs.x + obs.w/2 - 4, obs.y, 8, obs.h);
+        
+        ctx.shadowBlur = 0;
+    });
+
+    // Coins (Cashflow Dividends)
     state.coins.forEach(coin => {
+        // Coin glow
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = 'rgba(0, 230, 118, 0.6)';
+        
+        // Coin gradient
+        const grad = ctx.createRadialGradient(coin.x + coin.r, coin.y + coin.r, 0, coin.x + coin.r, coin.y + coin.r, coin.r);
+        grad.addColorStop(0, '#69F0AE');
+        grad.addColorStop(1, '#00C853');
+        
+        ctx.fillStyle = grad;
         ctx.beginPath();
         ctx.arc(coin.x + coin.r, coin.y + coin.r, coin.r, 0, Math.PI * 2);
         ctx.fill();
+        
+        ctx.shadowBlur = 0;
+        
         ctx.fillStyle = '#07111F';
-        ctx.font = 'bold 16px sans-serif';
+        ctx.font = 'bold 18px "Inter", sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText('$', coin.x + coin.r, coin.y + coin.r);
-        ctx.fillStyle = '#00E676';
+        ctx.fillText('$', coin.x + coin.r, coin.y + coin.r + 1);
     });
 
     // Magnets
