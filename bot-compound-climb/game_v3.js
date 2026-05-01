@@ -99,8 +99,9 @@ const COLORS = {
 };
 
 function resize() {
-    width = window.innerWidth;
-    height = window.innerHeight;
+    const rect = document.getElementById('ui-layer').getBoundingClientRect();
+    width = rect.width;
+    height = rect.height;
     canvas.width = width;
     canvas.height = height;
     
@@ -207,6 +208,10 @@ function update() {
     if(!isPlaying) return;
 
     if(shakeTime > 0) shakeTime--;
+
+    // Desktop Keyboard Movement Overrides
+    if(keys.left) player.targetX -= 20;
+    if(keys.right) player.targetX += 20;
 
     // Player Horizontal Movement (Lerp to target for smooth velocity)
     let oldX = player.x;
@@ -518,21 +523,23 @@ function gameOver() {
     draw(); // Draw final frame with shake
 }
 
-// Controls (Relative Touch for mobile, Absolute for Mouse)
+// Controls (Relative Touch for mobile, Absolute for Mouse, + Keyboard for Web)
 let lastTouchX = null;
+let keys = { left: false, right: false };
 
 function handleInput(e) {
     if(!isPlaying) return;
+    const rect = canvas.getBoundingClientRect();
     if(e.touches && e.touches.length > 0) {
-        let currentTouchX = e.touches[0].clientX;
+        let currentTouchX = e.touches[0].clientX - rect.left;
         if(lastTouchX !== null) {
             let dx = currentTouchX - lastTouchX;
-            // Move player relative to drag, slightly accelerated so they don't have to swipe across entire screen
-            player.targetX += dx * 1.3; 
+            // Move player relative to drag, slightly accelerated
+            player.targetX += dx * 1.5; 
         }
         lastTouchX = currentTouchX;
     } else {
-        player.targetX = e.clientX;
+        player.targetX = e.clientX - rect.left;
     }
 }
 
@@ -540,15 +547,33 @@ document.addEventListener('mousemove', handleInput);
 document.addEventListener('touchmove', handleInput, {passive: true});
 document.addEventListener('touchstart', (e) => {
     if(e.touches && e.touches.length > 0) {
-        lastTouchX = e.touches[0].clientX;
+        const rect = canvas.getBoundingClientRect();
+        lastTouchX = e.touches[0].clientX - rect.left;
         // Option to tap to instantly jump to a side if they tap far away
-        if(Math.abs(e.touches[0].clientX - player.x) > width / 4) {
-            player.targetX = e.touches[0].clientX;
+        if(Math.abs((e.touches[0].clientX - rect.left) - player.x) > width / 4) {
+            player.targetX = e.touches[0].clientX - rect.left;
         }
     }
 }, {passive: true});
 document.addEventListener('touchend', () => { lastTouchX = null; });
 document.addEventListener('touchcancel', () => { lastTouchX = null; });
+
+// Web/Desktop Keyboard Controls
+document.addEventListener('keydown', (e) => {
+    if(e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') keys.left = true;
+    if(e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') keys.right = true;
+    
+    // Spacebar to start/restart on desktop
+    if(e.key === ' ' || e.key === 'Enter') {
+        if(!isPlaying && (!document.getElementById('start-screen').classList.contains('hidden') || !document.getElementById('game-over-screen').classList.contains('hidden'))) {
+            initGame();
+        }
+    }
+});
+document.addEventListener('keyup', (e) => {
+    if(e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') keys.left = false;
+    if(e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') keys.right = false;
+});
 
 // Add Tilt (Device Orientation) support if available
 window.addEventListener("deviceorientation", (e) => {
