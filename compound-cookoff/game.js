@@ -125,7 +125,14 @@ function handleClick(e) {
     else if (state.day >= 2 && isInside(x, y, state.zones.btnLeverage)) applyAddon('leverage');
     else if (state.day >= 3 && isInside(x, y, state.zones.btnHedge)) applyAddon('hedge');
     else if (state.day >= 4 && isInside(x, y, state.zones.btnCrypto)) handleCryptoMiner();
-    else if (isInside(x, y, state.zones.trash)) { /* Optional */ }
+    else if (isInside(x, y, state.zones.trash)) { 
+        // Find any filled plate to trash
+        const pIdx = state.plates.findLastIndex(p => p !== null);
+        if (pIdx !== -1) {
+            state.plates[pIdx] = null;
+            trashItem(state.zones.trash.x + 40, state.zones.trash.y);
+        }
+    }
     
     // Check counter slots for cash
     for (let i = 0; i < 3; i++) {
@@ -180,12 +187,19 @@ function addFolderToPlate() {
     }
 }
 
+function trashItem(x, y) {
+    const penalty = 10;
+    state.cash = Math.max(0, state.cash - penalty);
+    spawnText(x, y, `-$${penalty} WASTE`, "#FB7185");
+    if (navigator.vibrate) navigator.vibrate([30, 50, 30]);
+}
+
 function handleGrillClick(i) {
     const slot = state.grill[i];
     if (!slot) return;
     if (slot.state === 'burned') {
         state.grill[i] = null;
-        spawnText(getGrillSlotRect(i).x + 35, getGrillSlotRect(i).y, "LIQUIDATED", "#FB7185");
+        trashItem(getGrillSlotRect(i).x + 35, getGrillSlotRect(i).y);
         return;
     }
     if (slot.state === 'cooked') {
@@ -230,10 +244,12 @@ function handleCryptoMiner() {
                         
                         if (c.order.length === 0) {
                             const tip = Math.floor(c.patience * 20);
-                            slot.cash = price + tip;
+                            slot.cash += price + tip;
                             slot.customer = null; // Customer leaves, leaves cash on counter
                             spawnText(slot.x + slot.w/2, state.zones.customers.h + 20, "DONE!", "#00E676");
                         } else {
+                            slot.cash += price;
+                            c.patience = Math.min(1.0, c.patience + 0.3); // HDB Partial order bump
                             spawnText(slot.x + slot.w/2, state.zones.customers.h + 20, `+$${price} (Partial)`);
                         }
                         break;
@@ -244,7 +260,7 @@ function handleCryptoMiner() {
                 // Toss one crypto
                 cryptoMiner.readyCount--;
                 if (cryptoMiner.readyCount === 0) cryptoMiner.active = false;
-                spawnText(state.zones.btnCrypto.x, state.zones.btnCrypto.y, "TRASHED", "#FB7185");
+                trashItem(state.zones.btnCrypto.x + 40, state.zones.btnCrypto.y);
             }
         }
     } else {
@@ -280,10 +296,12 @@ function handlePlateClick(i) {
             
             if (c.order.length === 0) {
                 const tip = Math.floor(c.patience * 20);
-                slot.cash = total + tip;
+                slot.cash += total + tip;
                 slot.customer = null; // Customer leaves, leaves cash on counter
                 spawnText(slot.x + slot.w/2, state.zones.customers.h + 20, "DONE!", "#00E676");
             } else {
+                slot.cash += total;
+                c.patience = Math.min(1.0, c.patience + 0.3); // HDB Partial order patience bump
                 spawnText(slot.x + slot.w/2, state.zones.customers.h + 20, `+$${total} (Partial)`);
             }
             break;
@@ -292,7 +310,7 @@ function handlePlateClick(i) {
     
     if (!served) {
         state.plates[i] = null; // Trash mistake
-        spawnText(getPlateRect(i).x + 45, getPlateRect(i).y, "TRASHED", "#FB7185");
+        trashItem(getPlateRect(i).x + 45, getPlateRect(i).y);
     }
 }
 
