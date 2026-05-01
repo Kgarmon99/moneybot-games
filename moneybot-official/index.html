@@ -134,10 +134,11 @@
         }
         
         .hero p {
-            font-size: 20px;
-            color: #666;
-            max-width: 500px;
+            font-size: 22px;
+            color: #9CA3AF;
+            max-width: 600px;
             margin: 0 auto 40px;
+            line-height: 1.6;
         }
         
         .stats {
@@ -158,11 +159,12 @@
         }
         
         .stat-label {
-            font-size: 12px;
-            color: #666;
+            font-size: 13px;
+            color: #9CA3AF;
             text-transform: uppercase;
             letter-spacing: 2px;
-            margin-top: 4px;
+            margin-top: 8px;
+            font-weight: 600;
         }
         
         /* Games Section */
@@ -212,9 +214,9 @@
         }
         
         .game-card:hover {
-            border-color: rgba(34, 197, 94, 0.4);
-            transform: translateY(-4px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(34, 197, 94, 0.2);
+            border-color: rgba(34, 197, 94, 0.6);
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.8), 0 0 20px rgba(34, 197, 94, 0.2);
         }
         
         .game-card:hover::before {
@@ -253,21 +255,26 @@
         }
         
         .game-info {
-            padding: 20px;
+            padding: 24px;
             position: relative;
             z-index: 1;
+            background: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
         }
         
         .game-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 8px;
+            margin-bottom: 12px;
         }
         
         .game-title {
-            font-size: 16px;
-            font-weight: 700;
+            font-size: 18px;
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: -0.5px;
             letter-spacing: -0.3px;
         }
         
@@ -283,9 +290,10 @@
         }
         
         .game-desc {
-            font-size: 13px;
-            color: #666;
-            line-height: 1.5;
+            font-size: 14px;
+            color: #9CA3AF;
+            line-height: 1.6;
+            font-weight: 400;
         }
         
         .new-badge {
@@ -323,21 +331,21 @@
         </header>
         
         <section class="hero">
-            <div class="hero-badge">Now Playing</div>
-            <h1>Elite Financial<br>Gaming</h1>
-            <p>Master money through play. 54 unique games designed to level up your financial future.</p>
+            <div class="hero-badge">System Online</div>
+            <h1>Wealth Generation<br>Simulators</h1>
+            <p>Stop playing games that waste your time. Master cashflow, outsmart the markets, and scale your net worth through elite, high-stakes simulations.</p>
             <div class="stats">
                 <div class="stat">
-                    <div class="stat-value">54</div>
-                    <div class="stat-label">Games</div>
+                    <div class="stat-value">56</div>
+                    <div class="stat-label">Live Simulators</div>
                 </div>
                 <div class="stat">
                     <div class="stat-value">∞</div>
-                    <div class="stat-label">Potential</div>
+                    <div class="stat-label">Capital Upside</div>
                 </div>
                 <div class="stat">
-                    <div class="stat-value">100%</div>
-                    <div class="stat-label">Fun</div>
+                    <div class="stat-value">0%</div>
+                    <div class="stat-label">Fake Guru BS</div>
                 </div>
             </div>
         </section>
@@ -358,7 +366,7 @@
                             <span class="game-title">Cashflow Cruiser</span>
                             <span class="game-tag">Action</span>
                         </div>
-                        <p class="game-desc">Fly up against gravity, dodge debt lasers, and collect cashflow to build net worth!</p>
+                        <p class="game-desc">Defy gravity and outpace your burn rate. Collect cashflow, dodge debt lasers, and scale your net worth to the moon.</p>
                     </div>
                 </a>
                 
@@ -372,7 +380,7 @@
                             <span class="game-title">Money Printer GO</span>
                             <span class="game-tag">Clicker</span>
                         </div>
-                        <p class="game-desc">Print cash to buy assets, but watch out for hyperinflation!</p>
+                        <p class="game-desc">Crank the fiat printer and aggressively acquire hard assets before hyperinflation destroys your purchasing power.</p>
                     </div>
                 </a>
                 
@@ -386,7 +394,7 @@
                             <span class="game-title">Money Surfers</span>
                             <span class="game-tag">Endless</span>
                         </div>
-                        <p class="game-desc">Elite endless runner with stunning visuals and smooth gameplay.</p>
+                        <p class="game-desc">Shred the market cycles. Ride the bull runs, dodge bear market traps, and accumulate endless wealth.</p>
                     </div>
                 </a>
                 
@@ -400,7 +408,7 @@
                             <span class="game-title">Capital Command</span>
                             <span class="game-tag">Strategy</span>
                         </div>
-                        <p class="game-desc">Command cashflow, shield runway, reduce debt, and survive volatility.</p>
+                        <p class="game-desc">Take the helm. Allocate capital, shield your runway, and survive extreme market volatility.</p>
                     </div>
                 </a>
                 
