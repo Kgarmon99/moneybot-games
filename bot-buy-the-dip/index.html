@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MoneyBot - Buy The Dip</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <a href="../moneybot-official/" class="back-btn">← Hub</a>
+    
+    <div class="game-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="score-pill">
+                <span class="label">CASH</span>
+                <span class="value" id="cash">$1,000</span>
+            </div>
+            <div class="timer" id="timer">30s</div>
+            <div class="score-pill">
+                <span class="label">PORTFOLIO</span>
+                <span class="value" id="portfolio">$0</span>
+            </div>
+        </header>
+
+        <!-- Chart Area -->
+        <div class="chart-container">
+            <canvas id="chart"></canvas>
+            
+            <!-- Buy/Sell Buttons -->
+            <div class="trade-buttons">
+                <button class="trade-btn buy" id="buyBtn">
+                    <span class="btn-icon">💚</span>
+                    <span class="btn-text">BUY</span>
+                    <span class="btn-price" id="buyPrice">$100</span>
+                </button>
+                <button class="trade-btn sell" id="sellBtn" disabled>
+                    <span class="btn-icon">💰</span>
+                    <span class="btn-text">SELL</span>
+                    <span class="btn-shares" id="shareCount">0 Shares</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <div class="trend-indicator" id="trend">📈 Bull Run</div>
+            <div class="volatility" id="volatility">Vol: Normal</div>
+        </div>
+
+        <!-- Trade History -->
+        <div class="history-container">
+            <div class="history-header">Recent Trades</div>
+            <div class="history-list" id="history"></div>
+        </div>
+    </div>
+
+    <!-- Start/End Modal -->
+    <div class="modal active" id="modal">
+        <div class="modal-content">
+            <div class="modal-icon" id="modalIcon">📉</div>
+            <h1 class="modal-title" id="modalTitle">Buy The Dip</h1>
+            <p class="modal-subtitle" id="modalSubtitle">
+                Time the market perfectly!<br><br>
+                Tap <b>BUY</b> when the price drops.<br>
+                Tap <b>SELL</b> when it peaks.<br>
+                You have 60 seconds to maximize profit.
+            </p>
+            <div class="stats-row" id="statsRow" style="display: none;">
+                <div class="stat-box">
+                    <span class="stat-label">Final Value</span>
+                    <span class="stat-value" id="finalValue">$0</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-label">Return</span>
+                    <span class="stat-value" id="finalReturn">0%</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-label">Trades</span>
+                    <span class="stat-value" id="tradeCount">0</span>
+                </div>
+            </div>
+            <button class="primary-btn" id="actionBtn">START TRADING</button>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>
