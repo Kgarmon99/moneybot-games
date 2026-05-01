@@ -4,382 +4,99 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>MoneyBot Subway Surfer</title>
-    <link rel="icon" type="image/png" href="assets/player-rembg.png">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: manipulation; user-select: none; }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #000;
-            overflow: hidden;
-            touch-action: none;
-        }
-        
-        #gameCanvas {
-            display: block;
-            width: 100vw;
-            height: 100vh;
-        }
-        
-        .ui-layer {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 10;
-        }
-        
-        .top-bar {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
-        }
-        
-        .back-btn {
-            width: 44px;
-            height: 44px;
-            background: rgba(255,255,255,0.15);
-            border: none;
-            border-radius: 50%;
-            color: white;
-            font-size: 20px;
-            cursor: pointer;
-            pointer-events: auto;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-decoration: none;
-            backdrop-filter: blur(10px);
-        }
-        
-        .score-container {
-            text-align: right;
-        }
-        
-        .score-label {
-            font-size: 12px;
-            color: #FFD700;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            font-weight: 700;
-        }
-        
-        .score-value {
-            font-size: 42px;
-            font-weight: 900;
-            color: white;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
-            line-height: 1;
-        }
-        
-        .coins-container {
-            position: absolute;
-            top: 80px;
-            right: 20px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(0,0,0,0.6);
-            padding: 8px 16px;
-            border-radius: 20px;
-            backdrop-filter: blur(10px);
-        }
-        
-        .coin-icon {
-            width: 24px;
-            height: 24px;
-            background: linear-gradient(135deg, #FFD700, #FFA500);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 900;
-            color: #8B4513;
-            font-size: 14px;
-            box-shadow: 0 0 10px rgba(255,215,0,0.5);
-        }
-        
-        .coins-value {
-            font-size: 20px;
-            font-weight: 800;
-            color: #FFD700;
-        }
-        
-        .overlay {
-            position: absolute;
-            inset: 0;
-            background: rgba(0,0,0,0.85);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 100;
-            pointer-events: auto;
-            backdrop-filter: blur(20px);
-        }
-        
-        .overlay.hidden {
-            display: none;
-        }
-        
-        .logo-container {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-        
-        .logo-img {
-            width: 120px;
-            height: 120px;
-            filter: drop-shadow(0 10px 30px rgba(34,197,94,0.4));
-            animation: bounce 2s ease-in-out infinite;
-        }
-        
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0) rotate(-5deg); }
-            50% { transform: translateY(-20px) rotate(5deg); }
-        }
-        
-        .game-title {
-            font-size: 48px;
-            font-weight: 900;
-            color: white;
-            margin-top: 20px;
-            text-transform: uppercase;
-            letter-spacing: 4px;
-            text-shadow: 0 0 40px rgba(34,197,94,0.5);
-        }
-        
-        .game-title span {
-            color: #22C55E;
-        }
-        
-        .start-btn {
-            background: linear-gradient(135deg, #22C55E, #16A34A);
-            color: white;
-            border: none;
-            padding: 20px 60px;
-            border-radius: 50px;
-            font-size: 24px;
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            cursor: pointer;
-            box-shadow: 0 10px 40px rgba(34,197,94,0.4);
-            transition: all 0.3s;
-            margin-bottom: 30px;
-        }
-        
-        .start-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 15px 50px rgba(34,197,94,0.6);
-        }
-        
-        .instructions {
-            display: flex;
-            gap: 40px;
-            color: rgba(255,255,255,0.7);
-            font-size: 14px;
-        }
-        
-        .instruction-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .key {
-            width: 50px;
-            height: 50px;
-            background: rgba(255,255,255,0.1);
-            border: 2px solid rgba(255,255,255,0.3);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            font-weight: 700;
-        }
-        
-        .game-over-title {
-            font-size: 56px;
-            font-weight: 900;
-            color: #ef4444;
-            text-transform: uppercase;
-            letter-spacing: 4px;
-            margin-bottom: 20px;
-            text-shadow: 0 0 40px rgba(239,68,68,0.5);
-        }
-        
-        .final-score-label {
-            font-size: 16px;
-            color: rgba(255,255,255,0.6);
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-        
-        .final-score {
-            font-size: 80px;
-            font-weight: 900;
-            color: white;
-            margin-bottom: 10px;
-        }
-        
-        .high-score {
-            font-size: 18px;
-            color: rgba(255,255,255,0.5);
-            margin-bottom: 40px;
-        }
-        
-        .high-score span {
-            color: #FFD700;
-            font-weight: 700;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: none; user-select: none; }
+        body { background: #000; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
+        canvas { display: block; width: 100vw; height: 100vh; }
+        .ui { position: absolute; top: 0; left: 0; right: 0; padding: 20px; display: flex; justify-content: space-between; pointer-events: none; z-index: 10; }
+        .score-box { text-align: right; }
+        .score-label { font-size: 12px; color: #FFD700; font-weight: 700; letter-spacing: 2px; }
+        .score-value { font-size: 48px; font-weight: 900; color: #fff; text-shadow: 0 0 20px rgba(255,215,0,0.5); }
+        .coins-box { display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.6); padding: 8px 16px; border-radius: 20px; margin-top: 10px; }
+        .coin-icon { width: 24px; height: 24px; background: linear-gradient(135deg, #FFD700, #FFA500); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #8B4513; font-size: 14px; }
+        .coins-value { font-size: 20px; font-weight: 800; color: #FFD700; }
+        .back-btn { width: 44px; height: 44px; background: rgba(255,255,255,0.15); border: none; border-radius: 50%; color: #fff; font-size: 20px; pointer-events: auto; text-decoration: none; display: flex; align-items: center; justify-content: center; }
+        .overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.9); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100; }
+        .overlay.hidden { display: none; }
+        .logo { width: 100px; height: 100px; margin-bottom: 20px; filter: drop-shadow(0 0 30px rgba(34,197,94,0.5)); animation: bounce 2s infinite; }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+        .title { font-size: 36px; font-weight: 900; color: #fff; margin-bottom: 10px; }
+        .title span { color: #22C55E; }
+        .btn { background: linear-gradient(135deg, #22C55E, #16A34A); color: #fff; border: none; padding: 20px 60px; border-radius: 50px; font-size: 24px; font-weight: 900; cursor: pointer; margin-top: 30px; box-shadow: 0 10px 40px rgba(34,197,94,0.4); }
+        .game-over-title { font-size: 48px; font-weight: 900; color: #ef4444; margin-bottom: 20px; }
+        .final-score { font-size: 72px; font-weight: 900; color: #fff; }
     </style>
 </head>
 <body>
-    <canvas id="gameCanvas"></canvas>
+    <canvas id="game"></canvas>
     
-    <div class="ui-layer">
-        <div class="top-bar">
-            <a href="../moneybot-official/" class="back-btn">←</a>
-            <div class="score-container">
-                <div class="score-label">Score</div>
-                <div class="score-value" id="scoreDisplay">0</div>
+    <div class="ui">
+        <a href="../moneybot-official/" class="back-btn">←</a>
+        <div class="score-box">
+            <div class="score-label">SCORE</div>
+            <div class="score-value" id="score">0</div>
+            <div class="coins-box">
+                <div class="coin-icon">$</div>
+                <div class="coins-value" id="coins">0</div>
             </div>
-        </div>
-        
-        <div class="coins-container">
-            <div class="coin-icon">$</div>
-            <div class="coins-value" id="coinsDisplay">0</div>
         </div>
     </div>
     
-    <!-- Start Screen -->
     <div class="overlay" id="startScreen">
-        <div class="logo-container">
-            <img src="assets/player-rembg.png" class="logo-img" alt="MoneyBot">
-            <div class="game-title">Subway<span>Surfer</span></div>
-        </div>
-        <button class="start-btn" onclick="game.start()">Play</button>
-        <div class="instructions">
-            <div class="instruction-item">
-                <div class="key">←→</div>
-                <span>Switch Lanes</span>
-            </div>
-            <div class="instruction-item">
-                <div class="key">↑</div>
-                <span>Jump</span>
-            </div>
-            <div class="instruction-item">
-                <div class="key">↓</div>
-                <span>Roll</span>
-            </div>
-        </div>
+        <img src="assets/player-rembg.png" class="logo" alt="MoneyBot">
+        <div class="title">Subway<span>Surfer</span></div>
+        <button class="btn" onclick="game.start()">PLAY</button>
     </div>
     
-    <!-- Game Over Screen -->
     <div class="overlay hidden" id="gameOverScreen">
-        <div class="game-over-title">Game Over</div>
-        <div class="final-score-label">Final Score</div>
+        <div class="game-over-title">GAME OVER</div>
         <div class="final-score" id="finalScore">0</div>
-        <div class="high-score">Best: <span id="highScore">0</span></div>
-        <button class="start-btn" onclick="game.restart()">Try Again</button>
+        <button class="btn" onclick="game.restart()">AGAIN</button>
     </div>
 
     <script>
-        const canvas = document.getElementById('gameCanvas');
+        const canvas = document.getElementById('game');
         const ctx = canvas.getContext('2d');
         
-        // Game settings
-        const SETTINGS = {
-            laneCount: 3,
-            laneWidth: 120,
-            playerSize: 70,
-            jumpHeight: 120,
-            jumpDuration: 500,
-            rollDuration: 600,
-            baseSpeed: 10,
-            maxSpeed: 25,
-            gravity: 0.8,
-            cameraHeight: 300,
-            horizonY: 0.35, // 35% from top
-        };
+        const LANE_WIDTH = 100;
+        const PLAYER_Y = 0.75; // Player at 75% down screen
+        const HORIZON_Y = 0.3; // Horizon at 30% down screen
         
-        // Load assets
         const playerImg = new Image();
         playerImg.src = 'assets/player-rembg.png';
         
-        // Game state
         const game = {
             state: 'menu',
             score: 0,
-            coins: 0,
+            coinCount: 0,
             highScore: parseInt(localStorage.getItem('subway_highScore')) || 0,
-            speed: SETTINGS.baseSpeed,
             lane: 1,
+            targetLane: 1,
+            laneX: 0,
+            speed: 5,
+            worldY: 0,
             
-            // Player state
-            x: 0,
-            y: 0,
-            z: 0,
-            targetX: 0,
-            isJumping: false,
-            isRolling: false,
-            jumpStartTime: 0,
-            rollStartTime: 0,
-            yVelocity: 0,
-            
-            // World
-            worldZ: 0,
-            obstacles: [],
-            coinItems: [],
+            items: [], // trains, coins
             particles: [],
-            trains: [],
             
             resize() {
                 canvas.width = window.innerWidth;
                 canvas.height = window.innerHeight;
-                this.horizonY = canvas.height * SETTINGS.horizonY;
-                this.updateLanePosition();
-            },
-            
-            updateLanePosition() {
-                const centerX = canvas.width / 2;
-                const offset = (this.lane - 1) * SETTINGS.laneWidth;
-                this.targetX = centerX + offset;
+                this.laneX = canvas.width / 2;
             },
             
             start() {
                 this.state = 'playing';
                 this.score = 0;
-                this.coins = 0;
-                this.speed = SETTINGS.baseSpeed;
+                this.coinCount = 0;
                 this.lane = 1;
-                this.x = canvas.width / 2;
-                this.targetX = this.x;
-                this.y = 0;
-                this.z = 0;
-                this.isJumping = false;
-                this.isRolling = false;
-                this.yVelocity = 0;
-                this.worldZ = 0;
-                this.obstacles = [];
-                this.coinItems = [];
+                this.targetLane = 1;
+                this.speed = 5;
+                this.worldY = 0;
+                this.items = [];
                 this.particles = [];
-                this.trains = [];
-                
                 document.getElementById('startScreen').classList.add('hidden');
                 document.getElementById('gameOverScreen').classList.add('hidden');
-                
                 this.loop();
             },
             
@@ -389,246 +106,113 @@
             
             gameOver() {
                 this.state = 'gameover';
-                
                 if (this.score > this.highScore) {
                     this.highScore = this.score;
                     localStorage.setItem('subway_highScore', this.highScore);
                 }
-                
                 document.getElementById('finalScore').textContent = this.score;
-                document.getElementById('highScore').textContent = this.highScore;
                 document.getElementById('gameOverScreen').classList.remove('hidden');
             },
             
-            moveLeft() {
-                if (this.state === 'playing' && this.lane > 0) {
-                    this.lane--;
-                    this.updateLanePosition();
-                    this.createDustParticles();
-                }
-            },
-            
-            moveRight() {
-                if (this.state === 'playing' && this.lane < SETTINGS.laneCount - 1) {
-                    this.lane++;
-                    this.updateLanePosition();
-                    this.createDustParticles();
+            move(dir) {
+                if (this.state !== 'playing') return;
+                const newLane = this.targetLane + dir;
+                if (newLane >= 0 && newLane <= 2) {
+                    this.targetLane = newLane;
                 }
             },
             
             jump() {
-                if (this.state === 'playing' && !this.isJumping && !this.isRolling && this.y === 0) {
-                    this.isJumping = true;
-                    this.jumpStartTime = Date.now();
-                    this.yVelocity = -15;
-                    this.createDustParticles();
-                }
+                // Jump animation could be added here
             },
             
-            roll() {
-                if (this.state === 'playing' && !this.isRolling && !this.isJumping && this.y === 0) {
-                    this.isRolling = true;
-                    this.rollStartTime = Date.now();
-                }
+            getLaneCenter(lane) {
+                const trackWidth = LANE_WIDTH * 3;
+                const startX = (canvas.width - trackWidth) / 2;
+                return startX + lane * LANE_WIDTH + LANE_WIDTH / 2;
             },
             
-            createDustParticles() {
-                for (let i = 0; i < 8; i++) {
-                    this.particles.push({
-                        x: this.x + (Math.random() - 0.5) * 40,
-                        y: this.getScreenY(0) + 30,
-                        vx: (Math.random() - 0.5) * 5,
-                        vy: -Math.random() * 3 - 1,
-                        life: 1,
-                        size: Math.random() * 8 + 4,
-                        color: `rgba(200, 200, 200, ${Math.random() * 0.5 + 0.3})`
-                    });
-                }
-            },
-            
-            createCoinParticles(x, y) {
-                for (let i = 0; i < 10; i++) {
-                    this.particles.push({
-                        x: x,
-                        y: y,
-                        vx: (Math.random() - 0.5) * 10,
-                        vy: -Math.random() * 8 - 2,
-                        life: 1,
-                        size: Math.random() * 6 + 3,
-                        color: '#FFD700'
-                    });
-                }
-            },
-            
-            // Convert 3D world position to screen position
-            worldToScreen(worldX, worldY, worldZ) {
-                const relativeZ = worldZ - this.worldZ;
-                if (relativeZ <= 0) return null;
+            spawnItem() {
+                const lane = Math.floor(Math.random() * 3);
+                const isTrain = Math.random() > 0.5;
                 
-                const scale = SETTINGS.cameraHeight / (SETTINGS.cameraHeight + relativeZ);
-                const screenX = canvas.width / 2 + (worldX - canvas.width / 2) * scale;
-                // Objects further away (higher Z) appear closer to horizon (top of screen)
-                // Objects closer (lower Z) appear at bottom of screen
-                const groundY = this.horizonY + (canvas.height - this.horizonY) * (1 - scale);
-                const screenY = groundY - worldY * scale;
-                
-                return { x: screenX, y: screenY, scale: scale };
-            },
-            
-            getScreenY(worldY) {
-                const scale = SETTINGS.cameraHeight / (SETTINGS.cameraHeight + 200);
-                const groundY = this.horizonY + (canvas.height - this.horizonY) * (1 - scale);
-                return groundY - worldY * scale;
-            },
-            
-            spawnObstacle() {
-                const lane = Math.floor(Math.random() * SETTINGS.laneCount);
-                const type = Math.random() > 0.4 ? 'train' : 'barrier';
-                const z = this.worldZ + 2000;
-                
-                this.trains.push({
+                this.items.push({
+                    type: isTrain ? 'train' : 'coin',
                     lane: lane,
-                    z: z,
-                    type: type,
-                    length: type === 'train' ? 400 : 100,
-                    height: type === 'train' ? 120 : 60,
+                    y: -200, // Start above horizon
+                    width: isTrain ? 80 : 30,
+                    height: isTrain ? 120 : 30,
                     collected: false
                 });
             },
             
-            spawnCoins() {
-                const pattern = Math.floor(Math.random() * 4);
-                const baseZ = this.worldZ + 1500;
-                
-                if (pattern === 0) {
-                    // Line in one lane
-                    const lane = Math.floor(Math.random() * SETTINGS.laneCount);
-                    for (let i = 0; i < 6; i++) {
-                        this.coinItems.push({
-                            lane: lane,
-                            z: baseZ + i * 80,
-                            y: 30,
-                            collected: false
-                        });
-                    }
-                } else if (pattern === 1) {
-                    // Arc across lanes
-                    for (let i = 0; i < 5; i++) {
-                        const lane = i;
-                        if (lane < SETTINGS.laneCount) {
-                            this.coinItems.push({
-                                lane: lane,
-                                z: baseZ + Math.abs(i - 2) * 60,
-                                y: 30 + Math.sin(i * 0.5) * 40,
-                                collected: false
-                            });
-                        }
-                    }
-                } else if (pattern === 2) {
-                    // Triple line
-                    for (let l = 0; l < SETTINGS.laneCount; l++) {
-                        for (let i = 0; i < 4; i++) {
-                            this.coinItems.push({
-                                lane: l,
-                                z: baseZ + i * 100,
-                                y: 30,
-                                collected: false
-                            });
-                        }
-                    }
-                } else {
-                    // Jump arc
-                    const lane = 1;
-                    for (let i = 0; i < 7; i++) {
-                        this.coinItems.push({
-                            lane: lane,
-                            z: baseZ + i * 70,
-                            y: 30 + Math.sin(i * 0.4) * 60,
-                            collected: false
-                        });
-                    }
+            spawnCoinLine() {
+                const lane = Math.floor(Math.random() * 3);
+                for (let i = 0; i < 5; i++) {
+                    this.items.push({
+                        type: 'coin',
+                        lane: lane,
+                        y: -200 - i * 80,
+                        width: 30,
+                        height: 30,
+                        collected: false
+                    });
                 }
             },
             
             update() {
                 if (this.state !== 'playing') return;
                 
-                // Update score and speed
-                this.score += Math.floor(this.speed / 3);
-                this.speed = Math.min(SETTINGS.maxSpeed, SETTINGS.baseSpeed + this.score / 800);
-                
-                document.getElementById('scoreDisplay').textContent = this.score;
-                document.getElementById('coinsDisplay').textContent = this.coins;
-                
-                // Move world
-                this.worldZ += this.speed;
+                // Update score
+                this.score += 1;
+                this.speed = Math.min(15, 5 + this.score / 500);
+                document.getElementById('score').textContent = this.score;
+                document.getElementById('coins').textContent = this.coinCount;
                 
                 // Smooth lane transition
-                this.x += (this.targetX - this.x) * 0.15;
+                const targetX = this.getLaneCenter(this.targetLane);
+                this.laneX += (targetX - this.laneX) * 0.15;
+                if (Math.abs(this.laneX - targetX) < 1) {
+                    this.lane = this.targetLane;
+                }
                 
-                // Physics
-                if (this.isJumping) {
-                    this.y += this.yVelocity;
-                    this.yVelocity += SETTINGS.gravity;
+                // Spawn items
+                if (Math.random() < 0.02) this.spawnItem();
+                if (Math.random() < 0.015) this.spawnCoinLine();
+                
+                // Update items
+                const playerY = canvas.height * PLAYER_Y;
+                
+                for (let i = this.items.length - 1; i >= 0; i--) {
+                    const item = this.items[i];
                     
-                    if (this.y >= 0) {
-                        this.y = 0;
-                        this.isJumping = false;
-                        this.yVelocity = 0;
-                        this.createDustParticles();
-                    }
-                }
-                
-                // Roll timer
-                if (this.isRolling) {
-                    if (Date.now() - this.rollStartTime > SETTINGS.rollDuration) {
-                        this.isRolling = false;
-                    }
-                }
-                
-                // Spawn objects
-                if (Math.random() < 0.02) this.spawnObstacle();
-                if (Math.random() < 0.03) this.spawnCoins();
-                
-                // Update trains
-                for (let i = this.trains.length - 1; i >= 0; i--) {
-                    const train = this.trains[i];
-                    const relativeZ = train.z - this.worldZ;
+                    // Move item down (toward player)
+                    item.y += this.speed;
+                    
+                    // Get item's screen position with perspective
+                    const itemScreen = this.getScreenPos(item.lane, item.y);
+                    const playerScreen = { x: this.laneX, y: playerY, scale: 1 };
                     
                     // Check collision
-                    if (!train.collected && train.lane === this.lane && relativeZ > 100 && relativeZ < 300) {
-                        const playerHeight = this.isRolling ? 30 : (this.isJumping ? 0 : 70);
-                        const playerY = this.y;
+                    if (!item.collected && itemScreen.y > playerY - 50 && itemScreen.y < playerY + 50) {
+                        const laneMatch = Math.abs(item.lane - this.lane) < 0.5;
                         
-                        if (playerY < train.height - playerHeight) {
-                            this.gameOver();
-                            return;
+                        if (laneMatch) {
+                            if (item.type === 'train') {
+                                this.gameOver();
+                                return;
+                            } else if (item.type === 'coin') {
+                                item.collected = true;
+                                this.coinCount++;
+                                this.score += 50;
+                                this.createParticles(itemScreen.x, itemScreen.y, '#FFD700');
+                            }
                         }
                     }
                     
-                    if (relativeZ < -500) {
-                        this.trains.splice(i, 1);
-                    }
-                }
-                
-                // Update coins
-                for (let i = this.coinItems.length - 1; i >= 0; i--) {
-                    const coin = this.coinItems[i];
-                    const relativeZ = coin.z - this.worldZ;
-                    
-                    if (!coin.collected && coin.lane === this.lane && relativeZ > 150 && relativeZ < 250) {
-                        const dy = Math.abs(this.y - coin.y);
-                        if (dy < 50 || (this.isJumping && coin.y > 30)) {
-                            coin.collected = true;
-                            this.coins++;
-                            this.score += 50;
-                            const pos = this.worldToScreen(this.x, this.y, coin.z);
-                            if (pos) this.createCoinParticles(pos.x, pos.y);
-                        }
-                    }
-                    
-                    if (relativeZ < -100) {
-                        this.coinItems.splice(i, 1);
+                    // Remove off-screen items
+                    if (item.y > canvas.height + 200) {
+                        this.items.splice(i, 1);
                     }
                 }
                 
@@ -637,202 +221,211 @@
                     const p = this.particles[i];
                     p.x += p.vx;
                     p.y += p.vy;
-                    p.vy += 0.3;
-                    p.life -= 0.03;
-                    
-                    if (p.life <= 0) {
-                        this.particles.splice(i, 1);
-                    }
+                    p.vy += 0.5;
+                    p.life -= 0.05;
+                    if (p.life <= 0) this.particles.splice(i, 1);
+                }
+            },
+            
+            getScreenPos(lane, worldY) {
+                // Simple perspective: items start small at horizon, get bigger as they approach
+                const horizonY = canvas.height * HORIZON_Y;
+                const playerY = canvas.height * PLAYER_Y;
+                const totalDist = playerY - horizonY;
+                
+                // Normalize Y position (0 at horizon, 1 at player)
+                let t = (worldY - (-500)) / 1500; // Map worldY to 0-1 range
+                t = Math.max(0, Math.min(1, t));
+                
+                // Perspective scale (0.3 at horizon, 1 at player)
+                const scale = 0.3 + t * 0.7;
+                
+                // Screen Y position
+                const screenY = horizonY + t * totalDist;
+                
+                // Lane position with perspective (narrower at horizon)
+                const laneCenter = this.getLaneCenter(lane);
+                const centerX = canvas.width / 2;
+                const offsetX = (laneCenter - centerX) * scale;
+                const screenX = centerX + offsetX;
+                
+                return { x: screenX, y: screenY, scale: scale };
+            },
+            
+            createParticles(x, y, color) {
+                for (let i = 0; i < 8; i++) {
+                    this.particles.push({
+                        x: x,
+                        y: y,
+                        vx: (Math.random() - 0.5) * 10,
+                        vy: -Math.random() * 10 - 5,
+                        life: 1,
+                        color: color
+                    });
                 }
             },
             
             draw() {
                 // Clear
-                ctx.fillStyle = '#1a1a2e';
+                ctx.fillStyle = '#0a0a1a';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
                 
+                const horizonY = canvas.height * HORIZON_Y;
+                
                 // Draw sky gradient
-                const skyGrad = ctx.createLinearGradient(0, 0, 0, this.horizonY);
-                skyGrad.addColorStop(0, '#0f0f1a');
+                const skyGrad = ctx.createLinearGradient(0, 0, 0, horizonY);
+                skyGrad.addColorStop(0, '#050510');
                 skyGrad.addColorStop(1, '#1a1a2e');
                 ctx.fillStyle = skyGrad;
-                ctx.fillRect(0, 0, canvas.width, this.horizonY);
+                ctx.fillRect(0, 0, canvas.width, horizonY);
                 
-                // Draw city skyline
-                this.drawCity();
+                // Draw city buildings
+                this.drawCity(horizonY);
                 
-                // Draw tracks
-                this.drawTracks();
+                // Draw track
+                this.drawTrack(horizonY);
                 
-                // Draw objects sorted by Z (back to front)
-                const allObjects = [
-                    ...this.trains.map(t => ({ ...t, type: 'train' })),
-                    ...this.coinItems.map(c => ({ ...c, type: 'coin' }))
-                ].sort((a, b) => b.z - a.z);
-                
-                for (const obj of allObjects) {
-                    if (obj.type === 'train') {
-                        this.drawTrain(obj);
-                    } else if (obj.type === 'coin' && !obj.collected) {
-                        this.drawCoin(obj);
+                // Draw items (back to front)
+                this.items.sort((a, b) => a.y - b.y);
+                this.items.forEach(item => {
+                    if (!item.collected) {
+                        const pos = this.getScreenPos(item.lane, item.y);
+                        if (pos.y > horizonY - 50) {
+                            if (item.type === 'train') {
+                                this.drawTrain(pos.x, pos.y, pos.scale);
+                            } else {
+                                this.drawCoin(pos.x, pos.y, pos.scale);
+                            }
+                        }
                     }
-                }
+                });
                 
                 // Draw player
                 this.drawPlayer();
                 
                 // Draw particles
-                this.drawParticles();
+                this.particles.forEach(p => {
+                    ctx.globalAlpha = p.life;
+                    ctx.fillStyle = p.color;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+                ctx.globalAlpha = 1;
             },
             
-            drawCity() {
+            drawCity(horizonY) {
                 const buildings = [
-                    { x: 0.1, w: 0.08, h: 0.4, color: '#0a0a14' },
-                    { x: 0.2, w: 0.06, h: 0.5, color: '#0d0d18' },
-                    { x: 0.75, w: 0.1, h: 0.45, color: '#0a0a14' },
-                    { x: 0.85, w: 0.08, h: 0.35, color: '#0d0d18' },
+                    { x: 0.1, w: 0.08, h: 0.4 },
+                    { x: 0.2, w: 0.06, h: 0.5 },
+                    { x: 0.75, w: 0.1, h: 0.45 },
+                    { x: 0.85, w: 0.08, h: 0.35 },
                 ];
                 
                 buildings.forEach(b => {
                     const x = b.x * canvas.width;
                     const w = b.w * canvas.width;
-                    const h = b.h * this.horizonY;
+                    const h = b.h * horizonY;
                     
-                    ctx.fillStyle = b.color;
-                    ctx.fillRect(x, this.horizonY - h, w, h);
+                    ctx.fillStyle = '#0d0d18';
+                    ctx.fillRect(x, horizonY - h, w, h);
                     
                     // Windows
                     ctx.fillStyle = 'rgba(255, 215, 0, 0.3)';
-                    for (let wy = this.horizonY - h + 20; wy < this.horizonY - 10; wy += 25) {
+                    for (let wy = horizonY - h + 20; wy < horizonY - 10; wy += 30) {
                         for (let wx = x + 10; wx < x + w - 5; wx += 20) {
-                            if (Math.random() > 0.3) {
-                                ctx.fillRect(wx, wy, 8, 12);
+                            if (Math.random() > 0.4) {
+                                ctx.fillRect(wx, wy, 10, 15);
                             }
                         }
                     }
                 });
             },
             
-            drawTracks() {
-                const trackWidth = SETTINGS.laneWidth * SETTINGS.laneCount;
+            drawTrack(horizonY) {
+                const playerY = canvas.height * PLAYER_Y;
+                const trackWidth = LANE_WIDTH * 3;
                 
-                // Draw track bed
-                for (let z = 0; z < 3000; z += 100) {
-                    const p1 = this.worldToScreen(canvas.width/2 - trackWidth/2, 0, this.worldZ + z);
-                    const p2 = this.worldToScreen(canvas.width/2 + trackWidth/2, 0, this.worldZ + z);
-                    const p3 = this.worldToScreen(canvas.width/2 + trackWidth/2, 0, this.worldZ + z + 100);
-                    const p4 = this.worldToScreen(canvas.width/2 - trackWidth/2, 0, this.worldZ + z + 100);
-                    
-                    if (!p1 || !p2 || !p3 || !p4) continue;
-                    
-                    ctx.fillStyle = '#2a2a3a';
-                    ctx.beginPath();
-                    ctx.moveTo(p1.x, p1.y);
-                    ctx.lineTo(p2.x, p2.y);
-                    ctx.lineTo(p3.x, p3.y);
-                    ctx.lineTo(p4.x, p4.y);
-                    ctx.closePath();
-                    ctx.fill();
-                    
-                    // Sleepers
-                    ctx.fillStyle = '#3a3a4a';
-                    const sleeperZ = this.worldZ + z + 50;
-                    const s1 = this.worldToScreen(canvas.width/2 - trackWidth/2 + 10, 0, sleeperZ);
-                    const s2 = this.worldToScreen(canvas.width/2 + trackWidth/2 - 10, 0, sleeperZ);
-                    if (s1 && s2) {
-                        ctx.fillRect(s1.x, s1.y - 5 * s1.scale, s2.x - s1.x, 10 * s1.scale);
-                    }
-                }
+                // Track ground
+                ctx.fillStyle = '#1a1a2e';
+                ctx.beginPath();
+                ctx.moveTo((canvas.width - trackWidth * 0.3) / 2, horizonY);
+                ctx.lineTo((canvas.width + trackWidth * 0.3) / 2, horizonY);
+                ctx.lineTo((canvas.width + trackWidth) / 2, playerY);
+                ctx.lineTo((canvas.width - trackWidth) / 2, playerY);
+                ctx.closePath();
+                ctx.fill();
                 
                 // Lane lines
                 ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
                 ctx.lineWidth = 2;
-                for (let i = 1; i < SETTINGS.laneCount; i++) {
-                    const x = canvas.width/2 - trackWidth/2 + i * SETTINGS.laneWidth;
+                for (let i = 1; i < 3; i++) {
+                    const x1 = (canvas.width - trackWidth * 0.3) / 2 + i * (trackWidth * 0.3 / 3);
+                    const x2 = (canvas.width - trackWidth) / 2 + i * LANE_WIDTH;
                     ctx.beginPath();
-                    ctx.moveTo(x, this.horizonY);
-                    ctx.lineTo(x + (canvas.width/2 - x) * 0.3, canvas.height);
+                    ctx.moveTo(x1, horizonY);
+                    ctx.lineTo(x2, playerY);
                     ctx.stroke();
                 }
                 
                 // Third rail
                 ctx.strokeStyle = '#dc2626';
                 ctx.lineWidth = 4;
-                const railX = canvas.width/2 - trackWidth/2 - 20;
+                const railX1 = (canvas.width - trackWidth * 0.3) / 2 - 10;
+                const railX2 = (canvas.width - trackWidth) / 2 - 20;
                 ctx.beginPath();
-                ctx.moveTo(railX, this.horizonY);
-                ctx.lineTo(railX + (canvas.width/2 - railX) * 0.25, canvas.height);
+                ctx.moveTo(railX1, horizonY);
+                ctx.lineTo(railX2, playerY);
                 ctx.stroke();
             },
             
-            drawTrain(train) {
-                const centerX = canvas.width/2 - (SETTINGS.laneCount - 1) * SETTINGS.laneWidth / 2 + train.lane * SETTINGS.laneWidth;
-                const front = this.worldToScreen(centerX, 0, train.z);
-                const back = this.worldToScreen(centerX, 0, train.z + train.length);
-                
-                if (!front || !back) return;
-                
-                const width = 100 * front.scale;
-                const height = train.height * front.scale;
+            drawTrain(x, y, scale) {
+                const w = 80 * scale;
+                const h = 120 * scale;
                 
                 // Train body
-                const grad = ctx.createLinearGradient(front.x - width/2, front.y - height, front.x + width/2, front.y - height);
-                if (train.type === 'train') {
-                    grad.addColorStop(0, '#dc2626');
-                    grad.addColorStop(0.5, '#ef4444');
-                    grad.addColorStop(1, '#b91c1c');
-                } else {
-                    grad.addColorStop(0, '#ea580c');
-                    grad.addColorStop(0.5, '#f97316');
-                    grad.addColorStop(1, '#c2410c');
-                }
-                
+                const grad = ctx.createLinearGradient(x - w/2, y - h, x + w/2, y - h);
+                grad.addColorStop(0, '#dc2626');
+                grad.addColorStop(0.5, '#ef4444');
+                grad.addColorStop(1, '#b91c1c');
                 ctx.fillStyle = grad;
-                ctx.fillRect(front.x - width/2, front.y - height, width, height);
+                ctx.fillRect(x - w/2, y - h, w, h);
                 
-                // Windows
+                // Window
                 ctx.fillStyle = '#1e3a5f';
-                ctx.fillRect(front.x - width/2 + 10, front.y - height + 15, width - 20, height * 0.25);
+                ctx.fillRect(x - w/2 + w*0.1, y - h + h*0.15, w*0.8, h*0.2);
                 
                 // Headlights
                 ctx.shadowColor = '#fef08a';
-                ctx.shadowBlur = 20;
+                ctx.shadowBlur = 20 * scale;
                 ctx.fillStyle = '#fef08a';
                 ctx.beginPath();
-                ctx.arc(front.x - width/3, front.y - 15, 8 * front.scale, 0, Math.PI * 2);
-                ctx.arc(front.x + width/3, front.y - 15, 8 * front.scale, 0, Math.PI * 2);
+                ctx.arc(x - w/3, y - h*0.1, 8*scale, 0, Math.PI*2);
+                ctx.arc(x + w/3, y - h*0.1, 8*scale, 0, Math.PI*2);
                 ctx.fill();
                 ctx.shadowBlur = 0;
                 
                 // Stripe
-                ctx.fillStyle = train.type === 'train' ? '#991b1b' : '#9a3412';
-                ctx.fillRect(front.x - width/2, front.y - height * 0.4, width, height * 0.1);
+                ctx.fillStyle = '#991b1b';
+                ctx.fillRect(x - w/2, y - h*0.4, w, h*0.08);
             },
             
-            drawCoin(coin) {
-                const centerX = canvas.width/2 - (SETTINGS.laneCount - 1) * SETTINGS.laneWidth / 2 + coin.lane * SETTINGS.laneWidth;
-                const pos = this.worldToScreen(centerX, coin.y, coin.z);
-                
-                if (!pos) return;
-                
-                const size = 25 * pos.scale;
-                const rotation = (Date.now() / 200) % (Math.PI * 2);
+            drawCoin(x, y, scale) {
+                const size = 25 * scale;
+                const rotation = (Date.now() / 150) % (Math.PI * 2);
                 
                 ctx.save();
-                ctx.translate(pos.x, pos.y);
+                ctx.translate(x, y);
                 ctx.rotate(rotation);
                 
-                // Glow
                 ctx.shadowColor = '#FFD700';
-                ctx.shadowBlur = 15;
+                ctx.shadowBlur = 15 * scale;
                 
-                // Coin body
                 ctx.fillStyle = '#FFD700';
                 ctx.beginPath();
                 ctx.ellipse(0, 0, size, size * 0.3, 0, 0, Math.PI * 2);
                 ctx.fill();
                 
-                // Inner
                 ctx.fillStyle = '#FFA500';
                 ctx.beginPath();
                 ctx.ellipse(0, 0, size * 0.7, size * 0.2, 0, 0, Math.PI * 2);
@@ -842,107 +435,58 @@
             },
             
             drawPlayer() {
-                const pos = this.worldToScreen(this.x, this.y, this.worldZ + 200);
-                if (!pos) return;
-                
-                const size = SETTINGS.playerSize * pos.scale;
-                const groundY = pos.y;
+                const playerY = canvas.height * PLAYER_Y;
+                const size = 70;
                 
                 // Shadow
                 ctx.fillStyle = 'rgba(0,0,0,0.3)';
                 ctx.beginPath();
-                ctx.ellipse(pos.x, groundY + 5, size * 0.6, size * 0.15, 0, 0, Math.PI * 2);
+                ctx.ellipse(this.laneX, playerY + 30, 30, 8, 0, 0, Math.PI * 2);
                 ctx.fill();
-                
-                // Player Y position (jumping)
-                let playerY = groundY - size/2;
-                if (this.isJumping) {
-                    playerY += this.y * pos.scale;
-                }
-                
-                // Roll effect
-                let drawSize = size;
-                if (this.isRolling) {
-                    drawSize = size * 0.6;
-                    playerY = groundY - drawSize/2;
-                }
                 
                 // Glow
                 ctx.shadowColor = '#22C55E';
                 ctx.shadowBlur = 20;
                 
-                // Draw player image
+                // Player
                 if (playerImg.complete) {
-                    ctx.drawImage(playerImg, pos.x - drawSize/2, playerY - drawSize/2, drawSize, drawSize);
+                    ctx.drawImage(playerImg, this.laneX - size/2, playerY - size, size, size);
                 } else {
                     ctx.fillStyle = '#22C55E';
-                    ctx.fillRect(pos.x - drawSize/2, playerY - drawSize/2, drawSize, drawSize);
+                    ctx.fillRect(this.laneX - size/2, playerY - size, size, size);
                 }
                 
                 ctx.shadowBlur = 0;
             },
             
-            drawParticles() {
-                this.particles.forEach(p => {
-                    ctx.globalAlpha = p.life;
-                    ctx.fillStyle = p.color;
-                    ctx.beginPath();
-                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                    ctx.fill();
-                });
-                ctx.globalAlpha = 1;
-            },
-            
             loop() {
                 if (this.state !== 'playing') return;
-                
                 this.update();
                 this.draw();
                 requestAnimationFrame(() => this.loop());
             }
         };
         
-        // Initialize
         game.resize();
         window.addEventListener('resize', () => game.resize());
         
         // Controls
         document.addEventListener('keydown', (e) => {
-            if (game.state === 'playing') {
-                if (e.key === 'ArrowLeft') game.moveLeft();
-                if (e.key === 'ArrowRight') game.moveRight();
-                if (e.key === 'ArrowUp') {
-                    e.preventDefault();
-                    game.jump();
-                }
-                if (e.key === 'ArrowDown') {
-                    e.preventDefault();
-                    game.roll();
-                }
-            }
+            if (e.key === 'ArrowLeft') game.move(-1);
+            if (e.key === 'ArrowRight') game.move(1);
+            if (e.key === 'ArrowUp') game.jump();
         });
         
         // Touch controls
         let touchStartX = 0;
-        let touchStartY = 0;
-        
         canvas.addEventListener('touchstart', (e) => {
             touchStartX = e.touches[0].clientX;
-            touchStartY = e.touches[0].clientY;
         }, { passive: true });
         
         canvas.addEventListener('touchend', (e) => {
-            if (game.state !== 'playing') return;
-            
             const dx = e.changedTouches[0].clientX - touchStartX;
-            const dy = e.changedTouches[0].clientY - touchStartY;
-            
-            if (Math.abs(dx) > Math.abs(dy)) {
-                if (dx > 50) game.moveRight();
-                else if (dx < -50) game.moveLeft();
-            } else {
-                if (dy < -50) game.jump();
-                else if (dy > 50) game.roll();
+            if (Math.abs(dx) > 50) {
+                game.move(dx > 0 ? 1 : -1);
             }
         }, { passive: true });
     </script>
