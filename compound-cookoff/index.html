@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Compound Cookoff</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <a href="../moneybot-official/" class="back-btn">← Hub</a>
+    <div id="game-container">
+        <header id="hud">
+            <div class="stat-pill">
+                <span class="label">CASH EARNED</span>
+                <span id="score-display" class="value">$0</span>
+            </div>
+            <div class="stat-pill">
+                <span class="label">MARKET CLOSE</span>
+                <span id="time-display" class="value">02:00</span>
+            </div>
+        </header>
+
+        <main id="play-area">
+            <canvas id="game-canvas"></canvas>
+            <div id="particles"></div>
+        </main>
+
+        <div id="modal" class="modal active">
+            <div class="modal-content">
+                <h1 id="modal-title">Compound Cookoff</h1>
+                <p id="modal-desc" style="text-align: left; font-size: 14px;">
+                    Serve retail investors before they lose patience!<br><br>
+                    1. Tap <b>Raw Assets</b> (T-Bills/Blue Chips) to place on the <b>Grill</b>.<br>
+                    2. Wait for them to cook (don't let them burn!).<br>
+                    3. Tap <b>Empty Folders</b> to place them on the prep plates.<br>
+                    4. Tap a cooked asset to put it in an empty folder.<br>
+                    5. Tap a finished portfolio to serve it to a waiting customer.<br>
+                    <i>(Tap burned items or mistakes to trash them)</i>
+                </p>
+                <button id="modal-btn" class="mb-btn-primary">OPEN SHOP</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="game.js"></script>
+</body>
+</html>
