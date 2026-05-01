@@ -20,7 +20,11 @@ let state = {
     zones: {},
     grill: [null, null, null, null],
     plates: [null, null, null, null],
-    customers: [],
+    counter: [
+        { x: 0, w: 0, customer: null, cash: 0 },
+        { x: 0, w: 0, customer: null, cash: 0 },
+        { x: 0, w: 0, customer: null, cash: 0 }
+    ],
     popTexts: []
 };
 
@@ -30,7 +34,8 @@ const ITEMS = {
     STOCK: { id: 'stock', name: 'Stock', emoji: '🏢', cooked: '📈', typeColor: '#FCD34D', cookColor: '#F59E0B', cookTime: 5, burnTime: 12, price: 40 },
     FOLDER: { id: 'folder', name: 'Portfolio', emoji: '📁', filled: '💼', typeColor: '#38BDF8' },
     LEVERAGE: { id: 'leverage', name: 'Leverage', emoji: '🌶️', typeColor: '#FB7185', price: 15 },
-    HEDGE: { id: 'hedge', name: 'Hedge', emoji: '🛡️', typeColor: '#818CF8', price: 15 }
+    HEDGE: { id: 'hedge', name: 'Hedge', emoji: '🛡️', typeColor: '#818CF8', price: 15 },
+    CRYPTO: { id: 'crypto', name: 'Crypto', emoji: '🪙', typeColor: '#FBBF24', price: 25 }
 };
 
 function resize() {
@@ -45,43 +50,67 @@ function calculateZones() {
     const h = canvas.height;
     state.zones = {
         customers: { x: 0, y: 0, w: w, h: h * 0.35 },
-        grillArea: { x: w * 0.22, y: h * 0.38, w: w * 0.56, h: h * 0.28 },
+        grillArea: { x: w * 0.22, y: h * 0.38, w: w * 0.45, h: h * 0.28 }, // Reduced width for miner
         prepArea: { x: 0, y: h * 0.7, w: w, h: h * 0.3 },
         
         // Left side supplies
-        btnBond: { x: 10, y: h * 0.4, w: 80, h: 60 },
-        btnStock: { x: 10, y: h * 0.55, w: 80, h: 60 },
-        btnFolder: { x: 10, y: h * 0.75, w: 80, h: 60 },
+        btnBond: { x: 10, y: h * 0.4, w: 80, h: 55 },
+        btnStock: { x: 10, y: h * 0.52, w: 80, h: 55 },
+        btnFolder: { x: 10, y: h * 0.75, w: 80, h: 55 },
         
-        // Right side condiments
-        btnLeverage: { x: w - 90, y: h * 0.4, w: 80, h: 60 },
-        btnHedge: { x: w - 90, y: h * 0.55, w: 80, h: 60 },
-        trash: { x: w - 90, y: h * 0.75, w: 80, h: 60 },
+        // Right side items
+        btnCrypto: { x: w * 0.7, y: h * 0.38, w: 90, h: h * 0.28 }, // Crypto Miner (Side)
+        btnLeverage: { x: w - 90, y: h * 0.4, w: 80, h: 55 },
+        btnHedge: { x: w - 90, y: h * 0.52, w: 80, h: 55 },
+        trash: { x: w - 90, y: h * 0.75, w: 80, h: 55 },
     };
+    
+    // Update counter slots
+    const cw = w / 3;
+    state.counter.forEach((slot, i) => {
+        slot.x = i * cw;
+        slot.w = cw;
+    });
 }
+
+let cryptoMiner = {
+    active: false,
+    time: 0,
+    maxTime: 4.0, // seconds to mine
+    readyCount: 0 // how many cryptos ready
+};
 
 function spawnText(x, y, text, color = '#00E676') {
     state.popTexts.push({ x, y, text, color, life: 1.0 });
 }
 
 function spawnCustomer() {
-    if (state.customers.length >= 3) return;
+    // Find empty slot (no customer, no cash on counter)
+    const emptySlotIdx = state.counter.findIndex(s => s.customer === null && s.cash === 0);
+    if (emptySlotIdx === -1) return;
     
     const numItems = Math.random() > 0.7 ? 2 : 1;
     const order = [];
     
     for(let i=0; i<numItems; i++) {
-        let asset = Math.random() > 0.5 ? 'bond' : 'stock';
-        let addon = null;
-        
-        // Hot Dog Bush style: Addons unlocked per level
-        if (state.day >= 2 && Math.random() > 0.5) addon = 'leverage';
-        if (state.day >= 3 && Math.random() > 0.5 && !addon) addon = 'hedge';
-        
-        order.push({ asset, addon });
+        // Can they order Crypto?
+        if (state.day >= 4 && Math.random() > 0.6) {
+            order.push({ asset: 'crypto', addon: null });
+        } else {
+            let asset = Math.random() > 0.5 ? 'bond' : 'stock';
+            let addon = null;
+            if (state.day >= 2 && Math.random() > 0.5) addon = 'leverage';
+            if (state.day >= 3 && Math.random() > 0.5 && !addon) addon = 'hedge';
+            order.push({ asset, addon });
+        }
     }
     
-    state.customers.push({ id: Math.random(), patience: 1.0, order: order, maxWait: Math.max(15, 30 - (state.day * 2)) });
+    state.counter[emptySlotIdx].customer = { 
+        id: Math.random(), 
+        patience: 1.0, 
+        order: order, 
+        maxWait: Math.max(15, 30 - (state.day * 2)) 
+    };
 }
 
 function handleClick(e) {
@@ -95,7 +124,17 @@ function handleClick(e) {
     else if (isInside(x, y, state.zones.btnFolder)) addFolderToPlate();
     else if (state.day >= 2 && isInside(x, y, state.zones.btnLeverage)) applyAddon('leverage');
     else if (state.day >= 3 && isInside(x, y, state.zones.btnHedge)) applyAddon('hedge');
-    else if (isInside(x, y, state.zones.trash)) { /* Optional: empty held item */ }
+    else if (state.day >= 4 && isInside(x, y, state.zones.btnCrypto)) handleCryptoMiner();
+    else if (isInside(x, y, state.zones.trash)) { /* Optional */ }
+    
+    // Check counter slots for cash
+    for (let i = 0; i < 3; i++) {
+        const cx = state.counter[i].x;
+        const cy = state.zones.customers.h;
+        if (state.counter[i].cash > 0 && isInside(x, y, {x: cx, y: cy, w: state.counter[i].w, h: 50})) {
+            collectCash(i);
+        }
+    }
     
     for (let i = 0; i < 4; i++) {
         if (isInside(x, y, getGrillSlotRect(i))) handleGrillClick(i);
@@ -171,12 +210,60 @@ function applyAddon(addonType) {
     }
 }
 
+function handleCryptoMiner() {
+    if (cryptoMiner.active) {
+        // Collect crypto if ready
+        if (cryptoMiner.readyCount > 0) {
+            let served = false;
+            for (let slot of state.counter) {
+                if (slot.customer) {
+                    const c = slot.customer;
+                    const needIdx = c.order.findIndex(item => item.asset === 'crypto');
+                    if (needIdx !== -1) {
+                        c.order.splice(needIdx, 1);
+                        cryptoMiner.readyCount--;
+                        if (cryptoMiner.readyCount === 0) cryptoMiner.active = false;
+                        
+                        const price = ITEMS.CRYPTO.price;
+                        served = true;
+                        if (navigator.vibrate) navigator.vibrate([20, 30, 20]);
+                        
+                        if (c.order.length === 0) {
+                            const tip = Math.floor(c.patience * 20);
+                            slot.cash = price + tip;
+                            slot.customer = null; // Customer leaves, leaves cash on counter
+                            spawnText(slot.x + slot.w/2, state.zones.customers.h + 20, "DONE!", "#00E676");
+                        } else {
+                            spawnText(slot.x + slot.w/2, state.zones.customers.h + 20, `+$${price} (Partial)`);
+                        }
+                        break;
+                    }
+                }
+            }
+            if (!served) {
+                // Toss one crypto
+                cryptoMiner.readyCount--;
+                if (cryptoMiner.readyCount === 0) cryptoMiner.active = false;
+                spawnText(state.zones.btnCrypto.x, state.zones.btnCrypto.y, "TRASHED", "#FB7185");
+            }
+        }
+    } else {
+        // Start mining
+        cryptoMiner.active = true;
+        cryptoMiner.time = 0;
+        if (navigator.vibrate) navigator.vibrate(10);
+    }
+}
+
 function handlePlateClick(i) {
     const plate = state.plates[i];
     if (!plate || plate.asset === null) return;
     
     let served = false;
-    for (let c of state.customers) {
+    for (let slot of state.counter) {
+        if (!slot.customer) continue;
+        const c = slot.customer;
+        
         // Find exact match in customer order
         const needIdx = c.order.findIndex(item => item.asset === plate.asset && item.addon === plate.addon);
         if (needIdx !== -1) {
@@ -187,19 +274,17 @@ function handlePlateClick(i) {
             const addonPrice = plate.addon ? ITEMS[plate.addon.toUpperCase()].price : 0;
             const total = basePrice + addonPrice;
             
-            state.cash += total;
-            spawnText(canvas.width/2, canvas.height/4, `+$${total}`);
             state.plates[i] = null;
             served = true;
             if (navigator.vibrate) navigator.vibrate([20, 30, 20]);
             
             if (c.order.length === 0) {
                 const tip = Math.floor(c.patience * 20);
-                if (tip > 0) {
-                    state.cash += tip;
-                    spawnText(canvas.width/2 + 60, canvas.height/4 - 20, `+$${tip} YIELD`, "#FBBF24");
-                }
-                state.customers = state.customers.filter(cust => cust.id !== c.id);
+                slot.cash = total + tip;
+                slot.customer = null; // Customer leaves, leaves cash on counter
+                spawnText(slot.x + slot.w/2, state.zones.customers.h + 20, "DONE!", "#00E676");
+            } else {
+                spawnText(slot.x + slot.w/2, state.zones.customers.h + 20, `+$${total} (Partial)`);
             }
             break;
         }
@@ -209,6 +294,14 @@ function handlePlateClick(i) {
         state.plates[i] = null; // Trash mistake
         spawnText(getPlateRect(i).x + 45, getPlateRect(i).y, "TRASHED", "#FB7185");
     }
+}
+
+function collectCash(slotIdx) {
+    const slot = state.counter[slotIdx];
+    state.cash += slot.cash;
+    spawnText(slot.x + slot.w/2, state.zones.customers.h + 20, `+$${slot.cash}`, "#FBBF24");
+    slot.cash = 0;
+    if (navigator.vibrate) navigator.vibrate([10, 20]);
 }
 
 function update(dt) {
@@ -223,13 +316,24 @@ function update(dt) {
         }
     });
     
-    state.customers.forEach(c => { c.patience -= dt / c.maxWait; });
-    const beforeLen = state.customers.length;
-    state.customers = state.customers.filter(c => c.patience > 0);
-    if (state.customers.length < beforeLen) {
-        spawnText(canvas.width/2, 120, "CLIENT CHURN!", "#FB7185");
-        if (navigator.vibrate) navigator.vibrate([50, 100, 50]);
+    if (cryptoMiner.active) {
+        cryptoMiner.time += dt;
+        if (cryptoMiner.time >= cryptoMiner.maxTime) {
+            cryptoMiner.readyCount = 3;
+            cryptoMiner.active = false;
+        }
     }
+    
+    state.counter.forEach(slot => {
+        if (slot.customer) {
+            slot.customer.patience -= dt / slot.customer.maxWait;
+            if (slot.customer.patience <= 0) {
+                slot.customer = null; // Churn
+                spawnText(slot.x + slot.w/2, state.zones.customers.h + 20, "CHURN!", "#FB7185");
+                if (navigator.vibrate) navigator.vibrate([50, 100, 50]);
+            }
+        }
+    });
     
     if (Math.random() < 0.012 * (1 + (90 - state.time)/45)) spawnCustomer();
     
@@ -377,6 +481,31 @@ function draw() {
     if (state.day >= 2) drawTerminalButton(state.zones.btnLeverage, ITEMS.LEVERAGE.typeColor, "🌶️", "LEVERAGE");
     if (state.day >= 3) drawTerminalButton(state.zones.btnHedge, ITEMS.HEDGE.typeColor, "🛡️", "HEDGE");
     drawTerminalButton(state.zones.trash, '#FB7185', "🗑️", "TRASH");
+    
+    if (state.day >= 4) {
+        // Draw Crypto Miner
+        const mr = state.zones.btnCrypto;
+        drawRoundRect(mr.x, mr.y, mr.w, mr.h, 12, 'rgba(10, 20, 35, 0.9)', 'rgba(251, 191, 36, 0.4)', '#FBBF24', 10);
+        ctx.fillStyle = '#FBBF24';
+        ctx.font = 'bold 12px "Inter", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText("MINER", mr.x + mr.w/2, mr.y + 15);
+        
+        if (cryptoMiner.readyCount > 0) {
+            drawEmoji(mr.x + mr.w/2, mr.y + mr.h/2 + 5, ITEMS.CRYPTO.emoji, 40);
+            ctx.fillStyle = '#FFF';
+            ctx.fillText(`x${cryptoMiner.readyCount}`, mr.x + mr.w/2, mr.y + mr.h - 15);
+        } else if (cryptoMiner.active) {
+            ctx.fillStyle = 'rgba(255,255,255,0.2)';
+            ctx.fillRect(mr.x + 10, mr.y + mr.h/2 - 5, mr.w - 20, 10);
+            ctx.fillStyle = '#00E676';
+            ctx.fillRect(mr.x + 10, mr.y + mr.h/2 - 5, (mr.w - 20) * (cryptoMiner.time / cryptoMiner.maxTime), 10);
+        } else {
+            ctx.fillStyle = 'rgba(255,255,255,0.5)';
+            ctx.font = '10px "Inter", sans-serif';
+            ctx.fillText("TAP", mr.x + mr.w/2, mr.y + mr.h/2);
+        }
+    }
 
     // Grill Slots
     state.grill.forEach((slot, i) => {
@@ -403,12 +532,26 @@ function draw() {
         }
     });
     
-    // Customers (Order Tickets)
-    const cw = canvas.width / 3;
+    // Customers / Counter Slots (Cash collection)
     const avatars = ['🤖', '👾', '👽', '🤑', '🧐'];
-    state.customers.forEach((c, i) => {
-        const cx = i * cw + (cw/2);
+    
+    state.counter.forEach((slot) => {
+        const cx = slot.x + slot.w/2;
         const cy = state.zones.customers.h - 80;
+        
+        // Draw cash left on counter
+        if (slot.cash > 0) {
+            drawEmoji(cx, state.zones.customers.h + 20, '💸', 40);
+            ctx.fillStyle = '#FBBF24';
+            ctx.font = 'bold 12px "Inter", sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText("TAP", cx, state.zones.customers.h + 50);
+            return; // Customer is gone, just cash left
+        }
+        
+        if (!slot.customer) return;
+        
+        const c = slot.customer;
         const tickW = 140; const tickH = 100;
         
         ctx.save(); ctx.translate(cx, cy);
@@ -428,7 +571,11 @@ function draw() {
         // Order Items inside ticket
         const startX = -(c.order.length * 40) / 2 + 20;
         c.order.forEach((item, idx) => {
-            drawPortfolioFolder(startX + (idx * 40), 20, 30, 24, item.asset, item.addon);
+            if (item.asset === 'crypto') {
+                drawEmoji(startX + (idx * 40), 20, ITEMS.CRYPTO.emoji, 26);
+            } else {
+                drawPortfolioFolder(startX + (idx * 40), 20, 30, 24, item.asset, item.addon);
+            }
         });
         
         ctx.restore();
@@ -457,8 +604,14 @@ function startGame() {
     state = {
         isPlaying: true, day: 1, cash: 0, targetCash: 150, time: 90, lastTick: performance.now(), frames: 0,
         zones: state.zones, grill: [null, null, null, null], plates: [null, null, null, null],
-        customers: [], popTexts: []
+        counter: [
+            { x: 0, w: canvas.width/3, customer: null, cash: 0 },
+            { x: canvas.width/3, w: canvas.width/3, customer: null, cash: 0 },
+            { x: (canvas.width/3)*2, w: canvas.width/3, customer: null, cash: 0 }
+        ], 
+        popTexts: []
     };
+    cryptoMiner = { active: false, time: 0, maxTime: 4.0, readyCount: 0 };
     modal.classList.remove('active');
     spawnCustomer();
     requestAnimationFrame(gameLoop);
@@ -471,8 +624,13 @@ function startNextDay() {
     state.time = 90;
     state.grill = [null, null, null, null];
     state.plates = [null, null, null, null];
-    state.customers = [];
+    state.counter = [
+        { x: 0, w: canvas.width/3, customer: null, cash: 0 },
+        { x: canvas.width/3, w: canvas.width/3, customer: null, cash: 0 },
+        { x: (canvas.width/3)*2, w: canvas.width/3, customer: null, cash: 0 }
+    ];
     state.popTexts = [];
+    cryptoMiner = { active: false, time: 0, maxTime: 4.0, readyCount: 0 };
     state.isPlaying = true;
     state.lastTick = performance.now();
     modal.classList.remove('active');
@@ -491,6 +649,7 @@ function endDay() {
         let unlockText = "";
         if (state.day === 1) unlockText = "<br><br><b>Unlocked: LEVERAGE (🌶️)</b><br>Squeeze it onto a finished portfolio to boost yield!";
         if (state.day === 2) unlockText = "<br><br><b>Unlocked: HEDGE (🛡️)</b><br>Insure a portfolio to protect against downside!";
+        if (state.day === 3) unlockText = "<br><br><b>Unlocked: CRYPTO MINER (⛏️)</b><br>Mine raw crypto! Takes 4s, but serves instantly as a side item!";
         
         modalDesc.innerHTML = `You made <b>$${state.cash}</b> and beat the target of $${state.targetCash}! You're moving up in the financial world.${unlockText}`;
         modalBtn.textContent = `START DAY ${state.day + 1}`;
