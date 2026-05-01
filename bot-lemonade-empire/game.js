@@ -18,7 +18,7 @@ let state = {
 const upgrades = [
     { id: 'sign', name: 'Neon Sign', cost: 15, desc: '+30% Customer Traffic', icon: '🚥' },
     { id: 'ice', name: 'Ice Machine', cost: 40, desc: 'Hot weather sales double', icon: '🧊' },
-    { id: 'mascot', name: 'MoneyBot Mascot', cost: 100, desc: 'Customers pay any price', icon: '🤖' }
+    { id: 'mascot', name: 'Robot Automation', cost: 100, desc: 'Customers pay any price', icon: '🤖' }
 ];
 
 // Daily Random Events
@@ -87,7 +87,6 @@ const els = {
     streetView: document.getElementById('street-view'),
     lemonadeStand: document.getElementById('lemonade-stand'),
     upgradeSign: document.getElementById('upgrade-sign'),
-    upgradeMascot: document.getElementById('upgrade-mascot'),
     newsText: document.getElementById('news-text'),
     upgradesContainer: document.getElementById('upgrades-container')
 };
@@ -190,7 +189,6 @@ function buyUpgrade(id, cost) {
         
         // Visual stand upgrade
         if(id === 'sign') els.upgradeSign.classList.remove('hidden');
-        if(id === 'mascot') els.upgradeMascot.classList.remove('hidden');
     } else {
         playSound('error');
     }
