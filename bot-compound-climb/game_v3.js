@@ -67,7 +67,7 @@ function playSound(type) {
 let player = {
     x: 0, y: 0, 
     vx: 0, vy: 0, 
-    radius: 32, // Increased significantly for Doodle Jump feel
+    radius: 45, // Supersized character
     targetX: 0,
     rotation: 0
 };
@@ -476,7 +476,7 @@ function draw() {
         ctx.shadowOffsetY = 10;
         
         // Draw the image significantly larger than the physical hitbox for better visibility
-        let visRadius = player.radius * 1.5; 
+        let visRadius = player.radius * 1.6; 
         ctx.drawImage(mascotImg, -visRadius, -visRadius, visRadius*2, visRadius*2);
         
         ctx.shadowBlur = 0;
