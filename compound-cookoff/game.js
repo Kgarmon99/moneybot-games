@@ -48,24 +48,25 @@ window.addEventListener('resize', resize);
 function calculateZones() {
     const w = canvas.width;
     const h = canvas.height;
+    
+    // Hot Dog Bush Layout: Customers Top, Counter Middle, Grill Bottom
     state.zones = {
         customers: { x: 0, y: 0, w: w, h: h * 0.35 },
-        grillArea: { x: w * 0.22, y: h * 0.38, w: w * 0.45, h: h * 0.28 }, // Reduced width for miner
-        prepArea: { x: 0, y: h * 0.7, w: w, h: h * 0.3 },
         
-        // Left side supplies
-        btnBond: { x: 10, y: h * 0.4, w: 80, h: 55 },
-        btnStock: { x: 10, y: h * 0.52, w: 80, h: 55 },
-        btnFolder: { x: 10, y: h * 0.75, w: 80, h: 55 },
+        // Middle: The Countertop (Prep)
+        prepArea: { x: w * 0.2, y: h * 0.38, w: w * 0.5, h: h * 0.25 },
+        btnFolder: { x: 10, y: h * 0.4, w: 90, h: h * 0.2 }, // Buns (Left of counter)
+        btnLeverage: { x: w * 0.72, y: h * 0.38, w: 50, h: h * 0.12 }, // Ketchup bottle
+        btnHedge: { x: w * 0.72, y: h * 0.52, w: 50, h: h * 0.12 }, // Mustard bottle
+        btnCrypto: { x: w * 0.82, y: h * 0.38, w: 80, h: h * 0.26 }, // Fries (Miner)
         
-        // Right side items
-        btnCrypto: { x: w * 0.7, y: h * 0.38, w: 90, h: h * 0.28 }, // Crypto Miner (Side)
-        btnLeverage: { x: w - 90, y: h * 0.4, w: 80, h: 55 },
-        btnHedge: { x: w - 90, y: h * 0.52, w: 80, h: 55 },
-        trash: { x: w - 90, y: h * 0.75, w: 80, h: 55 },
+        // Bottom: The Kitchen (Grill)
+        grillArea: { x: w * 0.2, y: h * 0.68, w: w * 0.6, h: h * 0.28 },
+        btnBond: { x: 10, y: h * 0.68, w: 90, h: h * 0.12 }, // Raw Hotdog Box
+        btnStock: { x: 10, y: h * 0.82, w: 90, h: h * 0.12 }, // Raw Burger Box
+        trash: { x: w * 0.85, y: h * 0.75, w: 80, h: h * 0.18 }, // Trash Can
     };
     
-    // Update counter slots
     const cw = w / 3;
     state.counter.forEach((slot, i) => {
         slot.x = i * cw;
@@ -159,16 +160,16 @@ function isInside(x, y, rect) { return x >= rect.x && x <= rect.x + rect.w && y 
 
 function getGrillSlotRect(i) {
     const z = state.zones.grillArea;
-    const w = 70, h = 90;
+    const w = 80, h = 90;
     const spacing = (z.w - (4 * w)) / 5;
     return { x: z.x + spacing + (i * (w + spacing)), y: z.y + z.h/2 - h/2, w, h };
 }
 
 function getPlateRect(i) {
     const z = state.zones.prepArea;
-    const w = 90, h = 70;
-    const startX = (canvas.width / 2) - (2 * w) - 20;
-    return { x: startX + (i * (w + 15)), y: z.y + 10, w, h };
+    const w = 80, h = 60;
+    const spacing = (z.w - (4 * w)) / 5;
+    return { x: z.x + spacing + (i * (w + spacing)), y: z.y + z.h/2 - h/2, w, h };
 }
 
 function addRawToGrill(itemDef) {
@@ -377,21 +378,52 @@ function drawRoundRect(x, y, w, h, r, fill, stroke, shadowColor, shadowBlur) {
     if(stroke) { ctx.strokeStyle = stroke; ctx.stroke(); }
 }
 
-function drawTerminalButton(rect, accent, title, sub) {
-    drawRoundRect(rect.x, rect.y, rect.w, rect.h, 12, 'rgba(10, 20, 35, 0.9)', `rgba(${hexToRgb(accent)}, 0.4)`, accent, 10);
+function drawBin(rect, accent, title, sub) {
+    // Looks like a physical box/bin
+    drawRoundRect(rect.x, rect.y, rect.w, rect.h, 6, '#1A1A1A', `rgba(${hexToRgb(accent)}, 0.4)`, accent, 10);
     const grad = ctx.createLinearGradient(rect.x, rect.y, rect.x, rect.y + rect.h);
-    grad.addColorStop(0, 'rgba(255,255,255,0.05)');
-    grad.addColorStop(1, 'rgba(0,0,0,0.4)');
-    drawRoundRect(rect.x+2, rect.y+2, rect.w-4, rect.h-4, 10, grad);
+    grad.addColorStop(0, 'rgba(255,255,255,0.1)');
+    grad.addColorStop(1, 'rgba(0,0,0,0.6)');
+    drawRoundRect(rect.x+2, rect.y+2, rect.w-4, rect.h-4, 4, grad);
+    
+    // Top opening shadow
+    ctx.fillStyle = 'rgba(0,0,0,0.5)';
+    ctx.fillRect(rect.x+5, rect.y+5, rect.w-10, rect.h/2);
     
     ctx.fillStyle = accent;
-    ctx.font = 'bold 20px "Inter", sans-serif';
+    ctx.font = 'bold 24px "Inter", sans-serif';
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     ctx.fillText(title, rect.x + rect.w/2, rect.y + rect.h/2 - 5);
     
     ctx.fillStyle = '#AAB8C8';
-    ctx.font = '600 9px "Inter", sans-serif';
-    ctx.fillText(sub, rect.x + rect.w/2, rect.y + rect.h - 12);
+    ctx.font = '600 10px "Inter", sans-serif';
+    ctx.fillText(sub, rect.x + rect.w/2, rect.y + rect.h - 10);
+}
+
+function drawCondiment(rect, accent, title, sub) {
+    // Looks like a squeeze bottle
+    const bw = rect.w * 0.8;
+    const bh = rect.h * 0.7;
+    const bx = rect.x + (rect.w - bw)/2;
+    const by = rect.y + (rect.h - bh);
+    
+    // Bottle body
+    drawRoundRect(bx, by, bw, bh, 8, accent, 'rgba(255,255,255,0.3)', accent, 10);
+    // Highlight
+    ctx.fillStyle = 'rgba(255,255,255,0.2)';
+    ctx.fillRect(bx + bw*0.1, by + 5, bw*0.2, bh - 10);
+    
+    // Cap
+    drawRoundRect(bx + bw*0.3, rect.y + rect.h*0.1, bw*0.4, rect.h*0.2, 2, '#FFF', '#DDD');
+    
+    ctx.fillStyle = '#000';
+    ctx.font = 'bold 16px "Inter", sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(title, rect.x + rect.w/2, by + bh/2);
+    
+    ctx.fillStyle = '#FFF';
+    ctx.font = 'bold 9px "Inter", sans-serif';
+    ctx.fillText(sub, rect.x + rect.w/2, by + bh/2 + 15);
 }
 
 function hexToRgb(hex) {
@@ -481,8 +513,18 @@ function draw() {
     const offset = (state.frames * 0.5) % 40;
     for(let i=0; i<canvas.width; i+=40) { ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, canvas.height); ctx.stroke(); }
     for(let i=offset; i<canvas.height; i+=40) { ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(canvas.width, i); ctx.stroke(); }
-    ctx.strokeStyle = 'rgba(0, 230, 118, 0.2)'; ctx.lineWidth = 2;
+    
+    // Countertop Background
+    ctx.fillStyle = 'rgba(10, 20, 35, 0.5)';
+    ctx.fillRect(0, state.zones.customers.h, canvas.width, state.zones.prepArea.h);
+    ctx.strokeStyle = 'rgba(0, 230, 118, 0.5)'; ctx.lineWidth = 4;
     ctx.beginPath(); ctx.moveTo(0, state.zones.customers.h); ctx.lineTo(canvas.width, state.zones.customers.h); ctx.stroke();
+    
+    // Floor Background
+    ctx.fillStyle = 'rgba(5, 10, 18, 0.8)';
+    ctx.fillRect(0, state.zones.grillArea.y - 10, canvas.width, canvas.height - state.zones.grillArea.y + 10);
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(0, state.zones.grillArea.y - 10); ctx.lineTo(canvas.width, state.zones.grillArea.y - 10); ctx.stroke();
     
     // Yield Engine (Grill)
     const gz = state.zones.grillArea;
@@ -490,18 +532,13 @@ function draw() {
     ctx.fillStyle = 'rgba(0, 230, 118, 0.6)'; ctx.font = '900 14px "Inter", sans-serif';
     ctx.textAlign = 'center'; ctx.fillText("YIELD ENGINE v3.0", gz.x + gz.w/2, gz.y - 12);
     
-    // Left Buttons (Raw & Folder)
-    drawTerminalButton(state.zones.btnBond, ITEMS.BOND.typeColor, "📄", "BOND");
-    drawTerminalButton(state.zones.btnStock, ITEMS.STOCK.typeColor, "🏢", "STOCK");
-    drawTerminalButton(state.zones.btnFolder, ITEMS.FOLDER.typeColor, "📁", "PORTFOLIO");
-    
-    // Right Buttons (Addons)
-    if (state.day >= 2) drawTerminalButton(state.zones.btnLeverage, ITEMS.LEVERAGE.typeColor, "🌶️", "LEVERAGE");
-    if (state.day >= 3) drawTerminalButton(state.zones.btnHedge, ITEMS.HEDGE.typeColor, "🛡️", "HEDGE");
-    drawTerminalButton(state.zones.trash, '#FB7185', "🗑️", "TRASH");
+    // Left Area (Prep/Counter supplies)
+    drawBin(state.zones.btnFolder, ITEMS.FOLDER.typeColor, "📁", "PORTFOLIO");
+    drawCondiment(state.zones.btnLeverage, ITEMS.LEVERAGE.typeColor, "🌶️", "LEV");
+    drawCondiment(state.zones.btnHedge, ITEMS.HEDGE.typeColor, "🛡️", "HDG");
     
     if (state.day >= 4) {
-        // Draw Crypto Miner
+        // Draw Crypto Miner (Fries)
         const mr = state.zones.btnCrypto;
         drawRoundRect(mr.x, mr.y, mr.w, mr.h, 12, 'rgba(10, 20, 35, 0.9)', 'rgba(251, 191, 36, 0.4)', '#FBBF24', 10);
         ctx.fillStyle = '#FBBF24';
@@ -524,6 +561,11 @@ function draw() {
             ctx.fillText("TAP", mr.x + mr.w/2, mr.y + mr.h/2);
         }
     }
+    
+    // Bottom Area (Raw ingredients)
+    drawBin(state.zones.btnBond, ITEMS.BOND.typeColor, "📄", "BOND");
+    drawBin(state.zones.btnStock, ITEMS.STOCK.typeColor, "🏢", "STOCK");
+    drawBin(state.zones.trash, '#FB7185', "🗑️", "TRASH");
 
     // Grill Slots
     state.grill.forEach((slot, i) => {
