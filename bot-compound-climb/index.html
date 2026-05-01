@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Compound Climb</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -11,20 +12,35 @@
         <canvas id="gameCanvas"></canvas>
         
         <div id="hud" class="hidden">
-            <div id="score">Net Worth: <span id="score-value">$0</span></div>
+            <div id="score">
+                <span class="score-label">NET WORTH</span>
+                <span id="score-value">$0</span>
+                <div id="high-score">All-Time High: $0</div>
+            </div>
         </div>
         
         <div id="start-screen" class="screen">
-            <h1>Compound Climb</h1>
-            <p>Drag left/right to steer.</p>
-            <p>Bounce on green assets. Avoid red debt!</p>
+            <div class="logo-container">
+                <h1>COMPOUND<br><span class="highlight">CLIMB</span></h1>
+            </div>
+            <div class="instructions">
+                <div class="instruction-row"><span class="dot green"></span> Bounce on assets</div>
+                <div class="instruction-row"><span class="dot red"></span> Avoid debt traps</div>
+                <div class="instruction-row"><span class="dot gold"></span> Hit compound springs</div>
+                <p class="swipe-hint">👈 Swipe to steer 👉</p>
+            </div>
             <button id="start-btn">Start Climbing</button>
         </div>
 
         <div id="game-over-screen" class="screen hidden">
-            <h1>Bankruptcy!</h1>
-            <p>You fell off the wealth ladder.</p>
-            <p>Final Net Worth: <span id="final-score">$0</span></p>
+            <h1 class="danger">BANKRUPTCY!</h1>
+            <p class="sub-text">You fell off the wealth ladder.</p>
+            
+            <div class="stats-box">
+                <div class="stat-label">FINAL NET WORTH</div>
+                <div id="final-score" class="stat-value">$0</div>
+            </div>
+            
             <button id="restart-btn">Try Again</button>
         </div>
     </div>

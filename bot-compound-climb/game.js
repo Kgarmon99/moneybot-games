@@ -83,15 +83,19 @@ let stars = [];
 const mascotImg = new Image();
 mascotImg.src = 'assets/mascot/operator-transparent.png?v=2';
 
-// Colors (MoneyBot Palette)
+// Colors (Premium MoneyBot Palette)
 const COLORS = {
-    bg: '#07111F',
-    solid: '#00E676',       // Normal Asset
-    crumble: '#FB7185',     // Debt Trap (breaks)
-    moving: '#38BDF8',      // Volatile Asset
-    spring: '#FBBF24',      // Compound Interest
+    bgTop: '#0B1628',
+    bgBottom: '#040A14',
+    solid: '#00E676',       
+    solidHighlight: '#69F0AE',
+    crumble: '#FB7185',     
+    crumbleHighlight: '#FDA4AF',
+    moving: '#38BDF8',      
+    movingHighlight: '#7DD3FC',
+    spring: '#FBBF24',      
     player: '#F8FAFC',
-    trail: 'rgba(0, 230, 118, 0.4)'
+    trail: 'rgba(0, 230, 118, 0.5)'
 };
 
 function resize() {
@@ -246,8 +250,17 @@ function update() {
         });
         
         // Score is based on height climbed
+        let oldScore = score;
         score += diff;
         scoreEl.innerText = formatMoney(score);
+        
+        // Pulse animation on major milestones
+        if(Math.floor(score/5000) > Math.floor(oldScore/5000)) {
+            document.getElementById('score').classList.add('pulse');
+            setTimeout(() => document.getElementById('score').classList.remove('pulse'), 200);
+            playSound('spring'); // extra sound for milestone
+            spawnText(width/2, 100, "MILESTONE!", COLORS.moving);
+        }
     }
 
     // Platform logic
@@ -326,82 +339,121 @@ function update() {
     }
 }
 
+function drawPlatform(ctx, x, y, width, height, baseColor, highlightColor, hasSpring) {
+    // Platform Drop Shadow
+    ctx.shadowColor = 'rgba(0,0,0,0.6)';
+    ctx.shadowBlur = 10;
+    ctx.shadowOffsetY = 5;
+    
+    // Main Body
+    ctx.fillStyle = baseColor;
+    ctx.beginPath();
+    ctx.roundRect(x, y, width, height, 8);
+    ctx.fill();
+    
+    ctx.shadowBlur = 0;
+    ctx.shadowOffsetY = 0;
+
+    // Top Highlight (3D Pill Effect)
+    ctx.fillStyle = highlightColor;
+    ctx.beginPath();
+    ctx.roundRect(x, y, width, height * 0.4, {tl: 8, tr: 8, bl: 0, br: 0});
+    ctx.fill();
+
+    // Spring
+    if(hasSpring) {
+        ctx.fillStyle = COLORS.spring;
+        ctx.shadowColor = COLORS.spring;
+        ctx.shadowBlur = 15;
+        // Draw an actual spring shape
+        ctx.beginPath();
+        ctx.roundRect(x + width/2 - 10, y - 14, 20, 14, 4);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+        
+        // Spring coil details
+        ctx.strokeStyle = '#B45309';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(x + width/2 - 10, y - 10); ctx.lineTo(x + width/2 + 10, y - 10);
+        ctx.moveTo(x + width/2 - 10, y - 6); ctx.lineTo(x + width/2 + 10, y - 6);
+        ctx.moveTo(x + width/2 - 10, y - 2); ctx.lineTo(x + width/2 + 10, y - 2);
+        ctx.stroke();
+    }
+}
+
 function draw() {
-    ctx.fillStyle = COLORS.bg;
+    // Rich Gradient Background
+    let bgGrad = ctx.createLinearGradient(0, 0, 0, height);
+    bgGrad.addColorStop(0, COLORS.bgTop);
+    bgGrad.addColorStop(1, COLORS.bgBottom);
+    ctx.fillStyle = bgGrad;
     ctx.fillRect(0, 0, width, height);
 
     ctx.save();
     
     // Apply screen shake
     if(shakeTime > 0) {
-        let dx = (Math.random() - 0.5) * 10;
-        let dy = (Math.random() - 0.5) * 10;
+        let dx = (Math.random() - 0.5) * 15;
+        let dy = (Math.random() - 0.5) * 15;
         ctx.translate(dx, dy);
     }
 
-    // Draw Parallax Stars
-    ctx.fillStyle = 'rgba(255,255,255,0.3)';
+    // Draw Parallax Stars (Depth)
     stars.forEach(s => {
-        ctx.fillRect(s.x, s.y, s.size, s.size);
+        let alpha = s.speed * 1.5;
+        ctx.fillStyle = `rgba(255,255,255,${alpha})`;
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.size, 0, Math.PI*2);
+        ctx.fill();
     });
 
-    // Grid background
-    ctx.strokeStyle = 'rgba(105, 240, 174, 0.05)';
-    ctx.lineWidth = 1;
-    for(let i=0; i<width; i+=40) { ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,height); ctx.stroke(); }
-    let yOffset = (score * 0.5) % 40; // parallax grid
-    for(let i=0; i<height; i+=40) { ctx.beginPath(); ctx.moveTo(0, i + yOffset); ctx.lineTo(width, i + yOffset); ctx.stroke(); }
+    // Premium Grid
+    ctx.strokeStyle = 'rgba(105, 240, 174, 0.03)';
+    ctx.lineWidth = 2;
+    for(let i=0; i<width; i+=60) { ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,height); ctx.stroke(); }
+    let yOffset = (score * 0.3) % 60; // parallax grid
+    for(let i=0; i<height; i+=60) { ctx.beginPath(); ctx.moveTo(0, i + yOffset); ctx.lineTo(width, i + yOffset); ctx.stroke(); }
 
     if(!isPlaying && score === 0 && !document.getElementById('start-screen').classList.contains('hidden')) {
+        // Draw a dark vignette over the background for the start screen
+        ctx.fillStyle = 'rgba(0,0,0,0.5)';
+        ctx.fillRect(0,0,width,height);
         ctx.restore();
-        return; // Don't draw game if haven't started first time
+        return;
     }
 
     // Draw Platforms
     platforms.forEach(p => {
         if(p.broken) return;
-        
-        // Shadow/Glow
-        ctx.shadowColor = COLORS[p.type];
-        ctx.shadowBlur = 10;
-        ctx.fillStyle = COLORS[p.type];
-        
-        ctx.beginPath();
-        ctx.roundRect(p.x, p.y, PLATFORM_WIDTH, PLATFORM_HEIGHT, 8);
-        ctx.fill();
-        ctx.shadowBlur = 0; // reset
-
-        // Inner highlight
-        ctx.fillStyle = 'rgba(255,255,255,0.2)';
-        ctx.fillRect(p.x + 4, p.y + 2, PLATFORM_WIDTH - 8, 4);
-
-        // Draw spring if it has one
-        if(p.hasSpring) {
-            ctx.fillStyle = COLORS.spring;
-            ctx.shadowColor = COLORS.spring;
-            ctx.shadowBlur = 15;
-            ctx.fillRect(p.x + PLATFORM_WIDTH/2 - 8, p.y - 12, 16, 12);
-            ctx.shadowBlur = 0;
-        }
+        drawPlatform(ctx, p.x, p.y, PLATFORM_WIDTH, PLATFORM_HEIGHT, COLORS[p.type], COLORS[p.type + 'Highlight'], p.hasSpring);
     });
 
     // Draw Particles
     particles.forEach(pt => {
         ctx.fillStyle = pt.color;
         ctx.globalAlpha = pt.life;
+        ctx.shadowColor = pt.color;
+        ctx.shadowBlur = 10;
         ctx.beginPath();
         ctx.arc(pt.x, pt.y, pt.size, 0, Math.PI*2);
         ctx.fill();
+        ctx.shadowBlur = 0;
         ctx.globalAlpha = 1.0;
     });
 
     // Draw Floating Texts
     ctx.textAlign = 'center';
-    ctx.font = 'bold 20px "Segoe UI", sans-serif';
+    ctx.font = '900 24px "Outfit", sans-serif';
     floatingTexts.forEach(ft => {
         ctx.fillStyle = ft.color;
         ctx.globalAlpha = ft.life;
+        ctx.shadowColor = 'rgba(0,0,0,0.8)';
+        ctx.shadowBlur = 4;
+        ctx.shadowOffsetY = 2;
         ctx.fillText(ft.text, ft.x, ft.y);
+        ctx.shadowBlur = 0;
+        ctx.shadowOffsetY = 0;
         ctx.globalAlpha = 1.0;
     });
 
