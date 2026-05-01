@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Bull Market Survivor - MoneyBot</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <a href="../moneybot-official/" class="back-btn">← Hub</a>
+    
+    <div id="game-container">
+        <!-- HUD -->
+        <header id="hud">
+            <div id="xp-bar-container">
+                <div id="xp-bar-fill"></div>
+                <div id="level-display">LVL 1</div>
+            </div>
+            <div class="top-stats">
+                <div class="stat"><span class="icon">⏱️</span><span id="time-display">00:00</span></div>
+                <div class="stat"><span class="icon">💰</span><span id="gold-display">0</span></div>
+            </div>
+        </header>
+
+        <!-- Main Canvas -->
+        <main id="play-area">
+            <canvas id="game-canvas"></canvas>
+            
+            <!-- Virtual Joystick Zone -->
+            <div id="joystick-zone">
+                <div id="joystick-base" style="display:none;">
+                    <div id="joystick-stick"></div>
+                </div>
+            </div>
+            
+            <!-- Floating Damage Numbers -->
+            <div id="particles"></div>
+        </main>
+
+        <!-- Start / Game Over Modal -->
+        <div id="modal" class="modal active">
+            <div class="modal-content">
+                <h1 id="modal-title">Bull Market Survivor</h1>
+                <p id="modal-desc">
+                    Survive the Bear Market!<br><br>
+                    🕹️ <b>Move</b> with Joystick / WASD / Touch & Drag.<br>
+                    🔫 You <b>Auto-Attack</b> nearby enemies.<br>
+                    💎 Collect <b>Yield Gems</b> to Level Up.<br>
+                    📈 Choose upgrades to build a massive portfolio before you get liquidated!
+                </p>
+                <button id="modal-btn" class="mb-btn-primary">START RUN</button>
+            </div>
+        </div>
+        
+        <!-- Level Up Modal -->
+        <div id="level-up-modal" class="modal">
+            <div class="modal-content" style="max-width: 500px;">
+                <h1 style="color: var(--mb-gold); margin-bottom: 20px;">PORTFOLIO UPGRADE</h1>
+                <div id="upgrade-cards" class="upgrade-grid">
+                    <!-- Cards injected here -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="game.js"></script>
+</body>
+</html>
