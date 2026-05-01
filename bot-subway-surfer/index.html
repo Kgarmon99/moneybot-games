@@ -467,14 +467,15 @@
                 
                 const scale = SETTINGS.cameraHeight / (SETTINGS.cameraHeight + relativeZ);
                 const screenX = canvas.width / 2 + (worldX - canvas.width / 2) * scale;
-                const screenY = this.horizonY + (canvas.height - this.horizonY) * (1 - scale) + worldY * scale;
+                // Objects further away (higher Z) appear closer to horizon (lower Y value)
+                const screenY = this.horizonY + (canvas.height - this.horizonY) * scale - worldY * scale;
                 
                 return { x: screenX, y: screenY, scale: scale };
             },
             
             getScreenY(worldY) {
                 const scale = SETTINGS.cameraHeight / (SETTINGS.cameraHeight + 200);
-                return this.horizonY + (canvas.height - this.horizonY) * (1 - scale) + worldY * scale;
+                return this.horizonY + (canvas.height - this.horizonY) * scale - worldY * scale;
             },
             
             spawnObstacle() {
