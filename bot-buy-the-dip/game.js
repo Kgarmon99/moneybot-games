@@ -203,11 +203,11 @@ function updateMarket(dt) {
             triggerEvent();
         }
         
-        if (trend > 0.5) { trendEl.textContent = '🚀 MEGA BULL'; trendEl.style.color = '#00E676'; }
-        else if (trend > 0.2) { trendEl.textContent = '📈 BULL RUN'; trendEl.style.color = '#00E676'; }
-        else if (trend > -0.2) { trendEl.textContent = '🔄 CHOPPY'; trendEl.style.color = '#FBBF24'; }
-        else if (trend > -0.5) { trendEl.textContent = '📉 BEARISH'; trendEl.style.color = '#FB7185'; }
-        else { trendEl.textContent = '🩸 CRASHING'; trendEl.style.color = '#FB7185'; }
+        if (trend > 0.5) { trendEl.textContent = '🚀 MEGA BULL'; trendEl.style.color = '#00FF41'; trendEl.style.textShadow = '0 0 10px #00FF41'; }
+        else if (trend > 0.2) { trendEl.textContent = '📈 BULL RUN'; trendEl.style.color = '#00FF41'; trendEl.style.textShadow = 'none'; }
+        else if (trend > -0.2) { trendEl.textContent = '🔄 CHOPPY'; trendEl.style.color = '#FBBF24'; trendEl.style.textShadow = 'none'; }
+        else if (trend > -0.5) { trendEl.textContent = '📉 BEARISH'; trendEl.style.color = '#FF003C'; trendEl.style.textShadow = 'none'; }
+        else { trendEl.textContent = '🩸 CRASHING'; trendEl.style.color = '#FF003C'; trendEl.style.textShadow = '0 0 10px #FF003C'; }
         
         volEl.textContent = `Vol: ${volatility > 3 ? 'EXTREME' : volatility > 2 ? 'HIGH' : 'NORMAL'}`;
     }
@@ -278,7 +278,7 @@ function drawChart() {
     const spacing = canvas.width / MAX_POINTS;
     
     // Draw grid
-    ctx.strokeStyle = 'rgba(255,255,255,0.03)';
+    ctx.strokeStyle = 'rgba(0, 255, 65, 0.05)';
     ctx.lineWidth = 1;
     for (let i = 0; i < 5; i++) {
         const y = canvas.height - (i / 4) * canvas.height;
@@ -294,7 +294,10 @@ function drawChart() {
         const yLow = canvas.height - ((candle.low - minP) / range) * canvas.height;
         
         const isGreen = candle.close >= candle.open;
-        const color = isGreen ? '#00E676' : '#FB7185';
+        const color = isGreen ? '#00FF41' : '#FF003C';
+        
+        ctx.shadowBlur = 5;
+        ctx.shadowColor = color;
         
         // Wick
         ctx.strokeStyle = color;
@@ -309,6 +312,8 @@ function drawChart() {
         const bodyHeight = Math.max(2, Math.abs(yClose - yOpen));
         const bodyY = Math.min(yOpen, yClose);
         ctx.fillRect(x - candleWidth / 2, bodyY, candleWidth, bodyHeight);
+        
+        ctx.shadowBlur = 0;
     });
     
     // Draw current price indicator
@@ -325,10 +330,15 @@ function drawChart() {
     ctx.setLineDash([]);
     
     // Price tag
-    ctx.fillStyle = '#FBBF24';
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(canvas.width - 70, lastY - 15, 70, 20);
+    ctx.fillStyle = '#00F0FF';
+    ctx.shadowBlur = 10;
+    ctx.shadowColor = '#00F0FF';
     ctx.font = 'bold 14px Inter';
     ctx.textAlign = 'right';
-    ctx.fillText(formatMoney(currentPrice), canvas.width - 10, lastY - 10);
+    ctx.fillText(formatMoney(currentPrice), canvas.width - 5, lastY - 2);
+    ctx.shadowBlur = 0;
     
     // Draw avg cost line if holding
     if (state.shares > 0) {
@@ -645,5 +655,5 @@ window.addEventListener('keydown', (e) => {
 
 // Initial draw
 resize();
-ctx.fillStyle = '#050A12';
+ctx.fillStyle = '#000000';
 ctx.fillRect(0, 0, canvas.width, canvas.height);
