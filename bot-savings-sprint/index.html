@@ -3,155 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MoneyBot - Savings Sprint | MoneyBot Gaming</title>
-    <link rel="icon" type="image/svg+xml" href="../assets/moneybot-idle.svg">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: none; user-select: none; }
-        :root { --moneybot-dark: #FFFFFF; --moneybot-green: #22C55E; --moneybot-graphite: #FFFFFF; --moneybot-white: #FFFFFF; --moneybot-gray: #888888; --moneybot-blue: #3B82F6; --moneybot-gold: #FBBF24; --glow-neon: 0 0 10px #22C55E, 0 0 20px #22C55E; }
-        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background: var(--moneybot-black); min-height: 100vh; overflow: hidden; }
-        body::before { content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-image: #FFFFFF 1px, transparent 1px), #FFFFFF 1px, transparent 1px); background-size: 80px 80px; pointer-events: none; z-index: 0; }
-        .app { max-width: 430px; margin: 0 auto; min-height: 100vh; position: relative; z-index: 1; display: flex; flex-direction: column; }
-        .header { background: transparent;  padding: 16px; display: flex; justify-content: space-between; align-items: center; z-index: 100; border-bottom: 1px solid rgba(34, 197, 94, 0.2); }
-        .header-logo { display: flex; align-items: center; gap: 12px; }
-        .moneybot-brand { display: flex; align-items: center; gap: 8px; }
-        .moneybot-icon { width: 32px; height: 32px; background: #FFFFFF, var(--moneybot-blue)); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; box-shadow: var(--glow-neon); }
-        .back-btn { width: 44px; height: 44px; border-radius: 8px; background: rgba(34, 197, 94, 0.2); border: none; color: var(--moneybot-neon); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 20px; text-decoration: none; }
-        .header-title { font-weight: 800; font-size: 18px; color: #0F172A; }
-        .score-pill { background: #FFFFFF, var(--moneybot-blue)); color: var(--moneybot-black); padding: 10px 20px; border-radius: 25px; font-weight: 700; font-size: 16px; box-shadow: var(--glow-neon); }
-        .game-area { flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px; }
-        #gameCanvas { background: #FFFFFF; border-radius: 16px; box-shadow: var(--glow-neon); }
-        .overlay-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: transparent; z-index: 200; padding: 40px; }
-        .overlay-screen.hidden { display: none; }
-        .game-icon { width: 80px; height: 80px; background: #FFFFFF, var(--moneybot-blue)); border-radius: 32px; display: flex; align-items: center; justify-content: center; font-size: 40px; margin-bottom: 30px; box-shadow: var(--glow-neon); }
-        .game-title { font-size: 40px; font-weight: 800; color: #0F172A; margin-bottom: 12px; }
-        .game-subtitle { color: #0F172A; font-size: 17px; margin-bottom: 40px; text-align: center; }
-        .stats-card { background: #FFFFFF; border-radius: 16px; padding: 24px 40px; margin-bottom: 30px; text-align: center; border: 1px solid rgba(34, 197, 94, 0.2); }
-        .stats-label { font-size: 13px; color: #0F172A; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
-        .stats-value { font-size: 40px; font-weight: 800; color: var(--moneybot-neon); }
-        .primary-btn { background: #FFFFFF, var(--moneybot-blue)); color: var(--moneybot-black); border: none; padding: 16px 32px; font-size: 18px; font-weight: 700; border-radius: 16px; cursor: pointer; box-shadow: var(--glow-neon); width: 100%; max-width: 280px; }
-    </style>
+    <title>MoneyBot - Savings Sprint</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="app">
-        <div class="header">
-            <div class="header-logo">
-                <a href="../moneybot-official/" class="back-btn">←</a>
-                <div class="moneybot-brand">
-                    <div class="moneybot-icon"><img src="assets/moneybot-logo-3.jpg" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;" /></div>
-                    <span class="header-title">MoneyBot</span>
-                </div>
+        <header class="header">
+            <a href="../moneybot-official/" class="back-btn">←</a>
+            <div class="score-pill">
+                <span class="label">NET WORTH</span>
+                <span class="value" id="score">$0</span>
             </div>
-            <div class="score-pill">$<span id="score">0</span></div>
-        </div>
+            <div class="score-pill">
+                <span class="label">DISTANCE</span>
+                <span class="value" id="distance">0m</span>
+            </div>
+        </header>
+
         <div class="game-area">
-            <canvas id="gameCanvas" width="350" height="500"></canvas>
+            <canvas id="gameCanvas"></canvas>
         </div>
     </div>
+
+    <!-- Start Screen -->
     <div class="overlay-screen" id="startScreen">
-        <div class="game-icon">🏃</div>
-        <div class="game-title">Savings Sprint</div>
-        <div class="game-subtitle">Race to save money!<br>Collect coins, reach the finish</div>
-        <div class="stats-card">
-            <div class="stats-label">Best Time</div>
-            <div class="stats-value" id="highScore">--</div>
+        <div class="modal-content">
+            <div class="game-icon">🏃</div>
+            <h1 class="game-title">SAVINGS SPRINT</h1>
+            <p class="game-subtitle">
+                Sprint to Financial Independence!<br><br>
+                Drag up and down to dodge <b>Expenses</b> (🛍️📉) and collect <b>Yield</b> (💵💰).<br>
+                Grab <b>Compound Boosts</b> (🚀) to go supersonic!<br>
+            </p>
+            <div class="stats-card">
+                <div class="stats-label">Best Distance</div>
+                <div class="stats-value" id="highScore">0m</div>
+            </div>
+            <button class="primary-btn" id="startBtn">START SPRINT</button>
         </div>
-        <button class="primary-btn" onclick="startGame()">Start Sprint</button>
     </div>
+
+    <!-- Game Over Screen -->
     <div class="overlay-screen hidden" id="gameOverScreen">
-        <div class="game-icon" style="background: #FFFFFF, var(--moneybot-neon));">🏆</div>
-        <div class="game-title">Finish!</div>
-        <div class="game-subtitle">Saved: $<span id="finalScore" style="color: var(--moneybot-neon); font-weight: 800;">0</span></div>
-        <button class="primary-btn" onclick="restartGame()">Sprint Again</button>
+        <div class="modal-content">
+            <div class="game-icon" style="color: #FB7185; text-shadow: 0 0 20px rgba(251,113,133,0.5);">💀</div>
+            <h1 class="game-title" style="color: #FB7185;">BANKRUPT</h1>
+            <p class="game-subtitle">The expenses caught up to you.</p>
+            <div class="stats-card">
+                <div class="stats-label">Final Net Worth</div>
+                <div class="stats-value" id="finalScore" style="color: #00E676;">$0</div>
+            </div>
+            <div class="stats-card">
+                <div class="stats-label">Distance Reached</div>
+                <div class="stats-value" id="finalDist" style="color: #38BDF8;">0m</div>
+            </div>
+            <button class="primary-btn" id="restartBtn">SPRINT AGAIN</button>
+        </div>
     </div>
-    <script>
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-        let gameRunning = false;
-        let score = 0;
-        let startTime = 0;
-        let bestTime = localStorage.getItem('savingsSprintBestTime') || null;
-        let player = { x: 50, y: 250, speed: 5 };
-        let coins = [];
-        let finishLine = 3000;
-        let camera = 0;
-        let gameLoop;
-        if (bestTime) document.getElementById('highScore').textContent = (bestTime / 1000).toFixed(1) + 's';
-        function startGame() {
-            document.getElementById('startScreen').classList.add('hidden');
-            document.getElementById('gameOverScreen').classList.add('hidden');
-            gameRunning = true;
-            score = 0;
-            startTime = Date.now();
-            player.x = 50;
-            camera = 0;
-            coins = [];
-            for (let i = 0; i < 30; i++) {
-                coins.push({ x: 200 + i * 100, y: 100 + Math.random() * 300, collected: false, value: 10 });
-            }
-            updateScore();
-            gameLoop = requestAnimationFrame(update);
-        }
-        function restartGame() { startGame(); }
-        function update() {
-            if (!gameRunning) return;
-            player.x += player.speed;
-            camera = player.x - 175;
-            coins.forEach(coin => {
-                if (!coin.collected && Math.abs(player.x - coin.x) < 30 && Math.abs(player.y - coin.y) < 30) {
-                    coin.collected = true;
-                    score += coin.value;
-                    if (navigator.vibrate) navigator.vibrate(5);
-                }
-            });
-            if (player.x >= finishLine) {
-                gameOver();
-                return;
-            }
-            updateScore();
-            draw();
-            gameLoop = requestAnimationFrame(update);
-        }
-        function gameOver() {
-            gameRunning = false;
-            cancelAnimationFrame(gameLoop);
-            const time = Date.now() - startTime;
-            if (!bestTime || time < bestTime) {
-                bestTime = time;
-                localStorage.setItem('savingsSprintBestTime', bestTime);
-            }
-            document.getElementById('finalScore').textContent = score;
-            document.getElementById('gameOverScreen').classList.remove('hidden');
-        }
-        function updateScore() { document.getElementById('score').textContent = score; }
-        function draw() {
-            ctx.fillStyle = '#FFFFFF';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.save();
-            ctx.translate(-camera, 0);
-            ctx.fillStyle = '#22C55E';
-            ctx.fillRect(finishLine, 0, 10, canvas.height);
-            ctx.font = '30px Arial';
-            ctx.textAlign = 'center';
-            coins.forEach(coin => {
-                if (!coin.collected) ctx.fillText('🪙', coin.x, coin.y);
-            });
-            ctx.shadowBlur = 20;
-            ctx.shadowColor = '#22C55E';
-            ctx.fillText('🏃', player.x, player.y);
-            ctx.shadowBlur = 0;
-            ctx.restore();
-        }
-        document.addEventListener('keydown', (e) => {
-            if (!gameRunning) return;
-            if (e.key === 'ArrowUp') player.y = Math.max(50, player.y - 20);
-            if (e.key === 'ArrowDown') player.y = Math.min(450, player.y + 20);
-        });
-        canvas.addEventListener('touchmove', (e) => {
-            if (!gameRunning) return;
-            const rect = canvas.getBoundingClientRect();
-            player.y = Math.max(50, Math.min(450, e.touches[0].clientY - rect.top));
-        });
-    </script>
+
+    <script src="game.js"></script>
 </body>
 </html>

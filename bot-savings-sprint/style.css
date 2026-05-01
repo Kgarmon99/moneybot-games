@@ -1,0 +1,104 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap');
+
+:root {
+  --mb-green: #00E676;
+  --mb-green-dark: #00C853;
+  --mb-ink: #07111F;
+  --mb-ink-2: #0B1628;
+  --mb-white: #F8FAFC;
+  --mb-muted: #AAB8C8;
+  --mb-red: #FB7185;
+  --mb-blue: #38BDF8;
+  --mb-gold: #FBBF24;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; touch-action: none; user-select: none; font-family: 'Inter', sans-serif; }
+
+body {
+  background: var(--mb-ink);
+  color: var(--mb-white);
+  overflow: hidden;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+}
+
+.app {
+  width: 100%; max-width: 800px;
+  height: 100vh;
+  display: flex; flex-direction: column;
+  position: relative;
+  background: linear-gradient(to bottom, #0A1526, #050A12);
+  box-shadow: 0 0 50px rgba(0,0,0,0.8);
+}
+
+.header {
+  position: absolute; top: 0; left: 0; width: 100%;
+  padding: 20px;
+  display: flex; justify-content: space-between; align-items: center;
+  z-index: 100; pointer-events: none;
+}
+
+.back-btn {
+  width: 44px; height: 44px;
+  background: rgba(10, 24, 42, 0.6); border: 1px solid rgba(255,255,255,0.1);
+  color: var(--mb-white); border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  text-decoration: none; font-weight: 800; font-size: 20px;
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  pointer-events: all; transition: all 0.2s;
+}
+.back-btn:hover { background: rgba(0, 230, 118, 0.2); color: var(--mb-green); border-color: var(--mb-green); }
+
+.score-pill {
+  background: rgba(10, 24, 42, 0.6); border: 1px solid rgba(105, 240, 174, 0.2);
+  padding: 10px 20px; border-radius: 20px;
+  display: flex; flex-direction: column; align-items: center;
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+.score-pill .label { font-size: 10px; color: var(--mb-muted); font-weight: 800; letter-spacing: 1px; margin-bottom: 2px; }
+.score-pill .value { font-size: 20px; color: var(--mb-green); font-weight: 900; text-shadow: 0 0 10px rgba(0,230,118,0.4); }
+
+.game-area {
+  flex: 1; position: relative; width: 100%; height: 100%;
+}
+canvas {
+  display: block; width: 100%; height: 100%;
+}
+
+.overlay-screen {
+  position: absolute; inset: 0;
+  background: rgba(4, 10, 18, 0.85);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  display: flex; justify-content: center; align-items: center;
+  z-index: 200; padding: 20px; transition: opacity 0.3s;
+}
+.overlay-screen.hidden { opacity: 0; pointer-events: none; }
+
+.modal-content {
+  background: linear-gradient(145deg, rgba(15, 30, 50, 0.95), rgba(7, 15, 25, 0.98));
+  border: 1px solid rgba(255,255,255,0.1); border-radius: 24px;
+  padding: 40px 30px; text-align: center; max-width: 400px; width: 100%;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+}
+
+.game-icon { font-size: 60px; line-height: 1; margin-bottom: 10px; text-shadow: 0 0 20px rgba(0,230,118,0.4); }
+.game-title { font-size: 32px; font-weight: 900; color: var(--mb-white); margin-bottom: 10px; text-transform: uppercase; letter-spacing: -1px; }
+.game-subtitle { font-size: 14px; color: var(--mb-muted); margin-bottom: 24px; line-height: 1.5; }
+
+.stats-card {
+  background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 16px; padding: 15px; margin-bottom: 20px;
+}
+.stats-label { font-size: 11px; color: var(--mb-muted); font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }
+.stats-value { font-size: 28px; font-weight: 900; color: var(--mb-white); }
+
+.primary-btn {
+  width: 100%; background: linear-gradient(135deg, var(--mb-green-soft), var(--mb-green-dark));
+  color: var(--mb-ink); border: none; padding: 18px; border-radius: 16px;
+  font-size: 18px; font-weight: 900; cursor: pointer;
+  box-shadow: 0 8px 20px rgba(0, 230, 118, 0.3); transition: all 0.2s;
+}
+.primary-btn:active { transform: scale(0.96) translateY(2px); box-shadow: 0 4px 10px rgba(0, 230, 118, 0.3); }
