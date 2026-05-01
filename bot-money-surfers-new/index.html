@@ -146,9 +146,11 @@
                 // Spawn
                 if (Math.random() < 0.02) this.spawn();
                 
-                // Get player lane
+                // Get player lane (0, 1, or 2)
                 const startX = (canvas.width - LANE_WIDTH * 3) / 2;
-                const playerLane = Math.floor((this.playerX - startX) / LANE_WIDTH);
+                let playerLane = Math.floor((this.playerX - startX) / LANE_WIDTH);
+                playerLane = Math.max(0, Math.min(2, playerLane));
+                
                 const playerY = canvas.height * PLAYER_Y;
                 
                 // Update items
@@ -158,8 +160,9 @@
                     
                     const pos = this.getPos(item.lane, item.y);
                     
-                    // Collision
-                    if (pos.y > playerY - 80 && pos.y < playerY + 40) {
+                    // Collision - check if item is at player Y position
+                    const hitZone = 60; // pixels
+                    if (Math.abs(pos.y - playerY) < hitZone) {
                         if (item.lane === playerLane && !item.collected) {
                             if (item.type === 'train') {
                                 this.gameOver();
@@ -172,7 +175,7 @@
                         }
                     }
                     
-                    if (item.y > canvas.height + 100) {
+                    if (item.y > canvas.height + 200) {
                         this.items.splice(i, 1);
                     }
                 }
