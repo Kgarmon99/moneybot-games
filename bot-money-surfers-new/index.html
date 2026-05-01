@@ -61,6 +61,7 @@
         const LANE_WIDTH = 100;
         const PLAYER_Y = 0.8;
         const HORIZON_Y = 0.25;
+        const COLLISION_Y_TOLERANCE = 55;
         
         const playerImg = new Image();
         playerImg.src = '../flappybot/assets/player-rembg.png';
@@ -126,7 +127,7 @@
                 this.items.push({
                     type: isTrain ? 'train' : 'coin',
                     lane: lane,
-                    y: -100,
+                    y: canvas.height * HORIZON_Y - 80,
                     collected: false
                 });
             },
@@ -142,15 +143,11 @@
                 // Smooth lane movement
                 const targetX = this.getLaneX(this.targetLane);
                 this.playerX += (targetX - this.playerX) * 0.2;
+                this.lane = this.targetLane;
                 
                 // Spawn
                 if (Math.random() < 0.02) this.spawn();
-                
-                // Get player lane (0, 1, or 2)
-                const startX = (canvas.width - LANE_WIDTH * 3) / 2;
-                let playerLane = Math.floor((this.playerX - startX) / LANE_WIDTH);
-                playerLane = Math.max(0, Math.min(2, playerLane));
-                
+
                 const playerY = canvas.height * PLAYER_Y;
                 
                 // Update items
@@ -160,22 +157,21 @@
                     
                     const pos = this.getPos(item.lane, item.y);
                     
-                    // Collision - check if item is at player Y position
-                    const hitZone = 60; // pixels
-                    if (Math.abs(pos.y - playerY) < hitZone) {
-                        if (item.lane === playerLane && !item.collected) {
-                            if (item.type === 'train') {
-                                this.gameOver();
-                                return;
-                            } else {
-                                item.collected = true;
-                                this.coins++;
-                                this.createParticles(pos.x, pos.y);
-                            }
+                    // Collision is intentionally lane-based and Y-based.
+                    const sameLane = item.lane === this.lane;
+                    const atPlayerY = Math.abs(item.y - playerY) <= COLLISION_Y_TOLERANCE;
+                    if (sameLane && atPlayerY && !item.collected) {
+                        if (item.type === 'train') {
+                            this.gameOver();
+                            return;
+                        } else {
+                            item.collected = true;
+                            this.coins++;
+                            this.createParticles(pos.x, pos.y);
                         }
                     }
                     
-                    if (item.y > canvas.height + 200) {
+                    if (item.y > canvas.height + 200 || item.collected) {
                         this.items.splice(i, 1);
                     }
                 }
@@ -194,13 +190,12 @@
             getPos(lane, y) {
                 const horizonY = canvas.height * HORIZON_Y;
                 const playerY = canvas.height * PLAYER_Y;
-                const t = Math.max(0, Math.min(1, (y + 200) / 1500));
+                const t = Math.max(0, Math.min(1, (y - horizonY) / (playerY - horizonY)));
                 const scale = 0.3 + t * 0.7;
-                const screenY = horizonY + (playerY - horizonY) * t;
                 const laneX = this.getLaneX(lane);
                 const centerX = canvas.width / 2;
                 const screenX = centerX + (laneX - centerX) * scale;
-                return { x: screenX, y: screenY, scale: scale };
+                return { x: screenX, y: y, scale: scale };
             },
             
             createParticles(x, y) {
