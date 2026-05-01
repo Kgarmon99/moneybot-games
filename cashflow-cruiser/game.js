@@ -17,6 +17,7 @@ const BASE_SCROLL_SPEED = 5;
 const MAX_SCROLL_SPEED = 15;
 const OBSTACLE_SPAWN_RATE = 80; // frames
 const COIN_SPAWN_RATE = 30; // frames
+const MAGNET_SPAWN_RATE = 600; // frames
 
 let state = {
     isPlaying: false,
@@ -28,9 +29,11 @@ let state = {
     player: { x: 80, y: 200, w: 40, h: 40, vy: 0 },
     obstacles: [],
     coins: [],
+    magnets: [],
     particles: [], // Exhaust
     hitStopFrames: 0,
-    cameraShake: 0
+    cameraShake: 0,
+    magnetFrames: 0
 };
 
 // Parallax Layers
@@ -87,9 +90,11 @@ function resetGame() {
         player: { x: 80, y: canvas.height / 2, w: 40, h: 40, vy: 0 },
         obstacles: [],
         coins: [],
+        magnets: [],
         particles: [],
         hitStopFrames: 0,
-        cameraShake: 0
+        cameraShake: 0,
+        magnetFrames: 0
     };
     initBuildings();
     modal.classList.remove('active');
@@ -188,8 +193,16 @@ function update() {
 
     if (state.frames % COIN_SPAWN_RATE === 0) {
         const y = Math.random() * (canvas.height - 100) + 50;
-        state.coins.push({ x: canvas.width, y: y, r: 15 });
+        state.coins.push({ x: canvas.width, y: y, r: 15, vx: -state.scrollSpeed, vy: 0 });
     }
+
+    if (state.frames % MAGNET_SPAWN_RATE === 0) {
+        const y = Math.random() * (canvas.height - 200) + 100;
+        state.magnets.push({ x: canvas.width, y: y, r: 20 });
+    }
+
+    // Magnet Active Timer
+    if (state.magnetFrames > 0) state.magnetFrames--;
 
     // Hitbox padding (make collisions slightly forgiving)
     const paddingX = 8;
@@ -215,10 +228,47 @@ function update() {
         if (obs.x + obs.w < 0) state.obstacles.splice(i, 1);
     }
 
+    // Powerup (Magnets)
+    for (let i = state.magnets.length - 1; i >= 0; i--) {
+        let mag = state.magnets[i];
+        mag.x -= state.scrollSpeed;
+        
+        if (hitX < mag.x + mag.r*2 && hitX + hitW > mag.x &&
+            hitY < mag.y + mag.r*2 && hitY + hitH > mag.y) {
+            state.magnetFrames = 400; // ~6.5 seconds of magnet
+            spawnText(p.x, p.y - 20, "CASHFLOW SURGE!", "var(--mb-gold)");
+            state.magnets.splice(i, 1);
+            if (navigator.vibrate) navigator.vibrate([50, 50, 50]);
+            continue;
+        }
+
+        if (mag.x + mag.r*2 < 0) state.magnets.splice(i, 1);
+    }
+
     // Coins
     for (let i = state.coins.length - 1; i >= 0; i--) {
         let coin = state.coins[i];
-        coin.x -= state.scrollSpeed;
+        
+        if (state.magnetFrames > 0) {
+            // Magnet pull physics
+            const dx = (p.x + p.w/2) - (coin.x + coin.r);
+            const dy = (p.y + p.h/2) - (coin.y + coin.r);
+            const dist = Math.sqrt(dx*dx + dy*dy);
+            
+            if (dist < 400) { // Pull radius
+                coin.vx += (dx / dist) * 1.5;
+                coin.vy += (dy / dist) * 1.5;
+            } else {
+                coin.vx = -state.scrollSpeed;
+                coin.vy = 0;
+            }
+        } else {
+            coin.vx = -state.scrollSpeed;
+            coin.vy = 0;
+        }
+
+        coin.x += coin.vx;
+        coin.y += coin.vy;
         
         // Circle/Rect approx collision
         if (hitX < coin.x + coin.r*2 && hitX + hitW > coin.x &&
@@ -306,6 +356,28 @@ function draw() {
         ctx.fillStyle = '#00E676';
     });
 
+    // Magnets
+    state.magnets.forEach(mag => {
+        ctx.fillStyle = '#FBBF24';
+        ctx.beginPath();
+        ctx.arc(mag.x + mag.r, mag.y + mag.r, mag.r, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Glow effect
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = '#FBBF24';
+        ctx.strokeStyle = '#FFF';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+
+        ctx.fillStyle = '#07111F';
+        ctx.font = 'bold 18px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('M', mag.x + mag.r, mag.y + mag.r);
+    });
+
     // Particles
     state.particles.forEach(pt => {
         ctx.fillStyle = `rgba(251, 191, 36, ${pt.life})`;
@@ -318,6 +390,15 @@ function draw() {
     const p = state.player;
     ctx.translate(p.x + p.w/2, p.y + p.h/2);
     ctx.rotate(p.vy * 0.04);
+    
+    // Magnet Aura
+    if (state.magnetFrames > 0) {
+        ctx.beginPath();
+        ctx.arc(0, 0, p.w + 10 + Math.sin(state.frames * 0.2) * 5, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(251, 191, 36, 0.6)';
+        ctx.lineWidth = 4;
+        ctx.stroke();
+    }
     
     if(mascotImg.complete && mascotImg.naturalHeight !== 0) {
         ctx.drawImage(mascotImg, -p.w/2, -p.h/2, p.w, p.h);
