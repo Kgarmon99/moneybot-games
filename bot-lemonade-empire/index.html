@@ -5,71 +5,114 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Lemonade Empire</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=5">
+    <link rel="stylesheet" href="style.css?v=6">
 </head>
 <body>
     <div id="app">
         <!-- HUD -->
         <header id="hud">
-            <div class="stat-pill"><span class="label">DAY</span><span id="day-val" class="val">1</span></div>
-            <div class="stat-pill highlight" style="position:relative;">
-                <span class="label">CASH</span>
-                <span id="cash-val" class="val">$20.00</span>
-                <img src="assets/coins-transparent.png?v=1" alt="Coins" style="position:absolute; right:-10px; top:-10px; height:45px; filter:drop-shadow(0 5px 5px rgba(0,0,0,0.5));">
+            <div class="stat-pill">
+                <span class="label">DAY</span>
+                <span id="day-val" class="val">1</span>
             </div>
-            <div class="stat-pill"><span class="label">WEATHER</span><span id="weather-val" class="val">☀️ Hot</span></div>
+            <div class="stat-pill highlight cash-pill">
+                <img src="assets/coins-transparent.png?v=1" alt="Coins" class="coin-icon">
+                <div class="cash-info">
+                    <span class="label">CASH</span>
+                    <span id="cash-val" class="val">$20.00</span>
+                </div>
+            </div>
+            <div class="stat-pill weather-pill">
+                <span class="label">WEATHER</span>
+                <span id="weather-val" class="val">☀️ Hot</span>
+            </div>
         </header>
 
         <!-- Screens -->
         <div id="prep-screen" class="screen active">
-            <div class="logo-container" style="text-align: center; margin-top: 10px; margin-bottom: 20px;">
-                <img src="assets/bot-sign-transparent.png?v=1" alt="Lemonade Bot" style="max-width: 220px; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.5));">
+            <div class="hero-section">
+                <img src="assets/bot-sign-transparent.png?v=1" alt="Lemonade Bot" class="hero-logo">
+                <div class="tagline">Build Your Empire, One Cup at a Time</div>
             </div>
 
             <div class="news-ticker-container">
-                <div class="news-label">BREAKING</div>
+                <div class="news-label">📰 NEWS</div>
                 <div class="news-ticker" id="news-text">Welcome to Lemonade Empire! Start your hustle.</div>
             </div>
 
             <div class="panel-grid scrollable-grid">
                 <!-- Upgrades / Assets -->
-                <div class="panel highlight-panel">
-                    <h2>🚀 Business Upgrades</h2>
+                <div class="panel highlight-panel upgrades-panel">
+                    <div class="panel-header">
+                        <span class="panel-icon">🚀</span>
+                        <h2>Business Upgrades</h2>
+                    </div>
                     <div id="upgrades-container">
                         <!-- Populated by JS -->
                     </div>
                 </div>
 
                 <!-- Inventory -->
-                <div class="panel">
-                    <h2>🛒 Restock</h2>
-                    <div class="buy-row" style="padding: 15px; background: rgba(0,0,0,0.2);">
-                        <img src="assets/sugar-transparent.png?v=1" alt="Premium Sugar" style="height: 60px; filter: drop-shadow(0 5px 5px rgba(0,0,0,0.5)); margin-right: 15px;">
-                        <div style="flex: 1; text-align: left;">
-                            <div class="buy-info" style="font-size: 14px;">MoneyBot Mix (<span id="inv-cups" class="accent">0</span>)</div>
-                            <div class="hint" style="margin-top: 2px;">$0.50 / cup</div>
+                <div class="panel inventory-panel">
+                    <div class="panel-header">
+                        <span class="panel-icon">🛒</span>
+                        <h2>Restock Inventory</h2>
+                    </div>
+                    <div class="inventory-card">
+                        <div class="inventory-visual">
+                            <img src="assets/sugar-transparent.png?v=1" alt="Premium Sugar">
+                            <div class="inventory-badge">
+                                <span id="inv-cups">0</span> cups
+                            </div>
                         </div>
-                        <button class="btn-small" onclick="buyMix(10, 5.00)" style="padding: 10px 15px;">Buy 10 ($5)</button>
+                        <div class="inventory-details">
+                            <div class="product-name">MoneyBot Mix</div>
+                            <div class="product-price">$0.50 per cup</div>
+                            <button class="btn-buy" onclick="buyMix(10, 5.00)">
+                                <span class="btn-text">Buy 10</span>
+                                <span class="btn-price">$5.00</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Strategy -->
-                <div class="panel">
-                    <h2>📝 Strategy</h2>
-                    <div class="slider-row" style="margin-bottom:0;">
-                        <label>Price per Cup: <span id="price-val" class="accent">$1.00</span></label>
-                        <input type="range" id="price-slider" min="0.5" max="5.0" step="0.25" value="1.00" oninput="updateStrategy()">
-                        <div class="hint">Charge more when it's hot, less when it's cold!</div>
+                <div class="panel strategy-panel">
+                    <div class="panel-header">
+                        <span class="panel-icon">📝</span>
+                        <h2>Pricing Strategy</h2>
                     </div>
-                    <div class="status-message" id="prep-warning" style="margin-top:10px; font-weight:800; text-align:center;"></div>
+                    <div class="price-display">
+                        <div class="current-price">
+                            <span class="price-label">Price per Cup</span>
+                            <span id="price-val" class="price-amount">$1.00</span>
+                        </div>
+                        <input type="range" id="price-slider" min="0.5" max="5.0" step="0.25" value="1.00" oninput="updateStrategy()">
+                        <div class="price-hints">
+                            <span>💰 Cheap</span>
+                            <span>🔥 Premium</span>
+                        </div>
+                    </div>
+                    <div class="strategy-tip" id="prep-warning">
+                        Set your price based on the weather!
+                    </div>
                 </div>
             </div>
 
-            <button id="start-day-btn" class="btn-primary" onclick="startDay()">OPEN FOR BUSINESS</button>
+            <button id="start-day-btn" class="btn-primary btn-mega" onclick="startDay()">
+                <span class="btn-icon">🍋</span>
+                <span class="btn-text">OPEN FOR BUSINESS</span>
+            </button>
         </div>
 
         <div id="sim-screen" class="screen">
-            <h1 class="title">Selling...</h1>
+            <div class="sim-header">
+                <h1 class="title">Open for Business!</h1>
+                <div class="live-indicator">
+                    <span class="live-dot"></span>
+                    LIVE
+                </div>
+            </div>
             
             <!-- Visual Street View -->
             <div id="street-view">
@@ -83,45 +126,98 @@
                 
                 <div class="sidewalk"></div>
                 <div class="street-road"></div>
-                <!-- Customers spawned here by JS -->
             </div>
 
             <div class="sim-container">
                 <div id="sim-log"></div>
             </div>
+            
             <div class="sim-stats">
-                <div class="stat"><span class="label">SOLD</span><span id="sim-sold" class="val">0</span></div>
-                <div class="stat highlight" style="position:relative;">
-                    <span class="label">REVENUE</span>
-                    <span id="sim-rev" class="val">$0.00</span>
-                    <img src="assets/coins-transparent.png?v=1" alt="Coins" style="position:absolute; right:10px; bottom:10px; height:40px; opacity:0.3;">
+                <div class="stat-box">
+                    <div class="stat-icon">🥤</div>
+                    <div class="stat-info">
+                        <span class="stat-label">SOLD</span>
+                        <span id="sim-sold" class="stat-value">0</span>
+                    </div>
+                </div>
+                <div class="stat-box highlight">
+                    <div class="stat-icon">💵</div>
+                    <div class="stat-info">
+                        <span class="stat-label">REVENUE</span>
+                        <span id="sim-rev" class="stat-value">$0.00</span>
+                    </div>
                 </div>
             </div>
-            <button id="end-day-btn" class="btn-primary hidden" onclick="endDay()">View P&L</button>
+            
+            <button id="end-day-btn" class="btn-primary btn-mega hidden" onclick="endDay()">
+                <span class="btn-text">View Profit & Loss</span>
+            </button>
         </div>
 
         <div id="eod-screen" class="screen">
-            <h1 class="title">End of Day <span id="eod-day"></span></h1>
-            <div class="panel pl-statement">
-                <h2>Profit & Loss</h2>
-                <div class="pl-row"><span>Revenue:</span> <span id="pl-rev" class="positive">$0.00</span></div>
-                <div class="pl-row"><span>COGS (Supplies):</span> <span id="pl-cogs" class="negative">-$0.00</span></div>
-                <hr>
-                <div class="pl-row total"><span>Net Profit:</span> <span id="pl-net">$0.00</span></div>
+            <div class="eod-header">
+                <h1 class="title">Day Complete!</h1>
+                <div class="day-badge">Day <span id="eod-day">1</span></div>
             </div>
-            <div class="tips" id="eod-tip"></div>
-            <button class="btn-primary" onclick="nextDay()">Start Next Day</button>
+            
+            <div class="panel pl-statement">
+                <div class="pl-header">
+                    <span class="pl-icon">📊</span>
+                    <h2>Profit & Loss Statement</h2>
+                </div>
+                <div class="pl-rows">
+                    <div class="pl-row">
+                        <span class="pl-label">
+                            <span class="pl-dot green"></span>
+                            Revenue
+                        </span>
+                        <span id="pl-rev" class="pl-value positive">$0.00</span>
+                    </div>
+                    <div class="pl-row">
+                        <span class="pl-label">
+                            <span class="pl-dot red"></span>
+                            Supplies Cost
+                        </span>
+                        <span id="pl-cogs" class="pl-value negative">-$0.00</span>
+                    </div>
+                    <div class="pl-divider"></div>
+                    <div class="pl-row total">
+                        <span class="pl-label">Net Profit</span>
+                        <span id="pl-net" class="pl-value net">$0.00</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="insight-card" id="eod-tip">
+                💡 Tip will appear here
+            </div>
+            
+            <button class="btn-primary btn-mega" onclick="nextDay()">
+                <span class="btn-icon">🌅</span>
+                <span class="btn-text">Start Next Day</span>
+            </button>
         </div>
         
         <div id="game-over-screen" class="screen">
-            <h1 class="title danger">BANKRUPT!</h1>
-            <p class="subtitle">You ran out of cash and supplies.</p>
-            <div class="panel pl-statement" style="margin-bottom:20px;">
-                <div class="pl-row total"><span>Days Survived:</span> <span id="final-days" class="accent"></span></div>
+            <div class="game-over-hero">
+                <div class="skull">💀</div>
+                <h1 class="title danger">EMPIRE COLLAPSED</h1>
+                <p class="subtitle">You ran out of cash and supplies.</p>
             </div>
-            <button class="btn-primary" onclick="location.reload()">Restart Empire</button>
+            
+            <div class="panel final-stats">
+                <div class="stat-row">
+                    <span class="stat-label">Days Survived</span>
+                    <span id="final-days" class="stat-value accent">0</span>
+                </div>
+            </div>
+            
+            <button class="btn-primary btn-mega" onclick="location.reload()">
+                <span class="btn-icon">🔄</span>
+                <span class="btn-text">Restart Empire</span>
+            </button>
         </div>
     </div>
-    <script src="game.js?v=5"></script>
+    <script src="game.js?v=6"></script>
 </body>
 </html>
