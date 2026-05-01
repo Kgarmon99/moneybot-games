@@ -21,6 +21,28 @@
 * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; touch-action: manipulation; }
 body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: var(--mb-ink); color: var(--mb-white); display: flex; justify-content: center; height: 100vh; overflow: hidden; }
 
+.back-btn {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background: var(--mb-panel);
+  border: 1px solid var(--mb-line);
+  color: var(--mb-white);
+  padding: 8px 16px;
+  border-radius: var(--mb-radius-sm);
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 14px;
+  z-index: 100;
+  backdrop-filter: blur(10px);
+  transition: all 0.2s;
+}
+.back-btn:hover {
+  background: var(--mb-green);
+  color: var(--mb-ink);
+  border-color: var(--mb-green);
+}
+
 #game-container { width: 100%; max-width: 480px; height: 100%; display: flex; flex-direction: column; background: radial-gradient(circle at top, var(--mb-ink-2), var(--mb-ink)); position: relative; }
 
 /* HUD */
