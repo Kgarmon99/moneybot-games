@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Compound Climb</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="ui-layer">
+        <canvas id="gameCanvas"></canvas>
+        
+        <div id="hud" class="hidden">
+            <div id="score">Net Worth: <span id="score-value">$0</span></div>
+        </div>
+        
+        <div id="start-screen" class="screen">
+            <h1>Compound Climb</h1>
+            <p>Drag left/right to steer.</p>
+            <p>Bounce on green assets. Avoid red debt!</p>
+            <button id="start-btn">Start Climbing</button>
+        </div>
+
+        <div id="game-over-screen" class="screen hidden">
+            <h1>Bankruptcy!</h1>
+            <p>You fell off the wealth ladder.</p>
+            <p>Final Net Worth: <span id="final-score">$0</span></p>
+            <button id="restart-btn">Try Again</button>
+        </div>
+    </div>
+    
+    <script src="game.js"></script>
+</body>
+</html>
