@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MoneyBot - Subway Surfer</title>
+    <link rel="icon" type="image/jpeg" href="assets/player-rembg.png">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: manipulation; user-select: none; }
+        body { 
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; 
+            background: #000; 
+            min-height: 100vh; 
+            color: #fff;
+            overflow: hidden;
+        }
+        .app { 
+            max-width: 100%; 
+            margin: 0 auto; 
+            min-height: 100vh; 
+            display: flex; 
+            flex-direction: column;
+            position: relative;
+        }
+        
+        /* Header */
+        .header { 
+            background: rgba(0,0,0,0.8); 
+            padding: 12px 16px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(34, 197, 94, 0.3);
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+        .header-left { display: flex; align-items: center; gap: 12px; }
+        .back-btn { 
+            width: 40px; 
+            height: 40px; 
+            border-radius: 10px; 
+            background: rgba(34, 197, 94, 0.2); 
+            border: 1px solid rgba(34, 197, 94, 0.4);
+            color: #22C55E; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            cursor: pointer; 
+            font-size: 18px;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .back-btn:hover { background: rgba(34, 197, 94, 0.3); }
+        .header h1 { font-size: 18px; font-weight: 800; letter-spacing: 1px; }
+        .header h1 span { color: #22C55E; }
+        
+        /* Score display */
+        .score-display {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+        .score-value {
+            font-size: 24px;
+            font-weight: 800;
+            color: #22C55E;
+            text-shadow: 0 0 20px rgba(34, 197, 94, 0.5);
+        }
+        .score-label {
+            font-size: 10px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        /* Game container */
+        .game-container { 
+            flex: 1; 
+            position: relative;
+            overflow: hidden;
+        }
+        
+        #gameCanvas { 
+            display: block;
+            width: 100%;
+            height: 100vh;
+        }
+        
+        /* Controls hint */
+        .controls-hint {
+            position: absolute;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 40px;
+            z-index: 50;
+            opacity: 0.6;
+            pointer-events: none;
+        }
+        .control-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(34, 197, 94, 0.2);
+            border: 2px solid rgba(34, 197, 94, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: #22C55E;
+        }
+        
+        /* Start overlay */
+        .overlay { 
+            position: absolute; 
+            inset: 0;
+            background: rgba(0,0,0,0.9); 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+        .overlay.hidden { display: none; }
+        
+        .logo-container {
+            margin-bottom: 40px;
+            text-align: center;
+        }
+        .logo-img {
+            width: 100px;
+            height: 100px;
+            filter: drop-shadow(0 0 30px rgba(34, 197, 94, 0.5));
+            animation: float 3s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+        .logo-text {
+            font-size: 32px;
+            font-weight: 800;
+            margin-top: 16px;
+            letter-spacing: 2px;
+        }
+        .logo-text span { color: #22C55E; }
+        
+        .start-btn { 
+            background: linear-gradient(135deg, #22C55E, #16A34A); 
+            color: white; 
+            border: none; 
+            padding: 20px 60px; 
+            border-radius: 16px; 
+            font-size: 20px; 
+            font-weight: 800;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            box-shadow: 0 0 40px rgba(34, 197, 94, 0.4);
+            transition: all 0.3s;
+        }
+        .start-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 60px rgba(34, 197, 94, 0.6);
+        }
+        
+        .instructions {
+            margin-top: 30px;
+            text-align: center;
+            color: #888;
+            font-size: 14px;
+            line-height: 1.8;
+        }
+        .instructions span {
+            color: #22C55E;
+            font-weight: 600;
+        }
+        
+        /* Game over overlay */
+        .game-over-content {
+            text-align: center;
+        }
+        .game-over-title {
+            font-size: 48px;
+            font-weight: 800;
+            margin-bottom: 20px;
+            color: #22C55E;
+            text-shadow: 0 0 40px rgba(34, 197, 94, 0.5);
+        }
+        .final-score {
+            font-size: 72px;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+        .high-score {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 40px;
+        }
+        .high-score span {
+            color: #22C55E;
+            font-weight: 700;
+        }
+        
+        /* Coins collected */
+        .coins-display {
+            position: absolute;
+            top: 80px;
+            right: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0,0,0,0.6);
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            z-index: 50;
+        }
+        .coin-icon {
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+        .coins-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: #FFD700;
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <header class="header">
+            <div class="header-left">
+                <a href="../moneybot-official/" class="back-btn">←</a>
+                <h1>Money<span>Bot</span> Surfer</h1>
+            </div>
+            <div class="score-display">
+                <div class="score-value" id="scoreDisplay">0</div>
+                <div class="score-label">Score</div>
+            </div>
+        </header>
+        
+        <div class="coins-display" id="coinsDisplay">
+            <div class="coin-icon">$</div>
+            <div class="coins-value" id="coinsValue">0</div>
+        </div>
+        
+        <div class="game-container">
+            <canvas id="gameCanvas"></canvas>
+            
+            <div class="controls-hint" id="controlsHint">
+                <div class="control-btn">←</div>
+                <div class="control-btn">↑</div>
+                <div class="control-btn">→</div>
+            </div>
+            
+            <!-- Start Overlay -->
+            <div class="overlay" id="startOverlay">
+                <div class="logo-container">
+                    <img src="assets/player-rembg.png" class="logo-img" alt="MoneyBot">
+                    <div class="logo-text">Subway<span>Surfer</span></div>
+                </div>
+                <button class="start-btn" onclick="game.start()">Start Run</button>
+                <div class="instructions">
+                    <p>Use <span>← →</span> arrows or swipe to switch lanes</p>
+                    <p>Use <span>↑</span> or swipe up to jump</p>
+                    <p>Collect <span>coins</span> and avoid <span>obstacles</span></p>
+                </div>
+            </div>
+            
+            <!-- Game Over Overlay -->
+            <div class="overlay hidden" id="gameOverOverlay">
+                <div class="game-over-content">
+                    <div class="game-over-title">Run Over!</div>
+                    <div class="final-score" id="finalScore">0</div>
+                    <div class="high-score">Best: <span id="highScore">0</span></div>
+                    <button class="start-btn" onclick="game.restart()">Run Again</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Game constants
+        const LANE_COUNT = 3;
+        const LANE_WIDTH = 120;
+        const PLAYER_SIZE = 60;
+        const JUMP_HEIGHT = 120;
+        const JUMP_DURATION = 600;
+        const BASE_SPEED = 8;
+        const MAX_SPEED = 20;
+        
+        // Load player image
+        const playerImg = new Image();
+        playerImg.src = 'assets/player-rembg.png';
+        
+        const game = {
+            state: 'menu',
+            score: 0,
+            coins: 0,
+            highScore: parseInt(localStorage.getItem('subway_highScore')) || 0,
+            speed: BASE_SPEED,
+            lane: 1, // 0, 1, 2
+            playerY: 0,
+            isJumping: false,
+            jumpStartTime: 0,
+            obstacles: [],
+            coinItems: [],
+            particles: [],
+            frame: 0,
+            
+            resize() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                this.playerY = canvas.height - 200;
+            },
+            
+            start() {
+                this.state = 'playing';
+                this.score = 0;
+                this.coins = 0;
+                this.speed = BASE_SPEED;
+                this.lane = 1;
+                this.isJumping = false;
+                this.obstacles = [];
+                this.coinItems = [];
+                this.particles = [];
+                this.frame = 0;
+                
+                document.getElementById('startOverlay').classList.add('hidden');
+                document.getElementById('gameOverOverlay').classList.add('hidden');
+                document.getElementById('controlsHint').style.opacity = '0.3';
+                
+                this.loop();
+            },
+            
+            restart() {
+                this.start();
+            },
+            
+            gameOver() {
+                this.state = 'gameover';
+                
+                if (this.score > this.highScore) {
+                    this.highScore = this.score;
+                    localStorage.setItem('subway_highScore', this.highScore);
+                }
+                
+                document.getElementById('finalScore').textContent = this.score;
+                document.getElementById('highScore').textContent = this.highScore;
+                document.getElementById('gameOverOverlay').classList.remove('hidden');
+            },
+            
+            moveLeft() {
+                if (this.state === 'playing' && this.lane > 0) {
+                    this.lane--;
+                    this.createParticles();
+                }
+            },
+            
+            moveRight() {
+                if (this.state === 'playing' && this.lane < LANE_COUNT - 1) {
+                    this.lane++;
+                    this.createParticles();
+                }
+            },
+            
+            jump() {
+                if (this.state === 'playing' && !this.isJumping) {
+                    this.isJumping = true;
+                    this.jumpStartTime = Date.now();
+                    this.createParticles();
+                }
+            },
+            
+            createParticles() {
+                for (let i = 0; i < 5; i++) {
+                    this.particles.push({
+                        x: this.getLaneX(this.lane),
+                        y: this.playerY + PLAYER_SIZE/2,
+                        vx: (Math.random() - 0.5) * 10,
+                        vy: Math.random() * -5 - 2,
+                        life: 1,
+                        color: '#22C55E'
+                    });
+                }
+            },
+            
+            createCoinParticles(x, y) {
+                for (let i = 0; i < 8; i++) {
+                    this.particles.push({
+                        x: x,
+                        y: y,
+                        vx: (Math.random() - 0.5) * 15,
+                        vy: (Math.random() - 0.5) * 15,
+                        life: 1,
+                        color: '#FFD700'
+                    });
+                }
+            },
+            
+            getLaneX(lane) {
+                const startX = (canvas.width - LANE_WIDTH * LANE_COUNT) / 2;
+                return startX + lane * LANE_WIDTH + LANE_WIDTH/2;
+            },
+            
+            spawnObstacle() {
+                const lane = Math.floor(Math.random() * LANE_COUNT);
+                const type = Math.random() > 0.5 ? 'train' : 'barrier';
+                
+                this.obstacles.push({
+                    x: this.getLaneX(lane),
+                    y: -100,
+                    lane: lane,
+                    type: type,
+                    width: type === 'train' ? 100 : 80,
+                    height: type === 'train' ? 150 : 60
+                });
+            },
+            
+            spawnCoins() {
+                const pattern = Math.floor(Math.random() * 3);
+                const lane = Math.floor(Math.random() * LANE_COUNT);
+                
+                if (pattern === 0) {
+                    // Line of coins
+                    for (let i = 0; i < 5; i++) {
+                        this.coinItems.push({
+                            x: this.getLaneX(lane),
+                            y: -100 - i * 60,
+                            collected: false
+                        });
+                    }
+                } else if (pattern === 1) {
+                    // Row across all lanes
+                    for (let l = 0; l < LANE_COUNT; l++) {
+                        this.coinItems.push({
+                            x: this.getLaneX(l),
+                            y: -100,
+                            collected: false
+                        });
+                    }
+                } else {
+                    // Arc pattern
+                    const centerLane = 1;
+                    for (let i = -1; i <= 1; i++) {
+                        const l = centerLane + i;
+                        if (l >= 0 && l < LANE_COUNT) {
+                            this.coinItems.push({
+                                x: this.getLaneX(l),
+                                y: -100 - Math.abs(i) * 40,
+                                collected: false
+                            });
+                        }
+                    }
+                }
+            },
+            
+            update() {
+                if (this.state !== 'playing') return;
+                
+                this.frame++;
+                this.score += Math.floor(this.speed / 4);
+                this.speed = Math.min(MAX_SPEED, BASE_SPEED + this.score / 1000);
+                
+                document.getElementById('scoreDisplay').textContent = this.score;
+                document.getElementById('coinsValue').textContent = this.coins;
+                
+                // Update jump
+                if (this.isJumping) {
+                    const jumpProgress = (Date.now() - this.jumpStartTime) / JUMP_DURATION;
+                    if (jumpProgress >= 1) {
+                        this.isJumping = false;
+                    }
+                }
+                
+                // Spawn obstacles
+                if (this.frame % Math.floor(1200 / this.speed) === 0) {
+                    this.spawnObstacle();
+                }
+                
+                // Spawn coins
+                if (this.frame % Math.floor(600 / this.speed) === 0) {
+                    this.spawnCoins();
+                }
+                
+                // Update obstacles
+                for (let i = this.obstacles.length - 1; i >= 0; i--) {
+                    const obs = this.obstacles[i];
+                    obs.y += this.speed;
+                    
+                    // Check collision
+                    if (!this.isJumping && obs.lane === this.lane) {
+                        const playerX = this.getLaneX(this.lane);
+                        const dx = Math.abs(obs.x - playerX);
+                        const dy = Math.abs(obs.y - this.playerY);
+                        
+                        if (dx < 40 && dy < 60) {
+                            this.gameOver();
+                            return;
+                        }
+                    }
+                    
+                    if (obs.y > canvas.height + 100) {
+                        this.obstacles.splice(i, 1);
+                    }
+                }
+                
+                // Update coins
+                for (let i = this.coinItems.length - 1; i >= 0; i--) {
+                    const coin = this.coinItems[i];
+                    coin.y += this.speed;
+                    
+                    // Check collection
+                    if (!coin.collected && coin.lane === this.lane) {
+                        const playerX = this.getLaneX(this.lane);
+                        const dx = Math.abs(coin.x - playerX);
+                        const dy = Math.abs(coin.y - this.playerY);
+                        
+                        if (dx < 40 && dy < 60) {
+                            coin.collected = true;
+                            this.coins++;
+                            this.score += 50;
+                            this.createCoinParticles(coin.x, coin.y);
+                        }
+                    }
+                    
+                    if (coin.y > canvas.height + 50) {
+                        this.coinItems.splice(i, 1);
+                    }
+                }
+                
+                // Update particles
+                for (let i = this.particles.length - 1; i >= 0; i--) {
+                    const p = this.particles[i];
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.vy += 0.5;
+                    p.life -= 0.05;
+                    
+                    if (p.life <= 0) {
+                        this.particles.splice(i, 1);
+                    }
+                }
+            },
+            
+            draw() {
+                // Clear canvas
+                ctx.fillStyle = '#0a0a0a';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                // Draw track
+                const trackWidth = LANE_WIDTH * LANE_COUNT;
+                const trackX = (canvas.width - trackWidth) / 2;
+                
+                // Track background
+                ctx.fillStyle = '#111';
+                ctx.fillRect(trackX, 0, trackWidth, canvas.height);
+                
+                // Lane lines
+                ctx.strokeStyle = 'rgba(34, 197, 94, 0.2)';
+                ctx.lineWidth = 2;
+                for (let i = 1; i < LANE_COUNT; i++) {
+                    const x = trackX + i * LANE_WIDTH;
+                    ctx.beginPath();
+                    ctx.moveTo(x, 0);
+                    ctx.lineTo(x, canvas.height);
+                    ctx.stroke();
+                }
+                
+                // Track borders
+                ctx.strokeStyle = 'rgba(34, 197, 94, 0.4)';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(trackX, 0);
+                ctx.lineTo(trackX, canvas.height);
+                ctx.moveTo(trackX + trackWidth, 0);
+                ctx.lineTo(trackX + trackWidth, canvas.height);
+                ctx.stroke();
+                
+                // Draw grid effect (moving)
+                ctx.strokeStyle = 'rgba(34, 197, 94, 0.1)';
+                ctx.lineWidth = 1;
+                const gridOffset = (this.frame * this.speed) % 100;
+                for (let y = -100; y < canvas.height; y += 100) {
+                    const drawY = y + gridOffset;
+                    ctx.beginPath();
+                    ctx.moveTo(trackX, drawY);
+                    ctx.lineTo(trackX + trackWidth, drawY);
+                    ctx.stroke();
+                }
+                
+                // Draw coins
+                this.coinItems.forEach(coin => {
+                    if (!coin.collected) {
+                        ctx.save();
+                        ctx.translate(coin.x, coin.y);
+                        
+                        // Coin glow
+                        ctx.shadowColor = '#FFD700';
+                        ctx.shadowBlur = 20;
+                        
+                        // Coin body
+                        ctx.fillStyle = '#FFD700';
+                        ctx.beginPath();
+                        ctx.arc(0, 0, 15, 0, Math.PI * 2);
+                        ctx.fill();
+                        
+                        // Coin inner
+                        ctx.fillStyle = '#FFA500';
+                        ctx.beginPath();
+                        ctx.arc(0, 0, 10, 0, Math.PI * 2);
+                        ctx.fill();
+                        
+                        // $ symbol
+                        ctx.fillStyle = '#000';
+                        ctx.font = 'bold 12px Inter';
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText('$', 0, 0);
+                        
+                        ctx.restore();
+                    }
+                });
+                
+                // Draw obstacles
+                this.obstacles.forEach(obs => {
+                    ctx.save();
+                    ctx.translate(obs.x, obs.y);
+                    
+                    if (obs.type === 'train') {
+                        // Train
+                        ctx.fillStyle = '#dc2626';
+                        ctx.fillRect(-obs.width/2, -obs.height/2, obs.width, obs.height);
+                        
+                        // Train details
+                        ctx.fillStyle = '#991b1b';
+                        ctx.fillRect(-obs.width/2 + 5, -obs.height/2 + 10, obs.width - 10, 20);
+                        ctx.fillRect(-obs.width/2 + 5, -obs.height/2 + 50, obs.width - 10, 20);
+                        
+                        // Windows
+                        ctx.fillStyle = '#1e3a5f';
+                        ctx.fillRect(-obs.width/2 + 10, -obs.height/2 + 15, obs.width - 20, 10);
+                        ctx.fillRect(-obs.width/2 + 10, -obs.height/2 + 55, obs.width - 20, 10);
+                        
+                        // Lights
+                        ctx.shadowColor = '#ef4444';
+                        ctx.shadowBlur = 20;
+                        ctx.fillStyle = '#ef4444';
+                        ctx.beginPath();
+                        ctx.arc(-obs.width/2 + 15, obs.height/2 - 10, 5, 0, Math.PI * 2);
+                        ctx.arc(obs.width/2 - 15, obs.height/2 - 10, 5, 0, Math.PI * 2);
+                        ctx.fill();
+                    } else {
+                        // Barrier
+                        ctx.fillStyle = '#f97316';
+                        ctx.fillRect(-obs.width/2, -obs.height/2, obs.width, obs.height);
+                        
+                        // Stripes
+                        ctx.fillStyle = '#000';
+                        for (let i = -obs.width/2; i < obs.width/2; i += 20) {
+                            ctx.beginPath();
+                            ctx.moveTo(i, -obs.height/2);
+                            ctx.lineTo(i + 10, -obs.height/2);
+                            ctx.lineTo(i - 10 + obs.width/2, obs.height/2);
+                            ctx.lineTo(i - 20 + obs.width/2, obs.height/2);
+                            ctx.fill();
+                        }
+                        
+                        // Warning glow
+                        ctx.shadowColor = '#f97316';
+                        ctx.shadowBlur = 15;
+                        ctx.strokeStyle = '#f97316';
+                        ctx.lineWidth = 2;
+                        ctx.strokeRect(-obs.width/2, -obs.height/2, obs.width, obs.height);
+                    }
+                    
+                    ctx.restore();
+                });
+                
+                // Draw player
+                const playerX = this.getLaneX(this.lane);
+                let playerY = this.playerY;
+                
+                // Jump offset
+                if (this.isJumping) {
+                    const jumpProgress = (Date.now() - this.jumpStartTime) / JUMP_DURATION;
+                    const jumpCurve = Math.sin(jumpProgress * Math.PI);
+                    playerY -= JUMP_HEIGHT * jumpCurve;
+                }
+                
+                ctx.save();
+                ctx.translate(playerX, playerY);
+                
+                // Player shadow
+                ctx.fillStyle = 'rgba(0,0,0,0.3)';
+                ctx.beginPath();
+                ctx.ellipse(0, PLAYER_SIZE/2 + 10, 25, 8, 0, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Player glow
+                ctx.shadowColor = '#22C55E';
+                ctx.shadowBlur = 30;
+                
+                // Draw player image
+                if (playerImg.complete) {
+                    const size = PLAYER_SIZE;
+                    ctx.drawImage(playerImg, -size/2, -size/2, size, size);
+                } else {
+                    // Fallback
+                    ctx.fillStyle = '#22C55E';
+                    ctx.fillRect(-PLAYER_SIZE/2, -PLAYER_SIZE/2, PLAYER_SIZE, PLAYER_SIZE);
+                }
+                
+                ctx.restore();
+                
+                // Draw particles
+                this.particles.forEach(p => {
+                    ctx.globalAlpha = p.life;
+                    ctx.fillStyle = p.color;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+                ctx.globalAlpha = 1;
+            },
+            
+            loop() {
+                if (this.state !== 'playing') return;
+                
+                this.update();
+                this.draw();
+                requestAnimationFrame(() => this.loop());
+            }
+        };
+        
+        // Initialize
+        game.resize();
+        window.addEventListener('resize', () => game.resize());
+        
+        // Controls
+        document.addEventListener('keydown', (e) => {
+            if (game.state === 'playing') {
+                if (e.key === 'ArrowLeft') game.moveLeft();
+                if (e.key === 'ArrowRight') game.moveRight();
+                if (e.key === 'ArrowUp' || e.key === ' ') {
+                    e.preventDefault();
+                    game.jump();
+                }
+            }
+        });
+        
+        // Touch controls
+        let touchStartX = 0;
+        let touchStartY = 0;
+        
+        canvas.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+        }, { passive: true });
+        
+        canvas.addEventListener('touchend', (e) => {
+            if (game.state !== 'playing') return;
+            
+            const touchEndX = e.changedTouches[0].clientX;
+            const touchEndY = e.changedTouches[0].clientY;
+            
+            const dx = touchEndX - touchStartX;
+            const dy = touchEndY - touchStartY;
+            
+            if (Math.abs(dx) > Math.abs(dy)) {
+                // Horizontal swipe
+                if (dx > 50) game.moveRight();
+                else if (dx < -50) game.moveLeft();
+            } else {
+                // Vertical swipe
+                if (dy < -50) game.jump();
+            }
+        }, { passive: true });
+        
+        // Click controls for desktop
+        canvas.addEventListener('click', (e) => {
+            if (game.state !== 'playing') return;
+            
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const centerX = canvas.width / 2;
+            
+            if (x < centerX - 100) game.moveLeft();
+            else if (x > centerX + 100) game.moveRight();
+            else game.jump();
+        });
+    </script>
+</body>
+</html>
