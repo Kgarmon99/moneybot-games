@@ -24,11 +24,16 @@ let state = {
     popTexts: []
 };
 
+// Images
+const imgBond = new Image(); imgBond.src = 'assets/bond-asset.png';
+const imgStock = new Image(); imgStock.src = 'assets/stock-asset.png';
+const imgFolder = new Image(); imgFolder.src = 'assets/portfolio-asset.png';
+
 // Item definitions
 const ITEMS = {
-    BOND: { id: 'bond', name: 'Bond', emoji: '📄', cooked: '💵', typeColor: '#69F0AE', cookColor: '#00E676', cookTime: 3, burnTime: 8, price: 20 },
-    STOCK: { id: 'stock', name: 'Stock', emoji: '🏢', cooked: '📈', typeColor: '#FCD34D', cookColor: '#F59E0B', cookTime: 5, burnTime: 12, price: 40 },
-    FOLDER: { id: 'folder', name: 'Portfolio', emoji: '📁', filled: '💼', typeColor: '#38BDF8' },
+    BOND: { id: 'bond', name: 'Bond', emoji: '📄', cooked: '💵', img: imgBond, typeColor: '#69F0AE', cookColor: '#00E676', cookTime: 3, burnTime: 8, price: 20 },
+    STOCK: { id: 'stock', name: 'Stock', emoji: '🏢', cooked: '📈', img: imgStock, typeColor: '#FCD34D', cookColor: '#F59E0B', cookTime: 5, burnTime: 12, price: 40 },
+    FOLDER: { id: 'folder', name: 'Portfolio', emoji: '📁', filled: '💼', img: imgFolder, typeColor: '#38BDF8' },
     LEVERAGE: { id: 'leverage', name: 'Leverage', emoji: '🌶️', typeColor: '#FB7185', price: 15 },
     HEDGE: { id: 'hedge', name: 'Hedge', emoji: '🛡️', typeColor: '#818CF8', price: 15 }
 };
@@ -302,7 +307,20 @@ function drawAssetCard(x, y, w, h, slot) {
     grad.addColorStop(1, '#050A12');
     
     drawRoundRect(-w/2, -h/2, w, h, 8, grad, color, color, isCooked ? 20 : 0);
-    drawEmoji(0, 0, isCooked ? slot.def.cooked : slot.def.emoji, 36);
+    
+    if (slot.def.img && slot.def.img.complete && slot.def.img.naturalWidth !== 0) {
+        ctx.globalAlpha = isCooked ? 1.0 : 0.5; // Uncooked is slightly faded
+        ctx.drawImage(slot.def.img, -w/2 + 4, -h/2 + 4, w - 8, h - 20);
+        ctx.globalAlpha = 1.0;
+        
+        if (isCooked) {
+            // Draw a green checkmark or glow over the image when done
+            ctx.fillStyle = 'rgba(0, 230, 118, 0.2)';
+            ctx.fillRect(-w/2 + 4, -h/2 + 4, w - 8, h - 20);
+        }
+    } else {
+        drawEmoji(0, 0, isCooked ? slot.def.cooked : slot.def.emoji, 36);
+    }
     
     ctx.fillStyle = 'rgba(255,255,255,0.2)';
     ctx.fillRect(-w/2 + 8, h/2 - 15, w - 16, 4);
@@ -314,14 +332,26 @@ function drawAssetCard(x, y, w, h, slot) {
 function drawPortfolioFolder(x, y, w, h, assetType, addonType) {
     ctx.save(); ctx.translate(x, y);
     
-    // Base Folder
-    drawRoundRect(-w/2, -h/2, w, h, 6, 'rgba(10, 24, 42, 0.9)', '#38BDF8', '#38BDF8', 10);
-    ctx.fillStyle = 'rgba(56, 189, 248, 0.1)'; ctx.fill();
-    ctx.beginPath(); ctx.roundRect(-w/2, -h/2 - 6, w*0.4, 10, 4); ctx.fill(); ctx.stroke();
+    if (ITEMS.FOLDER.img && ITEMS.FOLDER.img.complete && ITEMS.FOLDER.img.naturalWidth !== 0) {
+        // Draw the 3D portfolio image
+        ctx.shadowBlur = 15; ctx.shadowColor = '#38BDF8';
+        ctx.drawImage(ITEMS.FOLDER.img, -w/2, -h/2, w, h);
+        ctx.shadowBlur = 0;
+    } else {
+        // Base Folder Fallback
+        drawRoundRect(-w/2, -h/2, w, h, 6, 'rgba(10, 24, 42, 0.9)', '#38BDF8', '#38BDF8', 10);
+        ctx.fillStyle = 'rgba(56, 189, 248, 0.1)'; ctx.fill();
+        ctx.beginPath(); ctx.roundRect(-w/2, -h/2 - 6, w*0.4, 10, 4); ctx.fill(); ctx.stroke();
+    }
     
     if (assetType) {
         const def = ITEMS[assetType.toUpperCase()];
-        drawEmoji(0, 0, def.cooked, 20);
+        if (def.img && def.img.complete) {
+            // Draw a mini version of the asset poking out of the folder
+            ctx.drawImage(def.img, -w/4, -h/4, w/2, h/2);
+        } else {
+            drawEmoji(0, 0, def.cooked, 20);
+        }
         
         // Addon splash (Condiment)
         if (addonType) {
