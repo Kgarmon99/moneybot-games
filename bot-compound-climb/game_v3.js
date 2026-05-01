@@ -15,11 +15,11 @@ let highScore = localStorage.getItem('mb_compound_climb_highscore') || 0;
 let highestY = 0;
 let shakeTime = 0;
 
-// Physics & Tuning
-const GRAVITY = 0.4;
-const JUMP_VELOCITY = -12.5;
-const SPRING_VELOCITY = -22;
-const PLATFORM_WIDTH = 65;
+// Physics & Tuning (Arcade Snappy)
+const GRAVITY = 0.55;
+const JUMP_VELOCITY = -15;
+const SPRING_VELOCITY = -26;
+const PLATFORM_WIDTH = 80;
 const PLATFORM_HEIGHT = 15;
 
 // Audio Context (Juice!)
@@ -210,7 +210,8 @@ function update() {
 
     // Player Horizontal Movement (Lerp to target for smooth velocity)
     let oldX = player.x;
-    player.x += (player.targetX - player.x) * 0.15;
+    // Increased lerp factor from 0.15 to 0.35 for much snappier, responsive controls
+    player.x += (player.targetX - player.x) * 0.35;
     player.vx = player.x - oldX;
     
     // Tilt mascot based on velocity
@@ -275,11 +276,11 @@ function update() {
 
         // Collision detection (only when falling)
         if(player.vy > 0 && !p.broken) {
-            // Generous hitbox
-            if(player.x + player.radius > p.x - 5 && 
-               player.x - player.radius < p.x + PLATFORM_WIDTH + 5 && 
-               player.y + player.radius > p.y && 
-               player.y + player.radius < p.y + PLATFORM_HEIGHT + player.vy + 5) {
+            // Very generous arcade hitbox
+            if(player.x + player.radius > p.x - 15 && 
+               player.x - player.radius < p.x + PLATFORM_WIDTH + 15 && 
+               player.y + player.radius > p.y - 5 && 
+               player.y + player.radius < p.y + PLATFORM_HEIGHT + player.vy + 15) {
                 
                 // Hit platform!
                 if(p.type === 'crumble') {
