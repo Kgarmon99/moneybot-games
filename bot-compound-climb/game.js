@@ -81,7 +81,7 @@ let stars = [];
 
 // Mascot image
 const mascotImg = new Image();
-mascotImg.src = 'assets/mascot/operator.png';
+mascotImg.src = 'assets/mascot/mascot-transparent.svg';
 
 // Colors (MoneyBot Palette)
 const COLORS = {
@@ -420,7 +420,11 @@ function draw() {
         ctx.shadowColor = 'rgba(0,0,0,0.5)';
         ctx.shadowBlur = 15;
         ctx.shadowOffsetY = 10;
-        ctx.drawImage(mascotImg, -player.radius - 5, -player.radius - 5, (player.radius*2)+10, (player.radius*2)+10);
+        
+        // Draw the image significantly larger than the physical hitbox for better visibility
+        let visRadius = player.radius * 2.0; 
+        ctx.drawImage(mascotImg, -visRadius, -visRadius, visRadius*2, visRadius*2);
+        
         ctx.shadowBlur = 0;
         ctx.shadowOffsetY = 0;
     } else {
