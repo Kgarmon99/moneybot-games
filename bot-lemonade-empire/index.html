@@ -12,7 +12,11 @@
         <!-- HUD -->
         <header id="hud">
             <div class="stat-pill"><span class="label">DAY</span><span id="day-val" class="val">1</span></div>
-            <div class="stat-pill highlight"><span class="label">CASH</span><span id="cash-val" class="val">$20.00</span></div>
+            <div class="stat-pill highlight" style="position:relative;">
+                <span class="label">CASH</span>
+                <span id="cash-val" class="val">$20.00</span>
+                <img src="assets/coins-transparent.png?v=1" alt="Coins" style="position:absolute; right:-10px; top:-10px; height:45px; filter:drop-shadow(0 5px 5px rgba(0,0,0,0.5));">
+            </div>
             <div class="stat-pill"><span class="label">WEATHER</span><span id="weather-val" class="val">☀️ Hot</span></div>
         </header>
 
@@ -83,7 +87,11 @@
             </div>
             <div class="sim-stats">
                 <div class="stat"><span class="label">SOLD</span><span id="sim-sold" class="val">0</span></div>
-                <div class="stat highlight"><span class="label">REVENUE</span><span id="sim-rev" class="val">$0.00</span></div>
+                <div class="stat highlight" style="position:relative;">
+                    <span class="label">REVENUE</span>
+                    <span id="sim-rev" class="val">$0.00</span>
+                    <img src="assets/coins-transparent.png?v=1" alt="Coins" style="position:absolute; right:10px; bottom:10px; height:40px; opacity:0.3;">
+                </div>
             </div>
             <button id="end-day-btn" class="btn-primary hidden" onclick="endDay()">View P&L</button>
         </div>
