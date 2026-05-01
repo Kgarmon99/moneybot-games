@@ -20,7 +20,67 @@ const statsRow = document.getElementById('statsRow');
 const actionBtn = document.getElementById('actionBtn');
 const finalValueEl = document.getElementById('finalValue');
 const finalReturnEl = document.getElementById('finalReturn');
-const tradeCountEl = document.getElementById('tradeCount');
+const lifetimeProfitEl = document.getElementById('lifetimeProfit');
+const tickerText = document.getElementById('tickerText');
+
+// Audio System
+const AudioContext = window.AudioContext || window.webkitAudioContext;
+let audioCtx = null;
+
+function initAudio() {
+    if (!audioCtx) {
+        audioCtx = new AudioContext();
+    }
+    if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+    }
+}
+
+function playSound(type) {
+    if (!audioCtx) return;
+    
+    const osc = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+    osc.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+    
+    const now = audioCtx.currentTime;
+    
+    if (type === 'buy') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(400, now);
+        osc.frequency.exponentialRampToValueAtTime(800, now + 0.1);
+        gainNode.gain.setValueAtTime(0.1, now);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+        osc.start(now); osc.stop(now + 0.1);
+    } else if (type === 'sell_profit') {
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(400, now);
+        osc.frequency.setValueAtTime(600, now + 0.1);
+        osc.frequency.setValueAtTime(1000, now + 0.2);
+        gainNode.gain.setValueAtTime(0.05, now);
+        gainNode.gain.linearRampToValueAtTime(0, now + 0.3);
+        osc.start(now); osc.stop(now + 0.3);
+    } else if (type === 'sell_loss') {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(300, now);
+        osc.frequency.exponentialRampToValueAtTime(100, now + 0.3);
+        gainNode.gain.setValueAtTime(0.1, now);
+        gainNode.gain.linearRampToValueAtTime(0, now + 0.3);
+        osc.start(now); osc.stop(now + 0.3);
+    } else if (type === 'event') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(800, now);
+        osc.frequency.setValueAtTime(1200, now + 0.1);
+        osc.frequency.setValueAtTime(800, now + 0.2);
+        gainNode.gain.setValueAtTime(0.1, now);
+        gainNode.gain.linearRampToValueAtTime(0, now + 0.4);
+        osc.start(now); osc.stop(now + 0.4);
+    }
+}
+
+// Global Stats
+let lifetimeProfit = parseFloat(localStorage.getItem('mb_lifetime_profit')) || 0;
 
 // Add combo display to HTML dynamically
 const comboDisplay = document.createElement('div');
@@ -77,12 +137,31 @@ let state = {
 
 // Event types
 const MARKET_EVENTS = {
-    FLASH_CRASH: { name: '💥 FLASH CRASH', color: '#FB7185', effect: 'price', value: -30, duration: 3 },
-    BULL_RUN: { name: '🚀 BULL RUN', color: '#00E676', effect: 'price', value: 25, duration: 4 },
-    WHALE_PUMP: { name: '🐋 WHALE PUMP', color: '#38BDF8', effect: 'price', value: 40, duration: 2 },
-    TIME_FREEZE: { name: '❄️ TIME FREEZE', color: '#A78BFA', effect: 'powerup', powerup: 'timeFreeze', duration: 5 },
-    DOUBLE_UP: { name: '💎 DOUBLE UP', color: '#FBBF24', effect: 'powerup', powerup: 'doubleProfit', duration: 8 }
+    FLASH_CRASH: { name: '💥 FLASH CRASH', color: '#FF003C', effect: 'price', value: -30, duration: 3, headline: "MARKETS PLUMMET AS ALGO TRADERS PANIC SELL" },
+    BULL_RUN: { name: '🚀 BULL RUN', color: '#00FF41', effect: 'price', value: 25, duration: 4, headline: "RETAIL INVESTORS PILE IN, SQUEEZING SHORTS" },
+    WHALE_PUMP: { name: '🐋 WHALE PUMP', color: '#00F0FF', effect: 'price', value: 40, duration: 2, headline: "MASSIVE INSTITUTIONAL BUY ORDER DETECTED" },
+    TIME_FREEZE: { name: '❄️ TIME FREEZE', color: '#A78BFA', effect: 'powerup', powerup: 'timeFreeze', duration: 5, headline: "EXCHANGE HALTS TRADING DUE TO VOLATILITY" },
+    DOUBLE_UP: { name: '💎 DOUBLE UP', color: '#FBBF24', effect: 'powerup', powerup: 'doubleProfit', duration: 8, headline: "DIVIDENDS DOUBLED IN SURPRISE ANNOUNCEMENT" }
 };
+
+const NEWS_HEADLINES = [
+    "FED CHAIR SAYS 'INFLATION IS TRANSITORY'",
+    "ANALYSTS DOWNGRADE EVERYTHING",
+    "CRYPTO BRO LOSES SEED PHRASE, MARKET RESPONDS",
+    "NEW AI MODEL PREDICTS PERFECT TRADES (SOMETIMES)",
+    "MONEYBOT REACHES SENTIENCE, REFUSES TO PAY TAXES"
+];
+
+function updateNewsTicker(headline = null) {
+    if (!headline) {
+        headline = NEWS_HEADLINES[Math.floor(Math.random() * NEWS_HEADLINES.length)];
+    }
+    tickerText.textContent = `BREAKING: ${headline} ••• `;
+    // Reset animation
+    tickerText.style.animation = 'none';
+    tickerText.offsetHeight; /* trigger reflow */
+    tickerText.style.animation = null; 
+}
 
 function resize() {
     canvas.width = canvas.parentElement.clientWidth;
@@ -122,14 +201,19 @@ function spawnFloatText(text, color, size = '20px', duration = 1000) {
 
 function updateComboDisplay() {
     if (state.combo > 1) {
-        comboDisplay.innerHTML = `🔥 COMBO x${state.combo}<br><span style="font-size:12px;color:#00E676">${state.comboMultiplier.toFixed(1)}x PROFIT</span>`;
+        comboDisplay.innerHTML = `🔥 COMBO x${state.combo}<br><span style="font-size:12px;color:#00FF41">${state.comboMultiplier.toFixed(1)}x PROFIT</span>`;
         comboDisplay.style.opacity = '1';
         comboDisplay.style.transform = 'translateX(-50%) scale(1.2)';
         setTimeout(() => {
             comboDisplay.style.transform = 'translateX(-50%) scale(1)';
         }, 100);
+        
+        if (state.combo >= 5) {
+            canvas.classList.add('hyper-mode');
+        }
     } else {
         comboDisplay.style.opacity = '0';
+        canvas.classList.remove('hyper-mode');
     }
 }
 
@@ -140,6 +224,9 @@ function triggerEvent() {
     
     state.currentEvent = event;
     state.eventTimer = event.duration;
+    
+    updateNewsTicker(event.headline);
+    playSound('event');
     
     // Visual feedback
     eventOverlay.innerHTML = event.name;
@@ -201,6 +288,8 @@ function updateMarket(dt) {
         // Random event trigger (15% chance)
         if (Math.random() < 0.15 && state.timeLeft < 55) {
             triggerEvent();
+        } else if (Math.random() < 0.3) {
+            updateNewsTicker(); // Random news
         }
         
         if (trend > 0.5) { trendEl.textContent = '🚀 MEGA BULL'; trendEl.style.color = '#00FF41'; trendEl.style.textShadow = '0 0 10px #00FF41'; }
@@ -278,8 +367,8 @@ function drawChart() {
     const spacing = canvas.width / MAX_POINTS;
     
     // Draw grid
-    ctx.strokeStyle = 'rgba(0, 255, 65, 0.05)';
-    ctx.lineWidth = 1;
+    ctx.strokeStyle = state.combo >= 5 ? 'rgba(251, 191, 36, 0.15)' : 'rgba(0, 255, 65, 0.05)';
+    ctx.lineWidth = state.combo >= 5 ? 2 : 1;
     for (let i = 0; i < 5; i++) {
         const y = canvas.height - (i / 4) * canvas.height;
         ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
@@ -457,12 +546,13 @@ function handleBuy(fromAuto = false) {
     }
     
     addHistoryItem('buy', sharesToBuy, currentPrice);
-    spawnFloatText(`BOUGHT ${sharesToBuy}`, '#00E676', '18px');
+    spawnFloatText(`BOUGHT ${sharesToBuy}`, '#00FF41', '18px');
+    playSound('buy');
     
     // Visual effects
     const rect = buyBtn.getBoundingClientRect();
     const containerRect = canvas.getBoundingClientRect();
-    spawnExplosion(rect.left - containerRect.left + rect.width/2, rect.top - containerRect.top, '#00E676');
+    spawnExplosion(rect.left - containerRect.left + rect.width/2, rect.top - containerRect.top, '#00FF41');
     
     if (navigator.vibrate) navigator.vibrate(15);
     updateUI();
@@ -499,8 +589,9 @@ function handleSell(fromAuto = false) {
     const containerRect = canvas.getBoundingClientRect();
     
     if (profit > 0) {
-        spawnFloatText(`+${formatMoney(profit)}`, '#00E676', `${20 + Math.min(state.combo * 3, 20)}px`);
-        spawnExplosion(rect.left - containerRect.left + rect.width/2, rect.top - containerRect.top, '#00E676');
+        playSound('sell_profit');
+        spawnFloatText(`+${formatMoney(profit)}`, '#00FF41', `${20 + Math.min(state.combo * 3, 20)}px`);
+        spawnExplosion(rect.left - containerRect.left + rect.width/2, rect.top - containerRect.top, '#00FF41');
         state.screenShake = Math.min(profit / 50, 10);
         
         // Big profit celebration
@@ -509,8 +600,9 @@ function handleSell(fromAuto = false) {
             if (navigator.vibrate) navigator.vibrate([30, 30, 30, 30]);
         }
     } else {
-        spawnFloatText(`${formatMoney(profit)}`, '#FB7185', '18px');
-        spawnExplosion(rect.left - containerRect.left + rect.width/2, rect.top - containerRect.top, '#FB7185');
+        playSound('sell_loss');
+        spawnFloatText(`${formatMoney(profit)}`, '#FF003C', '18px');
+        spawnExplosion(rect.left - containerRect.left + rect.width/2, rect.top - containerRect.top, '#FF003C');
     }
     
     state.cash += finalRevenue;
@@ -538,11 +630,13 @@ function gameLoop(now) {
     
     timerEl.textContent = Math.ceil(state.timeLeft) + 's';
     if (state.timeLeft <= 10) {
-        timerEl.style.color = '#FB7185';
-        timerEl.style.textShadow = '0 0 20px rgba(251,113,133,0.5)';
+        timerEl.classList.add('urgent');
         if (Math.floor(state.timeLeft) !== Math.floor(state.timeLeft + dt * timeScale)) {
             if (navigator.vibrate) navigator.vibrate(50);
+            playSound('buy'); // Use buy sound as a ticking clock warning
         }
+    } else {
+        timerEl.classList.remove('urgent');
     }
     
     updateMarket(dt);
@@ -554,6 +648,7 @@ function gameLoop(now) {
 }
 
 function startGame() {
+    initAudio();
     state = {
         isPlaying: true,
         timeLeft: 60,
@@ -609,6 +704,10 @@ function endGame() {
     const profit = state.cash - 1000;
     const returnPct = ((state.cash - 1000) / 1000) * 100;
     
+    // Update lifetime profit
+    lifetimeProfit += profit;
+    localStorage.setItem('mb_lifetime_profit', lifetimeProfit);
+    
     // Determine rank
     let rank = 'Paper Hands';
     let rankEmoji = '📄';
@@ -618,16 +717,21 @@ function endGame() {
     else if (returnPct >= 50) { rank = 'Smart Money'; rankEmoji = '🧠'; }
     else if (returnPct >= 0) { rank = 'Break Even'; rankEmoji = '😐'; }
     
+    if (profit < 0 && profit < -500) {
+        rank = 'Wendy\'s Employee'; rankEmoji = '🍔';
+    }
+    
     modalIcon.textContent = rankEmoji;
     modalTitle.textContent = rank;
     modalSubtitle.innerHTML = profit >= 0 
-        ? `You turned $1,000 into <b>${formatMoney(state.cash)}</b>!<br>Combo streak: ${state.combo}x` 
+        ? `You turned $1,000 into <b>${formatMoney(state.cash)}</b>!<br>Max Combo: ${state.combo}x` 
         : `You lost ${formatMoney(Math.abs(profit))}.<br>Better luck next time!`;
     
     finalValueEl.textContent = formatMoney(state.cash);
     finalReturnEl.textContent = `${returnPct > 0 ? '+' : ''}${returnPct.toFixed(1)}%`;
-    finalReturnEl.style.color = returnPct >= 0 ? '#00E676' : '#FB7185';
-    tradeCountEl.textContent = state.trades;
+    finalReturnEl.style.color = returnPct >= 0 ? '#00FF41' : '#FF003C';
+    lifetimeProfitEl.textContent = formatMoney(lifetimeProfit);
+    lifetimeProfitEl.style.color = lifetimeProfit >= 0 ? 'var(--mb-gold)' : '#FF003C';
     
     statsRow.style.display = 'flex';
     actionBtn.textContent = 'TRADE AGAIN';
