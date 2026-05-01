@@ -17,7 +17,7 @@ let shakeTime = 0;
 
 // Physics & Tuning
 const GRAVITY = 0.4;
-const JUMP_VELOCITY = -11;
+const JUMP_VELOCITY = -12.5;
 const SPRING_VELOCITY = -22;
 const PLATFORM_WIDTH = 65;
 const PLATFORM_HEIGHT = 15;
@@ -81,7 +81,7 @@ let stars = [];
 
 // Mascot image
 const mascotImg = new Image();
-mascotImg.src = 'assets/mascot/mascot-transparent.svg';
+mascotImg.src = 'assets/mascot/operator-transparent.png';
 
 // Colors (MoneyBot Palette)
 const COLORS = {
@@ -138,7 +138,7 @@ function initGame() {
     let currentY = height - 150;
     while(currentY > -height) {
         spawnPlatform(currentY);
-        currentY -= Math.random() * 80 + 40;
+        currentY -= Math.random() * 60 + 30;
     }
 
     uiStart.classList.add('hidden');
@@ -297,7 +297,7 @@ function update() {
         if(p.y > height) {
             platforms.splice(i, 1);
             let highestPlatformY = Math.min(...platforms.map(plat => plat.y));
-            spawnPlatform(highestPlatformY - (Math.random() * 80 + 50));
+            spawnPlatform(highestPlatformY - (Math.random() * 60 + 30));
         }
     }
 
