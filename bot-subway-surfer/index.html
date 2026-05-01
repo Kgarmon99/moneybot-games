@@ -9,13 +9,13 @@
         body { background: #000; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
         canvas { display: block; width: 100vw; height: 100vh; }
         .ui { position: absolute; top: 0; left: 0; right: 0; padding: 20px; display: flex; justify-content: space-between; pointer-events: none; z-index: 10; }
+        .back-btn { width: 44px; height: 44px; background: rgba(255,255,255,0.15); border: none; border-radius: 50%; color: #fff; font-size: 20px; pointer-events: auto; text-decoration: none; display: flex; align-items: center; justify-content: center; }
         .score-box { text-align: right; }
         .score-label { font-size: 12px; color: #FFD700; font-weight: 700; letter-spacing: 2px; }
         .score-value { font-size: 48px; font-weight: 900; color: #fff; text-shadow: 0 0 20px rgba(255,215,0,0.5); }
         .coins-box { display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.6); padding: 8px 16px; border-radius: 20px; margin-top: 10px; }
         .coin-icon { width: 24px; height: 24px; background: linear-gradient(135deg, #FFD700, #FFA500); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #8B4513; font-size: 14px; }
         .coins-value { font-size: 20px; font-weight: 800; color: #FFD700; }
-        .back-btn { width: 44px; height: 44px; background: rgba(255,255,255,0.15); border: none; border-radius: 50%; color: #fff; font-size: 20px; pointer-events: auto; text-decoration: none; display: flex; align-items: center; justify-content: center; }
         .overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.9); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100; }
         .overlay.hidden { display: none; }
         .logo { width: 100px; height: 100px; margin-bottom: 20px; filter: drop-shadow(0 0 30px rgba(34,197,94,0.5)); animation: bounce 2s infinite; }
@@ -58,9 +58,10 @@
         const canvas = document.getElementById('game');
         const ctx = canvas.getContext('2d');
         
+        // Game constants
         const LANE_WIDTH = 100;
-        const PLAYER_Y = 0.75; // Player at 75% down screen
-        const HORIZON_Y = 0.3; // Horizon at 30% down screen
+        const PLAYER_Y = 0.8;
+        const HORIZON_Y = 0.25;
         
         const playerImg = new Image();
         playerImg.src = 'assets/player-rembg.png';
@@ -73,16 +74,22 @@
             lane: 1,
             targetLane: 1,
             laneX: 0,
-            speed: 5,
-            worldY: 0,
+            speed: 0,
+            baseSpeed: 8,
             
-            items: [], // trains, coins
+            items: [],
             particles: [],
             
             resize() {
                 canvas.width = window.innerWidth;
                 canvas.height = window.innerHeight;
-                this.laneX = canvas.width / 2;
+                this.laneX = this.getLaneX(1);
+            },
+            
+            getLaneX(lane) {
+                const trackWidth = LANE_WIDTH * 3;
+                const startX = (canvas.width - trackWidth) / 2;
+                return startX + lane * LANE_WIDTH + LANE_WIDTH / 2;
             },
             
             start() {
@@ -91,12 +98,14 @@
                 this.coinCount = 0;
                 this.lane = 1;
                 this.targetLane = 1;
-                this.speed = 5;
-                this.worldY = 0;
+                this.laneX = this.getLaneX(1);
+                this.speed = this.baseSpeed;
                 this.items = [];
                 this.particles = [];
+                
                 document.getElementById('startScreen').classList.add('hidden');
                 document.getElementById('gameOverScreen').classList.add('hidden');
+                
                 this.loop();
             },
             
@@ -122,63 +131,87 @@
                 }
             },
             
-            jump() {
-                // Jump animation could be added here
-            },
-            
-            getLaneCenter(lane) {
-                const trackWidth = LANE_WIDTH * 3;
-                const startX = (canvas.width - trackWidth) / 2;
-                return startX + lane * LANE_WIDTH + LANE_WIDTH / 2;
-            },
-            
             spawnItem() {
                 const lane = Math.floor(Math.random() * 3);
-                const isTrain = Math.random() > 0.5;
+                const isTrain = Math.random() > 0.6;
                 
                 this.items.push({
                     type: isTrain ? 'train' : 'coin',
                     lane: lane,
-                    y: -200, // Start above horizon
-                    width: isTrain ? 80 : 30,
-                    height: isTrain ? 120 : 30,
+                    y: -100,
+                    z: 2000,
+                    width: isTrain ? 90 : 35,
+                    height: isTrain ? 140 : 35,
                     collected: false
                 });
             },
             
             spawnCoinLine() {
                 const lane = Math.floor(Math.random() * 3);
-                for (let i = 0; i < 5; i++) {
-                    this.items.push({
-                        type: 'coin',
-                        lane: lane,
-                        y: -200 - i * 80,
-                        width: 30,
-                        height: 30,
-                        collected: false
-                    });
+                const pattern = Math.floor(Math.random() * 3);
+                
+                if (pattern === 0) {
+                    // Straight line
+                    for (let i = 0; i < 6; i++) {
+                        this.items.push({
+                            type: 'coin',
+                            lane: lane,
+                            y: -100 - i * 70,
+                            z: 2000 + i * 70,
+                            width: 35,
+                            height: 35,
+                            collected: false
+                        });
+                    }
+                } else if (pattern === 1) {
+                    // Arc
+                    for (let i = 0; i < 5; i++) {
+                        this.items.push({
+                            type: 'coin',
+                            lane: lane,
+                            y: -100 - i * 60,
+                            z: 2000 + i * 60,
+                            width: 35,
+                            height: 35,
+                            arcOffset: Math.sin(i * 0.5) * 30,
+                            collected: false
+                        });
+                    }
+                } else {
+                    // Triple row
+                    for (let l = 0; l < 3; l++) {
+                        for (let i = 0; i < 4; i++) {
+                            this.items.push({
+                                type: 'coin',
+                                lane: l,
+                                y: -100 - i * 80,
+                                z: 2000 + i * 80,
+                                width: 35,
+                                height: 35,
+                                collected: false
+                            });
+                        }
+                    }
                 }
             },
             
             update() {
                 if (this.state !== 'playing') return;
                 
-                // Update score
-                this.score += 1;
-                this.speed = Math.min(15, 5 + this.score / 500);
+                // Update score and speed
+                this.score++;
+                this.speed = Math.min(20, this.baseSpeed + this.score / 300);
                 document.getElementById('score').textContent = this.score;
                 document.getElementById('coins').textContent = this.coinCount;
                 
-                // Smooth lane transition
-                const targetX = this.getLaneCenter(this.targetLane);
-                this.laneX += (targetX - this.laneX) * 0.15;
-                if (Math.abs(this.laneX - targetX) < 1) {
-                    this.lane = this.targetLane;
-                }
+                // Smooth lane movement
+                const targetX = this.getLaneX(this.targetLane);
+                this.laneX += (targetX - this.laneX) * 0.2;
+                this.lane = Math.round(this.laneX / LANE_WIDTH - 0.5 + 1);
                 
                 // Spawn items
-                if (Math.random() < 0.02) this.spawnItem();
-                if (Math.random() < 0.015) this.spawnCoinLine();
+                if (Math.random() < 0.015) this.spawnItem();
+                if (Math.random() < 0.01) this.spawnCoinLine();
                 
                 // Update items
                 const playerY = canvas.height * PLAYER_Y;
@@ -186,26 +219,26 @@
                 for (let i = this.items.length - 1; i >= 0; i--) {
                     const item = this.items[i];
                     
-                    // Move item down (toward player)
+                    // Move item toward player (increase y position)
                     item.y += this.speed;
+                    item.z -= this.speed;
                     
-                    // Get item's screen position with perspective
-                    const itemScreen = this.getScreenPos(item.lane, item.y);
-                    const playerScreen = { x: this.laneX, y: playerY, scale: 1 };
+                    // Get screen position
+                    const pos = this.worldToScreen(item.lane, item.y, item.z, item.arcOffset || 0);
                     
                     // Check collision
-                    if (!item.collected && itemScreen.y > playerY - 50 && itemScreen.y < playerY + 50) {
-                        const laneMatch = Math.abs(item.lane - this.lane) < 0.5;
+                    if (!item.collected && pos.y > playerY - 60 && pos.y < playerY + 40) {
+                        const dx = Math.abs(pos.x - this.laneX);
                         
-                        if (laneMatch) {
+                        if (dx < 50 * pos.scale) {
                             if (item.type === 'train') {
                                 this.gameOver();
                                 return;
                             } else if (item.type === 'coin') {
                                 item.collected = true;
                                 this.coinCount++;
-                                this.score += 50;
-                                this.createParticles(itemScreen.x, itemScreen.y, '#FFD700');
+                                this.score += 10;
+                                this.createSparkles(pos.x, pos.y);
                             }
                         }
                     }
@@ -222,74 +255,75 @@
                     p.x += p.vx;
                     p.y += p.vy;
                     p.vy += 0.5;
-                    p.life -= 0.05;
+                    p.life -= 0.04;
                     if (p.life <= 0) this.particles.splice(i, 1);
                 }
             },
             
-            getScreenPos(lane, worldY) {
-                // Simple perspective: items start small at horizon, get bigger as they approach
+            worldToScreen(lane, worldY, worldZ, arcOffset = 0) {
                 const horizonY = canvas.height * HORIZON_Y;
                 const playerY = canvas.height * PLAYER_Y;
-                const totalDist = playerY - horizonY;
+                const totalDist = 2000;
                 
-                // Normalize Y position (0 at horizon, 1 at player)
-                let t = (worldY - (-500)) / 1500; // Map worldY to 0-1 range
+                // Progress from 0 (horizon) to 1 (player)
+                let t = (worldY + 100) / totalDist;
                 t = Math.max(0, Math.min(1, t));
                 
-                // Perspective scale (0.3 at horizon, 1 at player)
-                const scale = 0.3 + t * 0.7;
+                // Scale: small at horizon (0.2), full at player (1)
+                const scale = 0.2 + t * 0.8;
                 
-                // Screen Y position
-                const screenY = horizonY + t * totalDist;
+                // Y position: starts at horizon, goes to player Y
+                const screenY = horizonY + (playerY - horizonY) * t;
                 
-                // Lane position with perspective (narrower at horizon)
-                const laneCenter = this.getLaneCenter(lane);
+                // X position with perspective
+                const laneX = this.getLaneX(lane);
                 const centerX = canvas.width / 2;
-                const offsetX = (laneCenter - centerX) * scale;
-                const screenX = centerX + offsetX;
+                const offsetFromCenter = laneX - centerX;
+                const screenX = centerX + offsetFromCenter * scale + arcOffset * scale;
                 
                 return { x: screenX, y: screenY, scale: scale };
             },
             
-            createParticles(x, y, color) {
-                for (let i = 0; i < 8; i++) {
+            createSparkles(x, y) {
+                for (let i = 0; i < 10; i++) {
+                    const angle = (Math.PI * 2 * i) / 10;
+                    const speed = Math.random() * 8 + 4;
                     this.particles.push({
                         x: x,
                         y: y,
-                        vx: (Math.random() - 0.5) * 10,
-                        vy: -Math.random() * 10 - 5,
+                        vx: Math.cos(angle) * speed,
+                        vy: Math.sin(angle) * speed - 5,
                         life: 1,
-                        color: color
+                        color: '#FFD700',
+                        size: Math.random() * 6 + 3
                     });
                 }
             },
             
             draw() {
-                // Clear
-                ctx.fillStyle = '#0a0a1a';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                
+                // Background
                 const horizonY = canvas.height * HORIZON_Y;
                 
-                // Draw sky gradient
+                // Sky
                 const skyGrad = ctx.createLinearGradient(0, 0, 0, horizonY);
-                skyGrad.addColorStop(0, '#050510');
-                skyGrad.addColorStop(1, '#1a1a2e');
+                skyGrad.addColorStop(0, '#0a0a1a');
+                skyGrad.addColorStop(1, '#1a1a3a');
                 ctx.fillStyle = skyGrad;
                 ctx.fillRect(0, 0, canvas.width, horizonY);
                 
-                // Draw city buildings
+                // City
                 this.drawCity(horizonY);
                 
-                // Draw track
+                // Track
                 this.drawTrack(horizonY);
                 
-                // Draw items (back to front)
+                // Sort items by Y (back to front)
                 this.items.sort((a, b) => a.y - b.y);
+                
+                // Draw items
                 this.items.forEach(item => {
                     if (!item.collected) {
-                        const pos = this.getScreenPos(item.lane, item.y);
+                        const pos = this.worldToScreen(item.lane, item.y, item.z, item.arcOffset || 0);
                         if (pos.y > horizonY - 50) {
                             if (item.type === 'train') {
                                 this.drawTrain(pos.x, pos.y, pos.scale);
@@ -308,7 +342,7 @@
                     ctx.globalAlpha = p.life;
                     ctx.fillStyle = p.color;
                     ctx.beginPath();
-                    ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
                     ctx.fill();
                 });
                 ctx.globalAlpha = 1;
@@ -316,10 +350,10 @@
             
             drawCity(horizonY) {
                 const buildings = [
-                    { x: 0.1, w: 0.08, h: 0.4 },
-                    { x: 0.2, w: 0.06, h: 0.5 },
-                    { x: 0.75, w: 0.1, h: 0.45 },
-                    { x: 0.85, w: 0.08, h: 0.35 },
+                    { x: 0.05, w: 0.12, h: 0.5 },
+                    { x: 0.18, w: 0.08, h: 0.6 },
+                    { x: 0.75, w: 0.1, h: 0.55 },
+                    { x: 0.88, w: 0.1, h: 0.45 },
                 ];
                 
                 buildings.forEach(b => {
@@ -327,15 +361,15 @@
                     const w = b.w * canvas.width;
                     const h = b.h * horizonY;
                     
-                    ctx.fillStyle = '#0d0d18';
+                    ctx.fillStyle = '#0f0f1f';
                     ctx.fillRect(x, horizonY - h, w, h);
                     
                     // Windows
-                    ctx.fillStyle = 'rgba(255, 215, 0, 0.3)';
-                    for (let wy = horizonY - h + 20; wy < horizonY - 10; wy += 30) {
-                        for (let wx = x + 10; wx < x + w - 5; wx += 20) {
-                            if (Math.random() > 0.4) {
-                                ctx.fillRect(wx, wy, 10, 15);
+                    ctx.fillStyle = 'rgba(255, 200, 50, 0.4)';
+                    for (let wy = horizonY - h + 30; wy < horizonY - 20; wy += 40) {
+                        for (let wx = x + 15; wx < x + w - 10; wx += 25) {
+                            if ((wx + wy) % 50 < 30) {
+                                ctx.fillRect(wx, wy, 12, 18);
                             }
                         }
                     }
@@ -346,107 +380,119 @@
                 const playerY = canvas.height * PLAYER_Y;
                 const trackWidth = LANE_WIDTH * 3;
                 
-                // Track ground
-                ctx.fillStyle = '#1a1a2e';
+                // Track surface
+                ctx.fillStyle = '#1a1a2a';
                 ctx.beginPath();
-                ctx.moveTo((canvas.width - trackWidth * 0.3) / 2, horizonY);
-                ctx.lineTo((canvas.width + trackWidth * 0.3) / 2, horizonY);
-                ctx.lineTo((canvas.width + trackWidth) / 2, playerY);
-                ctx.lineTo((canvas.width - trackWidth) / 2, playerY);
+                ctx.moveTo(canvas.width/2 - trackWidth*0.25, horizonY);
+                ctx.lineTo(canvas.width/2 + trackWidth*0.25, horizonY);
+                ctx.lineTo(canvas.width/2 + trackWidth*0.8, playerY);
+                ctx.lineTo(canvas.width/2 - trackWidth*0.8, playerY);
                 ctx.closePath();
                 ctx.fill();
                 
-                // Lane lines
-                ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+                // Lane dividers
+                ctx.strokeStyle = 'rgba(255,255,255,0.15)';
                 ctx.lineWidth = 2;
                 for (let i = 1; i < 3; i++) {
-                    const x1 = (canvas.width - trackWidth * 0.3) / 2 + i * (trackWidth * 0.3 / 3);
-                    const x2 = (canvas.width - trackWidth) / 2 + i * LANE_WIDTH;
+                    const t = i / 3;
+                    const x1 = canvas.width/2 - trackWidth*0.25 + t * trackWidth*0.5;
+                    const x2 = canvas.width/2 - trackWidth*0.8 + t * trackWidth*1.6;
                     ctx.beginPath();
                     ctx.moveTo(x1, horizonY);
                     ctx.lineTo(x2, playerY);
                     ctx.stroke();
                 }
                 
-                // Third rail
+                // Third rail (left side)
                 ctx.strokeStyle = '#dc2626';
                 ctx.lineWidth = 4;
-                const railX1 = (canvas.width - trackWidth * 0.3) / 2 - 10;
-                const railX2 = (canvas.width - trackWidth) / 2 - 20;
                 ctx.beginPath();
-                ctx.moveTo(railX1, horizonY);
-                ctx.lineTo(railX2, playerY);
+                ctx.moveTo(canvas.width/2 - trackWidth*0.28, horizonY);
+                ctx.lineTo(canvas.width/2 - trackWidth*0.85, playerY);
                 ctx.stroke();
             },
             
             drawTrain(x, y, scale) {
-                const w = 80 * scale;
-                const h = 120 * scale;
+                const w = 100 * scale;
+                const h = 160 * scale;
                 
-                // Train body
-                const grad = ctx.createLinearGradient(x - w/2, y - h, x + w/2, y - h);
-                grad.addColorStop(0, '#dc2626');
+                // Body
+                const grad = ctx.createLinearGradient(x - w/2, y - h, x + w/2, y);
+                grad.addColorStop(0, '#b91c1c');
                 grad.addColorStop(0.5, '#ef4444');
-                grad.addColorStop(1, '#b91c1c');
+                grad.addColorStop(1, '#991b1b');
                 ctx.fillStyle = grad;
                 ctx.fillRect(x - w/2, y - h, w, h);
                 
                 // Window
                 ctx.fillStyle = '#1e3a5f';
-                ctx.fillRect(x - w/2 + w*0.1, y - h + h*0.15, w*0.8, h*0.2);
+                ctx.fillRect(x - w/2 + w*0.15, y - h + h*0.12, w*0.7, h*0.18);
+                
+                // Door
+                ctx.fillStyle = '#7f1d1d';
+                ctx.fillRect(x - w*0.2, y - h + h*0.35, w*0.4, h*0.5);
+                
+                // Stripe
+                ctx.fillStyle = '#fca5a5';
+                ctx.fillRect(x - w/2, y - h*0.45, w, h*0.06);
                 
                 // Headlights
                 ctx.shadowColor = '#fef08a';
-                ctx.shadowBlur = 20 * scale;
+                ctx.shadowBlur = 30 * scale;
                 ctx.fillStyle = '#fef08a';
                 ctx.beginPath();
-                ctx.arc(x - w/3, y - h*0.1, 8*scale, 0, Math.PI*2);
-                ctx.arc(x + w/3, y - h*0.1, 8*scale, 0, Math.PI*2);
+                ctx.arc(x - w*0.25, y - h*0.08, 10*scale, 0, Math.PI*2);
+                ctx.arc(x + w*0.25, y - h*0.08, 10*scale, 0, Math.PI*2);
                 ctx.fill();
                 ctx.shadowBlur = 0;
-                
-                // Stripe
-                ctx.fillStyle = '#991b1b';
-                ctx.fillRect(x - w/2, y - h*0.4, w, h*0.08);
             },
             
             drawCoin(x, y, scale) {
-                const size = 25 * scale;
-                const rotation = (Date.now() / 150) % (Math.PI * 2);
+                const size = 30 * scale;
+                const rot = Date.now() / 150;
                 
                 ctx.save();
                 ctx.translate(x, y);
-                ctx.rotate(rotation);
+                ctx.scale(Math.sin(rot), 1);
                 
                 ctx.shadowColor = '#FFD700';
-                ctx.shadowBlur = 15 * scale;
+                ctx.shadowBlur = 20 * scale;
                 
+                // Outer
                 ctx.fillStyle = '#FFD700';
                 ctx.beginPath();
-                ctx.ellipse(0, 0, size, size * 0.3, 0, 0, Math.PI * 2);
+                ctx.arc(0, 0, size, 0, Math.PI * 2);
                 ctx.fill();
                 
+                // Inner
                 ctx.fillStyle = '#FFA500';
                 ctx.beginPath();
-                ctx.ellipse(0, 0, size * 0.7, size * 0.2, 0, 0, Math.PI * 2);
+                ctx.arc(0, 0, size * 0.7, 0, Math.PI * 2);
                 ctx.fill();
+                
+                // $ symbol
+                ctx.fillStyle = '#8B4513';
+                ctx.font = `bold ${size}px sans-serif`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('$', 0, 2);
                 
                 ctx.restore();
             },
             
             drawPlayer() {
                 const playerY = canvas.height * PLAYER_Y;
-                const size = 70;
+                const size = 80;
                 
                 // Shadow
-                ctx.fillStyle = 'rgba(0,0,0,0.3)';
+                ctx.fillStyle = 'rgba(0,0,0,0.4)';
                 ctx.beginPath();
-                ctx.ellipse(this.laneX, playerY + 30, 30, 8, 0, 0, Math.PI * 2);
+                ctx.ellipse(this.laneX, playerY + 35, 35, 10, 0, 0, Math.PI * 2);
                 ctx.fill();
                 
                 // Glow
                 ctx.shadowColor = '#22C55E';
-                ctx.shadowBlur = 20;
+                ctx.shadowBlur = 25;
                 
                 // Player
                 if (playerImg.complete) {
@@ -474,10 +520,9 @@
         document.addEventListener('keydown', (e) => {
             if (e.key === 'ArrowLeft') game.move(-1);
             if (e.key === 'ArrowRight') game.move(1);
-            if (e.key === 'ArrowUp') game.jump();
         });
         
-        // Touch controls
+        // Touch
         let touchStartX = 0;
         canvas.addEventListener('touchstart', (e) => {
             touchStartX = e.touches[0].clientX;
@@ -485,9 +530,7 @@
         
         canvas.addEventListener('touchend', (e) => {
             const dx = e.changedTouches[0].clientX - touchStartX;
-            if (Math.abs(dx) > 50) {
-                game.move(dx > 0 ? 1 : -1);
-            }
+            if (Math.abs(dx) > 40) game.move(dx > 0 ? 1 : -1);
         }, { passive: true });
     </script>
 </body>
