@@ -214,3 +214,63 @@ canvas {
   20% { opacity: 1; transform: translateY(0); }
   100% { opacity: 0; transform: translateY(-40px); }
 }
+
+/* Enhanced Animations */
+@keyframes floatUp {
+  0% { opacity: 0; transform: translate(-50%, -50%) translateY(20px) scale(0.5); }
+  20% { opacity: 1; transform: translate(-50%, -50%) translateY(0) scale(1.2); }
+  100% { opacity: 0; transform: translate(-50%, -50%) translateY(-50px) scale(1); }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+@keyframes glow {
+  0%, 100% { box-shadow: 0 0 5px currentColor; }
+  50% { box-shadow: 0 0 20px currentColor, 0 0 40px currentColor; }
+}
+
+.trade-btn.buy:not(:disabled) {
+  animation: pulse 2s infinite;
+}
+
+.trade-btn:not(:disabled):active {
+  transform: scale(0.95) translateY(4px);
+}
+
+#comboDisplay {
+  text-shadow: 0 0 20px currentColor;
+}
+
+.timer.urgent {
+  animation: shake 0.5s infinite, glow 1s infinite;
+  color: var(--mb-red) !important;
+}
+
+#eventOverlay {
+  text-shadow: 0 0 30px currentColor, 0 0 60px currentColor;
+  letter-spacing: 2px;
+}
+
+.powerup-active {
+  animation: glow 1s infinite;
+}
+
+/* Enhanced button states */
+.trade-btn.buy:disabled {
+  background: linear-gradient(135deg, #1a3a2a, #0f2a1a);
+  opacity: 0.6;
+}
+
+.trade-btn.sell:disabled {
+  background: linear-gradient(135deg, #3a1a2a, #2a0f1a);
+  opacity: 0.6;
+}

@@ -22,13 +22,26 @@ const finalValueEl = document.getElementById('finalValue');
 const finalReturnEl = document.getElementById('finalReturn');
 const tradeCountEl = document.getElementById('tradeCount');
 
+// Add combo display to HTML dynamically
+const comboDisplay = document.createElement('div');
+comboDisplay.id = 'comboDisplay';
+comboDisplay.style.cssText = 'position:absolute; top:10px; left:50%; transform:translateX(-50%); font-size:14px; font-weight:800; color:#FBBF24; text-align:center; opacity:0; transition:all 0.3s; z-index:10;';
+document.querySelector('.chart-container').appendChild(comboDisplay);
+
+// Event overlay
+const eventOverlay = document.createElement('div');
+eventOverlay.id = 'eventOverlay';
+eventOverlay.style.cssText = 'position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-size:32px; font-weight:900; text-shadow:0 0 30px rgba(255,255,255,0.5); pointer-events:none; opacity:0; transition:all 0.5s; z-index:20; text-align:center;';
+document.querySelector('.chart-container').appendChild(eventOverlay);
+
 // Chart data
-const MAX_POINTS = 50;
+const MAX_POINTS = 60;
 let priceHistory = [];
+let candleData = []; // {open, high, low, close}
 let currentPrice = 100;
 let targetPrice = 100;
-let trend = 0; // -1 to 1
-let volatility = 2; // 1 to 5
+let trend = 0;
+let volatility = 2;
 let phaseTimer = 0;
 
 // Game state
@@ -39,7 +52,36 @@ let state = {
     shares: 0,
     avgCost: 0,
     trades: 0,
-    lastTime: 0
+    lastTime: 0,
+    
+    // Combo system
+    combo: 0,
+    comboMultiplier: 1,
+    lastTradeProfit: 0,
+    
+    // Power-ups
+    powerUps: {
+        timeFreeze: { active: false, duration: 0 },
+        doubleProfit: { active: false, duration: 0 },
+        autoSell: { active: false, duration: 0, targetPrice: 0 }
+    },
+    
+    // Events
+    currentEvent: null,
+    eventTimer: 0,
+    
+    // Particles
+    particles: [],
+    screenShake: 0
+};
+
+// Event types
+const MARKET_EVENTS = {
+    FLASH_CRASH: { name: '💥 FLASH CRASH', color: '#FB7185', effect: 'price', value: -30, duration: 3 },
+    BULL_RUN: { name: '🚀 BULL RUN', color: '#00E676', effect: 'price', value: 25, duration: 4 },
+    WHALE_PUMP: { name: '🐋 WHALE PUMP', color: '#38BDF8', effect: 'price', value: 40, duration: 2 },
+    TIME_FREEZE: { name: '❄️ TIME FREEZE', color: '#A78BFA', effect: 'powerup', powerup: 'timeFreeze', duration: 5 },
+    DOUBLE_UP: { name: '💎 DOUBLE UP', color: '#FBBF24', effect: 'powerup', powerup: 'doubleProfit', duration: 8 }
 };
 
 function resize() {
@@ -53,202 +95,420 @@ function formatMoney(num) {
     return '$' + num.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
 }
 
-function spawnFloatText(text, color) {
+function spawnParticle(x, y, color, type = 'spark') {
+    state.particles.push({
+        x, y, color, type,
+        vx: (Math.random() - 0.5) * 200,
+        vy: (Math.random() - 0.5) * 200 - 100,
+        life: 1.0,
+        size: Math.random() * 4 + 2
+    });
+}
+
+function spawnExplosion(x, y, color) {
+    for(let i = 0; i < 15; i++) {
+        spawnParticle(x, y, color);
+    }
+}
+
+function spawnFloatText(text, color, size = '20px', duration = 1000) {
     const el = document.createElement('div');
     el.className = 'float-text';
-    el.style.color = color;
+    el.style.cssText = `color:${color}; font-size:${size}; position:absolute; left:50%; top:40%; transform:translate(-50%,-50%); font-weight:900; pointer-events:none; animation:floatUp ${duration}ms ease-out forwards; z-index:50;`;
     el.textContent = text;
-    el.style.left = '50%';
-    el.style.top = '40%';
-    el.style.transform = 'translate(-50%, -50%)';
     document.querySelector('.chart-container').appendChild(el);
-    setTimeout(() => el.remove(), 1000);
+    setTimeout(() => el.remove(), duration);
+}
+
+function updateComboDisplay() {
+    if (state.combo > 1) {
+        comboDisplay.innerHTML = `🔥 COMBO x${state.combo}<br><span style="font-size:12px;color:#00E676">${state.comboMultiplier.toFixed(1)}x PROFIT</span>`;
+        comboDisplay.style.opacity = '1';
+        comboDisplay.style.transform = 'translateX(-50%) scale(1.2)';
+        setTimeout(() => {
+            comboDisplay.style.transform = 'translateX(-50%) scale(1)';
+        }, 100);
+    } else {
+        comboDisplay.style.opacity = '0';
+    }
+}
+
+function triggerEvent() {
+    const events = Object.keys(MARKET_EVENTS);
+    const eventKey = events[Math.floor(Math.random() * events.length)];
+    const event = MARKET_EVENTS[eventKey];
+    
+    state.currentEvent = event;
+    state.eventTimer = event.duration;
+    
+    // Visual feedback
+    eventOverlay.innerHTML = event.name;
+    eventOverlay.style.color = event.color;
+    eventOverlay.style.opacity = '1';
+    eventOverlay.style.transform = 'translate(-50%,-50%) scale(1.5)';
+    
+    setTimeout(() => {
+        eventOverlay.style.transform = 'translate(-50%,-50%) scale(1)';
+    }, 100);
+    
+    if (navigator.vibrate) navigator.vibrate([50, 30, 50]);
+    
+    // Apply effect
+    if (event.effect === 'price') {
+        targetPrice = Math.max(10, currentPrice + event.value);
+        volatility = 5;
+    } else if (event.effect === 'powerup') {
+        state.powerUps[event.powerup].active = true;
+        state.powerUps[event.powerup].duration = event.duration;
+        spawnFloatText(`${event.powerup.toUpperCase()} ACTIVATED!`, event.color, '16px', 2000);
+    }
+    
+    setTimeout(() => {
+        eventOverlay.style.opacity = '0';
+        state.currentEvent = null;
+    }, event.duration * 1000);
 }
 
 function updateMarket(dt) {
-    phaseTimer -= dt;
-    if (phaseTimer <= 0) {
-        // Change market phase
-        phaseTimer = 2 + Math.random() * 3;
-        trend = (Math.random() - 0.5) * 2; // -1 to 1
-        volatility = 1 + Math.random() * 4;
-        
-        if (trend > 0.5) { trendEl.textContent = '🚀 Mega Bull'; trendEl.style.color = 'var(--mb-green)'; }
-        else if (trend > 0) { trendEl.textContent = '📈 Bull Run'; trendEl.style.color = 'var(--mb-green)'; }
-        else if (trend > -0.5) { trendEl.textContent = '📉 Bear Market'; trendEl.style.color = 'var(--mb-red)'; }
-        else { trendEl.textContent = '🩸 Market Crash'; trendEl.style.color = 'var(--mb-red)'; }
-        
-        volEl.textContent = `Vol: ${volatility > 3 ? 'High' : 'Normal'}`;
+    // Handle power-ups
+    Object.keys(state.powerUps).forEach(key => {
+        const pu = state.powerUps[key];
+        if (pu.active) {
+            pu.duration -= dt;
+            if (pu.duration <= 0) {
+                pu.active = false;
+                if (key === 'autoSell' && state.shares > 0) {
+                    handleSell(true);
+                }
+            }
+        }
+    });
+    
+    // Time freeze effect
+    const timeScale = state.powerUps.timeFreeze.active ? 0.2 : 1;
+    
+    // Event timer
+    if (state.eventTimer > 0) {
+        state.eventTimer -= dt;
     }
     
-    // Random walk with drift
-    const noise = (Math.random() - 0.5) * volatility * 2;
-    const drift = trend * (volatility / 2);
-    targetPrice += noise + drift;
+    phaseTimer -= dt;
+    if (phaseTimer <= 0 && !state.currentEvent) {
+        phaseTimer = 1.5 + Math.random() * 2;
+        trend = (Math.random() - 0.5) * 2;
+        volatility = state.currentEvent ? 5 : (1 + Math.random() * 3);
+        
+        // Random event trigger (15% chance)
+        if (Math.random() < 0.15 && state.timeLeft < 55) {
+            triggerEvent();
+        }
+        
+        if (trend > 0.5) { trendEl.textContent = '🚀 MEGA BULL'; trendEl.style.color = '#00E676'; }
+        else if (trend > 0.2) { trendEl.textContent = '📈 BULL RUN'; trendEl.style.color = '#00E676'; }
+        else if (trend > -0.2) { trendEl.textContent = '🔄 CHOPPY'; trendEl.style.color = '#FBBF24'; }
+        else if (trend > -0.5) { trendEl.textContent = '📉 BEARISH'; trendEl.style.color = '#FB7185'; }
+        else { trendEl.textContent = '🩸 CRASHING'; trendEl.style.color = '#FB7185'; }
+        
+        volEl.textContent = `Vol: ${volatility > 3 ? 'EXTREME' : volatility > 2 ? 'HIGH' : 'NORMAL'}`;
+    }
     
-    // Boundaries (don't let price go to 0 or infinity)
-    if (targetPrice < 10) targetPrice = 10 + Math.random()*10;
-    if (targetPrice > 500) targetPrice = 500 - Math.random()*20;
+    // Random walk with momentum
+    const noise = (Math.random() - 0.5) * volatility * 3;
+    const momentum = trend * volatility;
+    targetPrice += (noise + momentum) * timeScale;
     
-    // Smooth price movement
-    currentPrice += (targetPrice - currentPrice) * 10 * dt;
+    if (targetPrice < 5) { targetPrice = 10; trend = 0.5; }
+    if (targetPrice > 300) { targetPrice = 280; trend = -0.5; }
     
-    // Add point to chart (roughly 10 times a second)
-    if (Math.random() < 0.2) {
-        priceHistory.push(currentPrice);
-        if (priceHistory.length > MAX_POINTS) priceHistory.shift();
+    currentPrice += (targetPrice - currentPrice) * 8 * dt * timeScale;
+    
+    // Update candle data
+    if (Math.random() < 0.15 * timeScale) {
+        const lastCandle = candleData[candleData.length - 1];
+        if (lastCandle && !lastCandle.closed) {
+            lastCandle.close = currentPrice;
+            lastCandle.high = Math.max(lastCandle.high, currentPrice);
+            lastCandle.low = Math.min(lastCandle.low, currentPrice);
+            if (Math.random() < 0.3) {
+                lastCandle.closed = true;
+            }
+        } else {
+            candleData.push({
+                open: currentPrice,
+                high: currentPrice,
+                low: currentPrice,
+                close: currentPrice,
+                closed: false
+            });
+        }
+        
+        if (candleData.length > MAX_POINTS) candleData.shift();
+    }
+    
+    // Auto-sell check
+    if (state.powerUps.autoSell.active && state.shares > 0 && currentPrice >= state.powerUps.autoSell.targetPrice) {
+        handleSell(true);
+        state.powerUps.autoSell.active = false;
     }
 }
 
 function drawChart() {
+    ctx.save();
+    
+    // Screen shake
+    if (state.screenShake > 0) {
+        ctx.translate((Math.random() - 0.5) * state.screenShake, (Math.random() - 0.5) * state.screenShake);
+        state.screenShake *= 0.9;
+        if (state.screenShake < 0.5) state.screenShake = 0;
+    }
+    
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
-    if (priceHistory.length < 2) return;
+    if (candleData.length < 2) {
+        ctx.restore();
+        return;
+    }
     
-    const minP = Math.min(...priceHistory) * 0.9;
-    const maxP = Math.max(...priceHistory) * 1.1;
-    const range = maxP - minP;
+    const prices = candleData.map(c => c.close);
+    const minP = Math.min(...prices) * 0.95;
+    const maxP = Math.max(...prices) * 1.05;
+    const range = maxP - minP || 1;
     
-    const dx = canvas.width / (MAX_POINTS - 1);
-    
-    // Determine color based on overall trend
-    const isUp = priceHistory[priceHistory.length-1] >= priceHistory[0];
-    const color = isUp ? '#00E676' : '#FB7185';
+    const candleWidth = canvas.width / MAX_POINTS * 0.7;
+    const spacing = canvas.width / MAX_POINTS;
     
     // Draw grid
-    ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+    ctx.strokeStyle = 'rgba(255,255,255,0.03)';
     ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(0, canvas.height/2); ctx.lineTo(canvas.width, canvas.height/2);
-    ctx.stroke();
-    
-    // Draw fill
-    ctx.beginPath();
-    ctx.moveTo(0, canvas.height);
-    for(let i=0; i<priceHistory.length; i++) {
-        const x = i * dx;
-        const y = canvas.height - ((priceHistory[i] - minP) / range) * canvas.height;
-        ctx.lineTo(x, y);
+    for (let i = 0; i < 5; i++) {
+        const y = canvas.height - (i / 4) * canvas.height;
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
     }
-    ctx.lineTo((priceHistory.length-1)*dx, canvas.height);
-    ctx.closePath();
-    const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
-    grad.addColorStop(0, isUp ? 'rgba(0, 230, 118, 0.2)' : 'rgba(251, 113, 133, 0.2)');
-    grad.addColorStop(1, 'transparent');
-    ctx.fillStyle = grad;
-    ctx.fill();
     
-    // Draw line
+    // Draw candles
+    candleData.forEach((candle, i) => {
+        const x = i * spacing + spacing / 2;
+        const yOpen = canvas.height - ((candle.open - minP) / range) * canvas.height;
+        const yClose = canvas.height - ((candle.close - minP) / range) * canvas.height;
+        const yHigh = canvas.height - ((candle.high - minP) / range) * canvas.height;
+        const yLow = canvas.height - ((candle.low - minP) / range) * canvas.height;
+        
+        const isGreen = candle.close >= candle.open;
+        const color = isGreen ? '#00E676' : '#FB7185';
+        
+        // Wick
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(x, yHigh);
+        ctx.lineTo(x, yLow);
+        ctx.stroke();
+        
+        // Body
+        ctx.fillStyle = color;
+        const bodyHeight = Math.max(2, Math.abs(yClose - yOpen));
+        const bodyY = Math.min(yOpen, yClose);
+        ctx.fillRect(x - candleWidth / 2, bodyY, candleWidth, bodyHeight);
+    });
+    
+    // Draw current price indicator
+    const lastCandle = candleData[candleData.length - 1];
+    const lastY = canvas.height - ((lastCandle.close - minP) / range) * canvas.height;
+    
+    ctx.strokeStyle = '#FBBF24';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([5, 5]);
     ctx.beginPath();
-    for(let i=0; i<priceHistory.length; i++) {
-        const x = i * dx;
-        const y = canvas.height - ((priceHistory[i] - minP) / range) * canvas.height;
-        if(i===0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-    }
-    ctx.strokeStyle = color;
-    ctx.lineWidth = 3;
-    ctx.lineJoin = 'round';
+    ctx.moveTo(0, lastY);
+    ctx.lineTo(canvas.width, lastY);
     ctx.stroke();
+    ctx.setLineDash([]);
     
-    // Draw current price dot
-    const lastX = (priceHistory.length-1)*dx;
-    const lastY = canvas.height - ((priceHistory[priceHistory.length-1] - minP) / range) * canvas.height;
-    
-    ctx.beginPath();
-    ctx.arc(lastX, lastY, 5, 0, Math.PI*2);
-    ctx.fillStyle = color;
-    ctx.fill();
-    ctx.shadowBlur = 10;
-    ctx.shadowColor = color;
-    ctx.stroke();
-    ctx.shadowBlur = 0;
+    // Price tag
+    ctx.fillStyle = '#FBBF24';
+    ctx.font = 'bold 14px Inter';
+    ctx.textAlign = 'right';
+    ctx.fillText(formatMoney(currentPrice), canvas.width - 10, lastY - 10);
     
     // Draw avg cost line if holding
     if (state.shares > 0) {
         const avgY = canvas.height - ((state.avgCost - minP) / range) * canvas.height;
         if (avgY > 0 && avgY < canvas.height) {
+            ctx.strokeStyle = 'rgba(251, 191, 36, 0.4)';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([3, 3]);
             ctx.beginPath();
-            ctx.moveTo(0, avgY); ctx.lineTo(canvas.width, avgY);
-            ctx.strokeStyle = 'rgba(251, 191, 36, 0.5)';
-            ctx.setLineDash([5, 5]);
+            ctx.moveTo(0, avgY);
+            ctx.lineTo(canvas.width, avgY);
             ctx.stroke();
             ctx.setLineDash([]);
+            
+            ctx.fillStyle = '#FBBF24';
+            ctx.font = '11px Inter';
+            ctx.textAlign = 'left';
+            ctx.fillText('YOUR COST', 10, avgY - 5);
+        }
+    }
+    
+    ctx.restore();
+}
+
+function updateParticles(dt) {
+    for (let i = state.particles.length - 1; i >= 0; i--) {
+        const p = state.particles[i];
+        p.x += p.vx * dt;
+        p.y += p.vy * dt;
+        p.vy += 300 * dt; // Gravity
+        p.life -= dt * 2;
+        
+        if (p.life <= 0) {
+            state.particles.splice(i, 1);
+        } else {
+            ctx.globalAlpha = p.life;
+            ctx.fillStyle = p.color;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.globalAlpha = 1;
         }
     }
 }
 
 function updateUI() {
     cashEl.textContent = formatMoney(state.cash);
-    portfolioEl.textContent = formatMoney(state.shares * currentPrice);
+    
+    const portfolioValue = state.shares * currentPrice;
+    portfolioEl.textContent = formatMoney(portfolioValue);
+    
+    // Color code portfolio based on profit/loss
+    if (state.shares > 0) {
+        const profit = portfolioValue - (state.shares * state.avgCost);
+        portfolioEl.style.color = profit >= 0 ? '#00E676' : '#FB7185';
+    } else {
+        portfolioEl.style.color = '#FBBF24';
+    }
     
     buyPriceEl.textContent = `@ ${formatMoney(currentPrice)}`;
     shareCountEl.textContent = `${Math.floor(state.shares)} Shares`;
     
-    // Can only buy if have enough cash for at least 1 share
     buyBtn.disabled = state.cash < currentPrice;
-    
-    // Can only sell if have shares
     sellBtn.disabled = state.shares <= 0;
+    
+    // Update button states for power-ups
+    if (state.powerUps.doubleProfit.active) {
+        buyBtn.style.boxShadow = '0 0 20px #FBBF24';
+        sellBtn.style.boxShadow = '0 0 20px #FBBF24';
+    } else {
+        buyBtn.style.boxShadow = '';
+        sellBtn.style.boxShadow = '';
+    }
 }
 
 function addHistoryItem(type, amount, price, profit = null) {
     const item = document.createElement('div');
     item.className = `trade-item ${type}`;
     
-    let text = type === 'buy' 
-        ? `Bought ${Math.floor(amount)} @ ${formatMoney(price)}`
-        : `Sold ${Math.floor(amount)} @ ${formatMoney(price)}`;
-        
-    let rightSide = type === 'sell' && profit !== null
-        ? `<span style="color: ${profit >= 0 ? 'var(--mb-green)' : 'var(--mb-red)'}">${profit >= 0 ? '+' : ''}${formatMoney(profit)}</span>`
+    const isProfit = profit && profit >= 0;
+    const profitText = profit !== null 
+        ? `<span style="color: ${isProfit ? '#00E676' : '#FB7185'}; font-size:11px;">${isProfit ? '▲' : '▼'} ${formatMoney(Math.abs(profit))}</span>`
         : '';
+    
+    let text = type === 'buy' 
+        ? `Bought ${Math.floor(amount)} shares`
+        : `Sold ${Math.floor(amount)} shares @ ${formatMoney(price)}`;
         
-    item.innerHTML = `<span>${text}</span>${rightSide}`;
+    item.innerHTML = `<span>${text}</span>${profitText}`;
+    item.style.animation = 'slideIn 0.3s ease-out';
     historyEl.prepend(item);
     
-    if (historyEl.children.length > 5) {
+    if (historyEl.children.length > 6) {
         historyEl.removeChild(historyEl.lastChild);
     }
 }
 
-function handleBuy() {
+function handleBuy(fromAuto = false) {
     if (!state.isPlaying || state.cash < currentPrice) return;
     
-    // Buy as many shares as possible
-    const sharesToBuy = Math.floor(state.cash / currentPrice);
+    const maxShares = Math.floor(state.cash / currentPrice);
+    const sharesToBuy = fromAuto ? maxShares : maxShares;
     if (sharesToBuy <= 0) return;
     
     const cost = sharesToBuy * currentPrice;
     
-    // Update avg cost
     const totalCost = (state.shares * state.avgCost) + cost;
     state.shares += sharesToBuy;
     state.avgCost = totalCost / state.shares;
-    
     state.cash -= cost;
     state.trades++;
     
+    // Auto-sell setup if not already active
+    if (!state.powerUps.autoSell.active && !fromAuto) {
+        state.powerUps.autoSell.targetPrice = currentPrice * 1.15; // Auto sell at 15% profit
+    }
+    
     addHistoryItem('buy', sharesToBuy, currentPrice);
-    spawnFloatText('BOUGHT', '#00E676');
-    if (navigator.vibrate) navigator.vibrate(20);
+    spawnFloatText(`BOUGHT ${sharesToBuy}`, '#00E676', '18px');
+    
+    // Visual effects
+    const rect = buyBtn.getBoundingClientRect();
+    const containerRect = canvas.getBoundingClientRect();
+    spawnExplosion(rect.left - containerRect.left + rect.width/2, rect.top - containerRect.top, '#00E676');
+    
+    if (navigator.vibrate) navigator.vibrate(15);
     updateUI();
 }
 
-function handleSell() {
+function handleSell(fromAuto = false) {
     if (!state.isPlaying || state.shares <= 0) return;
     
     const revenue = state.shares * currentPrice;
-    const profit = revenue - (state.shares * state.avgCost);
+    const costBasis = state.shares * state.avgCost;
+    let profit = revenue - costBasis;
+    
+    // Apply combo multiplier
+    if (profit > 0) {
+        profit *= state.comboMultiplier;
+        state.combo++;
+        state.comboMultiplier = 1 + (state.combo * 0.25); // 25% more per combo
+    } else {
+        state.combo = 0;
+        state.comboMultiplier = 1;
+    }
+    
+    // Apply double profit power-up
+    if (state.powerUps.doubleProfit.active && profit > 0) {
+        profit *= 2;
+    }
+    
+    const finalRevenue = costBasis + profit;
     
     addHistoryItem('sell', state.shares, currentPrice, profit);
-    spawnFloatText(profit >= 0 ? `+${formatMoney(profit)}` : `-${formatMoney(Math.abs(profit))}`, profit >= 0 ? '#00E676' : '#FB7185');
     
-    state.cash += revenue;
+    // Visual effects
+    const rect = sellBtn.getBoundingClientRect();
+    const containerRect = canvas.getBoundingClientRect();
+    
+    if (profit > 0) {
+        spawnFloatText(`+${formatMoney(profit)}`, '#00E676', `${20 + Math.min(state.combo * 3, 20)}px`);
+        spawnExplosion(rect.left - containerRect.left + rect.width/2, rect.top - containerRect.top, '#00E676');
+        state.screenShake = Math.min(profit / 50, 10);
+        
+        // Big profit celebration
+        if (profit > 100) {
+            spawnFloatText('NICE TRADE!', '#FBBF24', '24px', 1500);
+            if (navigator.vibrate) navigator.vibrate([30, 30, 30, 30]);
+        }
+    } else {
+        spawnFloatText(`${formatMoney(profit)}`, '#FB7185', '18px');
+        spawnExplosion(rect.left - containerRect.left + rect.width/2, rect.top - containerRect.top, '#FB7185');
+    }
+    
+    state.cash += finalRevenue;
     state.shares = 0;
     state.avgCost = 0;
     state.trades++;
     
-    if (navigator.vibrate) navigator.vibrate([10, 20]);
+    updateComboDisplay();
     updateUI();
 }
 
@@ -258,17 +518,26 @@ function gameLoop(now) {
     const dt = Math.min((now - state.lastTime) / 1000, 0.1);
     state.lastTime = now;
     
-    state.timeLeft -= dt;
+    const timeScale = state.powerUps.timeFreeze.active ? 0.2 : 1;
+    state.timeLeft -= dt * timeScale;
+    
     if (state.timeLeft <= 0) {
         endGame();
         return;
     }
     
     timerEl.textContent = Math.ceil(state.timeLeft) + 's';
-    if (state.timeLeft <= 10) timerEl.style.color = 'var(--mb-red)';
+    if (state.timeLeft <= 10) {
+        timerEl.style.color = '#FB7185';
+        timerEl.style.textShadow = '0 0 20px rgba(251,113,133,0.5)';
+        if (Math.floor(state.timeLeft) !== Math.floor(state.timeLeft + dt * timeScale)) {
+            if (navigator.vibrate) navigator.vibrate(50);
+        }
+    }
     
     updateMarket(dt);
     drawChart();
+    updateParticles(dt);
     updateUI();
     
     requestAnimationFrame(gameLoop);
@@ -282,16 +551,36 @@ function startGame() {
         shares: 0,
         avgCost: 0,
         trades: 0,
-        lastTime: performance.now()
+        lastTime: performance.now(),
+        combo: 0,
+        comboMultiplier: 1,
+        lastTradeProfit: 0,
+        powerUps: {
+            timeFreeze: { active: false, duration: 0 },
+            doubleProfit: { active: false, duration: 0 },
+            autoSell: { active: false, duration: 0, targetPrice: 0 }
+        },
+        currentEvent: null,
+        eventTimer: 0,
+        particles: [],
+        screenShake: 0
     };
     
     currentPrice = 100;
     targetPrice = 100;
-    priceHistory = Array(MAX_POINTS).fill(100);
+    candleData = [];
+    for (let i = 0; i < 10; i++) {
+        candleData.push({
+            open: 100, high: 100, low: 100, close: 100, closed: true
+        });
+    }
     phaseTimer = 0;
     
     historyEl.innerHTML = '';
-    timerEl.style.color = 'var(--mb-white)';
+    timerEl.style.color = '#fff';
+    timerEl.style.textShadow = 'none';
+    comboDisplay.style.opacity = '0';
+    
     modal.classList.remove('active');
     statsRow.style.display = 'none';
     
@@ -302,31 +591,42 @@ function startGame() {
 function endGame() {
     state.isPlaying = false;
     
-    // Auto sell remaining shares
     if (state.shares > 0) {
-        state.cash += state.shares * currentPrice;
-        state.shares = 0;
+        const revenue = state.shares * currentPrice;
+        state.cash += revenue;
     }
     
     const profit = state.cash - 1000;
     const returnPct = ((state.cash - 1000) / 1000) * 100;
     
-    modalIcon.textContent = profit >= 0 ? '💰' : '📉';
-    modalTitle.textContent = profit >= 0 ? 'Market Wizard!' : 'Liquidated!';
-    modalSubtitle.textContent = profit >= 0 ? "You beat the market." : "The market beat you.";
+    // Determine rank
+    let rank = 'Paper Hands';
+    let rankEmoji = '📄';
+    if (returnPct >= 500) { rank = 'Wall Street Legend'; rankEmoji = '👑'; }
+    else if (returnPct >= 300) { rank = 'Diamond Hands'; rankEmoji = '💎'; }
+    else if (returnPct >= 150) { rank = 'Market Master'; rankEmoji = '🏆'; }
+    else if (returnPct >= 50) { rank = 'Smart Money'; rankEmoji = '🧠'; }
+    else if (returnPct >= 0) { rank = 'Break Even'; rankEmoji = '😐'; }
+    
+    modalIcon.textContent = rankEmoji;
+    modalTitle.textContent = rank;
+    modalSubtitle.innerHTML = profit >= 0 
+        ? `You turned $1,000 into <b>${formatMoney(state.cash)}</b>!<br>Combo streak: ${state.combo}x` 
+        : `You lost ${formatMoney(Math.abs(profit))}.<br>Better luck next time!`;
     
     finalValueEl.textContent = formatMoney(state.cash);
     finalReturnEl.textContent = `${returnPct > 0 ? '+' : ''}${returnPct.toFixed(1)}%`;
-    finalReturnEl.style.color = returnPct >= 0 ? 'var(--mb-green)' : 'var(--mb-red)';
+    finalReturnEl.style.color = returnPct >= 0 ? '#00E676' : '#FB7185';
     tradeCountEl.textContent = state.trades;
     
     statsRow.style.display = 'flex';
-    actionBtn.textContent = 'PLAY AGAIN';
+    actionBtn.textContent = 'TRADE AGAIN';
     modal.classList.add('active');
     
-    if (navigator.vibrate) navigator.vibrate(profit >= 0 ? [50, 50, 50] : [100, 200]);
+    if (navigator.vibrate) navigator.vibrate(returnPct >= 0 ? [50, 50, 100] : [200]);
 }
 
+// Event listeners
 buyBtn.addEventListener('click', handleBuy);
 buyBtn.addEventListener('touchstart', (e) => { e.preventDefault(); handleBuy(); }, {passive: false});
 
@@ -335,6 +635,13 @@ sellBtn.addEventListener('touchstart', (e) => { e.preventDefault(); handleSell()
 
 actionBtn.addEventListener('click', startGame);
 actionBtn.addEventListener('touchstart', (e) => { e.preventDefault(); startGame(); }, {passive: false});
+
+// Keyboard shortcuts
+window.addEventListener('keydown', (e) => {
+    if (!state.isPlaying) return;
+    if (e.code === 'Space' || e.key === 'b' || e.key === 'B') handleBuy();
+    if (e.code === 'Enter' || e.key === 's' || e.key === 'S') handleSell();
+});
 
 // Initial draw
 resize();
