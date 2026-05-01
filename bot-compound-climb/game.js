@@ -81,7 +81,7 @@ let stars = [];
 
 // Mascot image
 const mascotImg = new Image();
-mascotImg.src = 'assets/mascot/operator-transparent.png';
+mascotImg.src = 'assets/mascot/operator-transparent.png?v=2';
 
 // Colors (MoneyBot Palette)
 const COLORS = {
