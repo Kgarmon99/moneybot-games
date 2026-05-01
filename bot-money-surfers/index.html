@@ -219,7 +219,10 @@
                 
                 // Player position for collision
                 const playerY = canvas.height - PLAYER_Y_OFFSET;
-                const playerLane = Math.round((this.playerX - (canvas.width - LANE_WIDTH * LANES) / 2 - LANE_WIDTH / 2) / LANE_WIDTH);
+                // Get actual player lane based on X position
+                const trackStartX = (canvas.width - LANE_WIDTH * LANES) / 2;
+                const playerLaneFromX = Math.floor((this.playerX - trackStartX) / LANE_WIDTH);
+                const playerLane = Math.max(0, Math.min(LANES - 1, playerLaneFromX));
                 
                 // Update obstacles
                 for (let i = this.obstacles.length - 1; i >= 0; i--) {
@@ -228,11 +231,10 @@
                     
                     const pos = this.worldToScreen(obs.lane, obs.y);
                     
-                    // Collision detection - check if obstacle is at player Y and in same lane
-                    if (!obs.hit && pos.y > playerY - 80 && pos.y < playerY + 40) {
-                        // Check lane match with tolerance
-                        const laneDiff = Math.abs(obs.lane - playerLane);
-                        if (laneDiff < 0.8) {
+                    // Collision detection - check if obstacle is at player Y
+                    if (!obs.hit && pos.y > playerY - 100 && pos.y < playerY + 50) {
+                        // Check if in same lane
+                        if (obs.lane === playerLane) {
                             this.gameOver();
                             return;
                         }
@@ -250,10 +252,9 @@
                     
                     const pos = this.worldToScreen(coin.lane, coin.y);
                     
-                    // Coin collection
-                    if (!coin.collected && pos.y > playerY - 70 && pos.y < playerY + 30) {
-                        const laneDiff = Math.abs(coin.lane - playerLane);
-                        if (laneDiff < 0.8) {
+                    // Coin collection - check Y position and lane
+                    if (!coin.collected && pos.y > playerY - 90 && pos.y < playerY + 40) {
+                        if (coin.lane === playerLane) {
                             coin.collected = true;
                             this.coins++;
                             this.score += 20;
