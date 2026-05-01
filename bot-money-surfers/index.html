@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Money Surfers</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: none; user-select: none; }
+        body { background: #000; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
+        canvas { display: block; width: 100vw; height: 100vh; }
+        .ui { position: absolute; top: 0; left: 0; right: 0; padding: 20px; display: flex; justify-content: space-between; pointer-events: none; z-index: 10; }
+        .back-btn { width: 44px; height: 44px; background: rgba(255,255,255,0.2); border: none; border-radius: 50%; color: #fff; font-size: 20px; pointer-events: auto; text-decoration: none; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px); }
+        .score-box { text-align: right; }
+        .score-label { font-size: 11px; color: #FFD700; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; }
+        .score-value { font-size: 52px; font-weight: 900; color: #fff; text-shadow: 0 0 30px rgba(255,215,0,0.6); line-height: 1; }
+        .coins-box { display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.5); padding: 8px 16px; border-radius: 20px; margin-top: 8px; backdrop-filter: blur(10px); border: 1px solid rgba(255,215,0,0.3); }
+        .coin-icon { width: 24px; height: 24px; background: linear-gradient(135deg, #FFD700, #FFA500); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #8B4513; font-size: 14px; box-shadow: 0 0 15px rgba(255,215,0,0.5); }
+        .coins-value { font-size: 20px; font-weight: 800; color: #FFD700; }
+        .overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0.95), rgba(0,0,0,0.8)); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100; backdrop-filter: blur(20px); }
+        .overlay.hidden { display: none; }
+        .logo { width: 120px; height: 120px; margin-bottom: 20px; filter: drop-shadow(0 0 40px rgba(34,197,94,0.6)); animation: float 3s ease-in-out infinite; }
+        @keyframes float { 0%, 100% { transform: translateY(0) rotate(-3deg); } 50% { transform: translateY(-15px) rotate(3deg); } }
+        .title { font-size: 42px; font-weight: 900; color: #fff; margin-bottom: 10px; letter-spacing: 3px; text-transform: uppercase; }
+        .title span { color: #22C55E; text-shadow: 0 0 30px rgba(34,197,94,0.5); }
+        .subtitle { font-size: 16px; color: rgba(255,255,255,0.6); margin-bottom: 40px; }
+        .btn { background: linear-gradient(135deg, #22C55E, #16A34A); color: #fff; border: none; padding: 22px 70px; border-radius: 50px; font-size: 24px; font-weight: 900; cursor: pointer; text-transform: uppercase; letter-spacing: 3px; box-shadow: 0 10px 40px rgba(34,197,94,0.4), 0 0 60px rgba(34,197,94,0.2); transition: all 0.3s; }
+        .btn:hover { transform: scale(1.05); box-shadow: 0 15px 50px rgba(34,197,94,0.6); }
+        .game-over-title { font-size: 56px; font-weight: 900; color: #ef4444; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 4px; text-shadow: 0 0 40px rgba(239,68,68,0.5); }
+        .final-score-label { font-size: 14px; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px; }
+        .final-score { font-size: 80px; font-weight: 900; color: #fff; margin-bottom: 10px; }
+        .high-score { font-size: 18px; color: rgba(255,255,255,0.5); margin-bottom: 40px; }
+        .high-score span { color: #FFD700; font-weight: 700; }
+    </style>
+</head>
+<body>
+    <canvas id="game"></canvas>
+    
+    <div class="ui">
+        <a href="../moneybot-official/" class="back-btn">←</a>
+        <div class="score-box">
+            <div class="score-label">Score</div>
+            <div class="score-value" id="score">0</div>
+            <div class="coins-box">
+                <div class="coin-icon">$</div>
+                <div class="coins-value" id="coins">0</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="overlay" id="startScreen">
+        <img src="../flappybot/assets/player-rembg.png" class="logo" alt="MoneyBot">
+        <div class="title">Money<span>Surfers</span></div>
+        <div class="subtitle">Swipe to dodge, collect coins, survive!</div>
+        <button class="btn" onclick="game.start()">Play Now</button>
+    </div>
+    
+    <div class="overlay hidden" id="gameOverScreen">
+        <div class="game-over-title">Game Over</div>
+        <div class="final-score-label">Final Score</div>
+        <div class="final-score" id="finalScore">0</div>
+        <div class="high-score">Best: <span id="highScore">0</span></div>
+        <button class="btn" onclick="game.restart()">Try Again</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('game');
+        const ctx = canvas.getContext('2d');
+        
+        // Game constants
+        const LANES = 3;
+        const LANE_WIDTH = 90;
+        const PLAYER_Y_OFFSET = 120;
+        const HORIZON_Y = 0.22;
+        
+        // Load player image
+        const playerImg = new Image();
+        playerImg.src = '../flappybot/assets/player-rembg.png';
+        
+        const game = {
+            state: 'menu',
+            score: 0,
+            coins: 0,
+            highScore: parseInt(localStorage.getItem('moneySurfers_highScore')) || 0,
+            lane: 1,
+            targetLane: 1,
+            playerX: 0,
+            speed: 0,
+            baseSpeed: 12,
+            maxSpeed: 25,
+            
+            obstacles: [],
+            coinItems: [],
+            particles: [],
+            
+            resize() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                this.playerX = this.getLaneCenter(1);
+            },
+            
+            getLaneCenter(lane) {
+                const trackWidth = LANE_WIDTH * LANES;
+                const startX = (canvas.width - trackWidth) / 2;
+                return startX + lane * LANE_WIDTH + LANE_WIDTH / 2;
+            },
+            
+            start() {
+                this.state = 'playing';
+                this.score = 0;
+                this.coins = 0;
+                this.lane = 1;
+                this.targetLane = 1;
+                this.playerX = this.getLaneCenter(1);
+                this.speed = this.baseSpeed;
+                this.obstacles = [];
+                this.coinItems = [];
+                this.particles = [];
+                
+                document.getElementById('startScreen').classList.add('hidden');
+                document.getElementById('gameOverScreen').classList.add('hidden');
+                
+                this.loop();
+            },
+            
+            restart() {
+                this.start();
+            },
+            
+            gameOver() {
+                this.state = 'gameover';
+                if (this.score > this.highScore) {
+                    this.highScore = this.score;
+                    localStorage.setItem('moneySurfers_highScore', this.highScore);
+                }
+                document.getElementById('finalScore').textContent = this.score;
+                document.getElementById('highScore').textContent = this.highScore;
+                document.getElementById('gameOverScreen').classList.remove('hidden');
+            },
+            
+            move(dir) {
+                if (this.state !== 'playing') return;
+                const newLane = this.targetLane + dir;
+                if (newLane >= 0 && newLane < LANES) {
+                    this.targetLane = newLane;
+                }
+            },
+            
+            spawnObstacle() {
+                const lane = Math.floor(Math.random() * LANES);
+                this.obstacles.push({
+                    lane: lane,
+                    y: -200,
+                    type: 'train',
+                    width: 85,
+                    height: 140,
+                    hit: false
+                });
+            },
+            
+            spawnCoins() {
+                const pattern = Math.floor(Math.random() * 4);
+                
+                if (pattern === 0) {
+                    // Line
+                    const lane = Math.floor(Math.random() * LANES);
+                    for (let i = 0; i < 5; i++) {
+                        this.coinItems.push({
+                            lane: lane,
+                            y: -150 - i * 60,
+                            collected: false
+                        });
+                    }
+                } else if (pattern === 1) {
+                    // All lanes
+                    for (let l = 0; l < LANES; l++) {
+                        this.coinItems.push({
+                            lane: l,
+                            y: -150,
+                            collected: false
+                        });
+                    }
+                } else if (pattern === 2) {
+                    // Zigzag
+                    for (let i = 0; i < 6; i++) {
+                        this.coinItems.push({
+                            lane: i % LANES,
+                            y: -150 - i * 50,
+                            collected: false
+                        });
+                    }
+                } else {
+                    // Center lane arc
+                    for (let i = 0; i < 7; i++) {
+                        this.coinItems.push({
+                            lane: 1,
+                            y: -150 - i * 55,
+                            collected: false
+                        });
+                    }
+                }
+            },
+            
+            update() {
+                if (this.state !== 'playing') return;
+                
+                // Update score and speed
+                this.score += 1;
+                this.speed = Math.min(this.maxSpeed, this.baseSpeed + this.score / 400);
+                document.getElementById('score').textContent = this.score;
+                document.getElementById('coins').textContent = this.coins;
+                
+                // Smooth player movement between lanes
+                const targetX = this.getLaneCenter(this.targetLane);
+                this.playerX += (targetX - this.playerX) * 0.25;
+                
+                // Spawn objects
+                if (Math.random() < 0.02) this.spawnObstacle();
+                if (Math.random() < 0.015) this.spawnCoins();
+                
+                // Player position for collision
+                const playerY = canvas.height - PLAYER_Y_OFFSET;
+                const playerLane = Math.round((this.playerX - (canvas.width - LANE_WIDTH * LANES) / 2 - LANE_WIDTH / 2) / LANE_WIDTH);
+                
+                // Update obstacles
+                for (let i = this.obstacles.length - 1; i >= 0; i--) {
+                    const obs = this.obstacles[i];
+                    obs.y += this.speed;
+                    
+                    const pos = this.worldToScreen(obs.lane, obs.y);
+                    
+                    // Collision detection - check if obstacle is at player Y and in same lane
+                    if (!obs.hit && pos.y > playerY - 80 && pos.y < playerY + 40) {
+                        // Check lane match with tolerance
+                        const laneDiff = Math.abs(obs.lane - playerLane);
+                        if (laneDiff < 0.8) {
+                            this.gameOver();
+                            return;
+                        }
+                    }
+                    
+                    if (obs.y > canvas.height + 200) {
+                        this.obstacles.splice(i, 1);
+                    }
+                }
+                
+                // Update coins
+                for (let i = this.coinItems.length - 1; i >= 0; i--) {
+                    const coin = this.coinItems[i];
+                    coin.y += this.speed;
+                    
+                    const pos = this.worldToScreen(coin.lane, coin.y);
+                    
+                    // Coin collection
+                    if (!coin.collected && pos.y > playerY - 70 && pos.y < playerY + 30) {
+                        const laneDiff = Math.abs(coin.lane - playerLane);
+                        if (laneDiff < 0.8) {
+                            coin.collected = true;
+                            this.coins++;
+                            this.score += 20;
+                            this.createSparkles(pos.x, pos.y);
+                        }
+                    }
+                    
+                    if (coin.y > canvas.height + 100) {
+                        this.coinItems.splice(i, 1);
+                    }
+                }
+                
+                // Update particles
+                for (let i = this.particles.length - 1; i >= 0; i--) {
+                    const p = this.particles[i];
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.vy += 0.6;
+                    p.life -= 0.04;
+                    if (p.life <= 0) this.particles.splice(i, 1);
+                }
+            },
+            
+            worldToScreen(lane, worldY) {
+                const horizonY = canvas.height * HORIZON_Y;
+                const playerY = canvas.height - PLAYER_Y_OFFSET;
+                const totalDist = 2500;
+                
+                // Progress 0 to 1
+                let t = (worldY + 300) / totalDist;
+                t = Math.max(0, Math.min(1, t));
+                
+                // Scale: small at horizon, full at player
+                const scale = 0.25 + t * 0.75;
+                
+                // Y position
+                const screenY = horizonY + (playerY - horizonY) * t;
+                
+                // X with perspective
+                const laneCenter = this.getLaneCenter(lane);
+                const centerX = canvas.width / 2;
+                const offset = (laneCenter - centerX) * scale;
+                const screenX = centerX + offset;
+                
+                return { x: screenX, y: screenY, scale: scale };
+            },
+            
+            createSparkles(x, y) {
+                const colors = ['#FFD700', '#FFA500', '#FFEC8B', '#FFF8DC'];
+                for (let i = 0; i < 12; i++) {
+                    const angle = (Math.PI * 2 * i) / 12 + Math.random() * 0.5;
+                    const speed = Math.random() * 10 + 5;
+                    this.particles.push({
+                        x: x,
+                        y: y,
+                        vx: Math.cos(angle) * speed,
+                        vy: Math.sin(angle) * speed - 8,
+                        life: 1,
+                        color: colors[Math.floor(Math.random() * colors.length)],
+                        size: Math.random() * 8 + 4
+                    });
+                }
+            },
+            
+            draw() {
+                const horizonY = canvas.height * HORIZON_Y;
+                
+                // Sky gradient
+                const skyGrad = ctx.createLinearGradient(0, 0, 0, horizonY);
+                skyGrad.addColorStop(0, '#0d1b2a');
+                skyGrad.addColorStop(0.5, '#1b263b');
+                skyGrad.addColorStop(1, '#415a77');
+                ctx.fillStyle = skyGrad;
+                ctx.fillRect(0, 0, canvas.width, horizonY);
+                
+                // City skyline
+                this.drawCity(horizonY);
+                
+                // Track
+                this.drawTrack(horizonY);
+                
+                // Draw objects back to front
+                const allObjects = [
+                    ...this.obstacles.map(o => ({ ...o, type: 'train' })),
+                    ...this.coinItems.filter(c => !c.collected).map(c => ({ ...c, type: 'coin' }))
+                ].sort((a, b) => a.y - b.y);
+                
+                allObjects.forEach(obj => {
+                    const pos = this.worldToScreen(obj.lane, obj.y);
+                    if (pos.y > horizonY - 100) {
+                        if (obj.type === 'train') {
+                            this.drawTrain(pos.x, pos.y, pos.scale);
+                        } else {
+                            this.drawCoin(pos.x, pos.y, pos.scale);
+                        }
+                    }
+                });
+                
+                // Player
+                this.drawPlayer();
+                
+                // Particles
+                this.particles.forEach(p => {
+                    ctx.globalAlpha = p.life;
+                    ctx.fillStyle = p.color;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+                ctx.globalAlpha = 1;
+            },
+            
+            drawCity(horizonY) {
+                const buildings = [
+                    { x: 0.02, w: 0.15, h: 0.45, color: '#0d1b2a' },
+                    { x: 0.18, w: 0.1, h: 0.6, color: '#1b263b' },
+                    { x: 0.3, w: 0.08, h: 0.4, color: '#0d1b2a' },
+                    { x: 0.72, w: 0.12, h: 0.55, color: '#1b263b' },
+                    { x: 0.85, w: 0.1, h: 0.48, color: '#0d1b2a' },
+                    { x: 0.95, w: 0.08, h: 0.35, color: '#1b263b' },
+                ];
+                
+                buildings.forEach(b => {
+                    const x = b.x * canvas.width;
+                    const w = b.w * canvas.width;
+                    const h = b.h * horizonY;
+                    
+                    // Building body
+                    ctx.fillStyle = b.color;
+                    ctx.fillRect(x, horizonY - h, w, h);
+                    
+                    // Windows with glow
+                    for (let wy = horizonY - h + 25; wy < horizonY - 15; wy += 35) {
+                        for (let wx = x + 12; wx < x + w - 8; wx += 22) {
+                            if ((wx * wy) % 47 < 28) {
+                                // Window glow
+                                ctx.shadowColor = '#FFD700';
+                                ctx.shadowBlur = 8;
+                                ctx.fillStyle = 'rgba(255, 220, 100, 0.8)';
+                                ctx.fillRect(wx, wy, 10, 16);
+                                ctx.shadowBlur = 0;
+                            }
+                        }
+                    }
+                });
+            },
+            
+            drawTrack(horizonY) {
+                const playerY = canvas.height - PLAYER_Y_OFFSET;
+                const trackWidth = LANE_WIDTH * LANES;
+                
+                // Track bed with gradient
+                const trackGrad = ctx.createLinearGradient(0, horizonY, 0, playerY);
+                trackGrad.addColorStop(0, '#1a1a2e');
+                trackGrad.addColorStop(1, '#2d2d44');
+                
+                ctx.fillStyle = trackGrad;
+                ctx.beginPath();
+                ctx.moveTo(canvas.width/2 - trackWidth*0.2, horizonY);
+                ctx.lineTo(canvas.width/2 + trackWidth*0.2, horizonY);
+                ctx.lineTo(canvas.width/2 + trackWidth*0.9, playerY);
+                ctx.lineTo(canvas.width/2 - trackWidth*0.9, playerY);
+                ctx.closePath();
+                ctx.fill();
+                
+                // Lane markers
+                ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+                ctx.lineWidth = 2;
+                for (let i = 1; i < LANES; i++) {
+                    const t = i / LANES;
+                    const x1 = canvas.width/2 - trackWidth*0.2 + t * trackWidth*0.4;
+                    const x2 = canvas.width/2 - trackWidth*0.9 + t * trackWidth*1.8;
+                    ctx.beginPath();
+                    ctx.moveTo(x1, horizonY);
+                    ctx.lineTo(x2, playerY);
+                    ctx.stroke();
+                }
+                
+                // Third rail with glow
+                ctx.shadowColor = '#dc2626';
+                ctx.shadowBlur = 15;
+                ctx.strokeStyle = '#ef4444';
+                ctx.lineWidth = 5;
+                ctx.beginPath();
+                ctx.moveTo(canvas.width/2 - trackWidth*0.22, horizonY);
+                ctx.lineTo(canvas.width/2 - trackWidth*0.95, playerY);
+                ctx.stroke();
+                ctx.shadowBlur = 0;
+            },
+            
+            drawTrain(x, y, scale) {
+                const w = 90 * scale;
+                const h = 150 * scale;
+                
+                // Main body gradient
+                const bodyGrad = ctx.createLinearGradient(x - w/2, y - h, x + w/2, y);
+                bodyGrad.addColorStop(0, '#991b1b');
+                bodyGrad.addColorStop(0.3, '#dc2626');
+                bodyGrad.addColorStop(0.7, '#dc2626');
+                bodyGrad.addColorStop(1, '#7f1d1d');
+                ctx.fillStyle = bodyGrad;
+                ctx.fillRect(x - w/2, y - h, w, h);
+                
+                // Window
+                ctx.fillStyle = '#1e3a5f';
+                ctx.fillRect(x - w/2 + w*0.12, y - h + h*0.1, w*0.76, h*0.18);
+                
+                // Window reflection
+                ctx.fillStyle = 'rgba(100, 150, 200, 0.3)';
+                ctx.fillRect(x - w/2 + w*0.15, y - h + h*0.12, w*0.3, h*0.08);
+                
+                // Door
+                ctx.fillStyle = '#7f1d1d';
+                ctx.fillRect(x - w*0.18, y - h + h*0.32, w*0.36, h*0.55);
+                
+                // Door frame
+                ctx.strokeStyle = '#991b1b';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(x - w*0.18, y - h + h*0.32, w*0.36, h*0.55);
+                
+                // Stripe
+                ctx.fillStyle = '#fca5a5';
+                ctx.fillRect(x - w/2, y - h*0.42, w, h*0.05);
+                
+                // Headlights with strong glow
+                ctx.shadowColor = '#fef08a';
+                ctx.shadowBlur = 40 * scale;
+                ctx.fillStyle = '#fef08a';
+                ctx.beginPath();
+                ctx.arc(x - w*0.28, y - h*0.06, 12*scale, 0, Math.PI*2);
+                ctx.arc(x + w*0.28, y - h*0.06, 12*scale, 0, Math.PI*2);
+                ctx.fill();
+                ctx.shadowBlur = 0;
+                
+                // Bumper
+                ctx.fillStyle = '#450a0a';
+                ctx.fillRect(x - w/2, y - h*0.08, w, h*0.06);
+            },
+            
+            drawCoin(x, y, scale) {
+                const size = 32 * scale;
+                const rotation = Date.now() / 120;
+                
+                ctx.save();
+                ctx.translate(x, y);
+                ctx.scale(Math.abs(Math.sin(rotation)), 1);
+                
+                // Outer glow
+                ctx.shadowColor = '#FFD700';
+                ctx.shadowBlur = 25 * scale;
+                
+                // Outer ring
+                ctx.fillStyle = '#FFD700';
+                ctx.beginPath();
+                ctx.arc(0, 0, size, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Inner
+                ctx.fillStyle = '#FFA500';
+                ctx.beginPath();
+                ctx.arc(0, 0, size * 0.75, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Center
+                ctx.fillStyle = '#FFD700';
+                ctx.beginPath();
+                ctx.arc(0, 0, size * 0.55, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // $ symbol
+                ctx.fillStyle = '#8B4513';
+                ctx.font = `bold ${size * 0.9}px sans-serif`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('$', 0, 2);
+                
+                ctx.restore();
+            },
+            
+            drawPlayer() {
+                const playerY = canvas.height - PLAYER_Y_OFFSET;
+                const size = 85;
+                
+                // Shadow
+                ctx.fillStyle = 'rgba(0,0,0,0.4)';
+                ctx.beginPath();
+                ctx.ellipse(this.playerX, playerY + 40, 40, 12, 0, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Glow effect
+                ctx.shadowColor = '#22C55E';
+                ctx.shadowBlur = 35;
+                
+                // Player image
+                if (playerImg.complete) {
+                    ctx.drawImage(playerImg, this.playerX - size/2, playerY - size, size, size);
+                } else {
+                    ctx.fillStyle = '#22C55E';
+                    ctx.fillRect(this.playerX - size/2, playerY - size, size, size);
+                }
+                
+                ctx.shadowBlur = 0;
+            },
+            
+            loop() {
+                if (this.state !== 'playing') return;
+                this.update();
+                this.draw();
+                requestAnimationFrame(() => this.loop());
+            }
+        };
+        
+        game.resize();
+        window.addEventListener('resize', () => game.resize());
+        
+        // Controls
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') game.move(-1);
+            if (e.key === 'ArrowRight') game.move(1);
+        });
+        
+        // Touch
+        let touchStartX = 0;
+        canvas.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+        }, { passive: true });
+        
+        canvas.addEventListener('touchend', (e) => {
+            const dx = e.changedTouches[0].clientX - touchStartX;
+            if (Math.abs(dx) > 30) game.move(dx > 0 ? 1 : -1);
+        }, { passive: true });
+    </script>
+</body>
+</html>
