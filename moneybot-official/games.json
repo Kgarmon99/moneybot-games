@@ -1127,6 +1127,14 @@
       "difficulty": "medium",
       "xp": 100,
       "coins": 50
+    },
+    {
+      "id": "bot-lemonade-empire",
+      "name": "Lemonade Empire",
+      "category": "basics",
+      "difficulty": "easy",
+      "xp": 100,
+      "coins": 50
     }
   ]
 }

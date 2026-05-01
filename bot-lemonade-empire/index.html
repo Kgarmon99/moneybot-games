@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Lemonade Empire</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app">
+        <!-- HUD -->
+        <header id="hud">
+            <div class="stat-pill"><span class="label">DAY</span><span id="day-val" class="val">1</span></div>
+            <div class="stat-pill highlight"><span class="label">CASH</span><span id="cash-val" class="val">$20.00</span></div>
+            <div class="stat-pill"><span class="label">WEATHER</span><span id="weather-val" class="val">☀️ Hot</span></div>
+        </header>
+
+        <!-- Screens -->
+        <div id="prep-screen" class="screen active">
+            <h1 class="title">Morning Prep</h1>
+            <p class="subtitle">Buy inventory and set your recipe.</p>
+
+            <div class="panel-grid">
+                <!-- Inventory -->
+                <div class="panel">
+                    <h2>🛒 Supplies</h2>
+                    <div class="buy-row">
+                        <div class="buy-info">🍋 Lemons (<span id="inv-lemons">0</span>)</div>
+                        <button class="btn-small" onclick="buy('lemons', 10, 5.00)">Buy 10 ($5)</button>
+                    </div>
+                    <div class="buy-row">
+                        <div class="buy-info">🍚 Sugar (<span id="inv-sugar">0</span>)</div>
+                        <button class="btn-small" onclick="buy('sugar', 10, 2.00)">Buy 10 ($2)</button>
+                    </div>
+                    <div class="buy-row">
+                        <div class="buy-info">🥤 Cups (<span id="inv-cups">0</span>)</div>
+                        <button class="btn-small" onclick="buy('cups', 10, 1.00)">Buy 10 ($1)</button>
+                    </div>
+                </div>
+
+                <!-- Recipe & Price -->
+                <div class="panel">
+                    <h2>📝 Strategy</h2>
+                    <div class="slider-row">
+                        <label>Recipe Quality: <span id="recipe-val" class="accent">Standard</span></label>
+                        <input type="range" id="recipe-slider" min="1" max="3" value="2" oninput="updateStrategy()">
+                        <div class="hint">Higher quality uses more supplies per cup.</div>
+                    </div>
+                    <div class="slider-row">
+                        <label>Price per Cup: <span id="price-val" class="accent">$1.00</span></label>
+                        <input type="range" id="price-slider" min="0.5" max="5.0" step="0.25" value="1.00" oninput="updateStrategy()">
+                    </div>
+                    <div class="status-message" id="prep-warning"></div>
+                </div>
+            </div>
+
+            <button id="start-day-btn" class="btn-primary" onclick="startDay()">START SELLING</button>
+        </div>
+
+        <div id="sim-screen" class="screen">
+            <h1 class="title">Open for Business!</h1>
+            <div class="sim-container">
+                <div id="sim-log"></div>
+            </div>
+            <div class="sim-stats">
+                <div class="stat"><span class="label">SOLD</span><span id="sim-sold" class="val">0</span></div>
+                <div class="stat"><span class="label">REVENUE</span><span id="sim-rev" class="val">$0.00</span></div>
+            </div>
+            <button id="end-day-btn" class="btn-primary hidden" onclick="endDay()">View P&L</button>
+        </div>
+
+        <div id="eod-screen" class="screen">
+            <h1 class="title">End of Day <span id="eod-day"></span></h1>
+            <div class="panel pl-statement">
+                <h2>Profit & Loss</h2>
+                <div class="pl-row"><span>Revenue:</span> <span id="pl-rev" class="positive">$0.00</span></div>
+                <div class="pl-row"><span>COGS (Supplies used):</span> <span id="pl-cogs" class="negative">-$0.00</span></div>
+                <hr>
+                <div class="pl-row total"><span>Net Profit:</span> <span id="pl-net">$0.00</span></div>
+            </div>
+            <div class="tips" id="eod-tip"></div>
+            <button class="btn-primary" onclick="nextDay()">Start Next Day</button>
+        </div>
+        
+        <div id="game-over-screen" class="screen">
+            <h1 class="title danger">BANKRUPT</h1>
+            <p>You ran out of cash and inventory.</p>
+            <button class="btn-primary" onclick="location.reload()">Restart Business</button>
+        </div>
+    </div>
+    <script src="game.js"></script>
+</body>
+</html>
