@@ -11,13 +11,13 @@ let state = {
 };
 
 const categories = [
-    { id: 'housing', name: 'Rent/Mortgage', icon: '🏠', min: 1200, default: 1200, type: 'fixed' },
-    { id: 'transport', name: 'Car Payment', icon: '🚗', min: 300, default: 300, type: 'fixed' },
-    { id: 'food', name: 'Food & Groceries', icon: '🛒', min: 250, default: 400, type: 'variable' },
-    { id: 'fun', name: 'Lifestyle & Fun', icon: '🎉', min: 0, default: 100, type: 'variable' },
-    { id: 'emergency', name: 'Emergency Fund', icon: '🛡️', min: 0, default: 0, type: 'variable' },
-    { id: 'invest', name: 'Investments', icon: '📈', min: 0, default: 0, type: 'variable' },
-    { id: 'debt_pay', name: 'Pay Credit Card', icon: '💳', min: 0, default: 0, type: 'variable' } // Only shows if debt > 0
+    { id: 'housing', name: 'Rent/Mortgage', icon: '🏠', min: 1200, default: 1200, type: 'fixed', color: '#38BDF8' }, // Blue
+    { id: 'transport', name: 'Car Payment', icon: '🚗', min: 300, default: 300, type: 'fixed', color: '#A855F7' },   // Purple
+    { id: 'food', name: 'Food & Groceries', icon: '🛒', min: 250, default: 400, type: 'variable', color: '#FBBF24' }, // Gold
+    { id: 'fun', name: 'Lifestyle & Fun', icon: '🎉', min: 0, default: 100, type: 'variable', color: '#FB7185' },    // Red
+    { id: 'emergency', name: 'Emergency Fund', icon: '🛡️', min: 0, default: 0, type: 'variable', color: '#00E676' },   // Green
+    { id: 'invest', name: 'Investments', icon: '📈', min: 0, default: 0, type: 'variable', color: '#00C853' },      // Dark Green
+    { id: 'debt_pay', name: 'Pay Credit Card', icon: '💳', min: 0, default: 0, type: 'variable', color: '#E11D48' }  // Dark Red
 ];
 
 const events = [
@@ -206,6 +206,7 @@ function renderCategories() {
 
         div.innerHTML = `
             <div class="cat-info">
+                <div class="cat-color-dot" style="background-color: ${c.color}; box-shadow: 0 0 8px ${c.color}80;"></div>
                 <div class="cat-icon">${c.icon}</div>
                 <div class="cat-details">
                     <span class="cat-name">${c.name}</span>
@@ -254,6 +255,33 @@ function updateLTB() {
         els.ltbVal.className = 'ltb-amount ' + (ltb < 0 ? 'negative' : '');
         els.runBtn.disabled = true;
     }
+    
+    updatePieChart(ltb);
+}
+
+function updatePieChart(ltb) {
+    let conicStr = [];
+    let currentPct = 0;
+    
+    categories.forEach(c => {
+        if (c.id === 'debt_pay' && state.debt === 0) return;
+        let amt = state.budget[c.id];
+        if (amt > 0) {
+            let pct = (amt / state.income) * 100;
+            conicStr.push(`${c.color} ${currentPct}% ${currentPct + pct}%`);
+            currentPct += pct;
+        }
+    });
+    
+    // Unallocated gets dark grey
+    if (ltb > 0) {
+        conicStr.push(`#1E293B ${currentPct}% 100%`);
+    }
+    
+    // Fallback if completely empty
+    if(conicStr.length === 0) conicStr.push(`#1E293B 0% 100%`);
+    
+    document.getElementById('budget-pie').style.background = `conic-gradient(${conicStr.join(', ')})`;
 }
 
 function chargeExpense(cost) {
