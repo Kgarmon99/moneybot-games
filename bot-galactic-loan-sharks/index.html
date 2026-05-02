@@ -1,21 +1,117 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
-    <title>Moneybot - Financial Literacy Game</title>
-    <meta name="description" content="Learn about predatory lending and financial literacy through an interactive game. Play as Moneybot and discover how loan terms impact borrowers." />
-    <meta property="og:title" content="Moneybot - Financial Literacy Game" />
-    <meta property="og:description" content="An educational game teaching financial literacy through interactive loan scenarios." />
-    <meta property="og:type" content="website" />
-    <link rel="icon" type="image/png" href="./favicon.png" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Space+Grotesk:wght@300..700&display=swap" rel="stylesheet">
-    <script type="module" crossorigin src="./assets/index-CZp6rUQH.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-DJjbBjGy.css">
-  </head>
-  <body>
-    <div id="root"></div>
-  </body>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Galactic Loan Sharks</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Outfit:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Space Background -->
+        <div id="stars"></div>
+        <div id="stars2"></div>
+        <div id="stars3"></div>
+
+        <!-- Start Screen -->
+        <div id="start-screen" class="screen active">
+            <div class="logo-container">
+                <div class="pixel-text" style="color:var(--mb-gold); font-size:12px; margin-bottom:10px;">MONEYBOT PRESENTS</div>
+                <h1 class="title">GALACTIC<br><span class="danger">LOAN SHARKS</span></h1>
+            </div>
+            
+            <div class="instructions">
+                <p>Play as a lending agent on the edge of the galaxy.</p>
+                <div class="instruction-row"><span class="dot green"></span> Help borrowers find the best rates</div>
+                <div class="instruction-row"><span class="dot red"></span> Spot the predatory lending traps</div>
+                <div class="instruction-row"><span class="dot gold"></span> Earn profit, but keep your soul</div>
+            </div>
+
+            <button class="btn-primary" onclick="startGame()">START MISSION</button>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="game-screen" class="screen">
+            <header id="hud">
+                <div class="stat-pill">
+                    <span class="label">VICTIM</span>
+                    <span id="victim-val" class="val">1/3</span>
+                </div>
+                <div class="stat-pill highlight">
+                    <span class="label">PROFIT</span>
+                    <span id="profit-val" class="val">0</span>
+                </div>
+            </header>
+
+            <div class="borrower-card">
+                <div class="borrower-header">
+                    <img id="borrower-img" src="" alt="Borrower" class="borrower-avatar">
+                    <div>
+                        <h2 id="borrower-name" class="borrower-name">Name</h2>
+                        <div id="borrower-scenario" class="borrower-scenario">Scenario</div>
+                    </div>
+                </div>
+                <div id="borrower-dialogue" class="borrower-dialogue">
+                    Dialogue
+                </div>
+            </div>
+
+            <div class="options-container" id="loan-options">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+
+        <!-- Feedback Modal -->
+        <div id="feedback-modal" class="modal hidden">
+            <div class="modal-content">
+                <h2 id="feedback-title" class="feedback-title">Result</h2>
+                <div id="feedback-reaction" class="feedback-reaction">Reaction</div>
+                
+                <div class="feedback-details">
+                    <div class="detail-row">
+                        <span class="detail-label">Profit Earned:</span>
+                        <span id="feedback-profit" class="detail-value positive">0</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Real World Equivalent:</span>
+                        <span id="feedback-realworld" class="detail-value">Text</span>
+                    </div>
+                </div>
+
+                <div class="tip-box">
+                    <span class="tip-icon">💡</span>
+                    <span id="feedback-tip">Tip</span>
+                </div>
+
+                <button class="btn-primary" onclick="nextScenario()">NEXT BORROWER</button>
+            </div>
+        </div>
+
+        <!-- Results Screen -->
+        <div id="results-screen" class="screen">
+            <h1 class="title" style="margin-top:20px;">SHIFT COMPLETE</h1>
+            
+            <div class="results-card">
+                <div class="result-row">
+                    <span class="result-label">Total Profit:</span>
+                    <span id="final-profit" class="result-value highlight">0</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Optimal Choices:</span>
+                    <span id="final-optimal" class="result-value">0/3</span>
+                </div>
+                
+                <hr style="border-color:rgba(255,255,255,0.1); margin:15px 0;">
+                
+                <div id="final-verdict" class="final-verdict">
+                    Verdict
+                </div>
+            </div>
+
+            <button class="btn-primary" onclick="location.reload()" style="margin-top:20px;">PLAY AGAIN</button>
+        </div>
+    </div>
+    <script src="game.js"></script>
+</body>
 </html>
