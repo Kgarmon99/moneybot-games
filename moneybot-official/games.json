@@ -1143,6 +1143,14 @@
       "difficulty": "hard",
       "xp": 150,
       "coins": 100
+    },
+    {
+      "id": "bot-history-of-money",
+      "name": "History of Money (3D)",
+      "category": "basics",
+      "difficulty": "easy",
+      "xp": 100,
+      "coins": 50
     }
   ]
 }
