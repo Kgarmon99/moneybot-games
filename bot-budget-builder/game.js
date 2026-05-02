@@ -56,9 +56,17 @@ const events = [
     }
 ];
 
-// Audio Setup
-const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+// Audio Setup - Defer creation until user interaction to prevent iOS Safari crash
+let audioCtx = null;
+function initAudio() {
+    if(!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if(audioCtx.state === 'suspended') audioCtx.resume();
+}
+
 function playSound(type) {
+    if(!audioCtx) return;
     if(audioCtx.state === 'suspended') audioCtx.resume();
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
@@ -124,7 +132,7 @@ function showScreen(id) {
 }
 
 function startGame() {
-    if(audioCtx.state === 'suspended') audioCtx.resume();
+    initAudio();
     state = { month: 1, income: 3000, netWorth: 0, emergency: 0, debt: 0, budget: {}, investments: 0, hiddenRisks: [] };
     initMonth();
     showScreen('budget-screen');
