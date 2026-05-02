@@ -95,34 +95,38 @@ function playSound(type) {
     }
 }
 
-const els = {
-    screens: document.querySelectorAll('.screen'),
-    hudMonth: document.getElementById('month-val'),
-    hudNW: document.getElementById('nw-val'),
-    hudEF: document.getElementById('ef-val'),
-    ccPill: document.getElementById('cc-pill'),
-    ccVal: document.getElementById('cc-val'),
-    incomeVal: document.getElementById('income-val'),
-    ltbVal: document.getElementById('ltb-val'),
-    ltbContainer: document.getElementById('ltb-container'),
-    fixedList: document.getElementById('fixed-categories'),
-    varList: document.getElementById('variable-categories'),
-    runBtn: document.getElementById('run-month-btn'),
-    eventModal: document.getElementById('event-modal'),
-    evIcon: document.getElementById('event-icon'),
-    evTitle: document.getElementById('event-title'),
-    evDesc: document.getElementById('event-desc'),
-    evImpact: document.getElementById('event-impact'),
-    evStatus: document.getElementById('event-status'),
-    evChoices: document.getElementById('event-choices'),
-    evContinue: document.getElementById('event-continue-btn'),
-    eomEF: document.getElementById('eom-ef'),
-    eomInv: document.getElementById('eom-inv'),
-    eomCCRow: document.getElementById('eom-cc-row'),
-    eomCC: document.getElementById('eom-cc'),
-    eomNW: document.getElementById('eom-nw'),
-    eomTip: document.getElementById('eom-tip')
-};
+let els = {};
+
+document.addEventListener('DOMContentLoaded', () => {
+    els = {
+        screens: document.querySelectorAll('.screen'),
+        hudMonth: document.getElementById('month-val'),
+        hudNW: document.getElementById('nw-val'),
+        hudEF: document.getElementById('ef-val'),
+        ccPill: document.getElementById('cc-pill'),
+        ccVal: document.getElementById('cc-val'),
+        incomeVal: document.getElementById('income-val'),
+        ltbVal: document.getElementById('ltb-val'),
+        ltbContainer: document.getElementById('ltb-container'),
+        fixedList: document.getElementById('fixed-categories'),
+        varList: document.getElementById('variable-categories'),
+        runBtn: document.getElementById('run-month-btn'),
+        eventModal: document.getElementById('event-modal'),
+        evIcon: document.getElementById('event-icon'),
+        evTitle: document.getElementById('event-title'),
+        evDesc: document.getElementById('event-desc'),
+        evImpact: document.getElementById('event-impact'),
+        evStatus: document.getElementById('event-status'),
+        evChoices: document.getElementById('event-choices'),
+        evContinue: document.getElementById('event-continue-btn'),
+        eomEF: document.getElementById('eom-ef'),
+        eomInv: document.getElementById('eom-inv'),
+        eomCCRow: document.getElementById('eom-cc-row'),
+        eomCC: document.getElementById('eom-cc'),
+        eomNW: document.getElementById('eom-nw'),
+        eomTip: document.getElementById('eom-tip')
+    };
+});
 
 function format(n) { return '$' + Math.floor(n).toLocaleString(); }
 
@@ -482,9 +486,10 @@ function closeEvent() {
     }
 }
 
-function nextMonth() {
-    state.month++;
-    if(state.month % 6 === 0) state.income += 300; // Raise!
-    initMonth();
-    showScreen('budget-screen');
-}
+// Ensure everything is loaded before attaching global scope functions
+window.startGame = startGame;
+window.adjust = adjust;
+window.runMonth = runMonth;
+window.closeEvent = closeEvent;
+window.nextMonth = nextMonth;
+window.makeChoice = makeChoice;
