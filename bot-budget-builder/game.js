@@ -27,9 +27,17 @@ const events = [
     { title: "Quiet Month", desc: "Nothing broke. No surprises. Nice.", cost: 0, type: 'neutral' }
 ];
 
-// Audio Setup
-const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+// Audio Setup - Deferred to prevent iOS Safari crash
+let audioCtx = null;
+function initAudio() {
+    if(!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if(audioCtx.state === 'suspended') audioCtx.resume();
+}
+
 function playSound(type) {
+    if(!audioCtx) return;
     if(audioCtx.state === 'suspended') audioCtx.resume();
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
@@ -58,27 +66,31 @@ function playSound(type) {
     }
 }
 
-const els = {
-    screens: document.querySelectorAll('.screen'),
-    hudMonth: document.getElementById('month-val'),
-    hudNW: document.getElementById('nw-val'),
-    hudEF: document.getElementById('ef-val'),
-    incomeVal: document.getElementById('income-val'),
-    ltbVal: document.getElementById('ltb-val'),
-    ltbContainer: document.getElementById('ltb-container'),
-    catList: document.getElementById('categories-list'),
-    runBtn: document.getElementById('run-month-btn'),
-    eventModal: document.getElementById('event-modal'),
-    evIcon: document.getElementById('event-icon'),
-    evTitle: document.getElementById('event-title'),
-    evDesc: document.getElementById('event-desc'),
-    evImpact: document.getElementById('event-impact'),
-    evStatus: document.getElementById('event-status'),
-    eomEF: document.getElementById('eom-ef'),
-    eomInv: document.getElementById('eom-inv'),
-    eomNW: document.getElementById('eom-nw'),
-    eomTip: document.getElementById('eom-tip')
-};
+let els = {};
+
+document.addEventListener('DOMContentLoaded', () => {
+    els = {
+        screens: document.querySelectorAll('.screen'),
+        hudMonth: document.getElementById('month-val'),
+        hudNW: document.getElementById('nw-val'),
+        hudEF: document.getElementById('ef-val'),
+        incomeVal: document.getElementById('income-val'),
+        ltbVal: document.getElementById('ltb-val'),
+        ltbContainer: document.getElementById('ltb-container'),
+        catList: document.getElementById('categories-list'),
+        runBtn: document.getElementById('run-month-btn'),
+        eventModal: document.getElementById('event-modal'),
+        evIcon: document.getElementById('event-icon'),
+        evTitle: document.getElementById('event-title'),
+        evDesc: document.getElementById('event-desc'),
+        evImpact: document.getElementById('event-impact'),
+        evStatus: document.getElementById('event-status'),
+        eomEF: document.getElementById('eom-ef'),
+        eomInv: document.getElementById('eom-inv'),
+        eomNW: document.getElementById('eom-nw'),
+        eomTip: document.getElementById('eom-tip')
+    };
+});
 
 function format(n) { return '$' + n.toLocaleString(); }
 
@@ -88,7 +100,7 @@ function showScreen(id) {
 }
 
 function startGame() {
-    if(audioCtx.state === 'suspended') audioCtx.resume();
+    initAudio();
     state = { month: 1, income: 3000, netWorth: 0, emergency: 0, budget: {}, investments: 0 };
     initMonth();
     showScreen('budget-screen');
@@ -267,3 +279,10 @@ function nextMonth() {
     initMonth();
     showScreen('budget-screen');
 }
+
+// Attach global functions for HTML buttons
+window.startGame = startGame;
+window.adjust = adjust;
+window.runMonth = runMonth;
+window.closeEvent = closeEvent;
+window.nextMonth = nextMonth;
