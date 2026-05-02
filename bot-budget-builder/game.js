@@ -9,12 +9,12 @@ let state = {
 };
 
 const categories = [
-    { id: 'housing', name: 'Housing & Utils', icon: '🏠', min: 1000, default: 1000 },
-    { id: 'food', name: 'Food & Groceries', icon: '🛒', min: 300, default: 300 },
-    { id: 'transport', name: 'Transport', icon: '🚗', min: 200, default: 200 },
-    { id: 'fun', name: 'Lifestyle & Fun', icon: '🎉', min: 0, default: 100 },
-    { id: 'emergency', name: 'Emergency Fund', icon: '🛡️', min: 0, default: 0 },
-    { id: 'invest', name: 'Investments', icon: '📈', min: 0, default: 0 }
+    { id: 'housing', name: 'Housing & Utils', icon: '🏠', min: 1000, default: 1000, color: '#38BDF8' }, // Blue
+    { id: 'food', name: 'Food & Groceries', icon: '🛒', min: 300, default: 300, color: '#FBBF24' }, // Gold
+    { id: 'transport', name: 'Transport', icon: '🚗', min: 200, default: 200, color: '#A855F7' }, // Purple
+    { id: 'fun', name: 'Lifestyle & Fun', icon: '🎉', min: 0, default: 100, color: '#FB7185' }, // Red
+    { id: 'emergency', name: 'Emergency Fund', icon: '🛡️', min: 0, default: 0, color: '#00E676' }, // Green
+    { id: 'invest', name: 'Investments', icon: '📈', min: 0, default: 0, color: '#00C853' } // Dark Green
 ];
 
 const events = [
@@ -130,12 +130,14 @@ function updateHUD() {
 }
 
 function renderCategories() {
+    if (!els.catList) return;
     els.catList.innerHTML = '';
     categories.forEach(c => {
         let div = document.createElement('div');
         div.className = 'category-row';
         div.innerHTML = `
             <div class="cat-info">
+                <div class="cat-color-dot" style="background-color: ${c.color}"></div>
                 <div class="cat-icon">${c.icon}</div>
                 <div class="cat-details">
                     <span class="cat-name">${c.name}</span>
@@ -167,21 +169,57 @@ function adjust(id, change) {
     
     playSound('click');
     state.budget[id] += change;
-    document.getElementById(`amt-${id}`).innerText = format(state.budget[id]);
+    
+    const amtEl = document.getElementById(`amt-${id}`);
+    if(amtEl) {
+        amtEl.innerText = format(state.budget[id]);
+        
+        // Add quick pop animation
+        amtEl.classList.remove('pop');
+        void amtEl.offsetWidth; // trigger reflow
+        amtEl.classList.add('pop');
+    }
     updateLTB();
 }
 
 function updateLTB() {
     let ltb = getLTB();
-    els.ltbVal.innerText = format(ltb);
-    
-    if(ltb === 0) {
-        els.ltbVal.className = 'ltb-amount zero';
-        els.runBtn.disabled = false;
-    } else {
-        els.ltbVal.className = 'ltb-amount ' + (ltb < 0 ? 'negative' : '');
-        els.runBtn.disabled = true;
+    if(els.ltbVal) {
+        els.ltbVal.innerText = format(ltb);
+        if(ltb === 0) {
+            els.ltbVal.className = 'ltb-amount zero';
+            if(els.runBtn) els.runBtn.disabled = false;
+        } else {
+            els.ltbVal.className = 'ltb-amount ' + (ltb < 0 ? 'negative' : '');
+            if(els.runBtn) els.runBtn.disabled = true;
+        }
     }
+    updatePieChart(ltb);
+}
+
+function updatePieChart(ltb) {
+    const pie = document.getElementById('budget-pie');
+    if (!pie) return;
+    
+    let conicStr = [];
+    let currentPct = 0;
+    
+    categories.forEach(c => {
+        let amt = state.budget[c.id] || 0;
+        if (amt > 0) {
+            let pct = (amt / state.income) * 100;
+            conicStr.push(`${c.color} ${currentPct}% ${currentPct + pct}%`);
+            currentPct += pct;
+        }
+    });
+    
+    // Unallocated gets dark grey
+    if (ltb > 0) {
+        conicStr.push(`#1E293B ${currentPct}% 100%`);
+    }
+    
+    if(conicStr.length === 0) conicStr.push(`#1E293B 0% 100%`);
+    pie.style.background = `conic-gradient(${conicStr.join(', ')})`;
 }
 
 function runMonth() {
