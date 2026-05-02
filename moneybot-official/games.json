@@ -1151,6 +1151,14 @@
       "difficulty": "easy",
       "xp": 100,
       "coins": 50
+    },
+    {
+      "id": "bot-galactic-loan-sharks",
+      "name": "Galactic Loan Sharks",
+      "category": "credit",
+      "difficulty": "hard",
+      "xp": 200,
+      "coins": 100
     }
   ]
 }
