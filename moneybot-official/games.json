@@ -1159,6 +1159,14 @@
       "difficulty": "hard",
       "xp": 200,
       "coins": 100
+    },
+    {
+      "id": "bot-budget-builder",
+      "name": "Budget Boss",
+      "category": "basics",
+      "difficulty": "medium",
+      "xp": 100,
+      "coins": 50
     }
   ]
 }

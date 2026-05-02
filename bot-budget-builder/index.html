@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Budget Boss</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app">
+        <!-- HUD -->
+        <header id="hud">
+            <div class="stat-pill">
+                <span class="label">MONTH</span>
+                <span id="month-val" class="val">1</span>
+            </div>
+            <div class="stat-pill highlight">
+                <span class="label">NET WORTH</span>
+                <span id="nw-val" class="val">$0</span>
+            </div>
+            <div class="stat-pill">
+                <span class="label">EMERGENCY</span>
+                <span id="ef-val" class="val">$0</span>
+            </div>
+        </header>
+
+        <!-- Start Screen -->
+        <div id="start-screen" class="screen active">
+            <div class="hero-section">
+                <div class="mascot-bg">
+                    <img src="assets/mascot/operator-transparent.png" alt="MoneyBot" class="hero-logo">
+                </div>
+                <h1 class="title">BUDGET<br><span class="highlight">BOSS</span></h1>
+                <p class="tagline">Zero-based budgeting survival.</p>
+            </div>
+            <div class="instructions panel">
+                <div class="instruction-row"><span class="dot green"></span> Give every dollar a job ($0 left to budget)</div>
+                <div class="instruction-row"><span class="dot gold"></span> Build your Emergency Fund for surprises</div>
+                <div class="instruction-row"><span class="dot purple"></span> Invest to grow your Net Worth</div>
+            </div>
+            <button class="btn-mega" onclick="startGame()">
+                <span class="btn-text">START BUDGETING</span>
+            </button>
+        </div>
+
+        <!-- Budgeting Screen -->
+        <div id="budget-screen" class="screen">
+            <div class="budget-header">
+                <div class="income-badge">
+                    Income: <span id="income-val" class="accent">$3,000</span>
+                </div>
+                <div class="left-to-budget" id="ltb-container">
+                    <span class="ltb-label">Left to Budget</span>
+                    <span id="ltb-val" class="ltb-amount">$0</span>
+                </div>
+            </div>
+
+            <div class="categories-container scrollable-grid" id="categories-list">
+                <!-- Populated by JS -->
+            </div>
+
+            <button id="run-month-btn" class="btn-mega" onclick="runMonth()" disabled>
+                <span class="btn-icon">📅</span>
+                <span class="btn-text">RUN MONTH</span>
+            </button>
+        </div>
+
+        <!-- Event Modal -->
+        <div id="event-modal" class="modal hidden">
+            <div class="modal-content panel">
+                <div class="event-icon" id="event-icon">⚠️</div>
+                <h2 id="event-title" class="event-title">Surprise Event!</h2>
+                <p id="event-desc" class="event-desc">Your car broke down.</p>
+                <div id="event-impact" class="event-impact negative">-$400</div>
+                <div id="event-status" class="event-status">Covered by Emergency Fund!</div>
+                <button class="btn-mega" onclick="closeEvent()">CONTINUE</button>
+            </div>
+        </div>
+
+        <!-- End of Month Screen -->
+        <div id="eom-screen" class="screen">
+            <div class="eom-header">
+                <h1 class="title">Month Complete</h1>
+            </div>
+            
+            <div class="panel pl-statement">
+                <div class="pl-rows">
+                    <div class="pl-row">
+                        <span class="pl-label"><span class="pl-dot gold"></span>Emergency Fund</span>
+                        <span id="eom-ef" class="pl-value">$0</span>
+                    </div>
+                    <div class="pl-row">
+                        <span class="pl-label"><span class="pl-dot purple"></span>Investments (+Growth)</span>
+                        <span id="eom-inv" class="pl-value">$0</span>
+                    </div>
+                    <div class="pl-divider"></div>
+                    <div class="pl-row total">
+                        <span class="pl-label">Net Worth</span>
+                        <span id="eom-nw" class="pl-value highlight">$0</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="insight-card" id="eom-tip">
+                💡 Tip will appear here
+            </div>
+
+            <button class="btn-mega" onclick="nextMonth()">
+                <span class="btn-text">NEXT MONTH</span>
+                <span class="btn-icon">➔</span>
+            </button>
+        </div>
+        
+        <!-- Game Over Screen -->
+        <div id="game-over-screen" class="screen">
+            <div class="game-over-hero">
+                <div class="skull">💀</div>
+                <h1 class="title danger">BANKRUPT</h1>
+                <p class="subtitle">Debt overtook your life.</p>
+            </div>
+            <div class="panel final-stats">
+                <div class="stat-row">
+                    <span class="stat-label">Months Survived</span>
+                    <span id="final-months" class="stat-value accent">0</span>
+                </div>
+            </div>
+            <button class="btn-mega" onclick="location.reload()">TRY AGAIN</button>
+        </div>
+
+    </div>
+    <script src="game.js"></script>
+</body>
+</html>
