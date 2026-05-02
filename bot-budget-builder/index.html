@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Budget Boss</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=2">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div id="app">
@@ -19,13 +19,9 @@
                 <span class="label">NET WORTH</span>
                 <span id="nw-val" class="val">$0</span>
             </div>
-            <div class="stat-pill" id="ef-pill">
-                <span class="label">CASH (EF)</span>
+            <div class="stat-pill">
+                <span class="label">EMERGENCY</span>
                 <span id="ef-val" class="val">$0</span>
-            </div>
-            <div class="stat-pill danger hidden" id="cc-pill">
-                <span class="label">CREDIT DEBT</span>
-                <span id="cc-val" class="val">-$0</span>
             </div>
         </header>
 
@@ -60,21 +56,8 @@
                 </div>
             </div>
 
-            <!-- Dynamic Pie Chart -->
-            <div class="pie-container">
-                <div id="budget-pie" class="pie-chart">
-                    <div class="pie-center">
-                        <img src="assets/mascot/operator-transparent.png" class="pie-mascot" alt="MoneyBot">
-                    </div>
-                </div>
-            </div>
-
             <div class="categories-container scrollable-grid" id="categories-list">
-                <div class="section-title">🔒 Fixed Obligations</div>
-                <div id="fixed-categories"></div>
-                
-                <div class="section-title" style="margin-top: 15px;">🎚️ Variable Envelopes</div>
-                <div id="variable-categories"></div>
+                <!-- Populated by JS -->
             </div>
 
             <button id="run-month-btn" class="btn-mega" onclick="runMonth()" disabled>
@@ -89,15 +72,9 @@
                 <div class="event-icon" id="event-icon">⚠️</div>
                 <h2 id="event-title" class="event-title">Surprise Event!</h2>
                 <p id="event-desc" class="event-desc">Your car broke down.</p>
-                
-                <div id="event-impact" class="event-impact negative hidden">-$400</div>
-                <div id="event-status" class="event-status hidden">Covered by Emergency Fund!</div>
-                
-                <div id="event-choices" class="event-choices">
-                    <!-- Populated by JS for interactive choices -->
-                </div>
-
-                <button id="event-continue-btn" class="btn-mega hidden" onclick="closeEvent()">CONTINUE</button>
+                <div id="event-impact" class="event-impact negative">-$400</div>
+                <div id="event-status" class="event-status">Covered by Emergency Fund!</div>
+                <button class="btn-mega" onclick="closeEvent()">CONTINUE</button>
             </div>
         </div>
 
@@ -105,24 +82,17 @@
         <div id="eom-screen" class="screen">
             <div class="eom-header">
                 <h1 class="title">Month Complete</h1>
-                <div style="text-align:center; margin-bottom: 20px;">
-                    <img src="assets/mascot/operator-transparent.png" alt="MoneyBot" style="height: 100px; filter: drop-shadow(0 5px 15px rgba(0,230,118,0.4));">
-                </div>
             </div>
             
             <div class="panel pl-statement">
                 <div class="pl-rows">
                     <div class="pl-row">
-                        <span class="pl-label"><span class="pl-dot gold"></span>Cash Buffer (EF)</span>
+                        <span class="pl-label"><span class="pl-dot gold"></span>Emergency Fund</span>
                         <span id="eom-ef" class="pl-value">$0</span>
                     </div>
                     <div class="pl-row">
                         <span class="pl-label"><span class="pl-dot purple"></span>Investments (+Growth)</span>
                         <span id="eom-inv" class="pl-value">$0</span>
-                    </div>
-                    <div class="pl-row" id="eom-cc-row">
-                        <span class="pl-label"><span class="pl-dot red"></span>Credit Card (-Interest)</span>
-                        <span id="eom-cc" class="pl-value negative">-$0</span>
                     </div>
                     <div class="pl-divider"></div>
                     <div class="pl-row total">
@@ -159,6 +129,6 @@
         </div>
 
     </div>
-    <script src="game.js?v=3"></script>
+    <script src="game.js"></script>
 </body>
 </html>
