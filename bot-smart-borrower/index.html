@@ -98,8 +98,9 @@
         }
 
         .char-icon {
-            font-size: 48px;
             margin-bottom: 12px;
+            display: flex;
+            justify-content: center;
         }
 
         .char-name {
@@ -1248,7 +1249,7 @@
         <!-- Welcome Screen -->
         <div class="screen active" id="welcome-screen">
             <div class="welcome-hero">
-                <img src="../assets/moneybot-idle.svg" alt="MoneyBot" style="height: 120px; display: block; margin: 0 auto 20px;">
+                <img src="assets/hero-moneybot.png" alt="MoneyBot Shielding Predatory Loans" style="height: 180px; display: block; margin: 0 auto 20px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,200,83,0.3); object-fit: cover;">
                 <h1 class="welcome-title">Master the Art of Smart Borrowing</h1>
                 <p class="welcome-subtitle">Learn to spot predatory loans and make informed financial decisions that save you thousands.</p>
             </div>
@@ -1476,7 +1477,7 @@
                 creditScore: 620,
                 scoreLabel: "Fair",
                 income: 1200,
-                icon: '<span class="material-symbols-rounded">school</span>'
+                icon: '<img src="assets/char-student.png" style="width:60px; height:60px; border-radius:12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); object-fit:cover;">'
             },
             {
                 id: "gig",
@@ -1485,7 +1486,7 @@
                 creditScore: 580,
                 scoreLabel: "Poor",
                 income: 2500,
-                icon: '<span class="material-symbols-rounded">directions_car</span>'
+                icon: '<img src="assets/char-gig.png" style="width:60px; height:60px; border-radius:12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); object-fit:cover;">'
             },
             {
                 id: "parent",
@@ -1494,7 +1495,7 @@
                 creditScore: 650,
                 scoreLabel: "Fair",
                 income: 4000,
-                icon: '<span class="material-symbols-rounded">family_restroom</span>'
+                icon: '<img src="assets/char-parent.png" style="width:60px; height:60px; border-radius:12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); object-fit:cover;">'
             },
             {
                 id: "grad",
@@ -1503,7 +1504,7 @@
                 creditScore: 720,
                 scoreLabel: "Good",
                 income: 5000,
-                icon: '<span class="material-symbols-rounded">work</span>'
+                icon: '<img src="assets/char-grad.png" style="width:60px; height:60px; border-radius:12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); object-fit:cover;">'
             }
         ];
 
@@ -1603,7 +1604,7 @@
                         id: "title",
                         lender: "TitleMax Loans",
                         type: "Title Loan",
-                        icon: '<span class="material-symbols-rounded">directions_car</span>',
+                        icon: '<img src="assets/char-gig.png" style="width:60px; height:60px; border-radius:12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); object-fit:cover;">',
                         apr: 300,
                         termMonths: 1,
                         monthlyPayment: 3125,
@@ -1758,7 +1759,7 @@
             },
             {
                 id: 4,
-                icon: '<span class="material-symbols-rounded">school</span>',
+                icon: '<img src="assets/char-student.png" style="width:60px; height:60px; border-radius:12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); object-fit:cover;">',
                 name: "Student Expenses",
                 amount: 3000,
                 description: "Textbooks and supplies for the upcoming semester.",
