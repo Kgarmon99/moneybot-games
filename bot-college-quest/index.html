@@ -39,6 +39,7 @@
 
         .container {
             position: relative;
+            padding-bottom: 120px; /* Fix overlap with unlocks bar */
             z-index: 1;
             max-width: 900px;
             margin: 0 auto;
@@ -804,7 +805,58 @@
             .save-screen { padding: 20px; }
             .slots-grid { grid-template-columns: 1fr; }
         }
+
+        /* Interactive Sliders */
+        .range-slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: rgba(255,255,255,0.1);
+            outline: none;
+            margin: 30px 0;
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.5);
+        }
+        .range-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--neon-green);
+            cursor: pointer;
+            box-shadow: 0 0 15px var(--neon-green);
+            transition: transform 0.1s;
+        }
+        .range-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+        .slider-projections {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .slider-wrapper {
+            background: rgba(34, 197, 94, 0.02);
+            border: 1px solid rgba(34, 197, 94, 0.1);
+            border-radius: 12px;
+            padding: 24px;
+            margin-top: 10px;
+        }
+        .unlocks-bar {
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.9);
+            background: rgba(10, 10, 10, 0.98);
+        }
     </style>
+
 </head>
 <body>
     <div class="bg-grid"></div>
@@ -986,20 +1038,49 @@
                 { text: '🏠 Commute from Home', impact: { debt: 0, happy: -20, gpa: 0.3 }, result: 'Massive savings.' },
                 { text: '🏡 Off-campus Apartment', impact: { debt: 8000, happy: 10, gpa: -0.1 }, result: 'Independence!' }
             ]},
-            { id: 'part_time_job', title: 'WORK-LIFE BALANCE', text: 'How will you handle expenses?', choices: [
-                { text: '📚 Focus on Studies', impact: { cash: -2000, gpa: 0.4, happy: 10 }, result: 'Grades first!' },
-                { text: '☕ Part-time Job', impact: { cash: 3000, gpa: -0.2, happy: 0 }, result: 'Balanced approach.' },
-                { text: '💼 Full-time Work', impact: { cash: 8000, gpa: -0.6, happy: -30 }, result: 'Grinding hard!' }
-            ]},
+            {
+                id: 'part_time_job',
+                title: 'WORK-LIFE BALANCE (INTERACTIVE)',
+                text: 'Your bank account is looking thin. Use the slider to choose exactly how many hours a week you will work this semester.',
+                type: 'slider',
+                slider: {
+                    min: 0, max: 40, step: 5, defaultValue: 15, unit: ' hrs/week',
+                    calculateImpact: (val) => {
+                        const cash = val * 150; // approx earnings over semester
+                        let gpa = val > 10 ? -((val - 10) * 0.02) : 0;
+                        const happy = -(val * 1);
+                        return { cash, gpa, happy, debt: 0 };
+                    },
+                    getResultText: (val) => {
+                        if (val === 0) return 'Focused entirely on studies. Wallet empty, but grades are safe.';
+                        if (val <= 15) return 'A balanced approach. Pocket money secured without killing your GPA.';
+                        if (val <= 30) return 'The grind is real. Making good money but constantly exhausted.';
+                        return 'Maximum hustle! Swimming in cash but barely sleeping.';
+                    }
+                }
+            },
             { id: 'scholarship', title: 'SCHOLARSHIP OPPORTUNITY', text: 'A $5,000 scholarship requires 3 essays.', choices: [
                 { text: '✍️ Apply', impact: { debt: -5000, happy: 5, gpa: -0.1 }, result: 'Free money!' },
                 { text: '❌ Skip It', impact: { happy: 5 }, result: 'Time is money too...' }
             ]},
-            { id: 'spring_break', title: 'SPRING BREAK', text: 'Trip to Cancun or save money?', choices: [
-                { text: '🏖️ Join Trip', impact: { debt: 1500, happy: 25, gpa: -0.2 }, result: 'Living your best life!' },
-                { text: '📖 Stay & Study', impact: { happy: -15, gpa: 0.3 }, result: 'Responsible choice.' },
-                { text: '💼 Extra Shifts', impact: { cash: 800, happy: -10 }, result: 'Grinding while others party.' }
-            ]},
+            {
+                id: 'spring_break',
+                title: 'SPRING BREAK BUDGET (INTERACTIVE)',
+                text: 'Spring break is here. Everyone is planning trips. Use the slider to decide how much debt you are willing to take on for a vacation.',
+                type: 'slider',
+                slider: {
+                    min: 0, max: 3000, step: 250, defaultValue: 500, unit: ' dollars',
+                    calculateImpact: (val) => {
+                        return { debt: val, happy: Math.floor(val/60), gpa: val > 1000 ? -0.1 : 0 };
+                    },
+                    getResultText: (val) => {
+                        if (val === 0) return 'Staycation! Boring but responsible. Zero new debt.';
+                        if (val <= 750) return 'Modest road trip. Great memories without destroying your future.';
+                        if (val <= 2000) return 'Cancun! Amazing time, but your credit card is crying.';
+                        return 'VIP luxury trip! Lived like a rockstar, but you will pay for this for years.';
+                    }
+                }
+            },
             { id: 'car_emergency', title: 'CAR BREAKDOWN', text: '$1,200 repair needed.', choices: [
                 { text: '🔧 Fix with Credit', impact: { debt: 1200, happy: -10 }, result: 'High interest debt added.' },
                 { text: '🚌 Take Bus', impact: { happy: -25, gpa: -0.1 }, result: 'Long commute.' },
@@ -1260,27 +1341,162 @@
             container.innerHTML = '';
 
             setTimeout(() => {
-                scenario.choices.forEach((choice, idx) => {
-                    const btn = document.createElement('button');
-                    btn.className = 'choice-btn';
-                    btn.disabled = true;
-
-                    const impacts = [];
-                    if (choice.impact.debt) impacts.push(`<span class="impact-debt">Debt ${choice.impact.debt > 0 ? '+' : ''}$${Math.abs(choice.impact.debt).toLocaleString()}</span>`);
-                    if (choice.impact.cash) impacts.push(`<span class="impact-cash">Cash ${choice.impact.cash > 0 ? '+' : ''}$${Math.abs(choice.impact.cash).toLocaleString()}</span>`);
-                    if (choice.impact.gpa) impacts.push(`<span class="impact-gpa">GPA ${choice.impact.gpa > 0 ? '+' : ''}${choice.impact.gpa}</span>`);
-                    if (choice.impact.happy) impacts.push(`<span class="impact-happy">Happiness ${choice.impact.happy > 0 ? '+' : ''}${choice.impact.happy}%</span>`);
-
-                    btn.innerHTML = `
-                        <div class="choice-text">${choice.text}</div>
-                        <div class="choice-impact">${impacts.join('')}</div>
+                if (scenario.type === 'slider') {
+                    const cfg = scenario.slider;
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'slider-wrapper';
+                    wrapper.style.opacity = '0';
+                    wrapper.style.transition = 'opacity 0.5s';
+                    
+                    wrapper.innerHTML = `
+                        <div style="font-size:28px; font-weight:800; color:var(--neon-green); text-align:center" id="sliderValueDisplay">${cfg.defaultValue}${cfg.unit}</div>
+                        <input type="range" id="scenarioSlider" class="range-slider" min="${cfg.min}" max="${cfg.max}" step="${cfg.step}" value="${cfg.defaultValue}">
+                        <div class="slider-projections" id="sliderProjections"></div>
+                        <button class="choice-btn" id="sliderConfirmBtn" style="width:100%; text-align:center; background:rgba(34,197,94,0.1); border-color:var(--neon-green); color:var(--neon-green);">
+                            <div class="choice-text" style="color:var(--neon-green); text-transform:uppercase; letter-spacing:1px;">Confirm Decision</div>
+                        </button>
                     `;
+                    container.appendChild(wrapper);
 
-                    btn.onclick = () => makeChoice(choice);
-                    container.appendChild(btn);
+                    // Defer UI binding slightly
+                    setTimeout(() => {
+                        wrapper.style.opacity = '1';
+                        const slider = document.getElementById('scenarioSlider');
+                        const valDisplay = document.getElementById('sliderValueDisplay');
+                        const projDisplay = document.getElementById('sliderProjections');
+                        const confirmBtn = document.getElementById('sliderConfirmBtn');
 
-                    setTimeout(() => btn.disabled = false, idx * 200);
-                });
+                        const updateProjections = () => {
+                            const val = parseInt(slider.value);
+                            valDisplay.textContent = (cfg.unit === ' dollars' ? '
+        }
+
+        function makeChoice(choice) {
+            // Save snapshot before decision
+            const snapshot = JSON.parse(JSON.stringify(state));
+
+            // Apply impacts
+            if (choice.impact.debt) state.debt = Math.max(0, state.debt + choice.impact.debt);
+            if (choice.impact.cash) state.cash += choice.impact.cash;
+            if (choice.impact.gpa) state.gpa = Math.max(0, Math.min(4, state.gpa + choice.impact.gpa));
+            if (choice.impact.happy) state.happiness = Math.max(0, Math.min(100, state.happiness + choice.impact.happy));
+
+            if (choice.action) choice.action();
+
+            // Record history
+            state.history.push({
+                scenario: scenarios[state.scenarioIndex].title,
+                choice: choice.text,
+                debt: state.debt,
+                gpa: state.gpa,
+                stateSnapshot: snapshot
+            });
+
+            updateHUD();
+            renderUnlocks();
+            saveCurrentSlot();
+
+            document.getElementById('resultTitle').textContent = isWhatIfMode ? 'WHAT IF SCENARIO' : 'OUTCOME';
+            document.getElementById('resultText').textContent = choice.result;
+            document.getElementById('overlay').classList.add('active');
+            document.getElementById('resultPopup').classList.add('active');
+
+            state.semester++;
+        }
+
+        function closeResult() {
+            document.getElementById('overlay').classList.remove('active');
+            document.getElementById('resultPopup').classList.remove('active');
+
+            if (state.scenarioIndex < scenarios.length - 1) {
+                loadScenario(state.scenarioIndex + 1);
+            }
+        }
+
+        function endGame() {
+            checkGlobalUnlocks();
+            saveCurrentSlot();
+
+            document.getElementById('endScreen').classList.add('active');
+
+            document.getElementById('endDebt').textContent = '$' + state.debt.toLocaleString();
+            document.getElementById('endGPA').textContent = state.gpa.toFixed(2);
+
+            const salary = state.major ? majors[state.major].salary : 50000;
+            document.getElementById('endSalary').textContent = '$' + salary.toLocaleString();
+
+            const ratio = Math.round((state.debt / salary) * 100);
+            document.getElementById('endRatio').textContent = ratio + '%';
+
+            let message = '';
+            if (state.debt < 20000) {
+                message = '🎉 FINANCIAL WIZARD! You navigated college with minimal debt!';
+            } else if (state.debt < 50000) {
+                message = '✅ SOLID WORK! Your debt is manageable.';
+            } else if (state.debt < 100000) {
+                message = '⚠️ HEADS UP! Significant debt. Consider aggressive repayment.';
+            } else {
+                message = '🚨 CRISIS MODE! Time for loan forgiveness programs.';
+            }
+
+            document.getElementById('endMessage').textContent = message;
+        }
+
+        // Init
+        loadGlobalData();
+    </script>
+</body>
+</html>
+ : '') + val.toLocaleString() + (cfg.unit === ' dollars' ? '' : cfg.unit);
+                            const impact = cfg.calculateImpact(val);
+                            
+                            const impacts = [];
+                            if (impact.debt) impacts.push(`<span class="impact-debt">Debt: ${impact.debt > 0 ? '+' : ''}${Math.abs(impact.debt).toLocaleString()}</span>`);
+                            if (impact.cash) impacts.push(`<span class="impact-cash">Cash: ${impact.cash > 0 ? '+' : ''}${Math.abs(impact.cash).toLocaleString()}</span>`);
+                            if (impact.gpa) impacts.push(`<span class="impact-gpa">GPA: ${impact.gpa > 0 ? '+' : ''}${impact.gpa.toFixed(2)}</span>`);
+                            if (impact.happy) impacts.push(`<span class="impact-happy">Joy: ${impact.happy > 0 ? '+' : ''}${impact.happy}%</span>`);
+                            
+                            projDisplay.innerHTML = impacts.length ? 'Projected Impact: ' + impacts.join(' | ') : 'Projected Impact: None';
+                        };
+
+                        slider.addEventListener('input', updateProjections);
+                        updateProjections();
+
+                        confirmBtn.onclick = () => {
+                            const val = parseInt(slider.value);
+                            const impact = cfg.calculateImpact(val);
+                            makeChoice({
+                                text: `Chose: ${val}${cfg.unit}`,
+                                impact: impact,
+                                result: cfg.getResultText(val)
+                            });
+                        };
+                    }, 50);
+
+                } else {
+                    // Render traditional buttons
+                    scenario.choices.forEach((choice, idx) => {
+                        const btn = document.createElement('button');
+                        btn.className = 'choice-btn';
+                        btn.disabled = true;
+
+                        const impacts = [];
+                        if (choice.impact.debt) impacts.push(`<span class="impact-debt">Debt ${choice.impact.debt > 0 ? '+' : ''}${Math.abs(choice.impact.debt).toLocaleString()}</span>`);
+                        if (choice.impact.cash) impacts.push(`<span class="impact-cash">Cash ${choice.impact.cash > 0 ? '+' : ''}${Math.abs(choice.impact.cash).toLocaleString()}</span>`);
+                        if (choice.impact.gpa) impacts.push(`<span class="impact-gpa">GPA ${choice.impact.gpa > 0 ? '+' : ''}${choice.impact.gpa}</span>`);
+                        if (choice.impact.happy) impacts.push(`<span class="impact-happy">Happiness ${choice.impact.happy > 0 ? '+' : ''}${choice.impact.happy}%</span>`);
+
+                        btn.innerHTML = `
+                            <div class="choice-text">${choice.text}</div>
+                            <div class="choice-impact">${impacts.join('')}</div>
+                        `;
+
+                        btn.onclick = () => makeChoice(choice);
+                        container.appendChild(btn);
+
+                        setTimeout(() => btn.disabled = false, idx * 200);
+                    });
+                }
             }, scenario.text.length * 20 + 300);
         }
 
