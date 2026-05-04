@@ -158,6 +158,51 @@
             justify-content: center;
         }
 
+        
+        /* Premium UI Upgrades */
+        .app-container {
+            box-shadow: 0 0 50px rgba(0,0,0,0.1);
+            border-left: 1px solid var(--border-light);
+            border-right: 1px solid var(--border-light);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--money-green) 0%, var(--money-green-dark) 100%);
+            box-shadow: 0 4px 15px rgba(0, 200, 83, 0.3);
+            border: none;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 200, 83, 0.4);
+        }
+        .loan-card {
+            border: 2px solid transparent;
+            background: linear-gradient(to bottom, #ffffff, #f9fafb);
+            box-shadow: var(--shadow-md);
+        }
+        .loan-card:hover {
+            border-color: var(--money-green);
+            transform: scale(1.02);
+            box-shadow: 0 10px 25px rgba(0,200,83,0.15);
+        }
+        .moneybot-tip {
+            display: flex;
+            background: linear-gradient(135deg, #111 0%, #222 100%);
+            color: white;
+            border-radius: var(--radius-lg);
+            padding: 16px;
+            margin-top: 20px;
+            align-items: center;
+            gap: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .moneybot-tip img {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: white;
+            padding: 4px;
+        }
+
         /* Header */
         .header {
             position: sticky;
@@ -1235,7 +1280,10 @@
 <body>
     <div class="app-container">
         <!-- Header -->
+        
         <header class="header">
+            <a href="../moneybot-official/index.html" style="text-decoration: none; color: var(--text-tertiary); margin-right: 10px; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; background: var(--bg-gray); border-radius: 50%;"><span class="material-symbols-rounded" style="font-size: 18px;">arrow_back</span></a>
+
             <div class="logo">
                 <div class="logo-icon"><span class="material-symbols-rounded">savings</span></div>
                 <span>Smart Borrower</span>
@@ -1985,8 +2033,21 @@
 
             // Render loan options
             renderLoanOptions(scenario);
+            showMoneyBotTip(scenario);
 
             showScreen('game-screen');
+        }
+
+        
+        // Update tip based on scenario
+        function showMoneyBotTip(scenario) {
+            const tipEl = document.getElementById('moneybot-tip');
+            const textEl = document.getElementById('moneybot-tip-text');
+            if(tipEl && textEl && scenario.lessons && scenario.lessons.length > 0) {
+                tipEl.style.display = 'flex';
+                // Show a random lesson as a hint
+                textEl.textContent = scenario.lessons[0];
+            }
         }
 
         // Render APR Chart
