@@ -1180,12 +1180,12 @@
     };
 
     const unlockables = [
-        { id: 'debt_free', name: 'Debt Free', icon: '💎', condition: function(s) { return s.debt < 10000 && s.scenarioIndex >= 11; } },
-        { id: 'perfect_gpa', name: '4.0 Legend', icon: '📚', condition: function(s) { return s.gpa >= 3.9 && s.scenarioIndex >= 11; } },
-        { id: 'cs_wizard', name: 'CS Wizard', icon: '💻', condition: function(s) { return s.major === 'cs' && s.gpa >= 3.5 && s.scenarioIndex >= 11; } },
-        { id: 'art_soul', name: 'Art Soul', icon: '🎨', condition: function(s) { return s.major === 'art' && s.happiness >= 80 && s.scenarioIndex >= 11; } },
-        { id: 'hustler', name: 'Side Hustler', icon: '💰', condition: function(s) { return s.cash >= 20000 && s.scenarioIndex >= 11; } },
-        { id: 'scholar', name: 'Full Ride', icon: '🏆', condition: function(s) { return s.debt < 5000 && s.scenarioIndex >= 11; } }
+        { id: 'debt_free', name: 'Debt Free', icon: '💎', condition: function(s) { return s.debt < 10000 && s.scenarioIndex >= 14; } },
+        { id: 'perfect_gpa', name: '4.0 Legend', icon: '📚', condition: function(s) { return s.gpa >= 3.9 && s.scenarioIndex >= 14; } },
+        { id: 'cs_wizard', name: 'CS Wizard', icon: '💻', condition: function(s) { return s.major === 'cs' && s.gpa >= 3.5 && s.scenarioIndex >= 14; } },
+        { id: 'art_soul', name: 'Art Soul', icon: '🎨', condition: function(s) { return s.major === 'art' && s.happiness >= 80 && s.scenarioIndex >= 14; } },
+        { id: 'hustler', name: 'Side Hustler', icon: '💰', condition: function(s) { return s.cash >= 20000 && s.scenarioIndex >= 14; } },
+        { id: 'scholar', name: 'Full Ride', icon: '🏆', condition: function(s) { return s.debt < 5000 && s.scenarioIndex >= 14; } }
     ];
 
     const majors = {
@@ -1216,27 +1216,48 @@
                 { text: '📖 English', impact: { gpa: 0.1, happy: 5 }, result: 'Words are your weapon.', action: function() { state.major = 'english'; } }
             ]
         },
-        { id: 'housing', title: 'FRESHMAN HOUSING', text: 'Where will you live?', choices: [
-            { text: '🏢 Dormitory', impact: { debt: 12000, happy: 15, gpa: 0.2 }, result: 'Expensive but fun!' },
-            { text: '🏠 Commute from Home', impact: { debt: 0, happy: -20, gpa: 0.3 }, result: 'Massive savings.' },
-            { text: '🏡 Off-campus Apartment', impact: { debt: 8000, happy: 10, gpa: -0.1 }, result: 'Independence!' }
-        ]},
-        {
-            id: 'part_time_job', title: 'WORK-LIFE BALANCE (INTERACTIVE)',
-            text: 'Your bank account is looking thin. Use the slider to choose exactly how many hours a week you will work this semester.',
-            type: 'slider',
-            slider: {
-                min: 0, max: 40, step: 5, defaultValue: 15, unit: ' hrs/week',
-                calculateImpact: function(val) { return { cash: val * 150, gpa: val > 10 ? -((val - 10) * 0.02) : 0, happy: -(val * 1), debt: 0 }; },
-                getResultText: function(val) { return val === 0 ? 'Focused entirely on studies.' : val <= 15 ? 'A balanced approach.' : val <= 30 ? 'The grind is real.' : 'Maximum hustle!'; }
-            }
-        },
-        { id: 'scholarship', title: 'SCHOLARSHIP OPPORTUNITY', text: 'A $5,000 scholarship requires 3 essays.', choices: [
-            { text: '✍️ Apply', impact: { debt: -5000, happy: 5, gpa: -0.1 }, result: 'Free money!' },
-            { text: '❌ Skip It', impact: { happy: 5 }, result: 'Time is money too...' }
-        ]},
-        {
-            id: 'spring_break', title: 'SPRING BREAK BUDGET (INTERACTIVE)',
+        
+            { id: 'housing', title: 'FRESHMAN HOUSING', text: 'Where will you live?', choices: [
+                { text: '🏢 Dormitory', impact: { debt: 12000, happy: 15, gpa: 0.2 }, result: 'Expensive but fun!' },
+                { text: '🏠 Commute from Home', impact: { debt: 0, happy: -20, gpa: 0.3 }, result: 'Massive savings.' },
+                { text: '🏡 Off-campus Apartment', impact: { debt: 8000, happy: 10, gpa: -0.1 }, result: 'Independence!' }
+            ]},
+            { id: 'textbooks', title: 'SYLLABUS WEEK', text: 'Classes just started and your professors demand access codes and textbooks. Total retail cost: $800.', choices: [
+                { text: '💳 Buy New at Bookstore', impact: { debt: 800, gpa: 0.1, happy: 5 }, result: 'Convenient but incredibly overpriced. The bookstore robbed you.' },
+                { text: '📦 Rent Used / Amazon', impact: { cash: -250, gpa: 0, happy: 0 }, result: 'Smart choice. You saved $550 by renting them.' },
+                { text: '🏴‍☠️ Pirate the PDFs', impact: { cash: 0, gpa: -0.2, happy: -10 }, result: 'Free! But you could not get the access code for your math homework. Grades suffer slightly.' }
+            ]},
+            { id: 'credit_card_trap', title: 'THE QUAD TRAP', text: 'A bank is on campus offering a "Free XL Pizza and T-Shirt" if you sign up for their student credit card (24.9% APR).', choices: [
+                { text: '🍕 Sign Up (Free Pizza!)', impact: { debt: 500, happy: 15 }, result: 'The pizza was great, but you maxed out the card by December. Welcome to revolving debt.' },
+                { text: '🚶 Walk Away', impact: { happy: -5 }, result: 'You stayed hungry today, but protected your financial future.' }
+            ]},
+            {
+                id: 'part_time_job', title: 'WORK-LIFE BALANCE (INTERACTIVE)',
+                text: 'Your bank account is looking thin. Use the slider to choose exactly how many hours a week you will work this semester.',
+                type: 'slider',
+                slider: {
+                    min: 0, max: 40, step: 5, defaultValue: 15, unit: ' hrs/week',
+                    calculateImpact: function(val) { return { cash: val * 150, gpa: val > 10 ? -((val - 10) * 0.02) : 0, happy: -(val * 1), debt: 0 }; },
+                    getResultText: function(val) { return val === 0 ? 'Focused entirely on studies.' : val <= 15 ? 'A balanced approach.' : val <= 30 ? 'The grind is real.' : 'Maximum hustle!'; }
+                }
+            },
+            { id: 'greek_life', title: 'GREEK ROW', text: 'Rush week is here. Joining a fraternity/sorority offers amazing networking but costs heavy dues.', choices: [
+                { text: '🏛️ Rush & Pledge', impact: { debt: 3000, happy: 30, gpa: -0.3 }, result: 'You made lifelong friends and connections, but the dues and parties put a dent in your wallet and grades.' },
+                { text: '🚫 Skip Greek Life', impact: { cash: 0, happy: -5, gpa: 0.1 }, result: 'You missed some wild parties, but saved thousands in dues.' }
+            ]},
+            { id: 'scholarship', title: 'SCHOLARSHIP OPPORTUNITY', text: 'A $5,000 scholarship requires 3 essays.', choices: [
+                { text: '✍️ Apply', impact: { debt: -5000, happy: 5, gpa: -0.1 }, result: 'Free money!' },
+                { text: '❌ Skip It', impact: { happy: 5 }, result: 'Time is money too...' }
+            ]},
+            { id: 'change_major', title: 'THE MID-COLLEGE CRISIS', text: 'You are halfway through your degree and realize you hate your major. Changing now will add an extra year of tuition.', choices: [
+                { text: '🔄 Change Major (+1 Year)', impact: { debt: 15000, happy: 20, gpa: 0.2 }, result: 'You finally enjoy your classes! But graduating in 5 years means $15k more debt.' },
+                { text: '😬 Stick It Out', impact: { happy: -25, gpa: -0.2 }, result: 'You suffer through the boring classes to graduate on time and save money.' }
+            ]},
+            {
+                id: 'spring_break', title: 'SPRING BREAK BUDGET (INTERACTIVE)',
+                text: 'Spring break is here. Use the slider to decide how much debt you are willing to take on for a vacation.',
+                type: 'slider',
+
             text: 'Spring break is here. Use the slider to decide how much debt you are willing to take on for a vacation.',
             type: 'slider',
             slider: {
