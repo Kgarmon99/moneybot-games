@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MoneyBot Gaming</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #000;
+            color: #fff;
+            min-height: 100vh;
+        }
+        
+        /* Animated gradient background */
+        .bg-gradient {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.8)),
+                url('assets/hero-bg.png') center/cover no-repeat;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        /* Grid overlay */
+        .grid-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(34, 197, 94, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(34, 197, 94, 0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+        
+        
+        .main-nav {
+            display: flex;
+            gap: 20px;
+        }
+        .nav-link {
+            color: #9CA3AF;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 16px;
+            transition: color 0.2s;
+            padding: 8px 16px;
+            border-radius: 8px;
+        }
+        .nav-link:hover {
+            color: #fff;
+            background: rgba(255,255,255,0.05);
+        }
+        .nav-link.active {
+            color: #22C55E;
+            background: rgba(34, 197, 94, 0.1);
+        }
+
+        /* Header */
+        header {
+            padding: 24px 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(34, 197, 94, 0.2);
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+        
+        .logo img {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            filter: drop-shadow(0 0 20px rgba(34, 197, 94, 0.5));
+        }
+        
+        .logo-text {
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+        
+        .logo-text span {
+            color: #22C55E;
+        }
+        
+        /* Hero */
+        .hero {
+            padding: 80px 0 60px;
+            text-align: center;
+        }
+        
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            border-radius: 100px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #22C55E;
+            margin-bottom: 24px;
+        }
+        
+        .hero-badge::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background: #22C55E;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #22C55E;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .hero h1 {
+            font-size: 64px;
+            font-weight: 800;
+            letter-spacing: -3px;
+            line-height: 1.1;
+            margin-bottom: 16px;
+            background: linear-gradient(180deg, #fff 0%, #888 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .hero p {
+            font-size: 22px;
+            color: #9CA3AF;
+            max-width: 600px;
+            margin: 0 auto 40px;
+            line-height: 1.6;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 60px;
+        }
+        
+        .stat {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 48px;
+            font-weight: 800;
+            color: #22C55E;
+            text-shadow: 0 0 40px rgba(34, 197, 94, 0.5);
+        }
+        
+        .stat-label {
+            font-size: 13px;
+            color: #9CA3AF;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 8px;
+            font-weight: 600;
+        }
+        
+        /* Games Section */
+        .games-section {
+            padding: 40px 0 80px;
+        }
+        
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 32px;
+        }
+        
+        .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #666;
+        }
+        
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        
+        .game-card {
+            position: relative;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: inherit;
+        }
+        
+        .game-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, transparent 50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .game-card:hover {
+            border-color: rgba(34, 197, 94, 0.6);
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.8), 0 0 20px rgba(34, 197, 94, 0.2);
+        }
+        
+        .game-card:hover::before {
+            opacity: 1;
+        }
+        
+        .game-image {
+            aspect-ratio: 16/10;
+            background: linear-gradient(135deg, #0a0a0a 0%, #111 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .game-image::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at center, rgba(34, 197, 94, 0.1) 0%, transparent 70%);
+        }
+        
+        .game-icon {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+            filter: drop-shadow(0 0 30px rgba(34, 197, 94, 0.4));
+            position: relative;
+            z-index: 1;
+            transition: transform 0.3s ease;
+        }
+        
+        .game-card:hover .game-icon {
+            transform: scale(1.1);
+        }
+        
+        .game-info {
+            padding: 24px;
+            position: relative;
+            z-index: 1;
+            background: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        
+        .game-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+        
+        .game-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: -0.5px;
+            letter-spacing: -0.3px;
+        }
+        
+        .game-tag {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 4px 10px;
+            background: rgba(34, 197, 94, 0.1);
+            border-radius: 100px;
+            color: #22C55E;
+        }
+        
+        .game-desc {
+            font-size: 14px;
+            color: #9CA3AF;
+            line-height: 1.6;
+            font-weight: 400;
+        }
+        
+        .new-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            padding: 4px 10px;
+            background: #22C55E;
+            color: #000;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-radius: 100px;
+            z-index: 2;
+        }
+        
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 40px; }
+            .stats { flex-direction: column; gap: 30px; }
+            .games-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-gradient"></div>
+    <div class="grid-overlay"></div>
+    
+    <div class="container">
+        <header>
+            <a href="index.html" class="logo">
+                <img src="assets/moneybot-logo-1.jpg" alt="MoneyBot">
+                <span class="logo-text">Money<span>Bot</span></span>
+            </a>
+            <nav class="main-nav">
+                <a href="index.html" class="nav-link">Originals</a>
+                <a href="classics.html" class="nav-link active">Web Classics</a>
+            </nav>
+        </header>
+        
+        <section class="hero">
+            <div class="hero-badge">System Online</div>
+            <h1>The Arcade</h1>
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-value">12</div>
+                    <div class="stat-label">Curated Classics</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value">∞</div>
+                    <div class="stat-label">Capital Upside</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value">0%</div>
+                    <div class="stat-label">Fake Guru BS</div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="games-section">
+            <div class="section-header">
+                <span class="section-title">All Games</span>
+            </div>
+            
+            <div class="games-grid">
+
+                <a href="https://www.timeforpayback.com/" target="_blank" class="game-card">
+                    <div class="game-image" style="background: #111;">
+                        <img src="https://d3f0607p366vty.cloudfront.net/images/payback-og-image.png" class="game-icon" alt="Payback" style="width: 100%; height: 100%; object-fit: cover; filter: none; border-radius: 0;" onerror="this.src='assets/moneybot-logo-1.jpg'">
+                    </div>
+                    <div class="game-info">
+                        <div class="game-header">
+                            <span class="game-title">Payback</span>
+                            <span class="game-tag">College & Debt</span>
+                        </div>
+                        <p class="game-desc">Can you get a college degree without drowning in student debt? A masterpiece by NGPF.</p>
+                    </div>
+                </a>
+
+                <a href="https://buildyourstax.com/" target="_blank" class="game-card">
+                    <div class="game-image" style="background: #111;">
+                        <img src="https://buildyourstax.com/img/Stax_OG.png" class="game-icon" alt="STAX" style="width: 100%; height: 100%; object-fit: cover; filter: none; border-radius: 0;" onerror="this.src='assets/moneybot-logo-1.jpg'">
+                    </div>
+                    <div class="game-info">
+                        <div class="game-header">
+                            <span class="game-title">STAX</span>
+                            <span class="game-tag">Investing</span>
+                        </div>
+                        <p class="game-desc">Experience 20 years of investing in 20 minutes. Learn why index funds beat picking individual stocks.</p>
+                    </div>
+                </a>
+
+                <a href="https://shadysam.com/" target="_blank" class="game-card">
+                    <div class="game-image" style="background: #111;">
+                        <img src="https://shadysam.com/assets/og_image.jpg" class="game-icon" alt="Shady Sam" style="width: 100%; height: 100%; object-fit: cover; filter: none; border-radius: 0;" onerror="this.src='assets/moneybot-logo-1.jpg'">
+                    </div>
+                    <div class="game-info">
+                        <div class="game-header">
+                            <span class="game-title">Shady Sam</span>
+                            <span class="game-tag">Predatory Lending</span>
+                        </div>
+                        <p class="game-desc">Play as a loan shark trying to maximize profits off unsuspecting borrowers. Learn how to spot their tricks.</p>
+                    </div>
+                </a>
+
+                <a href="https://playbumper.com/" target="_blank" class="game-card">
+                    <div class="game-image" style="background: #111;">
+                        <img src="https://playbumper.com/images/og-bumper.jpg" class="game-icon" alt="Bumper" style="width: 100%; height: 100%; object-fit: cover; filter: none; border-radius: 0;" onerror="this.src='assets/moneybot-logo-1.jpg'">
+                    </div>
+                    <div class="game-info">
+                        <div class="game-header">
+                            <span class="game-title">Bumper</span>
+                            <span class="game-tag">Insurance & Risk</span>
+                        </div>
+                        <p class="game-desc">Navigate the risky roads of life and learn how auto insurance protects your hard-earned cash.</p>
+                    </div>
+                </a>
+
+                <a href="https://www.coolmathgames.com/0-lemonade-stand" target="_blank" class="game-card">
+                    <div class="game-image" style="background: #111;">
+                        <img src="https://www.coolmathgames.com/sites/default/files/Lemonade%20Stand.png" class="game-icon" alt="Lemonade Stand" style="width: 100%; height: 100%; object-fit: cover; filter: none; border-radius: 0;" onerror="this.src='assets/moneybot-logo-1.jpg'">
+                    </div>
+                    <div class="game-info">
+                        <div class="game-header">
+                            <span class="game-title">Lemonade Stand</span>
+                            <span class="game-tag">Business Simulator</span>
+                        </div>
+                        <p class="game-desc">The absolute classic. Buy inventory, check the weather, and set your prices to build your lemonade empire.</p>
+                    </div>
+                </a>
+
+                <a href="https://hyperhippo.com/games/adventure-capitalist/" target="_blank" class="game-card">
+                    <div class="game-image" style="background: #111;">
+                        <img src="https://hyperhippo.com/wp-content/uploads/2021/04/AdCap_HeroImage-1-1.jpg" class="game-icon" alt="Adventure Capitalist" style="width: 100%; height: 100%; object-fit: cover; filter: none; border-radius: 0;" onerror="this.src='assets/moneybot-logo-1.jpg'">
+                    </div>
+                    <div class="game-info">
+                        <div class="game-header">
+                            <span class="game-title">Adventure Capitalist</span>
+                            <span class="game-tag">Compounding</span>
+                        </div>
+                        <p class="game-desc">The ultimate lesson in exponential growth and compounding returns. Start with a lemonade stand, end with the universe.</p>
+                    </div>
+                </a>
+
+                <a href="https://orteil.dashnet.org/cookieclicker/" target="_blank" class="game-card">
+                    <div class="game-image" style="background: #111;">
+                        <img src="https://orteil.dashnet.org/cookieclicker/img/thumbnail.png" class="game-icon" alt="Cookie Clicker" style="width: 100%; height: 100%; object-fit: cover; filter: none; border-radius: 0;" onerror="this.src='assets/moneybot-logo-1.jpg'">
+                    </div>
+                    <div class="game-info">
+                        <div class="game-header">
+                            <span class="game-title">Cookie Clicker</span>
+                            <span class="game-tag">Automation</span>
+                        </div>
+                        <p class="game-desc">Learn the power of reinvesting your cashflow into automated assets that print money while you sleep.</p>
+                    </div>
+                </a>
+            </div>
+        </section>
+    </div>
+</body>
+</html>

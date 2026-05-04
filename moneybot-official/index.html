@@ -52,6 +52,29 @@
             padding: 0 24px;
         }
         
+        
+        .main-nav {
+            display: flex;
+            gap: 20px;
+        }
+        .nav-link {
+            color: #9CA3AF;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 16px;
+            transition: color 0.2s;
+            padding: 8px 16px;
+            border-radius: 8px;
+        }
+        .nav-link:hover {
+            color: #fff;
+            background: rgba(255,255,255,0.05);
+        }
+        .nav-link.active {
+            color: #22C55E;
+            background: rgba(34, 197, 94, 0.1);
+        }
+
         /* Header */
         header {
             padding: 24px 0;
@@ -324,10 +347,14 @@
     
     <div class="container">
         <header>
-            <a href="#" class="logo">
+            <a href="index.html" class="logo">
                 <img src="assets/moneybot-logo-1.jpg" alt="MoneyBot">
                 <span class="logo-text">Money<span>Bot</span></span>
             </a>
+            <nav class="main-nav">
+                <a href="index.html" class="nav-link active">Originals</a>
+                <a href="classics.html" class="nav-link">Web Classics</a>
+            </nav>
         </header>
         
         <section class="hero">
