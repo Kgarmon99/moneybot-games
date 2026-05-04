@@ -1117,10 +1117,12 @@
                 <div class="end-stat-value" id="endRatio" style="color: var(--neon-yellow);">0%</div>
             </div>
         </div>
+        
         <p id="endMessage" style="color: #888; max-width: 500px; margin-bottom: 32px;"></p>
-        <div class="end-actions">
-            <button class="end-btn" onclick="showTimelineAtEnd()">📊 View Timeline</button>
-            <button class="end-btn primary" onclick="showSaveSlots()">💾 Save & Continue</button>
+        <div class="end-actions" style="display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 400px;">
+            <button class="end-btn" style="width: 100%;" onclick="showTimelineAtEnd()">📊 View Timeline (What If?)</button>
+            <button class="end-btn primary" style="width: 100%;" onclick="startNewGameInSlot()">🔄 Play Again (Overwrite Slot)</button>
+            <button class="end-btn" style="width: 100%; border-color: #666; color: #ccc;" onclick="showSaveSlots()">⬅️ Back to Menu</button>
         </div>
     </div>
 
@@ -1281,7 +1283,24 @@
         renderSaveSlots();
     }
 
+
+    function startNewGameInSlot() {
+        // Reset the state but keep the current slot
+        state.year = 1; state.semester = 1; state.debt = 0; state.gpa = 4.0;
+        state.happiness = 100; state.cash = 0; state.major = null;
+        state.scenarioIndex = 0; state.history = []; isWhatIfMode = false;
+        
+        saveCurrentSlot();
+        
+        document.getElementById('endScreen').classList.remove('active');
+        document.getElementById('gameContainer').style.display = 'flex';
+        updateHUD();
+        renderUnlocks();
+        loadScenario(state.scenarioIndex);
+    }
+
     function showSaveSlots() {
+
         document.getElementById('startScreen').classList.add('hidden');
         document.getElementById('endScreen').classList.remove('active');
         document.getElementById('saveScreen').classList.add('active');
