@@ -1998,10 +1998,16 @@
         }
 
         // Render Loan Options
+        
+        // Render Loan Options
         function renderLoanOptions(scenario) {
             const container = document.getElementById('loan-options');
             
-            container.innerHTML = scenario.loans.map(loan => {
+            // Randomize loan order so the best option isn't always first
+            const shuffledLoans = [...scenario.loans].sort(() => Math.random() - 0.5);
+            
+            container.innerHTML = shuffledLoans.map(loan => {
+
                 const aprClass = loan.apr < 15 ? 'low' : loan.apr < 50 ? 'medium' : 'high';
                 const flagsHtml = loan.flags.map(flag => {
                     const flagInfo = redFlags[flag];
