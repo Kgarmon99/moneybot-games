@@ -913,7 +913,39 @@
             box-shadow: 0 -10px 40px rgba(0,0,0,0.9);
             background: rgba(10, 10, 10, 0.98);
         }
-    </style>
+    
+        @media (max-width: 768px) {
+            body { overflow-x: hidden; position: relative; }
+            .container { padding: 10px; padding-bottom: 90px; }
+            .game-header { flex-direction: column; gap: 10px; align-items: center; padding: 10px 0; }
+            .semester-badge { width: 100%; text-align: center; }
+            .stats-bar { grid-template-columns: repeat(2, 1fr); gap: 6px; margin-bottom: 12px; }
+            .stat-box { padding: 8px; }
+            .stat-value { font-size: 16px; }
+            .stat-label { font-size: 9px; }
+            .game-panel { padding: 12px; border-radius: 12px; }
+            .scenario-text { font-size: 14px; min-height: 60px; margin-bottom: 12px; line-height: 1.4; }
+            .choice-btn { padding: 10px 12px; border-radius: 8px; }
+            .choice-text { font-size: 13px; margin-bottom: 2px; }
+            .choice-impact { font-size: 9px; }
+            
+            /* Unlocks Bar strictly bound to bottom */
+            .unlocks-bar { padding: 8px 12px; background: #050505; border-top: 1px solid var(--neon-green); height: 80px; }
+            .unlocks-title { font-size: 9px; margin-bottom: 4px; }
+            .unlock-icon { width: 28px; height: 28px; font-size: 14px; margin: 0 auto 2px; }
+            .unlock-name { font-size: 8px; }
+            
+            /* Slider fixes */
+            .slider-wrapper { padding: 10px; margin-top: 5px; }
+            .slider-projections { font-size: 10px; padding: 6px; }
+            #sliderVal { font-size: 20px !important; }
+            .range-slider { margin: 15px 0; }
+            .range-slider::-webkit-slider-thumb { width: 24px; height: 24px; }
+            
+            .result-popup { padding: 16px; width: 90%; }
+        }
+
+</style>
 
 </head>
 <body>
