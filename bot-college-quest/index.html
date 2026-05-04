@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>College Quest - MoneyBot</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --neon-green: #22C55E;
+            --neon-red: #ef4444;
+            --neon-blue: #3b82f6;
+            --neon-yellow: #facc15;
+            --dark-bg: #050505;
+            --panel-bg: rgba(10, 10, 10, 0.95);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--dark-bg);
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .bg-grid {
+            position: fixed;
+            inset: 0;
+            background-image: 
+                linear-gradient(rgba(34, 197, 94, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(34, 197, 94, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+            border-bottom: 1px solid rgba(34, 197, 94, 0.2);
+            margin-bottom: 24px;
+        }
+
+        .logo {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--neon-green);
+            text-shadow: 0 0 20px rgba(34, 197, 94, 0.5);
+        }
+
+        .semester-badge {
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid var(--neon-green);
+            padding: 8px 16px;
+            border-radius: 100px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Stats Bar */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .stat-box {
+            background: var(--panel-bg);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--neon-green), transparent);
+        }
+
+        .stat-label {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+
+        .stat-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 24px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .stat-value.debt { color: var(--neon-red); text-shadow: 0 0 10px rgba(239, 68, 68, 0.3); }
+        .stat-value.gpa { color: var(--neon-blue); }
+        .stat-value.happy { color: var(--neon-yellow); }
+        .stat-value.cash { color: var(--neon-green); }
+
+        /* Main Game Area */
+        .game-panel {
+            background: var(--panel-bg);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            border-radius: 16px;
+            padding: 32px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            box-shadow: 0 0 30px rgba(34, 197, 94, 0.1);
+        }
+
+        .game-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--neon-green), transparent);
+            box-shadow: 0 0 10px var(--neon-green);
+        }
+
+        /* Scenario Display */
+        .scenario-title {
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--neon-green);
+            margin-bottom: 16px;
+            font-weight: 600;
+        }
+
+        .scenario-text {
+            font-size: 18px;
+            line-height: 1.7;
+            color: #e5e5e5;
+            margin-bottom: 32px;
+            min-height: 120px;
+        }
+
+        .scenario-text.typing::after {
+            content: '▋';
+            animation: blink 1s infinite;
+            color: var(--neon-green);
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        /* Choices */
+        .choices-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .choice-btn {
+            background: rgba(34, 197, 94, 0.05);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            border-radius: 12px;
+            padding: 20px 24px;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .choice-btn:hover {
+            background: rgba(34, 197, 94, 0.1);
+            border-color: var(--neon-green);
+            transform: translateX(8px);
+            box-shadow: 0 0 20px rgba(34, 197, 94, 0.2);
+        }
+
+        .choice-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .choice-text {
+            font-size: 15px;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 4px;
+        }
+
+        .choice-impact {
+            font-size: 12px;
+            color: #888;
+        }
+
+        .choice-impact span {
+            margin-right: 12px;
+        }
+
+        .impact-debt { color: var(--neon-red); }
+        .impact-cash { color: var(--neon-green); }
+        .impact-happy { color: var(--neon-yellow); }
+        .impact-gpa { color: var(--neon-blue); }
+
+        /* Result Popup */
+        .result-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--panel-bg);
+            border: 1px solid var(--neon-green);
+            border-radius: 16px;
+            padding: 32px;
+            max-width: 400px;
+            width: 90%;
+            z-index: 100;
+            display: none;
+            box-shadow: 0 0 50px rgba(34, 197, 94, 0.3);
+        }
+
+        .result-popup.active {
+            display: block;
+            animation: popupIn 0.3s ease;
+        }
+
+        @keyframes popupIn {
+            from { opacity: 0; transform: translate(-50%, -40%); }
+            to { opacity: 1; transform: translate(-50%, -50%); }
+        }
+
+        .result-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--neon-green);
+        }
+
+        .result-text {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #ccc;
+            margin-bottom: 20px;
+        }
+
+        .result-btn {
+            width: 100%;
+            background: var(--neon-green);
+            color: #000;
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .result-btn:hover {
+            box-shadow: 0 0 20px var(--neon-green);
+        }
+
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.8);
+            z-index: 99;
+            display: none;
+        }
+
+        .overlay.active {
+            display: block;
+        }
+
+        /* Start Screen */
+        .start-screen {
+            position: fixed;
+            inset: 0;
+            background: var(--dark-bg);
+            z-index: 200;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .start-screen.hidden {
+            display: none;
+        }
+
+        .start-title {
+            font-size: 48px;
+            font-weight: 800;
+            margin-bottom: 16px;
+            background: linear-gradient(180deg, #fff 0%, var(--neon-green) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .start-subtitle {
+            font-size: 18px;
+            color: #888;
+            margin-bottom: 40px;
+            max-width: 500px;
+        }
+
+        .start-btn {
+            background: var(--neon-green);
+            color: #000;
+            border: none;
+            padding: 20px 48px;
+            border-radius: 100px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            box-shadow: 0 0 30px rgba(34, 197, 94, 0.4);
+            transition: all 0.3s;
+        }
+
+        .start-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 50px rgba(34, 197, 94, 0.6);
+        }
+
+        /* End Screen */
+        .end-screen {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: var(--dark-bg);
+            z-index: 200;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .end-screen.active {
+            display: flex;
+        }
+
+        .end-title {
+            font-size: 36px;
+            font-weight: 800;
+            margin-bottom: 24px;
+        }
+
+        .end-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 32px;
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .end-stat {
+            background: var(--panel-bg);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 12px;
+        }
+
+        .end-stat-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .end-stat-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        @media (max-width: 768px) {
+            .stats-bar {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .start-title { font-size: 32px; }
+            .scenario-text { font-size: 16px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-grid"></div>
+
+    <!-- Start Screen -->
+    <div class="start-screen" id="startScreen">
+        <div class="logo" style="margin-bottom: 20px;">MONEYBOT SYSTEM</div>
+        <h1 class="start-title">COLLEGE QUEST</h1>
+        <p class="start-subtitle">Navigate the labyrinth of higher education. Choose your major, manage your debt, and survive 4 years of college without going broke.</p>
+        <button class="start-btn" onclick="startGame()">Start Journey</button>
+    </div>
+
+    <!-- End Screen -->
+    <div class="end-screen" id="endScreen">
+        <div class="logo" style="margin-bottom: 20px;">GRADUATION REPORT</div>
+        <h2 class="end-title" id="endTitle">Class of 2028</h2>
+        <div class="end-stats">
+            <div class="end-stat">
+                <div class="end-stat-label">Final Debt</div>
+                <div class="end-stat-value" id="endDebt" style="color: var(--neon-red);">$0</div>
+            </div>
+            <div class="end-stat">
+                <div class="end-stat-label">Final GPA</div>
+                <div class="end-stat-value" id="endGPA" style="color: var(--neon-blue);">0.0</div>
+            </div>
+            <div class="end-stat">
+                <div class="end-stat-label">Starting Salary</div>
+                <div class="end-stat-value" id="endSalary" style="color: var(--neon-green);">$0</div>
+            </div>
+            <div class="end-stat">
+                <div class="end-stat-label">Debt-to-Income</div>
+                <div class="end-stat-value" id="endRatio" style="color: var(--neon-yellow);">0%</div>
+            </div>
+        </div>
+        <p id="endMessage" style="color: #888; max-width: 500px; margin-bottom: 32px;"></p>
+        <button class="start-btn" onclick="location.reload()">Play Again</button>
+    </div>
+
+    <!-- Main Game -->
+    <div class="container" id="gameContainer" style="display: none;">
+        <div class="game-header">
+            <div class="logo">COLLEGE QUEST</div>
+            <div class="semester-badge" id="semesterDisplay">Year 1 • Fall Semester</div>
+        </div>
+
+        <div class="stats-bar">
+            <div class="stat-box">
+                <div class="stat-label">Student Debt</div>
+                <div class="stat-value debt" id="debtDisplay">$0</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">GPA</div>
+                <div class="stat-value gpa" id="gpaDisplay">4.0</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Happiness</div>
+                <div class="stat-value happy" id="happyDisplay">100%</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Cash</div>
+                <div class="stat-value cash" id="cashDisplay">$0</div>
+            </div>
+        </div>
+
+        <div class="game-panel">
+            <div class="scenario-title" id="scenarioTitle">WELCOME TO FRESHMAN YEAR</div>
+            <div class="scenario-text typing" id="scenarioText"></div>
+            <div class="choices-container" id="choicesContainer"></div>
+        </div>
+    </div>
+
+    <!-- Result Popup -->
+    <div class="overlay" id="overlay"></div>
+    <div class="result-popup" id="resultPopup">
+        <div class="result-title" id="resultTitle">Decision Made</div>
+        <div class="result-text" id="resultText"></div>
+        <button class="result-btn" onclick="closeResult()">Continue</button>
+    </div>
+
+    <script>
+        // Game State
+        const state = {
+            year: 1,
+            semester: 1, // 1 = Fall, 2 = Spring
+            debt: 0,
+            gpa: 4.0,
+            happiness: 100,
+            cash: 0,
+            major: null,
+            college: null,
+            scenarioIndex: 0
+        };
+
+        const majors = {
+            'cs': { name: 'Computer Science', salary: 85000 },
+            'business': { name: 'Business', salary: 65000 },
+            'engineering': { name: 'Engineering', salary: 75000 },
+            'art': { name: 'Fine Arts', salary: 42000 },
+            'nursing': { name: 'Nursing', salary: 72000 },
+            'english': { name: 'English Literature', salary: 48000 }
+        };
+
+        const scenarios = [
+            {
+                id: 'choose_college',
+                title: 'CHOOSE YOUR PATH',
+                text: 'College acceptance letters are in. Where will you spend the next 4 years? This decision will affect your debt load and earning potential.',
+                choices: [
+                    {
+                        text: '🏠 Community College → Transfer',
+                        impact: { debt: 5000, cash: 2000, happy: -10 },
+                        result: 'Smart move! Low initial cost. You\'ll transfer to a 4-year school later with less debt.',
+                        action: () => { state.college = 'community'; }
+                    },
+                    {
+                        text: '🎓 State University (In-State)',
+                        impact: { debt: 25000, cash: 1000, happy: 10 },
+                        result: 'Good balance! In-state tuition saves money while you get the full college experience.',
+                        action: () => { state.college = 'state'; }
+                    },
+                    {
+                        text: '🏛️ Private University (Prestigious)',
+                        impact: { debt: 60000, cash: 500, happy: 20 },
+                        result: 'Prestigious choice! Name recognition helps, but that debt will follow you...',
+                        action: () => { state.college = 'private'; }
+                    }
+                ]
+            },
+            {
+                id: 'choose_major',
+                title: 'DECLARE YOUR MAJOR',
+                text: 'Time to choose what you\'ll study. Your major affects your starting salary and job prospects after graduation.',
+                choices: [
+                    {
+                        text: '💻 Computer Science (High earning potential)',
+                        impact: { gpa: -0.2, happy: 5 },
+                        result: 'Coding bootcamp load intensifies... but that tech salary is calling.',
+                        action: () => { state.major = 'cs'; }
+                    },
+                    {
+                        text: '🎨 Fine Arts (Follow your passion)',
+                        impact: { gpa: 0.2, happy: 25 },
+                        result: 'Following your heart! Enjoy the creative journey, budget carefully later.',
+                        action: () => { state.major = 'art'; }
+                    },
+                    {
+                        text: '🏥 Nursing (Stable career)',
+                        impact: { gpa: -0.3, happy: 0 },
+                        result: 'Rigorous program, guaranteed job. The grind is real but so is the stability.',
+                        action: () => { state.major = 'nursing'; }
+                    },
+                    {
+                        text: '📊 Business Administration',
+                        impact: { gpa: 0, happy: 10 },
+                        result: 'The safe middle ground. Decent salary, flexible career paths.',
+                        action: () => { state.major = 'business'; }
+                    }
+                ]
+            },
+            {
+                id: 'housing',
+                title: 'FRESHMAN HOUSING',
+                text: 'Where will you live? Your housing choice affects your costs, social life, and ability to focus on studies.',
+                choices: [
+                    {
+                        text: '🏢 Dormitory (On-campus)',
+                        impact: { debt: 12000, happy: 15, gpa: 0.2 },
+                        result: 'Expensive but convenient! Meal plan included, walk to class, instant friends.',
+                    },
+                    {
+                        text: '🏠 Commute from Home',
+                        impact: { debt: 0, happy: -20, gpa: 0.3 },
+                        result: 'Massive savings! But FOMO is real. Mom\'s cooking is nice though.',
+                    },
+                    {
+                        text: '🏡 Off-campus Apartment',
+                        impact: { debt: 8000, happy: 10, gpa: -0.1 },
+                        result: 'Independence! Cheaper than dorms but you need roommates and cook for yourself.',
+                    }
+                ]
+            },
+            {
+                id: 'part_time_job',
+                title: 'WORK-LIFE BALANCE',
+                text: 'Your bank account is looking thin. How will you handle expenses this semester?',
+                choices: [
+                    {
+                        text: '📚 Focus on Studies (No job)',
+                        impact: { cash: -2000, gpa: 0.4, happy: 10 },
+                        result: 'Grades first! But you\'re taking on more debt to cover living costs.',
+                    },
+                    {
+                        text: '☕ Part-time Campus Job (15 hrs/week)',
+                        impact: { cash: 3000, gpa: -0.2, happy: 0 },
+                        result: 'Balanced approach. Less study time but you\'re not drowning in debt.',
+                    },
+                    {
+                        text: '💼 Full-time + Night Classes',
+                        impact: { cash: 8000, gpa: -0.6, happy: -30 },
+                        result: 'Grinding hard! Your grades suffer but you graduate with way less debt.',
+                    }
+                ]
+            },
+            {
+                id: 'spring_break',
+                title: 'SPRING BREAK DECISIONS',
+                text: 'Spring break is coming. Everyone\'s talking about trips to Cancun. What do you do?',
+                choices: [
+                    {
+                        text: '🏖️ Join the Cancun Trip',
+                        impact: { debt: 1500, happy: 25, gpa: -0.2 },
+                        result: 'Living your best life! Memories made, Instagram posts slayed, credit card crying.',
+                    },
+                    {
+                        text: '📖 Stay and Study',
+                        impact: { cash: 0, happy: -15, gpa: 0.3 },
+                        result: 'Boring but responsible. You\'ll be laughing when everyone else is cramming for finals.',
+                    },
+                    {
+                        text: '💼 Pick up Extra Shifts',
+                        impact: { cash: 800, happy: -10, gpa: 0 },
+                        result: 'Grinding while others party. The hustle continues.',
+                    }
+                ]
+            },
+            {
+                id: 'scholarship_opportunity',
+                title: 'SCHOLARSHIP OPPORTUNITY',
+                text: 'You discover a $5,000 scholarship for students with financial need. It requires writing 3 essays.',
+                choices: [
+                    {
+                        text: '✍️ Apply for the Scholarship',
+                        impact: { debt: -5000, happy: 5, gpa: -0.1 },
+                        result: 'Free money! Essays were painful but that\'s $5,000 less in loans.',
+                    },
+                    {
+                        text: '❌ Skip It (Too Much Work)',
+                        impact: { happy: 5 },
+                        result: 'You valued your time over the money. Hope that\'s worth $5,000...',
+                    }
+                ]
+            },
+            {
+                id: 'car_emergency',
+                title: 'UNEXPECTED EXPENSE',
+                text: 'Your car broke down. Repair cost: $1,200. You need transportation to get to work.',
+                choices: [
+                    {
+                        text: '🔧 Fix the Car (Credit Card)',
+                        impact: { debt: 1200, happy: -10 },
+                        result: 'High-interest credit card debt added. Car works but your balance grows.',
+                    },
+                    {
+                        text: '🚌 Take the Bus (Save Money)',
+                        impact: { happy: -25, gpa: -0.1 },
+                        result: 'Two-hour commute each way. Less time for everything, but no new debt.',
+                    },
+                    {
+                        text: '🚗 Ask Parents for Help',
+                        impact: { happy: -15 },
+                        result: 'Parents bail you out. You feel guilty but at least you\'re not deeper in debt.',
+                    }
+                ]
+            },
+            {
+                id: 'internship',
+                title: 'SUMMER INTERNSHIP',
+                text: 'Summer break! You have two options that will shape your post-graduation prospects.',
+                choices: [
+                    {
+                        text: '💼 Unpaid Internship (Career Boost)',
+                        impact: { debt: 5000, cash: -3000, happy: -10 },
+                        result: 'More debt but resume looks amazing. Sometimes you have to pay to play.',
+                    },
+                    {
+                        text: '💰 Paid Summer Job (No career relevance)',
+                        impact: { cash: 6000, happy: 5 },
+                        result: 'Bank account happy, resume stagnant. Gotta do what you gotta do.',
+                    }
+                ]
+            },
+            {
+                id: 'social_pressure',
+                title: 'SOCIAL PRESSURE',
+                text: 'Your friends want to go to an expensive concert. Tickets are $200. You really want to go.',
+                choices: [
+                    {
+                        text: '🎵 Buy the Ticket (YOLO)',
+                        impact: { debt: 200, happy: 20, cash: -200 },
+                        result: 'Experience over everything! The memories are worth the credit card swipe.',
+                    },
+                    {
+                        text: '🏠 Skip It (FOMO is real)',
+                        impact: { happy: -20 },
+                        result: 'Watching everyone\'s stories hurts. But your future self thanks you.',
+                    }
+                ]
+            },
+            {
+                id: 'study_abroad',
+                title: 'JUNIOR YEAR: STUDY ABROAD',
+                text: 'Opportunity to study in London for a semester. Dream experience but costs extra.',
+                choices: [
+                    {
+                        text: '✈️ Study Abroad (Life-changing)',
+                        impact: { debt: 8000, happy: 30, gpa: 0.1 },
+                        result: 'Passports stamped, horizons broadened, debt deepened. Worth it?',
+                    },
+                    {
+                        text: '🏠 Stay Stateside (Save Money)',
+                        impact: { happy: -10 },
+                        result: 'Practical choice. You\'ll travel when you\'re debt-free... someday.',
+                    }
+                ]
+            },
+            {
+                id: 'senior_crisis',
+                title: 'SENIOR YEAR CRISIS',
+                text: 'Senior year burnout is real. You\'re behind on credits and drowning in work.',
+                choices: [
+                    {
+                        text: '📚 Push Through (Graduate on Time)',
+                        impact: { gpa: -0.5, happy: -20 },
+                        result: 'Survived! Barely. GPA took a hit but you\'re graduating on schedule.',
+                    },
+                    {
+                        text: '📉 Drop a Class (Delay Graduation)',
+                        impact: { debt: 8000, happy: 10, gpa: 0.2 },
+                        result: 'Another semester = another $8k in debt. But your sanity is preserved.',
+                    }
+                ]
+            },
+            {
+                id: 'final_choice',
+                title: 'GRADUATION DAY',
+                text: 'Four years later... you\'re holding your diploma. Time to see how your choices shaped your future.',
+                choices: [
+                    {
+                        text: '🎓 View Your Results',
+                        impact: {},
+                        result: 'Let\'s see how you did...',
+                        action: () => { endGame(); }
+                    }
+                ]
+            }
+        ];
+
+        function startGame() {
+            document.getElementById('startScreen').classList.add('hidden');
+            document.getElementById('gameContainer').style.display = 'flex';
+            updateHUD();
+            loadScenario(0);
+        }
+
+        function updateHUD() {
+            document.getElementById('debtDisplay').textContent = '$' + state.debt.toLocaleString();
+            document.getElementById('gpaDisplay').textContent = state.gpa.toFixed(2);
+            document.getElementById('happyDisplay').textContent = state.happiness + '%';
+            document.getElementById('cashDisplay').textContent = '$' + state.cash.toLocaleString();
+            
+            const semesterNames = ['Fall', 'Spring'];
+            const year = Math.ceil(state.semester / 2);
+            const sem = semesterNames[(state.semester - 1) % 2];
+            document.getElementById('semesterDisplay').textContent = `Year ${year} • ${sem} Semester`;
+        }
+
+        function loadScenario(index) {
+            state.scenarioIndex = index;
+            const scenario = scenarios[index];
+            
+            document.getElementById('scenarioTitle').textContent = scenario.title;
+            
+            // Typewriter effect
+            const textEl = document.getElementById('scenarioText');
+            textEl.classList.add('typing');
+            textEl.textContent = '';
+            
+            let i = 0;
+            const type = () => {
+                if (i < scenario.text.length) {
+                    textEl.textContent += scenario.text.charAt(i);
+                    i++;
+                    setTimeout(type, 20);
+                }
+            };
+            type();
+            
+            // Build choices
+            const container = document.getElementById('choicesContainer');
+            container.innerHTML = '';
+            
+            setTimeout(() => {
+                scenario.choices.forEach((choice, idx) => {
+                    const btn = document.createElement('button');
+                    btn.className = 'choice-btn';
+                    btn.disabled = true;
+                    
+                    const impacts = [];
+                    if (choice.impact.debt) impacts.push(`<span class="impact-debt">Debt ${choice.impact.debt > 0 ? '+' : ''}$${Math.abs(choice.impact.debt).toLocaleString()}</span>`);
+                    if (choice.impact.cash) impacts.push(`<span class="impact-cash">Cash ${choice.impact.cash > 0 ? '+' : ''}$${Math.abs(choice.impact.cash).toLocaleString()}</span>`);
+                    if (choice.impact.gpa) impacts.push(`<span class="impact-gpa">GPA ${choice.impact.gpa > 0 ? '+' : ''}${choice.impact.gpa}</span>`);
+                    if (choice.impact.happy) impacts.push(`<span class="impact-happy">Happiness ${choice.impact.happy > 0 ? '+' : ''}${choice.impact.happy}%</span>`);
+                    
+                    btn.innerHTML = `
+                        <div class="choice-text">${choice.text}</div>
+                        <div class="choice-impact">${impacts.join('')}</div>
+                    `;
+                    
+                    btn.onclick = () => makeChoice(choice);
+                    container.appendChild(btn);
+                    
+                    setTimeout(() => btn.disabled = false, idx * 200);
+                });
+            }, scenario.text.length * 20 + 300);
+        }
+
+        function makeChoice(choice) {
+            // Apply impacts
+            if (choice.impact.debt) state.debt = Math.max(0, state.debt + choice.impact.debt);
+            if (choice.impact.cash) state.cash += choice.impact.cash;
+            if (choice.impact.gpa) state.gpa = Math.max(0, Math.min(4, state.gpa + choice.impact.gpa));
+            if (choice.impact.happy) state.happiness = Math.max(0, Math.min(100, state.happiness + choice.impact.happy));
+            
+            if (choice.action) choice.action();
+            
+            updateHUD();
+            
+            // Show result
+            document.getElementById('resultTitle').textContent = 'OUTCOME';
+            document.getElementById('resultText').textContent = choice.result;
+            document.getElementById('overlay').classList.add('active');
+            document.getElementById('resultPopup').classList.add('active');
+            
+            state.semester++;
+        }
+
+        function closeResult() {
+            document.getElementById('overlay').classList.remove('active');
+            document.getElementById('resultPopup').classList.remove('active');
+            
+            if (state.scenarioIndex < scenarios.length - 1) {
+                loadScenario(state.scenarioIndex + 1);
+            }
+        }
+
+        function endGame() {
+            document.getElementById('endScreen').classList.add('active');
+            
+            document.getElementById('endDebt').textContent = '$' + state.debt.toLocaleString();
+            document.getElementById('endGPA').textContent = state.gpa.toFixed(2);
+            
+            const salary = state.major ? majors[state.major].salary : 50000;
+            document.getElementById('endSalary').textContent = '$' + salary.toLocaleString();
+            
+            const ratio = Math.round((state.debt / salary) * 100);
+            document.getElementById('endRatio').textContent = ratio + '%';
+            
+            let message = '';
+            if (state.debt < 20000) {
+                message = '🎉 FINANCIAL WIZARD! You navigated college with minimal debt. You\'ll be debt-free within a few years!';
+            } else if (state.debt < 50000) {
+                message = '✅ SOLID WORK! Your debt is manageable. Stick to a budget and you\'ll pay it off in reasonable time.';
+            } else if (state.debt < 100000) {
+                message = '⚠️ HEADS UP! You\'re carrying significant debt. Consider income-based repayment and aggressive payment strategies.';
+            } else {
+                message = '🚨 CRISIS MODE! You\'re drowning in student debt. Time to explore loan forgiveness programs and extreme budgeting.';
+            }
+            
+            document.getElementById('endMessage').textContent = message;
+        }
+    </script>
+</body>
+</html>
