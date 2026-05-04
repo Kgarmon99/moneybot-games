@@ -963,6 +963,7 @@
         <button class="result-btn" onclick="closeResult()">Continue</button>
     </div>
 
+    
     <script>
         // Game State
         let currentSlot = 0;
@@ -979,11 +980,10 @@
             major: null,
             college: null,
             scenarioIndex: 0,
-            history: [], // Track all decisions
+            history: [],
             playTime: 0
         };
 
-        // Unlockables
         const unlockables = [
             { id: 'debt_free', name: 'Debt Free', icon: '💎', condition: (s) => s.debt < 10000 && s.scenarioIndex >= 11 },
             { id: 'perfect_gpa', name: '4.0 Legend', icon: '📚', condition: (s) => s.gpa >= 3.9 && s.scenarioIndex >= 11 },
@@ -993,12 +993,7 @@
             { id: 'scholar', name: 'Full Ride', icon: '🏆', condition: (s) => s.debt < 5000 && s.scenarioIndex >= 11 }
         ];
 
-        // Secret unlocks that persist across games
-        const globalUnlocks = {
-            secret_major_crypto: { name: 'Crypto Bro Major', unlocked: false, requirement: 'Beat the game with CS major and $0 debt' },
-            secret_scholarship_10k: { name: '$10K Hidden Scholarship', unlocked: false, requirement: 'Achieve 4.0 GPA in any playthrough' },
-            secret_job_wallstreet: { name: 'Wall Street Internship', unlocked: false, requirement: 'Business major + $50k+ cash by graduation' }
-        };
+        const globalUnlocks = {};
 
         const majors = {
             'cs': { name: 'Computer Science', salary: 85000 },
@@ -1006,8 +1001,7 @@
             'engineering': { name: 'Engineering', salary: 75000 },
             'art': { name: 'Fine Arts', salary: 42000 },
             'nursing': { name: 'Nursing', salary: 72000 },
-            'english': { name: 'English Literature', salary: 48000 },
-            'crypto': { name: 'Crypto Bro (Secret)', salary: 95000, locked: true }
+            'english': { name: 'English Literature', salary: 48000 }
         };
 
         const scenarios = [
@@ -1046,7 +1040,7 @@
                 slider: {
                     min: 0, max: 40, step: 5, defaultValue: 15, unit: ' hrs/week',
                     calculateImpact: (val) => {
-                        const cash = val * 150; // approx earnings over semester
+                        const cash = val * 150;
                         let gpa = val > 10 ? -((val - 10) * 0.02) : 0;
                         const happy = -(val * 1);
                         return { cash, gpa, happy, debt: 0 };
@@ -1103,24 +1097,10 @@
             ]}
         ];
 
-        // Save System
-        function loadGlobalData() {
-            const saved = localStorage.getItem('collegeQuestGlobal');
-            if (saved) {
-                const data = JSON.parse(saved);
-                Object.assign(globalUnlocks, data.unlocks || {});
-            }
-        }
-
-        function saveGlobalData() {
-            localStorage.setItem('collegeQuestGlobal', JSON.stringify({ unlocks: globalUnlocks }));
-        }
-
         function loadSlot(slotNum) {
-            const saved = localStorage.getItem(`collegeQuest_slot${slotNum}`);
+            const saved = localStorage.getItem('collegeQuest_slot' + slotNum);
             if (saved) {
-                const data = JSON.parse(saved);
-                Object.assign(state, data);
+                Object.assign(state, JSON.parse(saved));
                 return true;
             }
             return false;
@@ -1128,15 +1108,14 @@
 
         function saveCurrentSlot() {
             state.playTime = Date.now();
-            localStorage.setItem(`collegeQuest_slot${currentSlot}`, JSON.stringify(state));
+            localStorage.setItem('collegeQuest_slot' + currentSlot, JSON.stringify(state));
         }
 
         function deleteSlot(slotNum) {
-            localStorage.removeItem(`collegeQuest_slot${slotNum}`);
+            localStorage.removeItem('collegeQuest_slot' + slotNum);
             renderSaveSlots();
         }
 
-        // UI Functions
         function showSaveSlots() {
             document.getElementById('startScreen').classList.add('hidden');
             document.getElementById('endScreen').classList.remove('active');
@@ -1148,12 +1127,10 @@
         function renderSaveSlots() {
             const grid = document.getElementById('slotsGrid');
             grid.innerHTML = '';
-
             for (let i = 1; i <= 3; i++) {
                 const hasData = loadSlot(i);
                 const card = document.createElement('div');
-                card.className = `slot-card ${hasData ? '' : 'empty'}`;
-
+                card.className = 'slot-card ' + (hasData ? '' : 'empty');
                 if (hasData) {
                     const majorName = state.major ? majors[state.major].name : 'Undecided';
                     const progress = Math.round((state.scenarioIndex / scenarios.length) * 100);
@@ -1161,43 +1138,22 @@
                         <div class="slot-number">Save Slot ${i}</div>
                         <div class="slot-status active">${majorName}</div>
                         <div class="slot-details">Year ${Math.ceil(state.semester / 2)} • ${progress}% Complete</div>
-                        <div class="slot-stats">
-                            <div class="slot-stat">
-                                <div class="slot-stat-label">Debt</div>
-                                <div class="slot-stat-value" style="color: var(--neon-red)">$${state.debt.toLocaleString()}</div>
-                            </div>
-                            <div class="slot-stat">
-                                <div class="slot-stat-label">GPA</div>
-                                <div class="slot-stat-value" style="color: var(--neon-blue)">${state.gpa.toFixed(2)}</div>
-                            </div>
-                        </div>
                         <div class="slot-actions">
                             <button class="slot-btn" onclick="selectSlot(${i})">Continue</button>
                             <button class="slot-btn delete" onclick="deleteSlot(${i}); event.stopPropagation();">Delete</button>
                         </div>
                     `;
                 } else {
-                    card.innerHTML = `
-                        <div class="slot-number">Save Slot ${i}</div>
-                        <div class="slot-status empty">Empty Slot</div>
-                        <div class="slot-details">Start a new journey</div>
-                    `;
+                    card.innerHTML = `<div class="slot-number">Save Slot ${i}</div><div class="slot-status empty">Empty Slot</div>`;
                     card.onclick = () => selectSlot(i);
                 }
-
                 grid.appendChild(card);
             }
         }
 
         function selectSlot(slotNum) {
             currentSlot = slotNum;
-            const hasData = loadSlot(slotNum);
-
-            if (!hasData) {
-                // New game
-                resetState();
-            }
-
+            if (!loadSlot(slotNum)) resetState();
             document.getElementById('saveScreen').classList.remove('active');
             document.getElementById('gameContainer').style.display = 'flex';
             document.getElementById('unlocksBar').classList.add('active');
@@ -1207,41 +1163,24 @@
         }
 
         function resetState() {
-            state.year = 1;
-            state.semester = 1;
-            state.debt = 0;
-            state.gpa = 4.0;
-            state.happiness = 100;
-            state.cash = 0;
-            state.major = null;
-            state.college = null;
-            state.scenarioIndex = 0;
-            state.history = [];
-            isWhatIfMode = false;
+            state.year = 1; state.semester = 1; state.debt = 0; state.gpa = 4.0;
+            state.happiness = 100; state.cash = 0; state.major = null;
+            state.scenarioIndex = 0; state.history = []; isWhatIfMode = false;
         }
 
-        // Timeline / What If
         function showTimeline() {
             const path = document.getElementById('timelinePath');
             path.innerHTML = '';
-
             state.history.forEach((decision, idx) => {
                 const node = document.createElement('div');
-                node.className = `timeline-node ${idx === state.scenarioIndex - 1 ? 'current' : ''}`;
-                node.innerHTML = `
-                    <div class="timeline-scenario">${decision.scenario}</div>
-                    <div class="timeline-choice">${decision.choice}</div>
-                    <div class="timeline-impact">Debt: $${decision.debt.toLocaleString()} • GPA: ${decision.gpa.toFixed(2)}</div>
-                    ${idx < state.history.length - 1 ? '<div class="timeline-whatif">🔄 Click to try "What If" from here</div>' : ''}
-                `;
-
+                node.className = 'timeline-node ' + (idx === state.scenarioIndex - 1 ? 'current' : '');
+                node.innerHTML = `<div class="timeline-scenario">${decision.scenario}</div><div class="timeline-choice">${decision.choice}</div>`;
                 if (idx < state.history.length - 1) {
+                    node.innerHTML += '<div class="timeline-whatif">🔄 Click to try "What If"</div>';
                     node.onclick = () => startWhatIf(idx);
                 }
-
                 path.appendChild(node);
             });
-
             document.getElementById('timelineScreen').classList.add('active');
         }
 
@@ -1250,275 +1189,114 @@
             showTimeline();
         }
 
-        function closeTimeline() {
-            document.getElementById('timelineScreen').classList.remove('active');
-        }
+        function closeTimeline() { document.getElementById('timelineScreen').classList.remove('active'); }
 
-        function startWhatIf(historyIndex) {
-            // Save current state
-            const currentState = JSON.parse(JSON.stringify(state));
-
-            // Restore to point in history
-            const targetDecision = state.history[historyIndex];
-            Object.assign(state, targetDecision.stateSnapshot);
-            state.history = state.history.slice(0, historyIndex);
-            state.scenarioIndex = historyIndex;
-
+        function startWhatIf(idx) {
+            Object.assign(state, state.history[idx].stateSnapshot);
+            state.history = state.history.slice(0, idx);
+            state.scenarioIndex = idx;
             isWhatIfMode = true;
-            whatIfIndex = historyIndex;
-
             closeTimeline();
             updateHUD();
             loadScenario(state.scenarioIndex);
         }
 
-        // Unlockables
         function renderUnlocks() {
             const grid = document.getElementById('unlocksGrid');
             grid.innerHTML = '';
-
-            unlockables.forEach(unlock => {
-                const isUnlocked = unlock.condition(state);
+            unlockables.forEach(u => {
                 const item = document.createElement('div');
-                item.className = `unlock-item ${isUnlocked ? 'unlocked' : ''}`;
-                item.innerHTML = `
-                    <div class="unlock-icon">${unlock.icon}</div>
-                    <div class="unlock-name">${unlock.name}</div>
-                `;
+                item.className = 'unlock-item ' + (u.condition(state) ? 'unlocked' : '');
+                item.innerHTML = `<div class="unlock-icon">${u.icon}</div><div class="unlock-name">${u.name}</div>`;
                 grid.appendChild(item);
             });
         }
 
-        function checkGlobalUnlocks() {
-            // Check for global unlocks at end game
-            if (state.major === 'cs' && state.debt < 1000 && state.gpa >= 3.5) {
-                globalUnlocks.secret_major_crypto.unlocked = true;
-            }
-            if (state.gpa >= 4.0) {
-                globalUnlocks.secret_scholarship_10k.unlocked = true;
-            }
-            saveGlobalData();
-        }
-
-        // Core Game Functions
-        function startGame() {
-            showSaveSlots();
-        }
-
         function updateHUD() {
-            document.getElementById('debtDisplay').textContent = '$' + state.debt.toLocaleString();
+            document.getElementById('debtDisplay').textContent = '
+ + state.debt.toLocaleString();
             document.getElementById('gpaDisplay').textContent = state.gpa.toFixed(2);
             document.getElementById('happyDisplay').textContent = state.happiness + '%';
-            document.getElementById('cashDisplay').textContent = '$' + state.cash.toLocaleString();
-
-            const semesterNames = ['Fall', 'Spring'];
-            const year = Math.ceil(state.semester / 2);
-            const sem = semesterNames[(state.semester - 1) % 2];
-            document.getElementById('semesterDisplay').textContent = `Year ${year} • ${sem} Semester ↩`;
+            document.getElementById('cashDisplay').textContent = '
+ + state.cash.toLocaleString();
+            const sems = ['Fall', 'Spring'];
+            document.getElementById('semesterDisplay').textContent = `Year ${Math.ceil(state.semester / 2)} • ${sems[(state.semester - 1) % 2]} Semester ↩`;
         }
 
         function loadScenario(index) {
             state.scenarioIndex = index;
             const scenario = scenarios[index];
-
             document.getElementById('scenarioTitle').textContent = scenario.title;
-
-            const textEl = document.getElementById('scenarioText');
-            textEl.classList.add('typing');
-            textEl.textContent = '';
-
-            let i = 0;
-            const type = () => {
-                if (i < scenario.text.length) {
-                    textEl.textContent += scenario.text.charAt(i);
-                    i++;
-                    setTimeout(type, 20);
-                }
-            };
-            type();
-
+            document.getElementById('scenarioText').textContent = scenario.text;
+            
             const container = document.getElementById('choicesContainer');
             container.innerHTML = '';
 
-            setTimeout(() => {
-                if (scenario.type === 'slider') {
-                    const cfg = scenario.slider;
-                    const wrapper = document.createElement('div');
-                    wrapper.className = 'slider-wrapper';
-                    wrapper.style.opacity = '0';
-                    wrapper.style.transition = 'opacity 0.5s';
-                    
-                    wrapper.innerHTML = `
-                        <div style="font-size:28px; font-weight:800; color:var(--neon-green); text-align:center" id="sliderValueDisplay">${cfg.defaultValue}${cfg.unit}</div>
+            if (scenario.type === 'slider') {
+                const cfg = scenario.slider;
+                container.innerHTML = `
+                    <div class="slider-wrapper">
+                        <div style="font-size:28px; font-weight:800; color:var(--neon-green); text-align:center" id="sliderVal">${cfg.defaultValue}${cfg.unit}</div>
                         <input type="range" id="scenarioSlider" class="range-slider" min="${cfg.min}" max="${cfg.max}" step="${cfg.step}" value="${cfg.defaultValue}">
-                        <div class="slider-projections" id="sliderProjections"></div>
-                        <button class="choice-btn" id="sliderConfirmBtn" style="width:100%; text-align:center; background:rgba(34,197,94,0.1); border-color:var(--neon-green); color:var(--neon-green);">
-                            <div class="choice-text" style="color:var(--neon-green); text-transform:uppercase; letter-spacing:1px;">Confirm Decision</div>
+                        <div class="slider-projections" id="sliderProj"></div>
+                        <button class="choice-btn" id="sliderBtn" style="width:100%; text-align:center; background:rgba(34,197,94,0.1); border-color:var(--neon-green);">
+                            <div class="choice-text" style="color:var(--neon-green);">Confirm Decision</div>
                         </button>
-                    `;
-                    container.appendChild(wrapper);
-
-                    // Defer UI binding slightly
-                    setTimeout(() => {
-                        wrapper.style.opacity = '1';
-                        const slider = document.getElementById('scenarioSlider');
-                        const valDisplay = document.getElementById('sliderValueDisplay');
-                        const projDisplay = document.getElementById('sliderProjections');
-                        const confirmBtn = document.getElementById('sliderConfirmBtn');
-
-                        const updateProjections = () => {
-                            const val = parseInt(slider.value);
-                            valDisplay.textContent = (cfg.unit === ' dollars' ? '
-        }
-
-        function makeChoice(choice) {
-            // Save snapshot before decision
-            const snapshot = JSON.parse(JSON.stringify(state));
-
-            // Apply impacts
-            if (choice.impact.debt) state.debt = Math.max(0, state.debt + choice.impact.debt);
-            if (choice.impact.cash) state.cash += choice.impact.cash;
-            if (choice.impact.gpa) state.gpa = Math.max(0, Math.min(4, state.gpa + choice.impact.gpa));
-            if (choice.impact.happy) state.happiness = Math.max(0, Math.min(100, state.happiness + choice.impact.happy));
-
-            if (choice.action) choice.action();
-
-            // Record history
-            state.history.push({
-                scenario: scenarios[state.scenarioIndex].title,
-                choice: choice.text,
-                debt: state.debt,
-                gpa: state.gpa,
-                stateSnapshot: snapshot
-            });
-
-            updateHUD();
-            renderUnlocks();
-            saveCurrentSlot();
-
-            document.getElementById('resultTitle').textContent = isWhatIfMode ? 'WHAT IF SCENARIO' : 'OUTCOME';
-            document.getElementById('resultText').textContent = choice.result;
-            document.getElementById('overlay').classList.add('active');
-            document.getElementById('resultPopup').classList.add('active');
-
-            state.semester++;
-        }
-
-        function closeResult() {
-            document.getElementById('overlay').classList.remove('active');
-            document.getElementById('resultPopup').classList.remove('active');
-
-            if (state.scenarioIndex < scenarios.length - 1) {
-                loadScenario(state.scenarioIndex + 1);
-            }
-        }
-
-        function endGame() {
-            checkGlobalUnlocks();
-            saveCurrentSlot();
-
-            document.getElementById('endScreen').classList.add('active');
-
-            document.getElementById('endDebt').textContent = '$' + state.debt.toLocaleString();
-            document.getElementById('endGPA').textContent = state.gpa.toFixed(2);
-
-            const salary = state.major ? majors[state.major].salary : 50000;
-            document.getElementById('endSalary').textContent = '$' + salary.toLocaleString();
-
-            const ratio = Math.round((state.debt / salary) * 100);
-            document.getElementById('endRatio').textContent = ratio + '%';
-
-            let message = '';
-            if (state.debt < 20000) {
-                message = '🎉 FINANCIAL WIZARD! You navigated college with minimal debt!';
-            } else if (state.debt < 50000) {
-                message = '✅ SOLID WORK! Your debt is manageable.';
-            } else if (state.debt < 100000) {
-                message = '⚠️ HEADS UP! Significant debt. Consider aggressive repayment.';
-            } else {
-                message = '🚨 CRISIS MODE! Time for loan forgiveness programs.';
-            }
-
-            document.getElementById('endMessage').textContent = message;
-        }
-
-        // Init
-        loadGlobalData();
-    </script>
-</body>
-</html>
+                    </div>
+                `;
+                
+                setTimeout(() => {
+                    const slider = document.getElementById('scenarioSlider');
+                    const valDisplay = document.getElementById('sliderVal');
+                    const projDisplay = document.getElementById('sliderProj');
+                    
+                    const updateProj = () => {
+                        const val = parseInt(slider.value);
+                        valDisplay.textContent = (cfg.unit === ' dollars' ? '
  : '') + val.toLocaleString() + (cfg.unit === ' dollars' ? '' : cfg.unit);
-                            const impact = cfg.calculateImpact(val);
-                            
-                            const impacts = [];
-                            if (impact.debt) impacts.push(`<span class="impact-debt">Debt: ${impact.debt > 0 ? '+' : ''}${Math.abs(impact.debt).toLocaleString()}</span>`);
-                            if (impact.cash) impacts.push(`<span class="impact-cash">Cash: ${impact.cash > 0 ? '+' : ''}${Math.abs(impact.cash).toLocaleString()}</span>`);
-                            if (impact.gpa) impacts.push(`<span class="impact-gpa">GPA: ${impact.gpa > 0 ? '+' : ''}${impact.gpa.toFixed(2)}</span>`);
-                            if (impact.happy) impacts.push(`<span class="impact-happy">Joy: ${impact.happy > 0 ? '+' : ''}${impact.happy}%</span>`);
-                            
-                            projDisplay.innerHTML = impacts.length ? 'Projected Impact: ' + impacts.join(' | ') : 'Projected Impact: None';
-                        };
-
-                        slider.addEventListener('input', updateProjections);
-                        updateProjections();
-
-                        confirmBtn.onclick = () => {
-                            const val = parseInt(slider.value);
-                            const impact = cfg.calculateImpact(val);
-                            makeChoice({
-                                text: `Chose: ${val}${cfg.unit}`,
-                                impact: impact,
-                                result: cfg.getResultText(val)
-                            });
-                        };
-                    }, 50);
-
-                } else {
-                    // Render traditional buttons
-                    scenario.choices.forEach((choice, idx) => {
-                        const btn = document.createElement('button');
-                        btn.className = 'choice-btn';
-                        btn.disabled = true;
-
-                        const impacts = [];
-                        if (choice.impact.debt) impacts.push(`<span class="impact-debt">Debt ${choice.impact.debt > 0 ? '+' : ''}${Math.abs(choice.impact.debt).toLocaleString()}</span>`);
-                        if (choice.impact.cash) impacts.push(`<span class="impact-cash">Cash ${choice.impact.cash > 0 ? '+' : ''}${Math.abs(choice.impact.cash).toLocaleString()}</span>`);
-                        if (choice.impact.gpa) impacts.push(`<span class="impact-gpa">GPA ${choice.impact.gpa > 0 ? '+' : ''}${choice.impact.gpa}</span>`);
-                        if (choice.impact.happy) impacts.push(`<span class="impact-happy">Happiness ${choice.impact.happy > 0 ? '+' : ''}${choice.impact.happy}%</span>`);
-
-                        btn.innerHTML = `
-                            <div class="choice-text">${choice.text}</div>
-                            <div class="choice-impact">${impacts.join('')}</div>
-                        `;
-
-                        btn.onclick = () => makeChoice(choice);
-                        container.appendChild(btn);
-
-                        setTimeout(() => btn.disabled = false, idx * 200);
-                    });
-                }
-            }, scenario.text.length * 20 + 300);
+                        const imp = cfg.calculateImpact(val);
+                        projDisplay.innerHTML = `Projected Impact: Debt ${imp.debt||0} | Cash ${imp.cash||0} | GPA ${imp.gpa||0}`;
+                    };
+                    
+                    slider.addEventListener('input', updateProj);
+                    updateProj();
+                    
+                    document.getElementById('sliderBtn').onclick = () => {
+                        const val = parseInt(slider.value);
+                        makeChoice({
+                            text: `Chose: ${val}${cfg.unit}`,
+                            impact: cfg.calculateImpact(val),
+                            result: cfg.getResultText(val)
+                        });
+                    };
+                }, 50);
+            } else {
+                scenario.choices.forEach(choice => {
+                    const btn = document.createElement('button');
+                    btn.className = 'choice-btn';
+                    btn.innerHTML = `<div class="choice-text">${choice.text}</div>`;
+                    btn.onclick = () => makeChoice(choice);
+                    container.appendChild(btn);
+                });
+            }
         }
 
         function makeChoice(choice) {
-            // Save snapshot before decision
-            const snapshot = JSON.parse(JSON.stringify(state));
-
-            // Apply impacts
+            const snap = JSON.parse(JSON.stringify(state));
+            
             if (choice.impact.debt) state.debt = Math.max(0, state.debt + choice.impact.debt);
             if (choice.impact.cash) state.cash += choice.impact.cash;
             if (choice.impact.gpa) state.gpa = Math.max(0, Math.min(4, state.gpa + choice.impact.gpa));
             if (choice.impact.happy) state.happiness = Math.max(0, Math.min(100, state.happiness + choice.impact.happy));
-
+            
             if (choice.action) choice.action();
-
-            // Record history
+            
             state.history.push({
                 scenario: scenarios[state.scenarioIndex].title,
                 choice: choice.text,
                 debt: state.debt,
                 gpa: state.gpa,
-                stateSnapshot: snapshot
+                stateSnapshot: snap
             });
 
             updateHUD();
@@ -1529,50 +1307,30 @@
             document.getElementById('resultText').textContent = choice.result;
             document.getElementById('overlay').classList.add('active');
             document.getElementById('resultPopup').classList.add('active');
-
             state.semester++;
         }
 
         function closeResult() {
             document.getElementById('overlay').classList.remove('active');
             document.getElementById('resultPopup').classList.remove('active');
-
             if (state.scenarioIndex < scenarios.length - 1) {
                 loadScenario(state.scenarioIndex + 1);
             }
         }
 
         function endGame() {
-            checkGlobalUnlocks();
             saveCurrentSlot();
-
             document.getElementById('endScreen').classList.add('active');
-
-            document.getElementById('endDebt').textContent = '$' + state.debt.toLocaleString();
+            document.getElementById('endDebt').textContent = '
+ + state.debt.toLocaleString();
             document.getElementById('endGPA').textContent = state.gpa.toFixed(2);
-
             const salary = state.major ? majors[state.major].salary : 50000;
-            document.getElementById('endSalary').textContent = '$' + salary.toLocaleString();
-
-            const ratio = Math.round((state.debt / salary) * 100);
-            document.getElementById('endRatio').textContent = ratio + '%';
-
-            let message = '';
-            if (state.debt < 20000) {
-                message = '🎉 FINANCIAL WIZARD! You navigated college with minimal debt!';
-            } else if (state.debt < 50000) {
-                message = '✅ SOLID WORK! Your debt is manageable.';
-            } else if (state.debt < 100000) {
-                message = '⚠️ HEADS UP! Significant debt. Consider aggressive repayment.';
-            } else {
-                message = '🚨 CRISIS MODE! Time for loan forgiveness programs.';
-            }
-
-            document.getElementById('endMessage').textContent = message;
+            document.getElementById('endSalary').textContent = '
+ + salary.toLocaleString();
+            document.getElementById('endRatio').textContent = Math.round((state.debt / salary) * 100) + '%';
+            document.getElementById('endMessage').textContent = state.debt < 20000 ? '🎉 FINANCIAL WIZARD!' : '⚠️ Watch that debt!';
         }
-
-        // Init
-        loadGlobalData();
     </script>
 </body>
 </html>
+
