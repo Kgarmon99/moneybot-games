@@ -1287,7 +1287,7 @@
             </div>
 
             <div class="btn-group">
-                <button class="btn btn-primary" id="start-game-btn" disabled onclick="confirmCharacter()">
+                <button class="btn btn-primary" id="start-game-btn" style="opacity:0.5; pointer-events:none;" onclick="confirmCharacter()">
                     Start Borrowing
                     <span>→</span>
                 </button>
@@ -1529,7 +1529,7 @@
             playerCharacter = characters.find(c => c.id === id);
             document.querySelectorAll('.char-card').forEach(el => el.classList.remove('selected'));
             document.getElementById('char-' + id).classList.add('selected');
-            document.getElementById('start-game-btn').disabled = false;
+            document.getElementById('start-game-btn').style.opacity = '1'; document.getElementById('start-game-btn').style.pointerEvents = 'auto';
         }
 
         function confirmCharacter() {
@@ -2221,11 +2221,19 @@
 
         // Update Header Score
         
+        
         function updateHeaderScore() {
             const actualScoreEl = document.getElementById('actual-score');
             if(actualScoreEl) {
                 actualScoreEl.textContent = gameState.score;
             } else {
+                const headerScore = document.getElementById('header-score');
+                if(headerScore && !headerScore.innerHTML.includes('Credit:')) {
+                    headerScore.textContent = gameState.score;
+                }
+            }
+        }
+ else {
                 const headerScore = document.getElementById('header-score');
                 if(headerScore) headerScore.textContent = gameState.score;
             }
