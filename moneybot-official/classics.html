@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MoneyBot Gaming</title>
+    <title>MoneyBot Gaming - Web Classics</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -110,7 +110,7 @@
         
         /* Hero */
         .hero {
-            padding: 80px 0 60px;
+            padding: 60px 0 40px;
             text-align: center;
         }
         
@@ -146,7 +146,7 @@
         }
         
         .hero h1 {
-            font-size: 64px;
+            font-size: 56px;
             font-weight: 800;
             letter-spacing: -3px;
             line-height: 1.1;
@@ -157,10 +157,10 @@
         }
         
         .hero p {
-            font-size: 22px;
+            font-size: 20px;
             color: #9CA3AF;
-            max-width: 600px;
-            margin: 0 auto 40px;
+            max-width: 700px;
+            margin: 0 auto 32px;
             line-height: 1.6;
         }
         
@@ -199,7 +199,9 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 32px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
         }
         
         .section-title {
@@ -210,9 +212,33 @@
             color: #666;
         }
         
+        .category-filter {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-btn {
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 100px;
+            color: #9CA3AF;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .filter-btn:hover, .filter-btn.active {
+            background: rgba(34, 197, 94, 0.1);
+            border-color: rgba(34, 197, 94, 0.4);
+            color: #22C55E;
+        }
+        
         .games-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 20px;
         }
         
@@ -264,21 +290,20 @@
         }
         
         .game-icon {
-            width: 80px;
-            height: 80px;
-            object-fit: contain;
-            filter: drop-shadow(0 0 30px rgba(34, 197, 94, 0.4));
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
             position: relative;
             z-index: 1;
             transition: transform 0.3s ease;
         }
         
         .game-card:hover .game-icon {
-            transform: scale(1.1);
+            transform: scale(1.05);
         }
         
         .game-info {
-            padding: 24px;
+            padding: 20px;
             position: relative;
             z-index: 1;
             background: rgba(10, 10, 10, 0.8);
@@ -290,15 +315,15 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
+            gap: 10px;
         }
         
         .game-title {
-            font-size: 18px;
+            font-size: 17px;
             font-weight: 800;
             color: #fff;
             letter-spacing: -0.5px;
-            letter-spacing: -0.3px;
         }
         
         .game-tag {
@@ -310,12 +335,13 @@
             background: rgba(34, 197, 94, 0.1);
             border-radius: 100px;
             color: #22C55E;
+            white-space: nowrap;
         }
         
         .game-desc {
-            font-size: 14px;
+            font-size: 13px;
             color: #9CA3AF;
-            line-height: 1.6;
+            line-height: 1.5;
             font-weight: 400;
         }
         
@@ -334,10 +360,33 @@
             z-index: 2;
         }
         
+        .category-section {
+            margin-bottom: 50px;
+        }
+        
+        .category-title {
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 20px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .category-title::before {
+            content: '';
+            width: 4px;
+            height: 24px;
+            background: #22C55E;
+            border-radius: 2px;
+        }
+        
         @media (max-width: 768px) {
-            .hero h1 { font-size: 40px; }
-            .stats { flex-direction: column; gap: 30px; }
+            .hero h1 { font-size: 36px; }
+            .stats { flex-direction: column; gap: 20px; }
             .games-grid { grid-template-columns: 1fr; }
+            .category-filter { justify-content: center; }
         }
     </style>
 </head>
@@ -358,122 +407,330 @@
         </header>
         
         <section class="hero">
-            <div class="hero-badge">System Online</div>
-            <h1>The Arcade</h1>
+            <div class="hero-badge">Curated Collection</div>
+            <h1>The Financial Arcade</h1>
+            <p>The ultimate hub for financial literacy games. From budgeting simulators to stock market training grounds — master money through play.</p>
             <div class="stats">
                 <div class="stat">
-                    <div class="stat-value">12</div>
-                    <div class="stat-label">Curated Classics</div>
+                    <div class="stat-value">50+</div>
+                    <div class="stat-label">Games & Sims</div>
                 </div>
                 <div class="stat">
                     <div class="stat-value">∞</div>
-                    <div class="stat-label">Capital Upside</div>
+                    <div class="stat-label">Learning Potential</div>
                 </div>
                 <div class="stat">
                     <div class="stat-value">0%</div>
-                    <div class="stat-label">Fake Guru BS</div>
+                    <div class="stat-label">Paywall BS</div>
                 </div>
             </div>
         </section>
         
         <section class="games-section">
-            <div class="section-header">
-                <span class="section-title">All Games</span>
-            </div>
             
-            <div class="games-grid">
-
-                <a href="https://www.timeforpayback.com/" target="_blank" class="game-card">
-                    <div class="game-image" style="background: #111;">
-                        <img src="https://d3f0607p366vty.cloudfront.net/images/payback-og-image.png" class="game-icon" alt="Payback" style="width: 100%; height: 100%; object-fit: cover; filter: none; border-radius: 0;" onerror="this.src='assets/moneybot-logo-1.jpg'">
-                    </div>
-                    <div class="game-info">
-                        <div class="game-header">
-                            <span class="game-title">Payback</span>
-                            <span class="game-tag">College & Debt</span>
+            <!-- NGPF COLLECTION -->
+            <div class="category-section">
+                <h2 class="category-title">NGPF Arcade Collection</h2>
+                <div class="games-grid">
+                    <a href="https://www.timeforpayback.com/" target="_blank" class="game-card">
+                        <div class="game-image" style="background: #111;">
+                            <img src="https://d3f0607p366vty.cloudfront.net/images/payback-og-image.png" class="game-icon" alt="Payback" onerror="this.src='assets/moneybot-logo-1.jpg'">
                         </div>
-                        <p class="game-desc">Can you get a college degree without drowning in student debt? A masterpiece by NGPF.</p>
-                    </div>
-                </a>
-
-                <a href="https://buildyourstax.com/" target="_blank" class="game-card">
-                    <div class="game-image" style="background: #111;">
-                        <img src="https://buildyourstax.com/img/Stax_OG.png" class="game-icon" alt="STAX" style="width: 100%; height: 100%; object-fit: cover; filter: none; border-radius: 0;" onerror="this.src='assets/moneybot-logo-1.jpg'">
-                    </div>
-                    <div class="game-info">
-                        <div class="game-header">
-                            <span class="game-title">STAX</span>
-                            <span class="game-tag">Investing</span>
+                        <div class="game-info">
+                            <div class="game-header">
+                                <span class="game-title">Payback</span>
+                                <span class="game-tag">College & Debt</span>
+                            </div>
+                            <p class="game-desc">Can you get a college degree without drowning in student debt? Navigate financial aid, work-study, and tough choices.</p>
                         </div>
-                        <p class="game-desc">Experience 20 years of investing in 20 minutes. Learn why index funds beat picking individual stocks.</p>
-                    </div>
-                </a>
+                    </a>
 
-                <a href="https://shadysam.com/" target="_blank" class="game-card">
-                    <div class="game-image" style="background: #111;">
-                        <img src="https://shadysam.com/assets/og_image.jpg" class="game-icon" alt="Shady Sam" style="width: 100%; height: 100%; object-fit: cover; filter: none; border-radius: 0;" onerror="this.src='assets/moneybot-logo-1.jpg'">
-                    </div>
-                    <div class="game-info">
-                        <div class="game-header">
-                            <span class="game-title">Shady Sam</span>
-                            <span class="game-tag">Predatory Lending</span>
+                    <a href="https://buildyourstax.com/" target="_blank" class="game-card">
+                        <div class="game-image" style="background: #111;">
+                            <img src="https://buildyourstax.com/img/Stax_OG.png" class="game-icon" alt="STAX" onerror="this.src='assets/moneybot-logo-1.jpg'">
                         </div>
-                        <p class="game-desc">Play as a loan shark trying to maximize profits off unsuspecting borrowers. Learn how to spot their tricks.</p>
-                    </div>
-                </a>
+                        <div class="game-info">
+                            <div class="game-header">
+                                <span class="game-title">STAX</span>
+                                <span class="game-tag">Investing</span>
+                            </div>
+                            <p class="game-desc">Experience 20 years of investing in 20 minutes. Learn why index funds consistently beat stock picking.</p>
+                        </div>
+                    </a>
 
-                <a href="https://playbumper.com/" target="_blank" class="game-card">
-                    <div class="game-image" style="background: #111;">
-                        <img src="https://playbumper.com/images/og-bumper.jpg" class="game-icon" alt="Bumper" style="width: 100%; height: 100%; object-fit: cover; filter: none; border-radius: 0;" onerror="this.src='assets/moneybot-logo-1.jpg'">
-                    </div>
-                    <div class="game-info">
-                        <div class="game-header">
-                            <span class="game-title">Bumper</span>
-                            <span class="game-tag">Insurance & Risk</span>
+                    <a href="https://shadysam.com/" target="_blank" class="game-card">
+                        <div class="game-image" style="background: #111;">
+                            <img src="https://shadysam.com/assets/og_image.jpg" class="game-icon" alt="Shady Sam" onerror="this.src='assets/moneybot-logo-1.jpg'">
                         </div>
-                        <p class="game-desc">Navigate the risky roads of life and learn how auto insurance protects your hard-earned cash.</p>
-                    </div>
-                </a>
+                        <div class="game-info">
+                            <div class="game-header">
+                                <span class="game-title">Shady Sam</span>
+                                <span class="game-tag">Predatory Lending</span>
+                            </div>
+                            <p class="game-desc">Play as a loan shark maximizing profits. Learn to recognize predatory lending tactics from the inside.</p>
+                        </div>
+                    </a>
 
-                <a href="https://www.coolmathgames.com/0-lemonade-stand" target="_blank" class="game-card">
-                    <div class="game-image" style="background: #111;">
-                        <img src="https://www.coolmathgames.com/sites/default/files/Lemonade%20Stand.png" class="game-icon" alt="Lemonade Stand" style="width: 100%; height: 100%; object-fit: cover; filter: none; border-radius: 0;" onerror="this.src='assets/moneybot-logo-1.jpg'">
-                    </div>
-                    <div class="game-info">
-                        <div class="game-header">
-                            <span class="game-title">Lemonade Stand</span>
-                            <span class="game-tag">Business Simulator</span>
+                    <a href="https://playbumper.com/" target="_blank" class="game-card">
+                        <div class="game-image" style="background: #111;">
+                            <img src="https://playbumper.com/images/og-bumper.jpg" class="game-icon" alt="Bumper" onerror="this.src='assets/moneybot-logo-1.jpg'">
                         </div>
-                        <p class="game-desc">The absolute classic. Buy inventory, check the weather, and set your prices to build your lemonade empire.</p>
-                    </div>
-                </a>
+                        <div class="game-info">
+                            <div class="game-header">
+                                <span class="game-title">Bumper</span>
+                                <span class="game-tag">Insurance</span>
+                            </div>
+                            <p class="game-desc">Navigate life's risky roads and learn how auto insurance protects your finances from unexpected disasters.</p>
+                        </div>
+                    </a>
 
-                <a href="https://hyperhippo.com/games/adventure-capitalist/" target="_blank" class="game-card">
-                    <div class="game-image" style="background: #111;">
-                        <img src="https://hyperhippo.com/wp-content/uploads/2021/04/AdCap_HeroImage-1-1.jpg" class="game-icon" alt="Adventure Capitalist" style="width: 100%; height: 100%; object-fit: cover; filter: none; border-radius: 0;" onerror="this.src='assets/moneybot-logo-1.jpg'">
-                    </div>
-                    <div class="game-info">
-                        <div class="game-header">
-                            <span class="game-title">Adventure Capitalist</span>
-                            <span class="game-tag">Compounding</span>
+                    <a href="https://playmoneymagic.com/" target="_blank" class="game-card">
+                        <div class="game-image" style="background: #111;">
+                            <img src="https://d3f7q2msm2165u.cloudfront.net/aaa-content/user/files/web/arcade-games/moneymagic_modal/moneymagic1.jpg" class="game-icon" alt="Money Magic" onerror="this.src='assets/moneybot-logo-1.jpg'">
                         </div>
-                        <p class="game-desc">The ultimate lesson in exponential growth and compounding returns. Start with a lemonade stand, end with the universe.</p>
-                    </div>
-                </a>
-
-                <a href="https://orteil.dashnet.org/cookieclicker/" target="_blank" class="game-card">
-                    <div class="game-image" style="background: #111;">
-                        <img src="https://orteil.dashnet.org/cookieclicker/img/thumbnail.png" class="game-icon" alt="Cookie Clicker" style="width: 100%; height: 100%; object-fit: cover; filter: none; border-radius: 0;" onerror="this.src='assets/moneybot-logo-1.jpg'">
-                    </div>
-                    <div class="game-info">
-                        <div class="game-header">
-                            <span class="game-title">Cookie Clicker</span>
-                            <span class="game-tag">Automation</span>
+                        <div class="game-info">
+                            <div class="game-header">
+                                <span class="game-title">Money Magic</span>
+                                <span class="game-tag">Budgeting</span>
+                            </div>
+                            <p class="game-desc">Help Enzo manage his budget, reach his savings goal, and make it to Vegas. Learn the magic of budgeting.</p>
                         </div>
-                        <p class="game-desc">Learn the power of reinvesting your cashflow into automated assets that print money while you sleep.</p>
-                    </div>
-                </a>
+                    </a>
+                </div>
             </div>
+
+            <!-- STOCK MARKET SIMULATORS -->
+            <div class="category-section">
+                <h2 class="category-title">Stock Market Simulators</h2>
+                <div class="games-grid">
+                    <a href="https://www.investopedia.com/simulator/" target="_blank" class="game-card">
+                        <div class="game-image" style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);">
+                            <div style="font-size: 48px;">📈</div>
+                        </div>
+                        <div class="game-info">
+                            <div class="game-header">
+                                <span class="game-title">Investopedia Simulator</span>
+                                <span class="game-tag">Trading</span>
+                            </div>
+                            <p class="game-desc">Start with $100,000 in virtual cash. Practice trading stocks, ETFs, and options risk-free with real market data.</p>
+                        </div>
+                    </a>
+
+                    <a href="https://www.wallstreetsurvivor.com/" target="_blank" class="game-card">
+                        <div class="game-image" style="background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);">
+                            <div style="font-size: 48px;">🏆</div>
+                        </div>
+                        <div class="game-info">
+                            <div class="game-header">
+                                <span class="game-title">Wall Street Survivor</span>
+                                <span class="game-tag">Trading</span>
+                            </div>
+                            <p class="game-desc">Free $100K practice account. Compete in contests, learn investing basics, and track your portfolio performance.</p>
+                        </div>
+                    </a>
+
+                    <a href="https://www.marketwatch.com/game/" target="_blank" class="game-card">
+                        <div class="game-image" style="background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);">
+                            <div style="font-size: 48px;">📰</div>
+                        </div>
+                        <div class="game-info">
+                            <div class="game-header">
+                                <span class="game-title">MarketWatch VSE</span>
+                                <span class="game-tag">Trading</span>
+                            </div>
+                            <p class="game-desc">Virtual Stock Exchange with real-time pricing. Join 40,000+ games or create your own custom trading competition.</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- CLASSIC TYCOONS -->
+            <div class="category-section">
+                <h2 class="category-title">Classic Tycoon Games</h2>
+                <div class="games-grid">
+                    <a href="https://www.coolmathgames.com/0-lemonade-stand" target="_blank" class="game-card">
+                        <div class="game-image" style="background: #111;">
+                            <img src="https://www.coolmathgames.com/sites/default/files/Lemonade%20Stand.png" class="game-icon" alt="Lemonade Stand" onerror="this.src='assets/moneybot-logo-1.jpg'">
+                        </div>
+                        <div class="game-info">
+                            <div class="game-header">
+                                <span class="game-title">Lemonade Stand</span>
+                                <span class="game-tag">Business</span>
+                            </div>
+                            <p class="game-desc">The absolute classic. Buy inventory, check weather forecasts, and set prices to build your lemonade empire.</p>
+                        </div>
+                    </a>
+
+                    <a href="https://www.coolmathgames.com/0-coffee-shop" target="_blank" class="game-card">
+                        <div class="game-image" style="background: linear-gradient(135deg, #3e2723 0%, #5d4037 100%);">
+                            <div style="font-size: 48px;">☕</div>
+                        </div>
+                        <div class="game-info">
+                            <div class="game-header">
+                                <span class="game-title">Coffee Shop</span>
+                                <span class="game-tag">Business</span>
+                            </div>
+                            <p class="game-desc">Run your own coffee shop for 14 days. Balance inventory, recipes, and pricing to maximize profit.</p>
+                        </div>
+                    </a>
+
+                    <a href="https://papas-games.io/" target="_blank" class="game-card">
+                        <div class="game-image" style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);">
+                            <div style="font-size: 48px;">🍕</div>
+                        </div>
+                        <div class="game-info">
+                            <div class="game-header">
+                                <span class="game-title">Papa's Games</span>
+                                <span class="game-tag">Restaurant</span>
+                            </div>
+                            <p class="game-desc">The legendary restaurant management series. Run pizzerias, burger joints, ice cream shops and more.</p>
+                        </div>
+                    </a>
+
+                    <a href="https://hyperhippo.com/games/adventure-capitalist/" target="_blank" class="game-card">
+                        <div class="game-image" style="background: #111;">
+                            <img src="https://hyperhippo.com/wp-content/uploads/2021/04/AdCap_HeroImage-1-1.jpg" class="game-icon" alt="Adventure Capitalist" onerror="this.src='assets/moneybot-logo-1.jpg'">
+                        </div>
+                        <div class="game-info">
+                            <div class="game-header">
+                                <span class="game-title">AdVenture Capitalist</span>
+                                <span class="game-tag">Idle</span>
+                            </div>
+                            <p class="game-desc">The ultimate lesson in exponential growth. Start with a lemonade stand and build a business empire to the moon.</p>
+                        </div>
+                    </a>
+
+                    <a href="https://orteil.dashnet.org/cookieclicker/" target="_blank" class="game-card">
+                        <div class="game-image" style="background: #111;">
+                            <img src="https://orteil.dashnet.org/cookieclicker/img/thumbnail.png" class="game-icon" alt="Cookie Clicker" onerror="this.src='assets/moneybot-logo-1.jpg'">
+                        </div>
+                        <div class="game-info">
+                            <div class="game-header">
+                                <span class="game-title">Cookie Clicker</span>
+                                <span class="game-tag">Idle</span>
+                            </div>
+                            <p class="game-desc">Learn the power of reinvesting cashflow into automated assets. The original idle game phenomenon.</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- REAL WORLD SIMULATORS -->
+            <div class="category-section">
+                <h2 class="category-title">Real-World Simulators</h2>
+                <div class="games-grid">
+                    <a href="https://playspent.org/" target="_blank" class="game-card">
+                        <div class="game-image" style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);">
+                            <div style="font-size: 48px;">💸</div>
+                        </div>
+                        <div class="game-info">
+                            <div class="game-header">
+                                <span class="game-title">SPENT</span>
+                                <span class="game-tag">Poverty</span>
+                            </div>
+                            <p class="game-desc">Live on minimum wage for one month. A powerful simulation about poverty and the impossible choices millions face daily.</p>
+                        </div>
+                    </a>
+
+                    <a href="https://ig.ft.com/uber-game/" target="_blank" class="game-card">
+                        <div class="game-image" style="background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);">
+                            <div style="font-size: 48px;">🚗</div>
+                        </div>
+                        <div class="game-info">
+                            <div class="game-header">
+                                <span class="game-title">The Uber Game</span>
+                                <span class="game-tag">Gig Economy</span>
+                            </div>
+                            <p class="game-desc">Financial Times interactive. Experience life as a full-time Uber driver in the gig economy. Based on real reporting.</p>
+                        </div>
+                    </a>
+
+                    <a href="https://www.claimyourfuture.org/" target="_blank" class="game-card">
+                        <div class="game-image" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">
+                            <div style="font-size: 48px;">🎓</div>
+                        </div>
+                        <div class="game-info">
+                            <div class="game-header">
+                                <span class="game-title">Claim Your Future</span>
+                                <span class="game-tag">Career</span>
+                            </div>
+                            <p class="game-desc">Explore education pathways, future careers, and money management. Link today's choices to tomorrow's opportunities.</p>
+                        </div>
+                    </a>
+
+                    <a href="https://www.jumpstart.org/education/reality-check/" target="_blank" class="game-card">
+                        <div class="game-image" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                            <div style="font-size: 48px;">🎯</div>
+                        </div>
+                        <div class="game-info">
+                            <div class="game-header">
+                                <span class="game-title">Reality Check</span>
+                                <span class="game-tag">Lifestyle</span>
+                            </div>
+                            <p class="game-desc">JumpStart's lifestyle calculator. See how much income you need to support your dream adult life. Eye-opening.</p>
+                        </div>
+                    </a>
+
+                    <a href="https://www.practicalmoneyskills.com/en/play/financial_football.html" target="_blank" class="game-card">
+                        <div class="game-image" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);">
+                            <div style="font-size: 48px;">🏈</div>
+                        </div>
+                        <div class="game-info">
+                            <div class="game-header">
+                                <span class="game-title">Financial Football</span>
+                                <span class="game-tag">Sports</span>
+                            </div>
+                            <p class="game-desc">Visa + NFL team up. Answer personal finance questions to advance down the field. Fast-paced financial education.</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- MORE NGPF GAMES -->
+            <div class="category-section">
+                <h2 class="category-title">More NGPF Games</h2>
+                <div class="games-grid">
+                    <a href="https://www.ngpf.org/arcade/" target="_blank" class="game-card">
+                        <div class="game-image" style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);">
+                            <div style="font-size: 48px;">🎮</div>
+                        </div>
+                        <div class="game-info">
+                            <div class="game-header">
+                                <span class="game-title">NGPF Arcade</span>
+                                <span class="game-tag">All Topics</span>
+                            </div>
+                            <p class="game-desc">The complete collection of Next Gen Personal Finance games. Dozens of interactive activities covering every money topic.</p>
+                        </div>
+                    </a>
+
+                    <a href="https://www.practicalmoneyskills.com/" target="_blank" class="game-card">
+                        <div class="game-image" style="background: linear-gradient(135deg, #1a2980 0%, #26d0ce 100%);">
+                            <div style="font-size: 48px;">💳</div>
+                        </div>
+                        <div class="game-info">
+                            <div class="game-header">
+                                <span class="game-title">Practical Money Skills</span>
+                                <span class="game-tag">All Topics</span>
+                            </div>
+                            <p class="game-desc">Visa's financial education hub. Games, calculators, and lesson plans for all ages. Completely free.</p>
+                        </div>
+                    </a>
+
+                    <a href="https://www.personalfinancelab.com/" target="_blank" class="game-card">
+                        <div class="game-image" style="background: linear-gradient(135deg, #134e5e 0%, #71b280 100%);">
+                            <div style="font-size: 48px;">🏫</div>
+                        </div>
+                        <div class="game-info">
+                            <div class="game-header">
+                                <span class="game-title">PersonalFinanceLab</span>
+                                <span class="game-tag">Schools</span>
+                            </div>
+                            <p class="game-desc">Comprehensive financial literacy platform for schools. Stock games, budgeting sims, and curriculum tools.</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
         </section>
     </div>
 </body>
