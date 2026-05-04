@@ -60,6 +60,91 @@
             background: var(--bg-white);
         }
 
+        
+        .character-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .char-card {
+            background: var(--bg-white);
+            border: 2px solid var(--border-light);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .char-card:hover {
+            border-color: var(--money-green-light);
+            transform: translateY(-2px);
+        }
+
+        .char-card.selected {
+            border-color: var(--money-green);
+            background: var(--money-green-light);
+            box-shadow: 0 4px 12px rgba(0, 200, 83, 0.2);
+        }
+
+        .char-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        .char-name {
+            font-weight: 700;
+            font-size: 16px;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+
+        .char-desc {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+            flex-grow: 1;
+        }
+
+        .char-stats {
+            width: 100%;
+            background: var(--bg-gray);
+            border-radius: var(--radius-sm);
+            padding: 8px;
+            font-size: 12px;
+        }
+
+        .char-stat-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 4px;
+        }
+
+        .char-stat-row:last-child {
+            margin-bottom: 0;
+        }
+        
+        .char-stat-label {
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+        
+        .char-stat-value {
+            font-weight: 700;
+        }
+
+        @media (max-width: 400px) {
+            .character-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
         /* Header */
         .header {
             position: sticky;
@@ -399,6 +484,30 @@
             flex-direction: column;
             gap: 12px;
             margin-bottom: 20px;
+        }
+
+        
+        .loan-card.denied {
+            opacity: 0.5;
+            pointer-events: none;
+            filter: grayscale(100%);
+        }
+        .denied-badge {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-10deg);
+            background: var(--danger-red);
+            color: white;
+            font-weight: 800;
+            font-size: 24px;
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 4px solid white;
+            z-index: 10;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            box-shadow: var(--shadow-lg);
         }
 
         .loan-card {
@@ -1157,12 +1266,30 @@
             </div>
 
             <div class="btn-group">
-                <button class="btn btn-primary" onclick="showScreen('scenarios-screen')">
+                <button class="btn btn-primary" onclick="showScreen('character-screen')">
                     Start Learning
                     <span>→</span>
                 </button>
                 <button class="btn btn-outline" onclick="showModal('how-to-play')">
                     How to Play
+                </button>
+            </div>
+        </div>
+
+
+        <!-- Character Selection Screen -->
+        <div class="screen" id="character-screen">
+            <h2 class="screen-title">Choose Your Identity</h2>
+            <p class="screen-desc">Your background will determine your starting credit score and the loan options available to you.</p>
+
+            <div class="character-grid" id="character-grid">
+                <!-- Injected via JS -->
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-primary" id="start-game-btn" disabled onclick="confirmCharacter()">
+                    Start Borrowing
+                    <span>→</span>
                 </button>
             </div>
         </div>
@@ -1327,6 +1454,91 @@
     </div>
 
     <script>
+        
+        // Characters Data
+        const characters = [
+            {
+                id: "student",
+                name: "College Student",
+                description: "Tight budget. Limited credit history.",
+                creditScore: 620,
+                scoreLabel: "Fair",
+                income: 1200,
+                icon: "🎓"
+            },
+            {
+                id: "gig",
+                name: "Gig Worker",
+                description: "Income fluctuates. Needs quick cash.",
+                creditScore: 580,
+                scoreLabel: "Poor",
+                income: 2500,
+                icon: "🚗"
+            },
+            {
+                id: "parent",
+                name: "Single Parent",
+                description: "Steady job, high expenses, maxed cards.",
+                creditScore: 650,
+                scoreLabel: "Fair",
+                income: 4000,
+                icon: "👨‍👩‍👧"
+            },
+            {
+                id: "grad",
+                name: "Recent Grad",
+                description: "Good salary, high student loan debt.",
+                creditScore: 720,
+                scoreLabel: "Good",
+                income: 5000,
+                icon: "💼"
+            }
+        ];
+
+        let playerCharacter = null;
+
+        function renderCharacters() {
+            const container = document.getElementById('character-grid');
+            if(!container) return;
+            container.innerHTML = characters.map(c => `
+                <div class="char-card" id="char-${c.id}" onclick="selectCharacter('${c.id}')">
+                    <div class="char-icon">${c.icon}</div>
+                    <div class="char-name">${c.name}</div>
+                    <div class="char-desc">${c.description}</div>
+                    <div class="char-stats">
+                        <div class="char-stat-row">
+                            <span class="char-stat-label">Credit Score</span>
+                            <span class="char-stat-value" style="color: ${getScoreColor(c.creditScore)}">${c.creditScore} (${c.scoreLabel})</span>
+                        </div>
+                        <div class="char-stat-row">
+                            <span class="char-stat-label">Income</span>
+                            <span class="char-stat-value">$${c.income}/mo</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function getScoreColor(score) {
+            if(score >= 700) return 'var(--money-green-dark)';
+            if(score >= 600) return 'var(--warning-orange)';
+            return 'var(--danger-red)';
+        }
+
+        function selectCharacter(id) {
+            playerCharacter = characters.find(c => c.id === id);
+            document.querySelectorAll('.char-card').forEach(el => el.classList.remove('selected'));
+            document.getElementById('char-' + id).classList.add('selected');
+            document.getElementById('start-game-btn').disabled = false;
+        }
+
+        function confirmCharacter() {
+            // Update header with credit score
+            document.getElementById('header-score').innerHTML = `Credit: <span style="color: ${getScoreColor(playerCharacter.creditScore)}">${playerCharacter.creditScore}</span> | Pts: <span id="actual-score">0</span>`;
+            showScreen('scenarios-screen');
+        }
+
+
         // Game Data
         const scenarios = [
             {
@@ -1795,17 +2007,29 @@
                     const flagInfo = redFlags[flag];
                     return `<span class="flag-badge flag-${flagInfo.type}">${flagInfo.label}</span>`;
                 }).join('');
+                
+                // Determine if loan is denied based on character credit score
+                let isDenied = false;
+                let reqScore = 0;
+                if(loan.type.includes("Credit Union")) reqScore = 650;
+                else if(loan.type.includes("Bank Personal")) reqScore = 620;
+                else if(loan.type.includes("Personal Loan")) reqScore = 600;
+                
+                if(playerCharacter && playerCharacter.creditScore < reqScore) {
+                    isDenied = true;
+                }
 
                 return `
-                    <div class="loan-card ${loan.flags.some(f => redFlags[f].type === 'danger') ? 'predatory' : ''}" 
+                    <div class="loan-card ${loan.flags.some(f => redFlags[f].type === 'danger') ? 'predatory' : ''} ${isDenied ? 'denied' : ''}" 
                          id="loan-${loan.id}" 
-                         onclick="selectLoan('${loan.id}')">
+                         ${!isDenied ? `onclick="selectLoan('${loan.id}')"` : ''}>
+                        ${isDenied ? '<div class="denied-badge">Denied</div>' : ''}
                         <div class="loan-card-header">
                             <div class="loan-lender">
                                 <div class="lender-icon">${loan.icon}</div>
                                 <div>
                                     <div class="lender-name">${loan.lender}</div>
-                                    <div class="lender-type">${loan.type}</div>
+                                    <div class="lender-type">${loan.type} ${reqScore > 0 ? `(Req: ${reqScore})` : ''}</div>
                                 </div>
                             </div>
                             <div class="loan-apr">
@@ -1828,13 +2052,14 @@
                             </div>
                             ${loan.fees ? `
                             <div class="loan-detail-row">
-                                <span class="loan-detail-label">Fees</span>
+                                <span class="loan-detail-label">Upfront Fees</span>
                                 <span class="loan-detail-value">$${loan.fees}</span>
                             </div>
                             ` : ''}
                         </div>
-                        ${flagsHtml ? `<div class="loan-flags">${flagsHtml}</div>` : ''}
-                        <button class="loan-select-btn">Select This Loan</button>
+                        <div class="loan-flags">
+                            ${flagsHtml}
+                        </div>
                     </div>
                 `;
             }).join('');
@@ -1989,9 +2214,17 @@
         }
 
         // Update Header Score
+        
         function updateHeaderScore() {
-            document.getElementById('header-score').textContent = gameState.totalScore;
+            const actualScoreEl = document.getElementById('actual-score');
+            if(actualScoreEl) {
+                actualScoreEl.textContent = gameState.score;
+            } else {
+                const headerScore = document.getElementById('header-score');
+                if(headerScore) headerScore.textContent = gameState.score;
+            }
         }
+
 
         // Tooltip
         function showTooltip(event, text) {
