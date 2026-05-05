@@ -15,6 +15,15 @@
             min-height: 100vh;
         }
         
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #000;
+            color: #fff;
+            min-height: 100vh;
+        }
+        
         /* Animated gradient background */
         .bg-gradient {
             position: fixed;
@@ -23,10 +32,56 @@
             width: 100%;
             height: 100%;
             background: 
-                linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.8)),
-                url('assets/hero-bg.png') center/cover no-repeat;
+                radial-gradient(ellipse at 20% 80%, rgba(0, 200, 83, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(0, 200, 83, 0.1) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(0, 200, 83, 0.05) 0%, transparent 70%),
+                linear-gradient(180deg, #0a0a0a 0%, #000 100%);
             pointer-events: none;
             z-index: 0;
+        }
+        
+        /* Green grid overlay */
+        .grid-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 200, 83, 0.08) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 200, 83, 0.08) 1px, transparent 1px);
+            background-size: 60px 60px;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        /* Animated glow orbs */
+        .glow-orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            pointer-events: none;
+            z-index: 0;
+        }
+        .glow-orb-1 {
+            width: 400px;
+            height: 400px;
+            background: rgba(0, 200, 83, 0.2);
+            top: -100px;
+            right: -100px;
+            animation: float 20s ease-in-out infinite;
+        }
+        .glow-orb-2 {
+            width: 300px;
+            height: 300px;
+            background: rgba(0, 200, 83, 0.15);
+            bottom: -50px;
+            left: -50px;
+            animation: float 25s ease-in-out infinite reverse;
+        }
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(30px, -30px); }
         }
         
         /* Grid overlay */
@@ -151,7 +206,7 @@
             letter-spacing: -3px;
             line-height: 1.1;
             margin-bottom: 16px;
-            background: linear-gradient(180deg, #fff 0%, #888 100%);
+            background: linear-gradient(180deg, #fff 0%, #00E676 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
@@ -177,8 +232,8 @@
         .stat-value {
             font-size: 48px;
             font-weight: 800;
-            color: #22C55E;
-            text-shadow: 0 0 40px rgba(34, 197, 94, 0.5);
+            color: #00E676;
+            text-shadow: 0 0 60px rgba(0, 230, 118, 0.8), 0 0 120px rgba(0, 230, 118, 0.4);
         }
         
         .stat-label {
@@ -207,7 +262,7 @@
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 2px;
-            color: #666;
+            color: rgba(0, 230, 118, 0.7);
         }
         
         .games-grid {
@@ -237,9 +292,9 @@
         }
         
         .game-card:hover {
-            border-color: rgba(34, 197, 94, 0.6);
+            border-color: rgba(0, 200, 83, 0.8);
             transform: translateY(-8px) scale(1.02);
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.8), 0 0 20px rgba(34, 197, 94, 0.2);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.8), 0 0 40px rgba(0, 200, 83, 0.3), inset 0 0 20px rgba(0, 200, 83, 0.1);
         }
         
         .game-card:hover::before {
