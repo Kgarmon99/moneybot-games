@@ -7,7 +7,7 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: none; user-select: none; }
         body { background: #000; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
-        canvas { display: block; width: 100vw; height: 100vh; }
+        canvas { display: block; width: 100vw; height: 100vh; position: relative; z-index: 1; }
         .ui { position: absolute; top: 0; left: 0; right: 0; padding: 20px; display: flex; justify-content: space-between; pointer-events: none; z-index: 10; }
         .back-btn { width: 44px; height: 44px; background: rgba(255,255,255,0.2); border: none; border-radius: 50%; color: #fff; font-size: 20px; pointer-events: auto; text-decoration: none; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px); }
         .score-box { text-align: right; }
