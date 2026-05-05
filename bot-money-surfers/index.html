@@ -33,6 +33,12 @@
     </style>
 </head>
 <body>
+    
+    <div class="speed-lines" id="speedLines"></div>
+    <div class="scanlines"></div>
+    <div class="vignette"></div>
+    <div class="combo-display" id="comboDisplay">x5</div>
+
     <canvas id="game"></canvas>
     
     <div class="ui">
@@ -117,6 +123,8 @@
                 this.particles = [];
                 
                 document.getElementById('startScreen').classList.add('hidden');
+                this.generateSpeedLines();
+                document.getElementById('speedLines').classList.add('active');
                 document.getElementById('gameOverScreen').classList.add('hidden');
                 
                 this.loop();
@@ -212,6 +220,11 @@
                 // Smooth player movement between lanes
                 const targetX = this.getLaneCenter(this.targetLane);
                 this.playerX += (targetX - this.playerX) * 0.25;
+                
+                // Create trail particles
+                if (Math.abs(targetX - this.playerX) > 5 && this.score % 3 === 0) {
+                    this.createTrailParticle(this.playerX, canvas.height - PLAYER_Y_OFFSET - 40);
+                }
                 
                 // Spawn objects
                 if (Math.random() < 0.02) this.spawnObstacle();
@@ -496,40 +509,57 @@
             
             drawCoin(x, y, scale) {
                 const size = 32 * scale;
-                const rotation = Date.now() / 120;
+                const rotation = Date.now() / 100;
+                const bounce = Math.sin(Date.now() / 200) * 3 * scale;
                 
                 ctx.save();
-                ctx.translate(x, y);
+                ctx.translate(x, y + bounce);
                 ctx.scale(Math.abs(Math.sin(rotation)), 1);
                 
-                // Outer glow
+                // Outer glow with pulsing effect
+                const pulse = 20 + Math.sin(Date.now() / 150) * 10;
                 ctx.shadowColor = '#FFD700';
-                ctx.shadowBlur = 25 * scale;
+                ctx.shadowBlur = pulse * scale;
                 
-                // Outer ring
-                ctx.fillStyle = '#FFD700';
+                // Outer ring with gradient
+                const outerGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, size);
+                outerGrad.addColorStop(0, '#FFED4A');
+                outerGrad.addColorStop(0.7, '#FFD700');
+                outerGrad.addColorStop(1, '#FFA500');
+                ctx.fillStyle = outerGrad;
                 ctx.beginPath();
                 ctx.arc(0, 0, size, 0, Math.PI * 2);
                 ctx.fill();
                 
-                // Inner
-                ctx.fillStyle = '#FFA500';
+                // Inner ring
+                const innerGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, size * 0.75);
+                innerGrad.addColorStop(0, '#FFA500');
+                innerGrad.addColorStop(1, '#FF8C00');
+                ctx.fillStyle = innerGrad;
                 ctx.beginPath();
                 ctx.arc(0, 0, size * 0.75, 0, Math.PI * 2);
                 ctx.fill();
                 
-                // Center
+                // Center highlight
                 ctx.fillStyle = '#FFD700';
                 ctx.beginPath();
-                ctx.arc(0, 0, size * 0.55, 0, Math.PI * 2);
+                ctx.arc(0, 0, size * 0.5, 0, Math.PI * 2);
                 ctx.fill();
                 
-                // $ symbol
+                // Shine effect
+                ctx.fillStyle = 'rgba(255,255,255,0.4)';
+                ctx.beginPath();
+                ctx.arc(-size*0.25, -size*0.25, size*0.2, 0, Math.PI*2);
+                ctx.fill();
+                
+                // $ symbol with shadow
+                ctx.shadowColor = 'rgba(139,69,19,0.5)';
+                ctx.shadowBlur = 3;
                 ctx.fillStyle = '#8B4513';
                 ctx.font = `bold ${size * 0.9}px sans-serif`;
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
-                ctx.fillText('$', 0, 2);
+                ctx.fillText('$', 0, 1);
                 
                 ctx.restore();
             },
