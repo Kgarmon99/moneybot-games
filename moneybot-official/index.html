@@ -24,6 +24,205 @@
             min-height: 100vh;
         }
         
+        
+        /* Particle System */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            overflow: hidden;
+        }
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(0, 230, 118, 0.6);
+            border-radius: 50%;
+            animation: float-up 15s infinite;
+            box-shadow: 0 0 10px rgba(0, 230, 118, 0.8);
+        }
+        @keyframes float-up {
+            0% { transform: translateY(100vh) scale(0); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100vh) scale(1); opacity: 0; }
+        }
+        
+        /* Search & Filter */
+        .controls-bar {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            position: relative;
+        }
+        .search-box input {
+            width: 100%;
+            padding: 14px 20px 14px 48px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(0, 230, 118, 0.2);
+            border-radius: 12px;
+            color: #fff;
+            font-size: 15px;
+            transition: all 0.3s ease;
+        }
+        .search-box input:focus {
+            outline: none;
+            border-color: rgba(0, 230, 118, 0.5);
+            background: rgba(255,255,255,0.08);
+            box-shadow: 0 0 20px rgba(0, 230, 118, 0.1);
+        }
+        .search-box::before {
+            content: "🔍";
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 18px;
+            opacity: 0.5;
+        }
+        .filter-tabs {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .filter-tab {
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(0, 230, 118, 0.2);
+            border-radius: 20px;
+            color: rgba(255,255,255,0.7);
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .filter-tab:hover, .filter-tab.active {
+            background: rgba(0, 230, 118, 0.15);
+            border-color: rgba(0, 230, 118, 0.5);
+            color: #00E676;
+        }
+        
+        /* Game Cards with Preview */
+        .game-card {
+            position: relative;
+            overflow: hidden;
+        }
+        .game-preview {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 160px;
+            background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, transparent 100%);
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            padding: 12px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .game-card:hover .game-preview {
+            opacity: 1;
+        }
+        .play-time {
+            font-size: 12px;
+            color: #00E676;
+            background: rgba(0,0,0,0.6);
+            padding: 4px 10px;
+            border-radius: 12px;
+            backdrop-filter: blur(4px);
+        }
+        .difficulty {
+            display: flex;
+            gap: 2px;
+        }
+        .star {
+            color: #00E676;
+            font-size: 12px;
+        }
+        .star.empty {
+            color: rgba(255,255,255,0.2);
+        }
+        
+        /* Progress Indicator */
+        .progress-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #00C853, #00E676);
+            transition: width 0.3s ease;
+        }
+        
+        /* Recently Played Section */
+        .recent-section {
+            margin-bottom: 40px;
+        }
+        .recent-section h2 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: rgba(255,255,255,0.9);
+        }
+        
+        /* Loading Skeleton */
+        .skeleton {
+            background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 8px;
+        }
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .games-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 16px;
+            }
+            .game-image {
+                height: 140px;
+            }
+            .controls-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .search-box {
+                min-width: 100%;
+            }
+        }
+        
+        /* Accessibility */
+        .game-card:focus {
+            outline: 2px solid #00E676;
+            outline-offset: 4px;
+        }
+        .skip-link {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            background: #00E676;
+            color: #000;
+            padding: 8px 16px;
+            z-index: 100;
+            transition: top 0.3s;
+        }
+        .skip-link:focus {
+            top: 0;
+        }
+
         /* Animated gradient background */
         .bg-gradient {
             position: fixed;
@@ -1213,5 +1412,57 @@
             </div>
         </section>
     </div>
+
+    <script>
+        // Particle System
+        function createParticles() {
+            const container = document.getElementById('particles');
+            for (let i = 0; i < 30; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 15 + 's';
+                particle.style.animationDuration = (10 + Math.random() * 10) + 's';
+                container.appendChild(particle);
+            }
+        }
+        createParticles();
+        
+        // Search functionality
+        const searchInput = document.getElementById('gameSearch');
+        const gameCards = document.querySelectorAll('.game-card');
+        
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            gameCards.forEach(card => {
+                const title = card.querySelector('.game-title').textContent.toLowerCase();
+                const desc = card.querySelector('.game-desc').textContent.toLowerCase();
+                card.style.display = (title.includes(query) || desc.includes(query)) ? 'block' : 'none';
+            });
+        });
+        
+        // Filter tabs
+        const filterTabs = document.querySelectorAll('.filter-tab');
+        filterTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                filterTabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                const filter = tab.dataset.filter;
+                gameCards.forEach(card => {
+                    const tag = card.querySelector('.game-tag').textContent.toLowerCase();
+                    card.style.display = (filter === 'all' || tag.includes(filter)) ? 'block' : 'none';
+                });
+            });
+        });
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === '/' && document.activeElement !== searchInput) {
+                e.preventDefault();
+                searchInput.focus();
+            }
+        });
+    </script>
+
 </body>
 </html>
