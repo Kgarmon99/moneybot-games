@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MoneyBot Financial Simulator</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 50%, #16213e 100%);
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            padding: 40px 0;
+            border-bottom: 1px solid rgba(0, 230, 118, 0.2);
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            font-size: 48px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #00E676, #00C853);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: rgba(255,255,255,0.6);
+            font-size: 18px;
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(0, 230, 118, 0.2);
+            border-radius: 16px;
+            padding: 24px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        
+        .card-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, rgba(0, 230, 118, 0.2), rgba(0, 200, 83, 0.1));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        
+        .card-title {
+            font-size: 14px;
+            color: rgba(255,255,255,0.6);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .card-value {
+            font-size: 36px;
+            font-weight: 800;
+            color: #fff;
+        }
+        
+        .card-value.positive { color: #00E676; }
+        .card-value.negative { color: #ff4444; }
+        
+        .card-change {
+            font-size: 14px;
+            margin-top: 8px;
+        }
+        
+        .age-display {
+            text-align: center;
+            padding: 30px;
+            background: linear-gradient(135deg, rgba(0, 230, 118, 0.1), rgba(0, 200, 83, 0.05));
+            border-radius: 16px;
+            margin-bottom: 30px;
+        }
+        
+        .age-label {
+            font-size: 14px;
+            color: rgba(255,255,255,0.6);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .age-value {
+            font-size: 72px;
+            font-weight: 900;
+            color: #00E676;
+            text-shadow: 0 0 40px rgba(0, 230, 118, 0.5);
+        }
+        
+        .scenario-box {
+            background: rgba(255,255,255,0.05);
+            border: 2px solid rgba(0, 230, 118, 0.3);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .scenario-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: #00E676;
+        }
+        
+        .scenario-text {
+            font-size: 18px;
+            line-height: 1.6;
+            color: rgba(255,255,255,0.9);
+            margin-bottom: 24px;
+        }
+        
+        .choices {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .choice-btn {
+            background: linear-gradient(135deg, rgba(0, 230, 118, 0.1), rgba(0, 200, 83, 0.05));
+            border: 2px solid rgba(0, 230, 118, 0.3);
+            border-radius: 12px;
+            padding: 20px 24px;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: left;
+        }
+        
+        .choice-btn:hover {
+            background: linear-gradient(135deg, rgba(0, 230, 118, 0.2), rgba(0, 200, 83, 0.1));
+            border-color: #00E676;
+            transform: translateX(10px);
+        }
+        
+        .choice-impact {
+            font-size: 14px;
+            color: rgba(255,255,255,0.6);
+            margin-top: 8px;
+        }
+        
+        .chart-container {
+            background: rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 30px;
+            height: 300px;
+        }
+        
+        .chart-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+        
+        #netWorthChart {
+            width: 100%;
+            height: 220px;
+        }
+        
+        .event-log {
+            background: rgba(255,255,255,0.03);
+            border-radius: 16px;
+            padding: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .event-item {
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .event-item:last-child {
+            border-bottom: none;
+        }
+        
+        .event-age {
+            font-size: 14px;
+            color: #00E676;
+            font-weight: 600;
+            min-width: 50px;
+        }
+        
+        .event-text {
+            flex: 1;
+            margin: 0 16px;
+            font-size: 14px;
+        }
+        
+        .event-amount {
+            font-weight: 700;
+        }
+        
+        .event-amount.positive { color: #00E676; }
+        .event-amount.negative { color: #ff4444; }
+        
+        .game-over {
+            text-align: center;
+            padding: 60px 20px;
+        }
+        
+        .game-over h2 {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        
+        .final-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 40px 0;
+        }
+        
+        .restart-btn {
+            background: linear-gradient(135deg, #00E676, #00C853);
+            color: #000;
+            border: none;
+            padding: 20px 60px;
+            border-radius: 50px;
+            font-size: 20px;
+            font-weight: 800;
+            cursor: pointer;
+            margin-top: 30px;
+        }
+        
+        .start-screen {
+            text-align: center;
+            padding: 60px 20px;
+        }
+        
+        .start-screen h2 {
+            font-size: 36px;
+            margin-bottom: 20px;
+        }
+        
+        .start-screen p {
+            font-size: 18px;
+            color: rgba(255,255,255,0.7);
+            max-width: 600px;
+            margin: 0 auto 40px;
+            line-height: 1.6;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: rgba(255,255,255,0.6);
+            text-decoration: none;
+            margin-bottom: 20px;
+            transition: color 0.3s;
+        }
+        
+        .back-link:hover {
+            color: #00E676;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../moneybot-official/" class="back-link">← Back to Games</a>
+        
+        <header>
+            <h1>Financial Life Simulator</h1>
+            <p class="subtitle">Make decisions. Build wealth. Retire rich.</p>
+        </header>
+        
+        <!-- Start Screen -->
+        <div id="startScreen" class="start-screen">
+            <h2>Welcome to Your Financial Journey</h2>
+            <p>Start at age 18 with $1,000 and make decisions that will shape your financial future. Every choice matters - from education and career to investments and lifestyle. Can you build enough wealth to retire comfortably?</p>
+            <button class="restart-btn" onclick="game.start()">Start Your Journey</button>
+        </div>
+        
+        <!-- Game Screen -->
+        <div id="gameScreen" class="hidden">
+            <div class="age-display">
+                <div class="age-label">Current Age</div>
+                <div class="age-value" id="ageDisplay">18</div>
+            </div>
+            
+            <div class="dashboard">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon">💰</div>
+                        <div class="card-title">Net Worth</div>
+                    </div>
+                    <div class="card-value" id="netWorth">$1,000</div>
+                    <div class="card-change" id="netWorthChange"></div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon">💵</div>
+                        <div class="card-title">Cash</div>
+                    </div>
+                    <div class="card-value" id="cash">$1,000</div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon">📈</div>
+                        <div class="card-title">Investments</div>
+                    </div>
+                    <div class="card-value" id="investments">$0</div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon">💳</div>
+                        <div class="card-title">Debt</div>
+                    </div>
+                    <div class="card-value negative" id="debt">$0</div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon">💼</div>
+                        <div class="card-title">Income</div>
+                    </div>
+                    <div class="card-value positive" id="income">$0/yr</div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon">📊</div>
+                        <div class="card-title">Credit Score</div>
+                    </div>
+                    <div class="card-value" id="creditScore">650</div>
+                </div>
+            </div>
+            
+            <div class="chart-container">
+                <div class="chart-title">Net Worth Over Time</div>
+                <canvas id="netWorthChart"></canvas>
+            </div>
+            
+            <div class="scenario-box" id="scenarioBox">
+                <div class="scenario-title" id="scenarioTitle">Starting Out</div>
+                <div class="scenario-text" id="scenarioText">You're 18 years old with $1,000 in savings. What will you do first?</div>
+                <div class="choices" id="choices">
+                    <!-- Choices injected here -->
+                </div>
+            </div>
+            
+            <div class="event-log">
+                <h3 style="margin-bottom: 16px; font-size: 18px;">Life Events</h3>
+                <div id="eventLog">
+                    <!-- Events injected here -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- Game Over Screen -->
+        <div id="gameOverScreen" class="game-over hidden">
+            <h2>Financial Journey Complete!</h2>
+            <p style="font-size: 24px; color: rgba(255,255,255,0.8);">You reached age <span id="finalAge">65</span></p>
+            
+            <div class="final-stats">
+                <div class="card">
+                    <div class="card-title">Final Net Worth</div>
+                    <div class="card-value" id="finalNetWorth">$0</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Total Earnings</div>
+                    <div class="card-value" id="totalEarnings">$0</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Investment Returns</div>
+                    <div class="card-value" id="investmentReturns">$0</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Financial Grade</div>
+                    <div class="card-value" id="financialGrade">F</div>
+                </div>
+            </div>
+            
+            <p id="retirementMessage" style="font-size: 18px; color: rgba(255,255,255,0.7); max-width: 600px; margin: 0 auto;"></p>
+            
+            <button class="restart-btn" onclick="game.restart()">Play Again</button>
+        </div>
+    </div>
+
+    <script>
+        const scenarios = [
+            {
+                id: 'start',
+                title: 'Starting Out',
+                text: "You're 18 years old with $1,000 in savings. What's your first move?",
+                choices: [
+                    { text: "Go to college ($30k debt, higher future income)", impact: { debt: 30000, education: 'college', income: 45000 }, next: 'college_life' },
+                    { text: "Learn a trade ($5k cost, quick income)", impact: { cash: -5000, education: 'trade', income: 35000 }, next: 'trade_work' },
+                    { text: "Start working immediately", impact: { income: 25000 }, next: 'entry_job' },
+                    { text: "Start a business ($2k investment)", impact: { cash: -2000, business: true, income: 20000 }, next: 'business_start' }
+                ]
+            },
+            {
+                id: 'college_life',
+                title: 'College Years',
+                text: "You're in college. How do you manage your finances?",
+                choices: [
+                    { text: "Work part-time (earn $8k/year)", impact: { cash: 8000 }, next: 'college_job' },
+                    { text: "Focus on studies, take more loans", impact: { debt: 15000 }, next: 'college_grad' },
+                    { text: "Live frugally, minimize expenses", impact: { cash: 3000 }, next: 'college_grad' }
+                ]
+            },
+            {
+                id: 'first_job',
+                title: 'First Real Job',
+                text: "You graduated and landed your first job! Income: $45k/year. What do you do?",
+                choices: [
+                    { text: "Start investing 15% of income", impact: { investRate: 0.15 }, next: 'investment_choice' },
+                    { text: "Pay off student loans aggressively", impact: { debtPayment: 1000 }, next: 'debt_focus' },
+                    { text: "Upgrade lifestyle, new car", impact: { cash: -15000, debt: 20000 }, next: 'lifestyle_inflation' },
+                    { text: "Build emergency fund first", impact: { cash: 10000 }, next: 'emergency_fund' }
+                ]
+            },
+            {
+                id: 'investment_choice',
+                title: 'Investment Strategy',
+                text: "You're ready to invest. What's your strategy?",
+                choices: [
+                    { text: "Index funds (steady 7% returns)", impact: { returnRate: 0.07, risk: 'low' }, next: 'market_event' },
+                    { text: "Individual stocks (higher risk/reward)", impact: { returnRate: 0.10, risk: 'high' }, next: 'market_event' },
+                    { text: "Real estate ($50k down payment)", impact: { cash: -50000, realEstate: true, returnRate: 0.08 }, next: 'property_owner' },
+                    { text: "Crypto (very high risk)", impact: { returnRate: 0.15, risk: 'very_high' }, next: 'crypto_event' }
+                ]
+            },
+            {
+                id: 'market_event',
+                title: 'Market Volatility',
+                text: "The market is experiencing turbulence. How do you react?",
+                choices: [
+                    { text: "Stay the course, keep investing", impact: { investments: 'hold' }, next: 'age_30' },
+                    { text: "Sell everything, go to cash", impact: { investments: 'sell', returnRate: 0 }, next: 'age_30' },
+                    { text: "Buy more while prices are low", impact: { cash: -5000, investments: 'buy' }, next: 'age_30' }
+                ]
+            },
+            {
+                id: 'age_30',
+                title: 'Turning 30',
+                text: "You're 30! Time to reassess your financial situation.",
+                choices: [
+                    { text: "Buy a house ($400k mortgage)", impact: { debt: 400000, realEstate: true }, next: 'homeowner' },
+                    { text: "Max out retirement accounts", impact: { investRate: 0.25 }, next: 'career_growth' },
+                    { text: "Start a side business", impact: { cash: -10000, sideIncome: 15000 }, next: 'side_hustle' },
+                    { text: "Focus on career advancement", impact: { income: 20000 }, next: 'career_growth' }
+                ]
+            },
+            {
+                id: 'career_growth',
+                title: 'Career Opportunity',
+                text: "A major career opportunity arises. What do you choose?",
+                choices: [
+                    { text: "Take promotion (30% raise, more stress)", impact: { income: 20000 }, next: 'mid_life' },
+                    { text: "Switch companies (40% raise)", impact: { income: 25000, cash: 5000 }, next: 'mid_life' },
+                    { text: "Start your own company", impact: { cash: -30000, income: 50000, risk: 'high' }, next: 'entrepreneur' },
+                    { text: "Stay comfortable, prioritize balance", impact: { income: 5000 }, next: 'mid_life' }
+                ]
+            },
+            {
+                id: 'mid_life',
+                title: 'Mid-Life Financial Check',
+                text: "You're 45. Your net worth is growing. What's your priority?",
+                choices: [
+                    { text: "Aggressive investment push", impact: { investRate: 0.30 }, next: 'market_crash' },
+                    { text: "Pay off all debt", impact: { debtPayment: 'all' }, next: 'debt_free' },
+                    { text: "Help kids with college", impact: { cash: -50000 }, next: 'kids_college' },
+                    { text: "Upgrade to dream home", impact: { cash: -100000, debt: 300000 }, next: 'luxury_home' }
+                ]
+            },
+            {
+                id: 'market_crash',
+                title: 'Market Crash!',
+                text: "A major market crash wipes out 30% of your investments. What now?",
+                choices: [
+                    { text: "Panic sell everything", impact: { investments: 'sell_all', loss: 0.30 }, next: 'recovery' },
+                    { text: "Hold and wait it out", impact: { investments: 'hold' }, next: 'recovery' },
+                    { text: "Buy the dip aggressively", impact: { cash: -30000 }, next: 'recovery' }
+                ]
+            },
+            {
+                id: 'pre_retirement',
+                title: 'Pre-Retirement Planning',
+                text: "You're 60. Retirement is approaching. Final decisions?",
+                choices: [
+                    { text: "Conservative shift (bonds)", impact: { returnRate: 0.04 }, next: 'retirement' },
+                    { text: "Stay aggressive for growth", impact: { returnRate: 0.07 }, next: 'retirement' },
+                    { text: "Part-time retirement work", impact: { income: 30000 }, next: 'retirement' },
+                    { text: "Downsize home, free up cash", impact: { cash: 200000, debt: -200000 }, next: 'retirement' }
+                ]
+            },
+            {
+                id: 'retirement',
+                title: 'Retirement!',
+                text: "You've reached 65 and retired. Time to see how you did!",
+                choices: [
+                    { text: "See your results", impact: {}, next: 'end' }
+                ]
+            }
+        ];
+
+        const game = {
+            age: 18,
+            cash: 1000,
+            investments: 0,
+            debt: 0,
+            income: 0,
+            investRate: 0,
+            returnRate: 0.07,
+            creditScore: 650,
+            history: [],
+            totalEarnings: 0,
+            
+            start() {
+                this.age = 18;
+                this.cash = 1000;
+                this.investments = 0;
+                this.debt = 0;
+                this.income = 0;
+                this.investRate = 0;
+                this.returnRate = 0.07;
+                this.creditScore = 650;
+                this.history = [{ age: 18, netWorth: 1000 }];
+                this.totalEarnings = 0;
+                
+                document.getElementById('startScreen').classList.add('hidden');
+                document.getElementById('gameOverScreen').classList.add('hidden');
+                document.getElementById('gameScreen').classList.remove('hidden');
+                
+                this.updateDisplay();
+                this.showScenario('start');
+                this.drawChart();
+            },
+            
+            restart() {
+                this.start();
+            },
+            
+            showScenario(scenarioId) {
+                const scenario = scenarios.find(s => s.id === scenarioId);
+                if (!scenario) {
+                    this.endGame();
+                    return;
+                }
+                
+                document.getElementById('scenarioTitle').textContent = scenario.title;
+                document.getElementById('scenarioText').textContent = scenario.text;
+                
+                const choicesDiv = document.getElementById('choices');
+                choicesDiv.innerHTML = '';
+                
+                scenario.choices.forEach(choice => {
+                    const btn = document.createElement('button');
+                    btn.className = 'choice-btn';
+                    btn.innerHTML = `
+                        <div>${choice.text}</div>
+                        <div class="choice-impact">${this.formatImpact(choice.impact)}</div>
+                    `;
+                    btn.onclick = () => this.makeChoice(choice);
+                    choicesDiv.appendChild(btn);
+                });
+            },
+            
+            makeChoice(choice) {
+                // Apply impacts
+                if (choice.impact.cash) this.cash += choice.impact.cash;
+                if (choice.impact.debt) this.debt += choice.impact.debt;
+                if (choice.impact.income) this.income += choice.impact.income;
+                if (choice.impact.investRate) this.investRate = choice.impact.investRate;
+                if (choice.impact.returnRate) this.returnRate = choice.impact.returnRate;
+                
+                // Simulate years passing
+                const yearsPassed = Math.floor(Math.random() * 5) + 3;
+                for (let i = 0; i < yearsPassed; i++) {
+                    this.simulateYear();
+                }
+                
+                // Log event
+                this.logEvent(choice.text.split('(')[0].trim());
+                
+                this.updateDisplay();
+                this.drawChart();
+                
+                // Show next scenario
+                if (choice.next === 'end' || this.age >= 65) {
+                    this.endGame();
+                } else {
+                    this.showScenario(choice.next);
+                }
+            },
+            
+            simulateYear() {
+                this.age++;
+                
+                // Income
+                const yearlyIncome = this.income;
+                this.cash += yearlyIncome;
+                this.totalEarnings += yearlyIncome;
+                
+                // Investment returns
+                if (this.investments > 0) {
+                    const returns = this.investments * this.returnRate;
+                    this.investments += returns;
+                }
+                
+                // Auto-invest
+                if (this.investRate > 0 && this.cash > 0) {
+                    const investAmount = Math.min(this.cash * this.investRate, this.cash - 5000);
+                    if (investAmount > 0) {
+                        this.investments += investAmount;
+                        this.cash -= investAmount;
+                    }
+                }
+                
+                // Debt interest (simplified)
+                if (this.debt > 0) {
+                    this.debt *= 1.05; // 5% interest
+                }
+                
+                // Record history
+                this.history.push({
+                    age: this.age,
+                    netWorth: this.getNetWorth()
+                });
+            },
+            
+            getNetWorth() {
+                return this.cash + this.investments - this.debt;
+            },
+            
+            updateDisplay() {
+                document.getElementById('ageDisplay').textContent = this.age;
+                document.getElementById('cash').textContent = this.formatMoney(this.cash);
+                document.getElementById('investments').textContent = this.formatMoney(this.investments);
+                document.getElementById('debt').textContent = this.formatMoney(this.debt);
+                document.getElementById('income').textContent = this.formatMoney(this.income) + '/yr';
+                document.getElementById('creditScore').textContent = this.creditScore;
+                
+                const netWorth = this.getNetWorth();
+                document.getElementById('netWorth').textContent = this.formatMoney(netWorth);
+                
+                // Color code net worth
+                const netWorthEl = document.getElementById('netWorth');
+                netWorthEl.className = 'card-value ' + (netWorth >= 0 ? 'positive' : 'negative');
+            },
+            
+            drawChart() {
+                const canvas = document.getElementById('netWorthChart');
+                const ctx = canvas.getContext('2d');
+                canvas.width = canvas.offsetWidth;
+                canvas.height = canvas.offsetHeight;
+                
+                const padding = 40;
+                const width = canvas.width - padding * 2;
+                const height = canvas.height - padding * 2;
+                
+                // Clear
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                if (this.history.length < 2) return;
+                
+                // Find min/max
+                const values = this.history.map(h => h.netWorth);
+                const minVal = Math.min(...values, 0);
+                const maxVal = Math.max(...values);
+                const range = maxVal - minVal || 1;
+                
+                // Draw grid
+                ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+                ctx.lineWidth = 1;
+                for (let i = 0; i <= 5; i++) {
+                    const y = padding + (height * i) / 5;
+                    ctx.beginPath();
+                    ctx.moveTo(padding, y);
+                    ctx.lineTo(canvas.width - padding, y);
+                    ctx.stroke();
+                }
+                
+                // Draw line
+                ctx.strokeStyle = '#00E676';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                
+                this.history.forEach((point, i) => {
+                    const x = padding + (width * i) / (this.history.length - 1);
+                    const y = padding + height - ((point.netWorth - minVal) / range) * height;
+                    
+                    if (i === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                });
+                
+                ctx.stroke();
+                
+                // Draw gradient fill
+                ctx.fillStyle = 'rgba(0, 230, 118, 0.1)';
+                ctx.beginPath();
+                this.history.forEach((point, i) => {
+                    const x = padding + (width * i) / (this.history.length - 1);
+                    const y = padding + height - ((point.netWorth - minVal) / range) * height;
+                    if (i === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                });
+                ctx.lineTo(canvas.width - padding, canvas.height - padding);
+                ctx.lineTo(padding, canvas.height - padding);
+                ctx.closePath();
+                ctx.fill();
+            },
+            
+            logEvent(text) {
+                const log = document.getElementById('eventLog');
+                const item = document.createElement('div');
+                item.className = 'event-item';
+                item.innerHTML = `
+                    <span class="event-age">${this.age}</span>
+                    <span class="event-text">${text}</span>
+                `;
+                log.insertBefore(item, log.firstChild);
+            },
+            
+            endGame() {
+                document.getElementById('gameScreen').classList.add('hidden');
+                document.getElementById('gameOverScreen').classList.remove('hidden');
+                
+                const netWorth = this.getNetWorth();
+                document.getElementById('finalAge').textContent = this.age;
+                document.getElementById('finalNetWorth').textContent = this.formatMoney(netWorth);
+                document.getElementById('totalEarnings').textContent = this.formatMoney(this.totalEarnings);
+                document.getElementById('investmentReturns').textContent = this.formatMoney(this.investments);
+                
+                // Calculate grade
+                let grade = 'F';
+                let message = '';
+                if (netWorth > 5000000) {
+                    grade = 'A+';
+                    message = "Incredible! You're a financial master. Early retirement on a private island awaits!";
+                } else if (netWorth > 2000000) {
+                    grade = 'A';
+                    message = "Excellent work! You can retire comfortably and travel the world.";
+                } else if (netWorth > 1000000) {
+                    grade = 'B';
+                    message = "Great job! You achieved millionaire status and can retire well.";
+                } else if (netWorth > 500000) {
+                    grade = 'C';
+                    message = "Not bad! You have a solid nest egg for retirement.";
+                } else if (netWorth > 0) {
+                    grade = 'D';
+                    message = "You made it to retirement, but you'll need to be careful with spending.";
+                } else {
+                    grade = 'F';
+                    message = "Ouch! You'll need to keep working or make some major lifestyle changes.";
+                }
+                
+                document.getElementById('financialGrade').textContent = grade;
+                document.getElementById('retirementMessage').textContent = message;
+            },
+            
+            formatMoney(amount) {
+                if (amount === 0) return '$0';
+                const absAmount = Math.abs(amount);
+                if (absAmount >= 1000000) {
+                    return (amount < 0 ? '-' : '') + '$' + (absAmount / 1000000).toFixed(1) + 'M';
+                } else if (absAmount >= 1000) {
+                    return (amount < 0 ? '-' : '') + '$' + (absAmount / 1000).toFixed(0) + 'k';
+                }
+                return (amount < 0 ? '-' : '') + '$' + absAmount.toFixed(0);
+            },
+            
+            formatImpact(impact) {
+                const parts = [];
+                if (impact.cash > 0) parts.push(`+$${impact.cash.toLocaleString()} cash`);
+                if (impact.cash < 0) parts.push(`-$${Math.abs(impact.cash).toLocaleString()} cash`);
+                if (impact.debt > 0) parts.push(`+$${impact.debt.toLocaleString()} debt`);
+                if (impact.income > 0) parts.push(`+$${impact.income.toLocaleString()}/year income`);
+                return parts.join(' • ') || 'No immediate impact';
+            }
+        };
+    </script>
+</body>
+</html>
