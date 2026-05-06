@@ -300,6 +300,10 @@
             },
             
             draw() {
+                // Clear canvas
+                ctx.fillStyle = '#000';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
                 const horizonY = canvas.height * HORIZON_Y;
                 
                 const skyGrad = ctx.createLinearGradient(0, 0, 0, horizonY);
