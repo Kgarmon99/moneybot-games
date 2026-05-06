@@ -374,8 +374,9 @@
                     const obs = this.obstacles[i];
                     obs.z += this.speed;
                     
-                    // Collision check
-                    if (obs.lane === this.targetLane) {
+                    // Collision check - use current lane position, not target
+                    const playerLane = Math.round((this.x - (canvas.width - CONFIG.LANE_WIDTH * CONFIG.LANES) / 2 - CONFIG.LANE_WIDTH / 2) / CONFIG.LANE_WIDTH);
+                    if (obs.lane === playerLane) {
                         const dz = Math.abs(obs.z - this.z);
                         if (dz < CONFIG.COLLISION_DIST) {
                             this.createExplosion(this.x, this.y);
@@ -395,8 +396,9 @@
                     coin.z += this.speed;
                     coin.rotation += 0.1;
                     
-                    // Collection check
-                    if (!coin.collected && coin.lane === this.targetLane) {
+                    // Collection check - use current lane position
+                    const playerLane = Math.round((this.x - (canvas.width - CONFIG.LANE_WIDTH * CONFIG.LANES) / 2 - CONFIG.LANE_WIDTH / 2) / CONFIG.LANE_WIDTH);
+                    if (!coin.collected && coin.lane === playerLane) {
                         const dz = Math.abs(coin.z - this.z);
                         if (dz < CONFIG.COIN_COLLECT_DIST) {
                             coin.collected = true;
