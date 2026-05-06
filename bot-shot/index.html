@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Bot Shot</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; touch-action: none; }
+        body { font-family: sans-serif; background: #000; overflow: hidden; user-select: none; }
+        #gameCanvas { display: block; }
+        .screen {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+            background: #111; color: #fff;
+        }
+        .screen.active { display: flex; }
+        .btn { padding: 20px 50px; font-size: 24px; border: none; border-radius: 10px; cursor: pointer; background: #0f0; color: #000; font-weight: bold; }
+        .hud { position: absolute; top: 20px; left: 20px; color: #fff; font-size: 20px; }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+    <div class="screen active" id="titleScreen">
+        <h1 style="font-size: 60px; margin-bottom: 30px;">BOT SHOT</h1>
+        <button class="btn" onclick="startGame()">PLAY</button>
+    </div>
+    <div class="screen" id="gameOverScreen">
+        <h1 style="font-size: 40px; margin-bottom: 20px;">GAME OVER</h1>
+        <p style="font-size: 24px; margin-bottom: 30px;">Score: <span id="finalScore">0</span></p>
+        <button class="btn" onclick="startGame()">PLAY AGAIN</button>
+    </div>
+    <div class="hud" id="hud" style="display: none;">
+        Score: <span id="score">0</span> | Level: <span id="level">1</span> | Shots: <span id="shots">5</span>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        let gameState = 'title';
+        let score = 0, level = 1, shots = 5;
+        let scoredThisShot = false;
+        
+        const ball = { x: 80, y: 0, r: 20, vx: 0, vy: 0, flying: false };
+        const hoop = { x: 300, y: 200, w: 80 };
+        
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+        
+        // Touch/mouse handling
+        let dragStart = null;
+        let dragCurr = null;
+        
+        function handleStart(x, y) {
+            if (gameState !== 'playing' || ball.flying) return;
+            if (Math.abs(x - ball.x) < 50 && Math.abs(y - ball.y) < 50) {
+                dragStart = { x, y };
+            }
+        }
+        
+        function handleMove(x, y) {
+            if (!dragStart) return;
+            dragCurr = { x, y };
+        }
+        
+        function handleEnd() {
+            if (!dragStart || !dragCurr) {
+                dragStart = null;
+                dragCurr = null;
+                return;
+            }
+            const dx = dragStart.x - dragCurr.x;
+            const dy = dragStart.y - dragCurr.y;
+            const power = Math.min(Math.sqrt(dx*dx + dy*dy) / 3, 40);
+            const angle = Math.atan2(dy, dx);
+            ball.vx = Math.cos(angle) * power;
+            ball.vy = Math.sin(angle) * power;
+            ball.flying = true;
+            scoredThisShot = false;
+            dragStart = null;
+            dragCurr = null;
+        }
+        
+        canvas.addEventListener('mousedown', e => handleStart(e.clientX, e.clientY));
+        canvas.addEventListener('mousemove', e => handleMove(e.clientX, e.clientY));
+        canvas.addEventListener('mouseup', handleEnd);
+        canvas.addEventListener('touchstart', e => {
+            e.preventDefault();
+            handleStart(e.touches[0].clientX, e.touches[0].clientY);
+        });
+        canvas.addEventListener('touchmove', e => {
+            e.preventDefault();
+            handleMove(e.touches[0].clientX, e.touches[0].clientY);
+        });
+        canvas.addEventListener('touchend', handleEnd);
+        
+        function resetBall() {
+            ball.x = 80;
+            ball.y = canvas.height - 100;
+            ball.vx = 0;
+            ball.vy = 0;
+            ball.flying = false;
+            scoredThisShot = false;
+        }
+        
+        function setupLevel() {
+            resetBall();
+            // Hoop gets 40px further each level
+            hoop.x = canvas.width - 150 - (level - 1) * 40;
+            if (hoop.x < 250) hoop.x = 250;
+            hoop.y = 180 + ((level - 1) % 3) * 50;
+            shots = 5;
+            updateHUD();
+        }
+        
+        function updateHUD() {
+            document.getElementById('score').textContent = score;
+            document.getElementById('level').textContent = level;
+            document.getElementById('shots').textContent = shots;
+        }
+        
+        function startGame() {
+            gameState = 'playing';
+            score = 0;
+            level = 1;
+            document.getElementById('titleScreen').classList.remove('active');
+            document.getElementById('gameOverScreen').classList.remove('active');
+            document.getElementById('hud').style.display = 'block';
+            setupLevel();
+        }
+        
+        function gameOver() {
+            gameState = 'gameover';
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('gameOverScreen').classList.add('active');
+            document.getElementById('hud').style.display = 'none';
+        }
+        
+        function nextLevel() {
+            score += 100 * level;
+            level++;
+            setupLevel();
+        }
+        
+        function draw() {
+            // Background
+            ctx.fillStyle = '#0a0a1e';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Floor
+            ctx.fillStyle = '#1a1a3e';
+            ctx.fillRect(0, canvas.height - 80, canvas.width, 80);
+            
+            // Aim line
+            if (dragStart && dragCurr) {
+                ctx.strokeStyle = '#ff0';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(ball.x, ball.y);
+                const dx = dragStart.x - dragCurr.x;
+                const dy = dragStart.y - dragCurr.y;
+                const angle = Math.atan2(dy, dx);
+                ctx.lineTo(ball.x + Math.cos(angle) * 80, ball.y + Math.sin(angle) * 80);
+                ctx.stroke();
+            }
+            
+            // Hoop
+            ctx.fillStyle = '#f80';
+            ctx.fillRect(hoop.x, hoop.y, hoop.w, 6);
+            
+            // Ball
+            ctx.fillStyle = '#0af';
+            ctx.beginPath();
+            ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        
+        function update() {
+            if (gameState !== 'playing' || !ball.flying) return;
+            
+            // Physics
+            ball.vy += 0.6;
+            ball.x += ball.vx;
+            ball.y += ball.vy;
+            
+            // Floor bounce
+            if (ball.y + ball.r > canvas.height - 80) {
+                ball.y = canvas.height - 80 - ball.r;
+                ball.vy *= -0.6;
+                ball.vx *= 0.8;
+                
+                // Stop check
+                if (Math.abs(ball.vy) < 1) {
+                    ball.flying = false;
+                    shots--;
+                    updateHUD();
+                    if (shots <= 0) {
+                        setTimeout(gameOver, 500);
+                    } else {
+                        setTimeout(resetBall, 300);
+                    }
+                }
+            }
+            
+            // Walls
+            if (ball.x < ball.r) { ball.x = ball.r; ball.vx *= -0.8; }
+            if (ball.x > canvas.width - ball.r) { ball.x = canvas.width - ball.r; ball.vx *= -0.8; }
+            if (ball.y < ball.r) { ball.y = ball.r; ball.vy *= -0.8; }
+            
+            // Score - ONLY if falling and not already scored
+            if (!scoredThisShot && ball.vy > 0 && ball.x > hoop.x && ball.x < hoop.x + hoop.w && ball.y > hoop.y && ball.y < hoop.y + 20) {
+                scoredThisShot = true;
+                nextLevel();
+            }
+        }
+        
+        function loop() {
+            update();
+            draw();
+            requestAnimationFrame(loop);
+        }
+        loop();
+    </script>
+</body>
+</html>
