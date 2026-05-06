@@ -193,7 +193,7 @@
             
             // World
             obstacles: [],
-            coins: [],
+            coinItems: [],
             particles: [],
             decorations: [],
             
@@ -234,7 +234,7 @@
                 this.speed = CONFIG.BASE_SPEED;
                 this.distance = 0;
                 this.obstacles = [];
-                this.coins = [];
+                this.coinItems = [];
                 this.particles = [];
                 this.decorations = [];
                 
@@ -303,7 +303,7 @@
                     case 0: // Line in one lane
                         const lane = Math.floor(Math.random() * CONFIG.LANES);
                         for (let i = 0; i < 6; i++) {
-                            this.coins.push({
+                            this.coinItems.push({
                                 lane: lane,
                                 x: this.getLaneX(lane),
                                 z: baseZ - i * 120,
@@ -314,7 +314,7 @@
                         break;
                     case 1: // All lanes
                         for (let l = 0; l < CONFIG.LANES; l++) {
-                            this.coins.push({
+                            this.coinItems.push({
                                 lane: l,
                                 x: this.getLaneX(l),
                                 z: baseZ,
@@ -326,7 +326,7 @@
                     case 2: // Zigzag
                         for (let i = 0; i < 8; i++) {
                             const l = i % CONFIG.LANES;
-                            this.coins.push({
+                            this.coinItems.push({
                                 lane: l,
                                 x: this.getLaneX(l),
                                 z: baseZ - i * 100,
@@ -337,7 +337,7 @@
                         break;
                     case 3: // Center lane stream
                         for (let i = 0; i < 10; i++) {
-                            this.coins.push({
+                            this.coinItems.push({
                                 lane: 1,
                                 x: this.getLaneX(1),
                                 z: baseZ - i * 110,
@@ -390,8 +390,8 @@
                 }
                 
                 // Update coins
-                for (let i = this.coins.length - 1; i >= 0; i--) {
-                    const coin = this.coins[i];
+                for (let i = this.coinItems.length - 1; i >= 0; i--) {
+                    const coin = this.coinItems[i];
                     coin.z += this.speed;
                     coin.rotation += 0.1;
                     
@@ -408,7 +408,7 @@
                     }
                     
                     if (coin.z > this.z + 300) {
-                        this.coins.splice(i, 1);
+                        this.coinItems.splice(i, 1);
                     }
                 }
                 
@@ -516,7 +516,7 @@
                 // Draw objects sorted by Z
                 const allObjects = [
                     ...this.obstacles.map(o => ({ ...o, type: 'train', z: o.z })),
-                    ...this.coins.filter(c => !c.collected).map(c => ({ ...c, type: 'coin', z: c.z }))
+                    ...this.coinItems.filter(c => !c.collected).map(c => ({ ...c, type: 'coin', z: c.z }))
                 ].sort((a, b) => a.z - b.z);
                 
                 allObjects.forEach(obj => {
