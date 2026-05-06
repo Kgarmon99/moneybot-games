@@ -6,222 +6,103 @@
     <title>Money Surfers</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: none; user-select: none; }
-        body { background: #000; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
-        canvas { display: block; width: 100vw; height: 100vh; }
-        
-        .ui-layer { position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; z-index: 10; }
-        .hud { display: flex; justify-content: space-between; padding: 20px; }
-        .back-btn { 
-            width: 48px; height: 48px; background: rgba(0,0,0,0.6); 
-            border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; 
-            color: #fff; font-size: 20px; pointer-events: auto; 
-            text-decoration: none; display: flex; align-items: center; justify-content: center;
-            backdrop-filter: blur(10px); transition: all 0.2s;
-        }
-        .back-btn:hover { background: rgba(255,255,255,0.2); transform: scale(1.1); }
-        
-        .score-panel { text-align: right; }
-        .score-display { 
-            font-size: 56px; font-weight: 900; color: #fff; 
-            text-shadow: 0 0 20px rgba(255,215,0,0.8), 0 0 40px rgba(255,215,0,0.4);
-            line-height: 1; letter-spacing: -2px;
-        }
-        .coins-display { 
-            display: inline-flex; align-items: center; gap: 8px;
-            background: linear-gradient(135deg, rgba(255,215,0,0.3), rgba(255,140,0,0.3));
-            padding: 8px 16px; border-radius: 24px;
-            border: 2px solid rgba(255,215,0,0.5);
-            margin-top: 8px;
-        }
-        .coin-icon { 
-            width: 28px; height: 28px; 
-            background: linear-gradient(135deg, #FFD700, #FF8C00);
-            border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            font-weight: 900; color: #8B4513; font-size: 16px;
-            box-shadow: 0 0 15px rgba(255,215,0,0.8);
-        }
-        .coins-value { font-size: 24px; font-weight: 800; color: #FFD700; text-shadow: 0 0 10px rgba(255,215,0,0.5); }
-        
-        .overlay { 
-            position: absolute; inset: 0; 
-            background: linear-gradient(180deg, rgba(0,0,0,0.95), rgba(0,0,0,0.85));
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            z-index: 100; backdrop-filter: blur(20px);
-            transition: opacity 0.3s;
-        }
-        .overlay.hidden { opacity: 0; pointer-events: none; }
-        
-        .game-logo { 
-            width: 140px; height: 140px; margin-bottom: 24px;
-            filter: drop-shadow(0 0 50px rgba(0,230,118,0.8));
-            animation: logo-float 3s ease-in-out infinite;
-        }
-        @keyframes logo-float { 
-            0%, 100% { transform: translateY(0) rotate(-3deg) scale(1); } 
-            50% { transform: translateY(-20px) rotate(3deg) scale(1.05); } 
-        }
-        
-        .game-title { 
-            font-size: 52px; font-weight: 900; color: #fff; 
-            letter-spacing: 4px; text-transform: uppercase;
-            text-shadow: 0 0 30px rgba(0,230,118,0.5);
-        }
-        .game-title span { color: #00E676; }
-        .game-subtitle { 
-            font-size: 18px; color: rgba(255,255,255,0.7); 
-            margin: 16px 0 48px; text-align: center;
-        }
-        
-        .play-btn { 
-            background: linear-gradient(135deg, #00E676, #00C853);
-            color: #000; border: none; padding: 24px 80px;
-            border-radius: 50px; font-size: 28px; font-weight: 900;
-            cursor: pointer; text-transform: uppercase; letter-spacing: 3px;
-            box-shadow: 0 10px 40px rgba(0,230,118,0.5), 0 0 60px rgba(0,230,118,0.3), inset 0 2px 0 rgba(255,255,255,0.3);
-            transition: all 0.2s; pointer-events: auto;
-        }
-        .play-btn:hover { transform: scale(1.05) translateY(-2px); box-shadow: 0 15px 50px rgba(0,230,118,0.6); }
-        .play-btn:active { transform: scale(0.98); }
-        
-        .game-over-title { 
-            font-size: 64px; font-weight: 900; color: #ff4444;
-            text-transform: uppercase; letter-spacing: 4px;
-            text-shadow: 0 0 40px rgba(255,68,68,0.6);
-            animation: pulse 1s ease-in-out infinite;
-        }
-        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
-        
-        .final-score-box { text-align: center; margin: 24px 0; }
-        .final-score-label { font-size: 16px; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 2px; }
-        .final-score-value { font-size: 96px; font-weight: 900; color: #fff; text-shadow: 0 0 30px rgba(255,255,255,0.3); }
-        .high-score-display { font-size: 20px; color: rgba(255,255,255,0.5); margin-bottom: 40px; }
-        .high-score-display span { color: #FFD700; font-weight: 700; }
-        
-        .controls-hint { 
-            position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
-            display: flex; gap: 40px; opacity: 0.6;
-        }
-        .control-item { display: flex; align-items: center; gap: 12px; color: #fff; font-size: 14px; }
-        .key { 
-            width: 40px; height: 40px; background: rgba(255,255,255,0.1);
-            border: 2px solid rgba(255,255,255,0.3); border-radius: 8px;
-            display: flex; align-items: center; justify-content: center;
-            font-weight: 700; font-size: 18px;
-        }
+        body { background: #000; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
+        canvas { display: block; width: 100vw; height: 100vh; position: relative; z-index: 1; }
+        .ui { position: absolute; top: 0; left: 0; right: 0; padding: 20px; display: flex; justify-content: space-between; pointer-events: none; z-index: 10; }
+        .back-btn { width: 44px; height: 44px; background: rgba(255,255,255,0.2); border: none; border-radius: 50%; color: #fff; font-size: 20px; pointer-events: auto; text-decoration: none; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px); }
+        .score-box { text-align: right; }
+        .score-label { font-size: 11px; color: #FFD700; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; }
+        .score-value { font-size: 52px; font-weight: 900; color: #fff; text-shadow: 0 0 30px rgba(255,215,0,0.6); line-height: 1; }
+        .coins-box { display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.5); padding: 8px 16px; border-radius: 20px; margin-top: 8px; backdrop-filter: blur(10px); border: 1px solid rgba(255,215,0,0.3); }
+        .coin-icon { width: 24px; height: 24px; background: linear-gradient(135deg, #FFD700, #FFA500); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #8B4513; font-size: 14px; box-shadow: 0 0 15px rgba(255,215,0,0.5); }
+        .coins-value { font-size: 20px; font-weight: 800; color: #FFD700; }
+        .overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0.95), rgba(0,0,0,0.8)); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100; backdrop-filter: blur(20px); }
+        .overlay.hidden { display: none; }
+        .logo { width: 120px; height: 120px; margin-bottom: 20px; filter: drop-shadow(0 0 40px rgba(34,197,94,0.6)); animation: float 3s ease-in-out infinite; }
+        @keyframes float { 0%, 100% { transform: translateY(0) rotate(-3deg); } 50% { transform: translateY(-15px) rotate(3deg); } }
+        .title { font-size: 42px; font-weight: 900; color: #fff; margin-bottom: 10px; letter-spacing: 3px; text-transform: uppercase; }
+        .title span { color: #22C55E; text-shadow: 0 0 30px rgba(34,197,94,0.5); }
+        .subtitle { font-size: 16px; color: rgba(255,255,255,0.6); margin-bottom: 40px; }
+        .btn { background: linear-gradient(135deg, #22C55E, #16A34A); color: #fff; border: none; padding: 22px 70px; border-radius: 50px; font-size: 24px; font-weight: 900; cursor: pointer; text-transform: uppercase; letter-spacing: 3px; box-shadow: 0 10px 40px rgba(34,197,94,0.4), 0 0 60px rgba(34,197,94,0.2); transition: all 0.3s; }
+        .btn:hover { transform: scale(1.05); box-shadow: 0 15px 50px rgba(34,197,94,0.6); }
+        .game-over-title { font-size: 56px; font-weight: 900; color: #ef4444; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 4px; text-shadow: 0 0 40px rgba(239,68,68,0.5); }
+        .final-score-label { font-size: 14px; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px; }
+        .final-score { font-size: 80px; font-weight: 900; color: #fff; margin-bottom: 10px; }
+        .high-score { font-size: 18px; color: rgba(255,255,255,0.5); margin-bottom: 40px; }
+        .high-score span { color: #FFD700; font-weight: 700; }
     </style>
 </head>
 <body>
-    <canvas id="gameCanvas"></canvas>
+    <canvas id="game"></canvas>
     
-    <div class="ui-layer">
-        <div class="hud">
-            <a href="../moneybot-official/" class="back-btn">←</a>
-            <div class="score-panel">
-                <div class="score-display" id="scoreDisplay">0</div>
-                <div class="coins-display">
-                    <div class="coin-icon">$</div>
-                    <div class="coins-value" id="coinsDisplay">0</div>
-                </div>
+    <div class="ui">
+        <a href="../moneybot-official/" class="back-btn">←</a>
+        <div class="score-box">
+            <div class="score-label">Score</div>
+            <div class="score-value" id="score">0</div>
+            <div class="coins-box">
+                <div class="coin-icon">$</div>
+                <div class="coins-value" id="coins">0</div>
             </div>
         </div>
     </div>
     
     <div class="overlay" id="startScreen">
-        <img src="../flappybot/assets/player-rembg.png" class="game-logo" alt="MoneyBot">
-        <div class="game-title">Money<span>Surfers</span></div>
-        <div class="game-subtitle">Swipe or use arrow keys to dodge trains & collect coins!</div>
-        <button class="play-btn" onclick="game.start()">Play Now</button>
-        <div class="controls-hint">
-            <div class="control-item"><div class="key">←</div><span>Left</span></div>
-            <div class="control-item"><div class="key">→</div><span>Right</span></div>
-        </div>
+        <img src="../flappybot/assets/player-rembg.png" class="logo" alt="MoneyBot">
+        <div class="title">Money<span>Surfers</span></div>
+        <div class="subtitle">Swipe to dodge, collect coins, survive!</div>
+        <button class="btn" onclick="game.start()">Play Now</button>
     </div>
     
     <div class="overlay hidden" id="gameOverScreen">
         <div class="game-over-title">Game Over</div>
-        <div class="final-score-box">
-            <div class="final-score-label">Final Score</div>
-            <div class="final-score-value" id="finalScore">0</div>
-        </div>
-        <div class="high-score-display">Best: <span id="highScoreDisplay">0</span></div>
-        <button class="play-btn" onclick="game.restart()">Try Again</button>
+        <div class="final-score-label">Final Score</div>
+        <div class="final-score" id="finalScore">0</div>
+        <div class="high-score">Best: <span id="highScore">0</span></div>
+        <button class="btn" onclick="game.restart()">Try Again</button>
     </div>
 
     <script>
-        const canvas = document.getElementById('gameCanvas');
+        const canvas = document.getElementById('game');
         const ctx = canvas.getContext('2d');
         
-        // Game configuration
-        const CONFIG = {
-            LANES: 3,
-            LANE_WIDTH: 100,
-            PLAYER_Y: 0.75, // Percentage from top
-            HORIZON_Y: 0.35,
-            FOV: 800,
-            PLAYER_Z: 200,
-            BASE_SPEED: 15,
-            MAX_SPEED: 35,
-            LANE_SWITCH_SPEED: 0.15,
-            TRAIN_SPAWN_RATE: 0.025,
-            COIN_SPAWN_RATE: 0.02,
-            COLLISION_DIST: 120,
-            COIN_COLLECT_DIST: 80
-        };
+        const LANES = 3;
+        const LANE_WIDTH = 90;
+        const PLAYER_Y_OFFSET = 120;
+        const HORIZON_Y = 0.22;
+        const PLAYER_Z = 200;
+        const COLLISION_DISTANCE = 80;
+        const COIN_DISTANCE = 60;
         
-        // Load assets
         const playerImg = new Image();
         playerImg.src = '../flappybot/assets/player-rembg.png';
         
-        // Game state
         const game = {
             state: 'menu',
             score: 0,
             coins: 0,
             highScore: parseInt(localStorage.getItem('moneySurfers_highScore')) || 0,
-            
-            // Player
-            lane: 1, // 0, 1, 2
+            lane: 1,
             targetLane: 1,
-            x: 0,
-            y: 0,
-            z: CONFIG.PLAYER_Z,
-            laneProgress: 0.5, // 0 to 1 across lane width
-            
-            // Movement
+            playerX: 0,
             speed: 0,
-            distance: 0,
+            baseSpeed: 12,
+            maxSpeed: 25,
             
-            // World
             obstacles: [],
             coinItems: [],
             particles: [],
-            decorations: [],
             
             resize() {
                 canvas.width = window.innerWidth;
                 canvas.height = window.innerHeight;
-                this.x = this.getLaneX(this.lane);
-                this.y = canvas.height * CONFIG.PLAYER_Y;
+                this.playerX = this.getLaneCenter(1);
             },
             
-            getLaneX(lane) {
-                const trackWidth = CONFIG.LANE_WIDTH * CONFIG.LANES;
+            getLaneCenter(lane) {
+                const trackWidth = LANE_WIDTH * LANES;
                 const startX = (canvas.width - trackWidth) / 2;
-                return startX + lane * CONFIG.LANE_WIDTH + CONFIG.LANE_WIDTH / 2;
-            },
-            
-            worldToScreen(x, y, z) {
-                const horizonY = canvas.height * CONFIG.HORIZON_Y;
-                const playerY = canvas.height * CONFIG.PLAYER_Y;
-                const dz = z - this.z;
-                
-                if (dz <= 0) return null;
-                
-                const scale = CONFIG.FOV / dz;
-                const screenX = canvas.width / 2 + (x - canvas.width / 2) * scale;
-                const screenY = horizonY + (playerY - horizonY) * scale;
-                
-                return { x: screenX, y: screenY, scale: scale };
+                return startX + lane * LANE_WIDTH + LANE_WIDTH / 2;
             },
             
             start() {
@@ -230,16 +111,11 @@
                 this.coins = 0;
                 this.lane = 1;
                 this.targetLane = 1;
-                this.x = this.getLaneX(1);
-                this.speed = CONFIG.BASE_SPEED;
-                this.distance = 0;
+                this.playerX = this.getLaneCenter(1);
+                this.speed = this.baseSpeed;
                 this.obstacles = [];
                 this.coinItems = [];
                 this.particles = [];
-                this.decorations = [];
-                
-                // Generate initial decorations
-                this.generateDecorations();
                 
                 document.getElementById('startScreen').classList.add('hidden');
                 document.getElementById('gameOverScreen').classList.add('hidden');
@@ -258,169 +134,121 @@
                     localStorage.setItem('moneySurfers_highScore', this.highScore);
                 }
                 document.getElementById('finalScore').textContent = this.score;
-                document.getElementById('highScoreDisplay').textContent = this.highScore;
+                document.getElementById('highScore').textContent = this.highScore;
                 document.getElementById('gameOverScreen').classList.remove('hidden');
             },
             
             move(dir) {
                 if (this.state !== 'playing') return;
                 const newLane = this.targetLane + dir;
-                if (newLane >= 0 && newLane < CONFIG.LANES) {
+                if (newLane >= 0 && newLane < LANES) {
                     this.targetLane = newLane;
                 }
             },
             
-            generateDecorations() {
-                // Buildings, trees, etc.
-                for (let i = 0; i < 20; i++) {
-                    this.decorations.push({
-                        x: Math.random() < 0.5 ? -300 - Math.random() * 400 : canvas.width + 300 + Math.random() * 400,
-                        z: -500 - Math.random() * 5000,
-                        type: Math.random() < 0.7 ? 'building' : 'tree',
-                        height: 100 + Math.random() * 300,
-                        width: 60 + Math.random() * 100
-                    });
-                }
-            },
-            
             spawnObstacle() {
-                const lane = Math.floor(Math.random() * CONFIG.LANES);
+                const lane = Math.floor(Math.random() * LANES);
                 this.obstacles.push({
                     lane: lane,
-                    x: this.getLaneX(lane),
-                    z: -3000 - Math.random() * 1000,
-                    width: 80,
+                    z: -2000,
+                    type: 'train',
+                    width: 85,
                     height: 140,
-                    color: '#dc2626'
+                    hit: false
                 });
             },
             
             spawnCoins() {
                 const pattern = Math.floor(Math.random() * 4);
-                const baseZ = -2500 - Math.random() * 1000;
+                const startZ = -1500 - Math.random() * 500;
                 
-                switch(pattern) {
-                    case 0: // Line in one lane
-                        const lane = Math.floor(Math.random() * CONFIG.LANES);
-                        for (let i = 0; i < 6; i++) {
-                            this.coinItems.push({
-                                lane: lane,
-                                x: this.getLaneX(lane),
-                                z: baseZ - i * 120,
-                                collected: false,
-                                rotation: Math.random() * Math.PI * 2
-                            });
-                        }
-                        break;
-                    case 1: // All lanes
-                        for (let l = 0; l < CONFIG.LANES; l++) {
-                            this.coinItems.push({
-                                lane: l,
-                                x: this.getLaneX(l),
-                                z: baseZ,
-                                collected: false,
-                                rotation: Math.random() * Math.PI * 2
-                            });
-                        }
-                        break;
-                    case 2: // Zigzag
-                        for (let i = 0; i < 8; i++) {
-                            const l = i % CONFIG.LANES;
-                            this.coinItems.push({
-                                lane: l,
-                                x: this.getLaneX(l),
-                                z: baseZ - i * 100,
-                                collected: false,
-                                rotation: Math.random() * Math.PI * 2
-                            });
-                        }
-                        break;
-                    case 3: // Center lane stream
-                        for (let i = 0; i < 10; i++) {
-                            this.coinItems.push({
-                                lane: 1,
-                                x: this.getLaneX(1),
-                                z: baseZ - i * 110,
-                                collected: false,
-                                rotation: Math.random() * Math.PI * 2
-                            });
-                        }
-                        break;
+                if (pattern === 0) {
+                    const lane = Math.floor(Math.random() * LANES);
+                    for (let i = 0; i < 5; i++) {
+                        this.coinItems.push({
+                            lane: lane,
+                            z: startZ - i * 150,
+                            collected: false
+                        });
+                    }
+                } else if (pattern === 1) {
+                    for (let l = 0; l < LANES; l++) {
+                        this.coinItems.push({
+                            lane: l,
+                            z: startZ,
+                            collected: false
+                        });
+                    }
+                } else if (pattern === 2) {
+                    for (let i = 0; i < 6; i++) {
+                        this.coinItems.push({
+                            lane: i % LANES,
+                            z: startZ - i * 120,
+                            collected: false
+                        });
+                    }
+                } else {
+                    for (let i = 0; i < 7; i++) {
+                        this.coinItems.push({
+                            lane: 1,
+                            z: startZ - i * 130,
+                            collected: false
+                        });
+                    }
                 }
             },
             
             update() {
                 if (this.state !== 'playing') return;
                 
-                // Update score and speed
                 this.score += 1;
-                this.distance += this.speed;
-                this.speed = Math.min(CONFIG.MAX_SPEED, CONFIG.BASE_SPEED + this.score / 300);
+                this.speed = Math.min(this.maxSpeed, this.baseSpeed + this.score / 400);
+                document.getElementById('score').textContent = this.score;
+                document.getElementById('coins').textContent = this.coins;
                 
-                document.getElementById('scoreDisplay').textContent = this.score;
-                document.getElementById('coinsDisplay').textContent = this.coins;
+                const targetX = this.getLaneCenter(this.targetLane);
+                this.playerX += (targetX - this.playerX) * 0.25;
                 
-                // Smooth lane transition
-                const targetX = this.getLaneX(this.targetLane);
-                const dx = targetX - this.x;
-                this.x += dx * CONFIG.LANE_SWITCH_SPEED;
+                if (Math.random() < 0.02) this.spawnObstacle();
+                if (Math.random() < 0.015) this.spawnCoins();
                 
-                // Spawn objects
-                if (Math.random() < CONFIG.TRAIN_SPAWN_RATE) this.spawnObstacle();
-                if (Math.random() < CONFIG.COIN_SPAWN_RATE) this.spawnCoins();
-                
-                // Update obstacles
+                // Update obstacles and check collisions
                 for (let i = this.obstacles.length - 1; i >= 0; i--) {
                     const obs = this.obstacles[i];
                     obs.z += this.speed;
                     
-                    // Collision check - use current lane position, not target
-                    const playerLane = Math.round((this.x - (canvas.width - CONFIG.LANE_WIDTH * CONFIG.LANES) / 2 - CONFIG.LANE_WIDTH / 2) / CONFIG.LANE_WIDTH);
-                    if (obs.lane === playerLane) {
-                        const dz = Math.abs(obs.z - this.z);
-                        if (dz < CONFIG.COLLISION_DIST) {
-                            this.createExplosion(this.x, this.y);
+                    // Collision: same lane and close in Z
+                    if (!obs.hit && obs.lane === this.targetLane) {
+                        const dist = Math.abs(obs.z - PLAYER_Z);
+                        if (dist < COLLISION_DISTANCE) {
                             this.gameOver();
                             return;
                         }
                     }
                     
-                    if (obs.z > this.z + 500) {
+                    if (obs.z > 500) {
                         this.obstacles.splice(i, 1);
                     }
                 }
                 
-                // Update coins
+                // Update coins and check collection
                 for (let i = this.coinItems.length - 1; i >= 0; i--) {
                     const coin = this.coinItems[i];
                     coin.z += this.speed;
-                    coin.rotation += 0.1;
                     
-                    // Collection check - use current lane position
-                    const playerLane = Math.round((this.x - (canvas.width - CONFIG.LANE_WIDTH * CONFIG.LANES) / 2 - CONFIG.LANE_WIDTH / 2) / CONFIG.LANE_WIDTH);
-                    if (!coin.collected && coin.lane === playerLane) {
-                        const dz = Math.abs(coin.z - this.z);
-                        if (dz < CONFIG.COIN_COLLECT_DIST) {
+                    if (!coin.collected && coin.lane === this.targetLane) {
+                        const dist = Math.abs(coin.z - PLAYER_Z);
+                        if (dist < COIN_DISTANCE) {
                             coin.collected = true;
                             this.coins++;
-                            this.score += 50;
-                            const pos = this.worldToScreen(coin.x, 0, coin.z);
-                            if (pos) this.createSparkles(pos.x, pos.y);
+                            this.score += 20;
+                            const pos = this.worldToScreen(coin.lane, coin.z);
+                            this.createSparkles(pos.x, pos.y);
                         }
                     }
                     
-                    if (coin.z > this.z + 300) {
+                    if (coin.z > 300) {
                         this.coinItems.splice(i, 1);
-                    }
-                }
-                
-                // Update decorations
-                for (let i = this.decorations.length - 1; i >= 0; i--) {
-                    const dec = this.decorations[i];
-                    dec.z += this.speed;
-                    if (dec.z > this.z + 1000) {
-                        dec.z = -5000 - Math.random() * 2000;
-                        dec.x = Math.random() < 0.5 ? -300 - Math.random() * 400 : canvas.width + 300 + Math.random() * 400;
                     }
                 }
                 
@@ -429,282 +257,230 @@
                     const p = this.particles[i];
                     p.x += p.vx;
                     p.y += p.vy;
-                    p.vy += p.gravity;
-                    p.life -= p.decay;
+                    p.vy += 0.6;
+                    p.life -= 0.04;
                     if (p.life <= 0) this.particles.splice(i, 1);
                 }
             },
             
-            createSparkles(x, y) {
-                const colors = ['#FFD700', '#FFA500', '#FFEC8B', '#FFF8DC', '#00E676'];
-                for (let i = 0; i < 15; i++) {
-                    const angle = (Math.PI * 2 * i) / 15 + Math.random() * 0.5;
-                    const speed = Math.random() * 12 + 6;
-                    this.particles.push({
-                        x: x, y: y,
-                        vx: Math.cos(angle) * speed,
-                        vy: Math.sin(angle) * speed - 10,
-                        gravity: 0.5,
-                        decay: 0.03,
-                        life: 1,
-                        color: colors[Math.floor(Math.random() * colors.length)],
-                        size: Math.random() * 10 + 5,
-                        type: 'sparkle'
-                    });
-                }
+            worldToScreen(lane, z) {
+                const horizonY = canvas.height * HORIZON_Y;
+                const playerY = canvas.height - PLAYER_Y_OFFSET;
+                
+                // Perspective projection
+                const focalLength = 300;
+                const scale = focalLength / (focalLength + PLAYER_Z - z);
+                
+                const laneCenter = this.getLaneCenter(lane);
+                const centerX = canvas.width / 2;
+                const offset = (laneCenter - centerX) * scale;
+                
+                const screenX = centerX + offset;
+                const screenY = horizonY + (playerY - horizonY) * scale;
+                
+                return { x: screenX, y: screenY, scale: Math.max(0.2, scale) };
             },
             
-            createExplosion(x, y) {
-                for (let i = 0; i < 30; i++) {
-                    const angle = Math.random() * Math.PI * 2;
-                    const speed = Math.random() * 20 + 10;
+            createSparkles(x, y) {
+                const colors = ['#FFD700', '#FFA500', '#FFEC8B', '#FFF8DC'];
+                for (let i = 0; i < 12; i++) {
+                    const angle = (Math.PI * 2 * i) / 12 + Math.random() * 0.5;
+                    const speed = Math.random() * 10 + 5;
                     this.particles.push({
-                        x: x, y: y,
+                        x: x,
+                        y: y,
                         vx: Math.cos(angle) * speed,
-                        vy: Math.sin(angle) * speed - 15,
-                        gravity: 0.8,
-                        decay: 0.02,
+                        vy: Math.sin(angle) * speed - 8,
                         life: 1,
-                        color: `hsl(${Math.random() * 60 + 10}, 100%, 50%)`,
-                        size: Math.random() * 15 + 8,
-                        type: 'explosion'
+                        color: colors[Math.floor(Math.random() * colors.length)],
+                        size: Math.random() * 8 + 4
                     });
                 }
             },
             
             draw() {
-                // Clear
-                ctx.fillStyle = '#0a0a1a';
+                // Clear canvas
+                ctx.fillStyle = '#000';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
                 
-                const horizonY = canvas.height * CONFIG.HORIZON_Y;
+                const horizonY = canvas.height * HORIZON_Y;
                 
                 // Sky gradient
                 const skyGrad = ctx.createLinearGradient(0, 0, 0, horizonY);
-                skyGrad.addColorStop(0, '#0d1b3a');
-                skyGrad.addColorStop(0.5, '#1b3b6f');
-                skyGrad.addColorStop(1, '#4a7c9b');
+                skyGrad.addColorStop(0, '#0d1b2a');
+                skyGrad.addColorStop(0.5, '#1b263b');
+                skyGrad.addColorStop(1, '#415a77');
                 ctx.fillStyle = skyGrad;
                 ctx.fillRect(0, 0, canvas.width, horizonY);
                 
-                // Sun
-                ctx.save();
-                ctx.shadowColor = '#FFD700';
-                ctx.shadowBlur = 60;
-                const sunGrad = ctx.createRadialGradient(canvas.width * 0.8, horizonY * 0.4, 0, canvas.width * 0.8, horizonY * 0.4, 50);
-                sunGrad.addColorStop(0, '#FFF8DC');
-                sunGrad.addColorStop(0.5, '#FFD700');
-                sunGrad.addColorStop(1, 'transparent');
-                ctx.fillStyle = sunGrad;
-                ctx.beginPath();
-                ctx.arc(canvas.width * 0.8, horizonY * 0.4, 50, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.restore();
-                
-                // Draw decorations (sorted by Z)
-                this.decorations
-                    .filter(d => d.z < this.z)
-                    .sort((a, b) => b.z - a.z)
-                    .forEach(dec => {
-                        const pos = this.worldToScreen(dec.x, 0, dec.z);
-                        if (pos && pos.y > horizonY - 100) {
-                            this.drawDecoration(dec, pos);
-                        }
-                    });
-                
-                // Draw track
+                this.drawCity(horizonY);
                 this.drawTrack(horizonY);
                 
-                // Draw objects sorted by Z
+                // Draw all objects sorted by Z (far to near)
                 const allObjects = [
                     ...this.obstacles.map(o => ({ ...o, type: 'train', z: o.z })),
                     ...this.coinItems.filter(c => !c.collected).map(c => ({ ...c, type: 'coin', z: c.z }))
                 ].sort((a, b) => a.z - b.z);
                 
                 allObjects.forEach(obj => {
-                    const pos = this.worldToScreen(obj.x, 0, obj.z);
-                    if (pos && pos.y > horizonY - 50 && pos.scale > 0.1) {
+                    const pos = this.worldToScreen(obj.lane, obj.z);
+                    if (pos.y > horizonY - 50 && pos.scale > 0.1) {
                         if (obj.type === 'train') {
-                            this.drawTrain(pos, obj);
+                            this.drawTrain(pos.x, pos.y, pos.scale);
                         } else {
-                            this.drawCoin(pos, obj);
+                            this.drawCoin(pos.x, pos.y, pos.scale);
                         }
                     }
                 });
                 
-                // Draw player
                 this.drawPlayer();
                 
                 // Draw particles
                 this.particles.forEach(p => {
                     ctx.globalAlpha = p.life;
                     ctx.fillStyle = p.color;
-                    ctx.shadowColor = p.color;
-                    ctx.shadowBlur = p.size;
                     ctx.beginPath();
                     ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
                     ctx.fill();
-                    ctx.shadowBlur = 0;
                 });
                 ctx.globalAlpha = 1;
             },
             
-            drawDecoration(dec, pos) {
-                const h = dec.height * pos.scale;
-                const w = dec.width * pos.scale;
+            drawCity(horizonY) {
+                const buildings = [
+                    { x: 0.02, w: 0.15, h: 0.45, color: '#0d1b2a' },
+                    { x: 0.18, w: 0.1, h: 0.6, color: '#1b263b' },
+                    { x: 0.3, w: 0.08, h: 0.4, color: '#0d1b2a' },
+                    { x: 0.72, w: 0.12, h: 0.55, color: '#1b263b' },
+                    { x: 0.85, w: 0.1, h: 0.48, color: '#0d1b2a' },
+                    { x: 0.95, w: 0.08, h: 0.35, color: '#1b263b' },
+                ];
                 
-                if (dec.type === 'building') {
-                    // Building body
-                    const grad = ctx.createLinearGradient(pos.x - w/2, pos.y - h, pos.x + w/2, pos.y);
-                    grad.addColorStop(0, '#1a1a3e');
-                    grad.addColorStop(0.5, '#2a2a5e');
-                    grad.addColorStop(1, '#1a1a3e');
-                    ctx.fillStyle = grad;
-                    ctx.fillRect(pos.x - w/2, pos.y - h, w, h);
+                buildings.forEach(b => {
+                    const x = b.x * canvas.width;
+                    const w = b.w * canvas.width;
+                    const h = b.h * horizonY;
+                    
+                    ctx.fillStyle = b.color;
+                    ctx.fillRect(x, horizonY - h, w, h);
                     
                     // Windows
-                    ctx.fillStyle = 'rgba(255, 220, 100, 0.6)';
-                    for (let wy = pos.y - h + 20 * pos.scale; wy < pos.y - 10 * pos.scale; wy += 30 * pos.scale) {
-                        for (let wx = pos.x - w/2 + 15 * pos.scale; wx < pos.x + w/2 - 10 * pos.scale; wx += 25 * pos.scale) {
-                            if ((wx * wy) % 50 < 30) {
+                    for (let wy = horizonY - h + 25; wy < horizonY - 15; wy += 35) {
+                        for (let wx = x + 12; wx < x + w - 8; wx += 22) {
+                            if ((wx * wy) % 47 < 28) {
                                 ctx.shadowColor = '#FFD700';
-                                ctx.shadowBlur = 5 * pos.scale;
-                                ctx.fillRect(wx, wy, 12 * pos.scale, 18 * pos.scale);
+                                ctx.shadowBlur = 8;
+                                ctx.fillStyle = 'rgba(255, 220, 100, 0.8)';
+                                ctx.fillRect(wx, wy, 10, 16);
                                 ctx.shadowBlur = 0;
                             }
                         }
                     }
-                } else {
-                    // Tree
-                    ctx.fillStyle = '#1a4a2e';
-                    ctx.beginPath();
-                    ctx.moveTo(pos.x, pos.y - h);
-                    ctx.lineTo(pos.x - w/2, pos.y);
-                    ctx.lineTo(pos.x + w/2, pos.y);
-                    ctx.closePath();
-                    ctx.fill();
-                }
+                });
             },
             
             drawTrack(horizonY) {
-                const playerY = canvas.height * CONFIG.PLAYER_Y;
-                const trackWidth = CONFIG.LANE_WIDTH * CONFIG.LANES;
+                const playerY = canvas.height - PLAYER_Y_OFFSET;
+                const trackWidth = LANE_WIDTH * LANES;
                 
-                // Track surface
                 const trackGrad = ctx.createLinearGradient(0, horizonY, 0, playerY);
-                trackGrad.addColorStop(0, '#2a2a4a');
-                trackGrad.addColorStop(0.5, '#3a3a5a');
-                trackGrad.addColorStop(1, '#4a4a6a');
-                ctx.fillStyle = trackGrad;
+                trackGrad.addColorStop(0, '#1a1a2e');
+                trackGrad.addColorStop(1, '#2d2d44');
                 
+                ctx.fillStyle = trackGrad;
                 ctx.beginPath();
-                ctx.moveTo(canvas.width/2 - trackWidth * 0.15, horizonY);
-                ctx.lineTo(canvas.width/2 + trackWidth * 0.15, horizonY);
-                ctx.lineTo(canvas.width/2 + trackWidth * 0.85, playerY);
-                ctx.lineTo(canvas.width/2 - trackWidth * 0.85, playerY);
+                ctx.moveTo(canvas.width/2 - trackWidth*0.2, horizonY);
+                ctx.lineTo(canvas.width/2 + trackWidth*0.2, horizonY);
+                ctx.lineTo(canvas.width/2 + trackWidth*0.9, playerY);
+                ctx.lineTo(canvas.width/2 - trackWidth*0.9, playerY);
                 ctx.closePath();
                 ctx.fill();
                 
-                // Lane markings
-                ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
-                ctx.lineWidth = 3;
-                ctx.setLineDash([20, 20]);
-                
-                for (let i = 1; i < CONFIG.LANES; i++) {
-                    const t = i / CONFIG.LANES;
-                    const x1 = canvas.width/2 - trackWidth * 0.15 + t * trackWidth * 0.3;
-                    const x2 = canvas.width/2 - trackWidth * 0.85 + t * trackWidth * 1.7;
+                // Lane dividers
+                ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+                ctx.lineWidth = 2;
+                for (let i = 1; i < LANES; i++) {
+                    const t = i / LANES;
+                    const x1 = canvas.width/2 - trackWidth*0.2 + t * trackWidth*0.4;
+                    const x2 = canvas.width/2 - trackWidth*0.9 + t * trackWidth*1.8;
                     ctx.beginPath();
                     ctx.moveTo(x1, horizonY);
                     ctx.lineTo(x2, playerY);
                     ctx.stroke();
                 }
-                ctx.setLineDash([]);
                 
                 // Side barriers
-                ctx.shadowColor = '#ff4444';
-                ctx.shadowBlur = 20;
-                ctx.strokeStyle = '#ff6666';
-                ctx.lineWidth = 6;
+                ctx.shadowColor = '#dc2626';
+                ctx.shadowBlur = 15;
+                ctx.strokeStyle = '#ef4444';
+                ctx.lineWidth = 5;
                 ctx.beginPath();
-                ctx.moveTo(canvas.width/2 - trackWidth * 0.16, horizonY);
-                ctx.lineTo(canvas.width/2 - trackWidth * 0.9, playerY);
-                ctx.stroke();
-                ctx.beginPath();
-                ctx.moveTo(canvas.width/2 + trackWidth * 0.16, horizonY);
-                ctx.lineTo(canvas.width/2 + trackWidth * 0.9, playerY);
+                ctx.moveTo(canvas.width/2 - trackWidth*0.22, horizonY);
+                ctx.lineTo(canvas.width/2 - trackWidth*0.95, playerY);
                 ctx.stroke();
                 ctx.shadowBlur = 0;
             },
             
-            drawTrain(pos, train) {
-                const w = train.width * pos.scale;
-                const h = train.height * pos.scale;
-                
-                // Shadow
-                ctx.fillStyle = 'rgba(0,0,0,0.4)';
-                ctx.beginPath();
-                ctx.ellipse(pos.x, pos.y + 10, w * 0.6, 15 * pos.scale, 0, 0, Math.PI * 2);
-                ctx.fill();
+            drawTrain(x, y, scale) {
+                const w = 90 * scale;
+                const h = 150 * scale;
                 
                 // Body gradient
-                const bodyGrad = ctx.createLinearGradient(pos.x - w/2, pos.y - h, pos.x + w/2, pos.y);
-                bodyGrad.addColorStop(0, '#8B0000');
-                bodyGrad.addColorStop(0.3, '#DC143C');
-                bodyGrad.addColorStop(0.7, '#DC143C');
-                bodyGrad.addColorStop(1, '#8B0000');
+                const bodyGrad = ctx.createLinearGradient(x - w/2, y - h, x + w/2, y);
+                bodyGrad.addColorStop(0, '#991b1b');
+                bodyGrad.addColorStop(0.3, '#dc2626');
+                bodyGrad.addColorStop(0.7, '#dc2626');
+                bodyGrad.addColorStop(1, '#7f1d1d');
                 ctx.fillStyle = bodyGrad;
-                ctx.fillRect(pos.x - w/2, pos.y - h, w, h);
+                ctx.fillRect(x - w/2, y - h, w, h);
                 
-                // Stripe
-                const stripeGrad = ctx.createLinearGradient(pos.x - w/2, pos.y - h * 0.5, pos.x + w/2, pos.y - h * 0.5);
-                stripeGrad.addColorStop(0, '#FFD700');
-                stripeGrad.addColorStop(0.5, '#FFA500');
-                stripeGrad.addColorStop(1, '#FFD700');
-                ctx.fillStyle = stripeGrad;
-                ctx.fillRect(pos.x - w/2, pos.y - h * 0.55, w, h * 0.12);
+                // Window
+                ctx.fillStyle = '#1e3a5f';
+                ctx.fillRect(x - w/2 + w*0.12, y - h + h*0.1, w*0.76, h*0.18);
                 
-                // Windows
-                ctx.fillStyle = '#1a3a5f';
-                ctx.fillRect(pos.x - w * 0.35, pos.y - h * 0.85, w * 0.7, h * 0.25);
-                
-                // Window shine
-                ctx.fillStyle = 'rgba(100, 150, 255, 0.3)';
-                ctx.fillRect(pos.x - w * 0.3, pos.y - h * 0.82, w * 0.25, h * 0.15);
+                // Window reflection
+                ctx.fillStyle = 'rgba(100, 150, 200, 0.3)';
+                ctx.fillRect(x - w/2 + w*0.15, y - h + h*0.12, w*0.3, h*0.08);
                 
                 // Door
-                ctx.fillStyle = '#660000';
-                ctx.fillRect(pos.x - w * 0.15, pos.y - h * 0.45, w * 0.3, h * 0.5);
-                ctx.strokeStyle = '#990000';
+                ctx.fillStyle = '#7f1d1d';
+                ctx.fillRect(x - w*0.18, y - h + h*0.32, w*0.36, h*0.55);
+                ctx.strokeStyle = '#991b1b';
                 ctx.lineWidth = 2;
-                ctx.strokeRect(pos.x - w * 0.15, pos.y - h * 0.45, w * 0.3, h * 0.5);
+                ctx.strokeRect(x - w*0.18, y - h + h*0.32, w*0.36, h*0.55);
+                
+                // Lights bar
+                ctx.fillStyle = '#fca5a5';
+                ctx.fillRect(x - w/2, y - h*0.42, w, h*0.05);
                 
                 // Headlights
-                ctx.shadowColor = '#FFFF00';
-                ctx.shadowBlur = 30 * pos.scale;
-                ctx.fillStyle = '#FFFFAA';
+                ctx.shadowColor = '#fef08a';
+                ctx.shadowBlur = 40 * scale;
+                ctx.fillStyle = '#fef08a';
                 ctx.beginPath();
-                ctx.arc(pos.x - w * 0.25, pos.y - h * 0.08, 12 * pos.scale, 0, Math.PI * 2);
-                ctx.arc(pos.x + w * 0.25, pos.y - h * 0.08, 12 * pos.scale, 0, Math.PI * 2);
+                ctx.arc(x - w*0.28, y - h*0.06, 12*scale, 0, Math.PI*2);
+                ctx.arc(x + w*0.28, y - h*0.06, 12*scale, 0, Math.PI*2);
                 ctx.fill();
                 ctx.shadowBlur = 0;
                 
                 // Bumper
-                ctx.fillStyle = '#330000';
-                ctx.fillRect(pos.x - w/2, pos.y - h * 0.05, w, h * 0.08);
+                ctx.fillStyle = '#450a0a';
+                ctx.fillRect(x - w/2, y - h*0.08, w, h*0.06);
             },
             
-            drawCoin(pos, coin) {
-                const size = 35 * pos.scale;
-                const bounce = Math.sin(Date.now() / 150 + coin.rotation) * 5 * pos.scale;
+            drawCoin(x, y, scale) {
+                const size = 32 * scale;
+                const rotation = Date.now() / 100;
+                const bounce = Math.sin(Date.now() / 200) * 3 * scale;
                 
                 ctx.save();
-                ctx.translate(pos.x, pos.y + bounce);
-                ctx.scale(Math.abs(Math.sin(coin.rotation)), 1);
+                ctx.translate(x, y + bounce);
+                ctx.scale(Math.abs(Math.sin(rotation)), 1);
                 
                 // Glow
+                const pulse = 20 + Math.sin(Date.now() / 150) * 10;
                 ctx.shadowColor = '#FFD700';
-                ctx.shadowBlur = 25 * pos.scale;
+                ctx.shadowBlur = pulse * scale;
                 
                 // Outer ring
                 const outerGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, size);
@@ -717,65 +493,58 @@
                 ctx.fill();
                 
                 // Inner ring
-                const innerGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, size * 0.7);
+                const innerGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, size * 0.75);
                 innerGrad.addColorStop(0, '#FFA500');
                 innerGrad.addColorStop(1, '#FF8C00');
                 ctx.fillStyle = innerGrad;
                 ctx.beginPath();
-                ctx.arc(0, 0, size * 0.7, 0, Math.PI * 2);
+                ctx.arc(0, 0, size * 0.75, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Center
+                ctx.fillStyle = '#FFD700';
+                ctx.beginPath();
+                ctx.arc(0, 0, size * 0.5, 0, Math.PI * 2);
                 ctx.fill();
                 
                 // Shine
-                ctx.fillStyle = 'rgba(255,255,255,0.5)';
+                ctx.fillStyle = 'rgba(255,255,255,0.4)';
                 ctx.beginPath();
-                ctx.arc(-size * 0.3, -size * 0.3, size * 0.25, 0, Math.PI * 2);
+                ctx.arc(-size*0.25, -size*0.25, size*0.2, 0, Math.PI*2);
                 ctx.fill();
                 
                 // $ symbol
+                ctx.shadowColor = 'rgba(139,69,19,0.5)';
+                ctx.shadowBlur = 3;
                 ctx.fillStyle = '#8B4513';
-                ctx.font = `bold ${size}px sans-serif`;
+                ctx.font = `bold ${size * 0.9}px sans-serif`;
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
-                ctx.fillText('$', 0, 2);
+                ctx.fillText('$', 0, 1);
                 
                 ctx.restore();
             },
             
             drawPlayer() {
-                const size = 90;
+                const playerY = canvas.height - PLAYER_Y_OFFSET;
+                const size = 85;
                 
                 // Shadow
-                ctx.fillStyle = 'rgba(0,0,0,0.3)';
+                ctx.fillStyle = 'rgba(0,0,0,0.4)';
                 ctx.beginPath();
-                ctx.ellipse(this.x, this.y + 45, 45, 15, 0, 0, Math.PI * 2);
+                ctx.ellipse(this.playerX, playerY + 40, 40, 12, 0, 0, Math.PI * 2);
                 ctx.fill();
                 
-                // Glow effect
-                ctx.shadowColor = '#00E676';
-                ctx.shadowBlur = 40;
+                // Glow
+                ctx.shadowColor = '#22C55E';
+                ctx.shadowBlur = 35;
                 
-                // Player image or fallback
-                if (playerImg.complete && playerImg.naturalWidth > 0) {
-                    ctx.drawImage(playerImg, this.x - size/2, this.y - size, size, size);
+                // Player image
+                if (playerImg.complete) {
+                    ctx.drawImage(playerImg, this.playerX - size/2, playerY - size, size, size);
                 } else {
-                    // Fallback character
-                    ctx.fillStyle = '#00E676';
-                    ctx.beginPath();
-                    ctx.arc(this.x, this.y - size/2, size/2, 0, Math.PI * 2);
-                    ctx.fill();
-                    
-                    // Eyes
-                    ctx.fillStyle = '#fff';
-                    ctx.beginPath();
-                    ctx.arc(this.x - 15, this.y - size/2 - 10, 8, 0, Math.PI * 2);
-                    ctx.arc(this.x + 15, this.y - size/2 - 10, 8, 0, Math.PI * 2);
-                    ctx.fill();
-                    
-                    ctx.fillStyle = '#000';
-                    ctx.beginPath();
-                    ctx.arc(this.x - 15, this.y - size/2 - 10, 4, 0, Math.PI * 2);
-                    ctx.arc(this.x + 15, this.y - size/2 - 10, 4, 0, Math.PI * 2);
-                    ctx.fill();
+                    ctx.fillStyle = '#22C55E';
+                    ctx.fillRect(this.playerX - size/2, playerY - size, size, size);
                 }
                 
                 ctx.shadowBlur = 0;
@@ -789,17 +558,15 @@
             }
         };
         
-        // Initialize
         game.resize();
         window.addEventListener('resize', () => game.resize());
         
         // Controls
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowLeft' || e.key === 'a') game.move(-1);
-            if (e.key === 'ArrowRight' || e.key === 'd') game.move(1);
+            if (e.key === 'ArrowLeft') game.move(-1);
+            if (e.key === 'ArrowRight') game.move(1);
         });
         
-        // Touch controls
         let touchStartX = 0;
         canvas.addEventListener('touchstart', (e) => {
             touchStartX = e.touches[0].clientX;
@@ -807,9 +574,7 @@
         
         canvas.addEventListener('touchend', (e) => {
             const dx = e.changedTouches[0].clientX - touchStartX;
-            if (Math.abs(dx) > 40) {
-                game.move(dx > 0 ? 1 : -1);
-            }
+            if (Math.abs(dx) > 30) game.move(dx > 0 ? 1 : -1);
         }, { passive: true });
     </script>
 </body>
