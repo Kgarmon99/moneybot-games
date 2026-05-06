@@ -66,13 +66,14 @@
         const canvas = document.getElementById('game');
         const ctx = canvas.getContext('2d');
         
-        // Game constants
         const LANES = 3;
         const LANE_WIDTH = 90;
         const PLAYER_Y_OFFSET = 120;
         const HORIZON_Y = 0.22;
+        const PLAYER_Z = 200;
+        const COLLISION_DISTANCE = 80;
+        const COIN_DISTANCE = 60;
         
-        // Load player image
         const playerImg = new Image();
         playerImg.src = '../flappybot/assets/player-rembg.png';
         
@@ -149,7 +150,7 @@
                 const lane = Math.floor(Math.random() * LANES);
                 this.obstacles.push({
                     lane: lane,
-                    y: -200,
+                    z: -2000,
                     type: 'train',
                     width: 85,
                     height: 140,
@@ -159,13 +160,14 @@
             
             spawnCoins() {
                 const pattern = Math.floor(Math.random() * 4);
+                const startZ = -1500 - Math.random() * 500;
                 
                 if (pattern === 0) {
                     const lane = Math.floor(Math.random() * LANES);
                     for (let i = 0; i < 5; i++) {
                         this.coinItems.push({
                             lane: lane,
-                            y: -150 - i * 60,
+                            z: startZ - i * 150,
                             collected: false
                         });
                     }
@@ -173,7 +175,7 @@
                     for (let l = 0; l < LANES; l++) {
                         this.coinItems.push({
                             lane: l,
-                            y: -150,
+                            z: startZ,
                             collected: false
                         });
                     }
@@ -181,7 +183,7 @@
                     for (let i = 0; i < 6; i++) {
                         this.coinItems.push({
                             lane: i % LANES,
-                            y: -150 - i * 50,
+                            z: startZ - i * 120,
                             collected: false
                         });
                     }
@@ -189,7 +191,7 @@
                     for (let i = 0; i < 7; i++) {
                         this.coinItems.push({
                             lane: 1,
-                            y: -150 - i * 55,
+                            z: startZ - i * 130,
                             collected: false
                         });
                     }
@@ -210,49 +212,47 @@
                 if (Math.random() < 0.02) this.spawnObstacle();
                 if (Math.random() < 0.015) this.spawnCoins();
                 
-                const playerY = canvas.height - PLAYER_Y_OFFSET;
-                const trackStartX = (canvas.width - LANE_WIDTH * LANES) / 2;
-                const playerLaneFromX = Math.floor((this.playerX - trackStartX) / LANE_WIDTH);
-                const playerLane = Math.max(0, Math.min(LANES - 1, playerLaneFromX));
-                
+                // Update obstacles and check collisions
                 for (let i = this.obstacles.length - 1; i >= 0; i--) {
                     const obs = this.obstacles[i];
-                    obs.y += this.speed;
+                    obs.z += this.speed;
                     
-                    const pos = this.worldToScreen(obs.lane, obs.y);
-                    
-                    if (!obs.hit && pos.y > playerY - 100 && pos.y < playerY + 50) {
-                        if (obs.lane === playerLane) {
+                    // Collision: same lane and close in Z
+                    if (!obs.hit && obs.lane === this.targetLane) {
+                        const dist = Math.abs(obs.z - PLAYER_Z);
+                        if (dist < COLLISION_DISTANCE) {
                             this.gameOver();
                             return;
                         }
                     }
                     
-                    if (obs.y > canvas.height + 200) {
+                    if (obs.z > 500) {
                         this.obstacles.splice(i, 1);
                     }
                 }
                 
+                // Update coins and check collection
                 for (let i = this.coinItems.length - 1; i >= 0; i--) {
                     const coin = this.coinItems[i];
-                    coin.y += this.speed;
+                    coin.z += this.speed;
                     
-                    const pos = this.worldToScreen(coin.lane, coin.y);
-                    
-                    if (!coin.collected && pos.y > playerY - 90 && pos.y < playerY + 40) {
-                        if (coin.lane === playerLane) {
+                    if (!coin.collected && coin.lane === this.targetLane) {
+                        const dist = Math.abs(coin.z - PLAYER_Z);
+                        if (dist < COIN_DISTANCE) {
                             coin.collected = true;
                             this.coins++;
                             this.score += 20;
+                            const pos = this.worldToScreen(coin.lane, coin.z);
                             this.createSparkles(pos.x, pos.y);
                         }
                     }
                     
-                    if (coin.y > canvas.height + 100) {
+                    if (coin.z > 300) {
                         this.coinItems.splice(i, 1);
                     }
                 }
                 
+                // Update particles
                 for (let i = this.particles.length - 1; i >= 0; i--) {
                     const p = this.particles[i];
                     p.x += p.vx;
@@ -263,23 +263,22 @@
                 }
             },
             
-            worldToScreen(lane, worldY) {
+            worldToScreen(lane, z) {
                 const horizonY = canvas.height * HORIZON_Y;
                 const playerY = canvas.height - PLAYER_Y_OFFSET;
-                const totalDist = 2500;
                 
-                let t = (worldY + 300) / totalDist;
-                t = Math.max(0, Math.min(1, t));
-                
-                const scale = 0.25 + t * 0.75;
-                const screenY = horizonY + (playerY - horizonY) * t;
+                // Perspective projection
+                const focalLength = 300;
+                const scale = focalLength / (focalLength + PLAYER_Z - z);
                 
                 const laneCenter = this.getLaneCenter(lane);
                 const centerX = canvas.width / 2;
                 const offset = (laneCenter - centerX) * scale;
-                const screenX = centerX + offset;
                 
-                return { x: screenX, y: screenY, scale: scale };
+                const screenX = centerX + offset;
+                const screenY = horizonY + (playerY - horizonY) * scale;
+                
+                return { x: screenX, y: screenY, scale: Math.max(0.2, scale) };
             },
             
             createSparkles(x, y) {
@@ -306,6 +305,7 @@
                 
                 const horizonY = canvas.height * HORIZON_Y;
                 
+                // Sky gradient
                 const skyGrad = ctx.createLinearGradient(0, 0, 0, horizonY);
                 skyGrad.addColorStop(0, '#0d1b2a');
                 skyGrad.addColorStop(0.5, '#1b263b');
@@ -316,14 +316,15 @@
                 this.drawCity(horizonY);
                 this.drawTrack(horizonY);
                 
+                // Draw all objects sorted by Z (far to near)
                 const allObjects = [
-                    ...this.obstacles.map(o => ({ ...o, type: 'train' })),
-                    ...this.coinItems.filter(c => !c.collected).map(c => ({ ...c, type: 'coin' }))
-                ].sort((a, b) => a.y - b.y);
+                    ...this.obstacles.map(o => ({ ...o, type: 'train', z: o.z })),
+                    ...this.coinItems.filter(c => !c.collected).map(c => ({ ...c, type: 'coin', z: c.z }))
+                ].sort((a, b) => a.z - b.z);
                 
                 allObjects.forEach(obj => {
-                    const pos = this.worldToScreen(obj.lane, obj.y);
-                    if (pos.y > horizonY - 100) {
+                    const pos = this.worldToScreen(obj.lane, obj.z);
+                    if (pos.y > horizonY - 50 && pos.scale > 0.1) {
                         if (obj.type === 'train') {
                             this.drawTrain(pos.x, pos.y, pos.scale);
                         } else {
@@ -334,6 +335,7 @@
                 
                 this.drawPlayer();
                 
+                // Draw particles
                 this.particles.forEach(p => {
                     ctx.globalAlpha = p.life;
                     ctx.fillStyle = p.color;
@@ -362,6 +364,7 @@
                     ctx.fillStyle = b.color;
                     ctx.fillRect(x, horizonY - h, w, h);
                     
+                    // Windows
                     for (let wy = horizonY - h + 25; wy < horizonY - 15; wy += 35) {
                         for (let wx = x + 12; wx < x + w - 8; wx += 22) {
                             if ((wx * wy) % 47 < 28) {
@@ -393,6 +396,7 @@
                 ctx.closePath();
                 ctx.fill();
                 
+                // Lane dividers
                 ctx.strokeStyle = 'rgba(255,255,255,0.2)';
                 ctx.lineWidth = 2;
                 for (let i = 1; i < LANES; i++) {
@@ -405,6 +409,7 @@
                     ctx.stroke();
                 }
                 
+                // Side barriers
                 ctx.shadowColor = '#dc2626';
                 ctx.shadowBlur = 15;
                 ctx.strokeStyle = '#ef4444';
@@ -420,6 +425,7 @@
                 const w = 90 * scale;
                 const h = 150 * scale;
                 
+                // Body gradient
                 const bodyGrad = ctx.createLinearGradient(x - w/2, y - h, x + w/2, y);
                 bodyGrad.addColorStop(0, '#991b1b');
                 bodyGrad.addColorStop(0.3, '#dc2626');
@@ -428,22 +434,26 @@
                 ctx.fillStyle = bodyGrad;
                 ctx.fillRect(x - w/2, y - h, w, h);
                 
+                // Window
                 ctx.fillStyle = '#1e3a5f';
                 ctx.fillRect(x - w/2 + w*0.12, y - h + h*0.1, w*0.76, h*0.18);
                 
+                // Window reflection
                 ctx.fillStyle = 'rgba(100, 150, 200, 0.3)';
                 ctx.fillRect(x - w/2 + w*0.15, y - h + h*0.12, w*0.3, h*0.08);
                 
+                // Door
                 ctx.fillStyle = '#7f1d1d';
                 ctx.fillRect(x - w*0.18, y - h + h*0.32, w*0.36, h*0.55);
-                
                 ctx.strokeStyle = '#991b1b';
                 ctx.lineWidth = 2;
                 ctx.strokeRect(x - w*0.18, y - h + h*0.32, w*0.36, h*0.55);
                 
+                // Lights bar
                 ctx.fillStyle = '#fca5a5';
                 ctx.fillRect(x - w/2, y - h*0.42, w, h*0.05);
                 
+                // Headlights
                 ctx.shadowColor = '#fef08a';
                 ctx.shadowBlur = 40 * scale;
                 ctx.fillStyle = '#fef08a';
@@ -453,6 +463,7 @@
                 ctx.fill();
                 ctx.shadowBlur = 0;
                 
+                // Bumper
                 ctx.fillStyle = '#450a0a';
                 ctx.fillRect(x - w/2, y - h*0.08, w, h*0.06);
             },
@@ -466,10 +477,12 @@
                 ctx.translate(x, y + bounce);
                 ctx.scale(Math.abs(Math.sin(rotation)), 1);
                 
+                // Glow
                 const pulse = 20 + Math.sin(Date.now() / 150) * 10;
                 ctx.shadowColor = '#FFD700';
                 ctx.shadowBlur = pulse * scale;
                 
+                // Outer ring
                 const outerGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, size);
                 outerGrad.addColorStop(0, '#FFED4A');
                 outerGrad.addColorStop(0.7, '#FFD700');
@@ -479,6 +492,7 @@
                 ctx.arc(0, 0, size, 0, Math.PI * 2);
                 ctx.fill();
                 
+                // Inner ring
                 const innerGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, size * 0.75);
                 innerGrad.addColorStop(0, '#FFA500');
                 innerGrad.addColorStop(1, '#FF8C00');
@@ -487,16 +501,19 @@
                 ctx.arc(0, 0, size * 0.75, 0, Math.PI * 2);
                 ctx.fill();
                 
+                // Center
                 ctx.fillStyle = '#FFD700';
                 ctx.beginPath();
                 ctx.arc(0, 0, size * 0.5, 0, Math.PI * 2);
                 ctx.fill();
                 
+                // Shine
                 ctx.fillStyle = 'rgba(255,255,255,0.4)';
                 ctx.beginPath();
                 ctx.arc(-size*0.25, -size*0.25, size*0.2, 0, Math.PI*2);
                 ctx.fill();
                 
+                // $ symbol
                 ctx.shadowColor = 'rgba(139,69,19,0.5)';
                 ctx.shadowBlur = 3;
                 ctx.fillStyle = '#8B4513';
@@ -512,14 +529,17 @@
                 const playerY = canvas.height - PLAYER_Y_OFFSET;
                 const size = 85;
                 
+                // Shadow
                 ctx.fillStyle = 'rgba(0,0,0,0.4)';
                 ctx.beginPath();
                 ctx.ellipse(this.playerX, playerY + 40, 40, 12, 0, 0, Math.PI * 2);
                 ctx.fill();
                 
+                // Glow
                 ctx.shadowColor = '#22C55E';
                 ctx.shadowBlur = 35;
                 
+                // Player image
                 if (playerImg.complete) {
                     ctx.drawImage(playerImg, this.playerX - size/2, playerY - size, size, size);
                 } else {
@@ -541,6 +561,7 @@
         game.resize();
         window.addEventListener('resize', () => game.resize());
         
+        // Controls
         document.addEventListener('keydown', (e) => {
             if (e.key === 'ArrowLeft') game.move(-1);
             if (e.key === 'ArrowRight') game.move(1);
