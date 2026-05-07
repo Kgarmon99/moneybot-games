@@ -4,8 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Real Estate Simulator | Rent vs Buy</title>
+    
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&family=JetBrains+Mono:wght@400;700&display=swap');
         
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
@@ -14,103 +15,215 @@
             --primary-dark: #00C853;
             --renter: #FF3D00;
             --buyer: #00B0FF;
-            --bg-dark: #0a0a1a;
-            --bg-card: rgba(255,255,255,0.05);
-            --border: rgba(255, 255, 255, 0.1);
+            --bg-dark: #05050a;
+            --bg-card: rgba(15, 15, 25, 0.7);
+            --border: rgba(0, 230, 118, 0.3);
         }
         
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, var(--bg-dark) 0%, #111122 100%);
+            background-color: var(--bg-dark);
             color: #fff;
             min-height: 100vh;
             overflow-x: hidden;
         }
 
-        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        /* Cyber grid & Orbs */
+        .bg-grid {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2;
+            background-image: 
+                linear-gradient(rgba(0, 230, 118, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 230, 118, 0.05) 1px, transparent 1px);
+            background-size: 50px 50px;
+            perspective: 1000px;
+        }
+        .orb {
+            position: fixed; border-radius: 50%; filter: blur(100px); z-index: -1; opacity: 0.4;
+            animation: drift 20s infinite alternate ease-in-out;
+        }
+        .orb-1 { width: 400px; height: 400px; background: rgba(0, 176, 255, 0.15); top: -100px; left: -100px; }
+        .orb-2 { width: 500px; height: 500px; background: rgba(255, 61, 0, 0.1); bottom: -200px; right: -100px; animation-delay: -5s; }
+        .orb-3 { width: 300px; height: 300px; background: rgba(0, 230, 118, 0.1); top: 40%; left: 30%; animation-duration: 25s; }
+
+        @keyframes drift { 100% { transform: translate(50px, 50px); } }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; position: relative; z-index: 1; }
         
         .back-link {
             display: inline-flex; align-items: center; gap: 8px;
-            color: rgba(255,255,255,0.6); text-decoration: none;
-            padding: 12px 0; font-weight: 600; transition: color 0.3s;
+            color: rgba(255,255,255,0.5); text-decoration: none;
+            padding: 12px 0; font-weight: 600; transition: all 0.3s;
+            text-transform: uppercase; letter-spacing: 1px; font-size: 13px;
         }
-        .back-link:hover { color: var(--primary); }
+        .back-link:hover { color: var(--primary); text-shadow: 0 0 10px var(--primary); transform: translateX(-5px); }
 
-        header { text-align: center; margin-bottom: 40px; }
-        h1 { font-size: 48px; font-weight: 900; background: linear-gradient(135deg, var(--primary), #00B0FF); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; }
-        .subtitle { color: rgba(255,255,255,0.6); font-size: 18px; }
+        header { text-align: center; margin-bottom: 50px; position: relative; }
+        header::after {
+            content: ''; position: absolute; bottom: -20px; left: 50%; transform: translateX(-50%);
+            width: 100px; height: 4px; background: linear-gradient(90deg, transparent, var(--primary), transparent);
+        }
+        h1 { font-size: 56px; font-weight: 900; color: #fff; text-shadow: 0 0 30px rgba(0,230,118,0.4); margin-bottom: 10px; letter-spacing: -1px; }
+        .subtitle { color: rgba(255,255,255,0.7); font-size: 18px; font-family: 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: 2px; }
 
         /* Screens */
-        .screen { display: none; animation: fadeIn 0.5s ease; }
+        .screen { display: none; animation: scaleIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
         .screen.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes scaleIn { from { opacity: 0; transform: scale(0.95) translateY(20px); } to { opacity: 1; transform: scale(1) translateY(0); } }
 
         /* Setup Screen */
-        .setup-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; padding: 40px; max-width: 600px; margin: 0 auto; text-align: center; backdrop-filter: blur(10px); }
-        .setup-card h2 { font-size: 32px; margin-bottom: 20px; }
-        .setup-card p { color: rgba(255,255,255,0.7); margin-bottom: 30px; line-height: 1.6; }
+        .setup-card { 
+            background: var(--bg-card); border: 1px solid var(--border); border-radius: 24px; 
+            padding: 50px; max-width: 600px; margin: 0 auto; text-align: center; 
+            backdrop-filter: blur(20px); box-shadow: 0 20px 50px rgba(0,0,0,0.5), inset 0 0 20px rgba(0,230,118,0.05);
+            position: relative; overflow: hidden;
+        }
+        .setup-card::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+            background: linear-gradient(90deg, var(--buyer), var(--primary), var(--renter));
+        }
+        .setup-card h2 { font-size: 32px; margin-bottom: 15px; font-weight: 800; }
+        .setup-card p { color: rgba(255,255,255,0.6); margin-bottom: 40px; line-height: 1.6; font-size: 15px; }
         
-        .input-group { margin-bottom: 24px; text-align: left; }
-        .input-group label { display: block; font-size: 14px; color: rgba(255,255,255,0.6); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
-        .input-group input { width: 100%; background: rgba(0,0,0,0.5); border: 2px solid var(--border); border-radius: 12px; padding: 16px; color: #fff; font-size: 18px; font-family: 'Inter', sans-serif; transition: border-color 0.3s; }
-        .input-group input:focus { outline: none; border-color: var(--primary); }
+        .input-group { margin-bottom: 28px; text-align: left; position: relative; }
+        .input-group label { display: block; font-size: 12px; font-family: 'JetBrains Mono', monospace; color: var(--primary); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1.5px; }
+        .input-wrapper { position: relative; }
+        .input-wrapper::before { content: '$'; position: absolute; left: 20px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.4); font-family: 'JetBrains Mono', monospace; font-size: 20px; font-weight: 700; }
+        .input-group input { 
+            width: 100%; background: rgba(0,0,0,0.6); border: 2px solid rgba(255,255,255,0.1); 
+            border-radius: 16px; padding: 20px 20px 20px 45px; color: #fff; font-size: 24px; 
+            font-family: 'JetBrains Mono', monospace; font-weight: 700; transition: all 0.3s;
+            box-shadow: inset 0 4px 10px rgba(0,0,0,0.5);
+        }
+        .input-group input:focus { outline: none; border-color: var(--primary); box-shadow: inset 0 4px 10px rgba(0,0,0,0.5), 0 0 20px rgba(0,230,118,0.2); background: rgba(0,20,10,0.8); }
 
-        .btn { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: #000; border: none; padding: 18px 40px; border-radius: 50px; font-size: 20px; font-weight: 800; cursor: pointer; text-transform: uppercase; letter-spacing: 2px; box-shadow: 0 10px 30px rgba(0,230,118,0.3); transition: all 0.3s; width: 100%; margin-top: 20px; }
+        .btn { 
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: #000; 
+            border: none; padding: 20px 40px; border-radius: 16px; font-size: 18px; font-weight: 900; 
+            cursor: pointer; text-transform: uppercase; letter-spacing: 2px; 
+            box-shadow: 0 10px 30px rgba(0,230,118,0.3); transition: all 0.3s; width: 100%; 
+            position: relative; overflow: hidden;
+        }
+        .btn::after { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: linear-gradient(transparent, rgba(255,255,255,0.3), transparent); transform: rotate(45deg) translateY(-100%); transition: transform 0.6s; }
         .btn:hover { transform: translateY(-3px); box-shadow: 0 15px 40px rgba(0,230,118,0.5); }
-        .btn.secondary { background: rgba(255,255,255,0.1); color: #fff; box-shadow: none; width: auto; }
-        .btn.secondary:hover { background: rgba(255,255,255,0.2); }
+        .btn:hover::after { transform: rotate(45deg) translateY(100%); }
+        
+        .btn.secondary { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff; box-shadow: none; width: auto; font-family: 'JetBrains Mono', monospace; font-size: 14px; padding: 16px 24px; }
+        .btn.secondary:hover { background: rgba(255,255,255,0.1); border-color: var(--primary); color: var(--primary); }
 
         /* Sim Screen */
-        .dashboard { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px; }
-        @media (max-width: 768px) { .dashboard { grid-template-columns: 1fr; } }
+        .dashboard { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-bottom: 40px; position: relative; }
+        @media (max-width: 900px) { .dashboard { grid-template-columns: 1fr; } .vs-badge { display: none; } }
 
-        .persona-card { background: var(--bg-card); border: 2px solid var(--border); border-radius: 24px; padding: 30px; position: relative; overflow: hidden; }
-        .persona-card.renter { border-top: 4px solid var(--renter); }
-        .persona-card.buyer { border-top: 4px solid var(--buyer); }
-        
-        .persona-header { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; }
-        .persona-icon { width: 60px; height: 60px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 30px; }
-        .renter .persona-icon { background: rgba(255, 61, 0, 0.2); color: var(--renter); }
-        .buyer .persona-icon { background: rgba(0, 176, 255, 0.2); color: var(--buyer); }
-        
-        .persona-title { font-size: 24px; font-weight: 800; }
-        .persona-subtitle { font-size: 14px; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 1px; }
+        .vs-badge {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 60px; height: 60px; background: var(--bg-dark); border: 2px solid var(--primary);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-weight: 900; font-size: 20px; color: #fff; z-index: 10;
+            box-shadow: 0 0 30px rgba(0,0,0,0.8), 0 0 20px rgba(0,230,118,0.4);
+            font-family: 'JetBrains Mono', monospace; font-style: italic;
+        }
 
-        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
-        .stat-box { background: rgba(0,0,0,0.3); padding: 16px; border-radius: 12px; }
-        .stat-label { font-size: 12px; color: rgba(255,255,255,0.5); text-transform: uppercase; margin-bottom: 4px; }
-        .stat-val { font-size: 24px; font-weight: 800; }
+        .persona-card { 
+            background: var(--bg-card); border: 1px solid rgba(255,255,255,0.05); 
+            border-radius: 24px; padding: 35px; position: relative; overflow: hidden;
+            backdrop-filter: blur(10px); box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            transition: transform 0.3s;
+        }
+        .persona-card:hover { transform: translateY(-5px); }
         
-        .net-worth-box { background: rgba(255,255,255,0.05); padding: 24px; border-radius: 16px; text-align: center; border: 1px solid rgba(255,255,255,0.1); }
-        .net-worth-val { font-size: 42px; font-weight: 900; margin: 8px 0; }
-        .renter .net-worth-val { color: var(--renter); text-shadow: 0 0 20px rgba(255, 61, 0, 0.4); }
-        .buyer .net-worth-val { color: var(--buyer); text-shadow: 0 0 20px rgba(0, 176, 255, 0.4); }
+        .persona-card.renter { 
+            background: linear-gradient(180deg, rgba(255,61,0,0.05) 0%, rgba(15,15,25,0.8) 100%);
+            border-top: 4px solid var(--renter); 
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4), inset 0 40px 40px -40px rgba(255,61,0,0.15);
+        }
+        .persona-card.buyer { 
+            background: linear-gradient(180deg, rgba(0,176,255,0.05) 0%, rgba(15,15,25,0.8) 100%);
+            border-top: 4px solid var(--buyer); 
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4), inset 0 40px 40px -40px rgba(0,176,255,0.15);
+        }
+        
+        .persona-header { display: flex; align-items: center; gap: 20px; margin-bottom: 30px; }
+        .persona-icon { width: 70px; height: 70px; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 32px; box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
+        .renter .persona-icon { background: linear-gradient(135deg, rgba(255, 61, 0, 0.2), rgba(255, 0, 0, 0.1)); border: 1px solid rgba(255,61,0,0.3); color: var(--renter); }
+        .buyer .persona-icon { background: linear-gradient(135deg, rgba(0, 176, 255, 0.2), rgba(0, 100, 255, 0.1)); border: 1px solid rgba(0,176,255,0.3); color: var(--buyer); }
+        
+        .persona-title { font-size: 28px; font-weight: 900; letter-spacing: -0.5px; }
+        .persona-subtitle { font-size: 13px; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 1px; font-family: 'JetBrains Mono', monospace; margin-top: 4px; }
 
-        .timeline-controls { background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; padding: 30px; text-align: center; margin-bottom: 30px; }
-        .year-display { font-size: 64px; font-weight: 900; color: var(--primary); margin-bottom: 10px; text-shadow: 0 0 30px rgba(0,230,118,0.4); }
-        .year-label { font-size: 16px; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 30px; }
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 30px; }
+        .stat-box { background: rgba(0,0,0,0.4); padding: 20px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.03); }
+        .stat-label { font-size: 11px; color: rgba(255,255,255,0.5); text-transform: uppercase; margin-bottom: 8px; font-family: 'JetBrains Mono', monospace; letter-spacing: 0.5px; }
+        .stat-val { font-size: 24px; font-weight: 800; font-family: 'JetBrains Mono', monospace; }
         
-        .control-btns { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; }
+        .net-worth-box { background: rgba(0,0,0,0.6); padding: 30px; border-radius: 20px; text-align: center; border: 1px solid rgba(255,255,255,0.05); position: relative; overflow: hidden; }
+        .net-worth-box::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0.1; background-size: 20px 20px; background-image: radial-gradient(circle at center, #fff 1px, transparent 1px); }
+        .net-worth-label { font-size: 14px; text-transform: uppercase; letter-spacing: 2px; color: rgba(255,255,255,0.6); margin-bottom: 10px; }
+        .net-worth-val { font-size: 48px; font-weight: 900; margin: 0; font-family: 'JetBrains Mono', monospace; letter-spacing: -2px; position: relative; z-index: 1; }
+        .renter .net-worth-val { color: var(--renter); text-shadow: 0 0 30px rgba(255, 61, 0, 0.5); }
+        .buyer .net-worth-val { color: var(--buyer); text-shadow: 0 0 30px rgba(0, 176, 255, 0.5); }
+
+        .timeline-controls { 
+            background: var(--bg-card); border: 1px solid var(--border); border-radius: 24px; 
+            padding: 30px; text-align: center; margin-bottom: 40px; backdrop-filter: blur(10px);
+            display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px;
+        }
+        .timeline-display { text-align: left; }
+        .year-display { font-size: 64px; font-weight: 900; color: #fff; font-family: 'JetBrains Mono', monospace; line-height: 1; text-shadow: 0 0 20px rgba(255,255,255,0.3); }
+        .year-label { font-size: 14px; color: var(--primary); text-transform: uppercase; letter-spacing: 2px; font-weight: 700; margin-top: 5px; }
         
-        .chart-container { background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; padding: 30px; margin-bottom: 30px; height: 400px; position: relative; }
+        .control-btns { display: flex; gap: 15px; }
+
+        .chart-container { 
+            background: var(--bg-card); border: 1px solid var(--border); border-radius: 24px; 
+            padding: 30px; margin-bottom: 40px; height: 450px; position: relative;
+            backdrop-filter: blur(10px); box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
         #nwChart { width: 100%; height: 100%; }
 
-        .moneybot-tip { display: flex; align-items: flex-start; gap: 20px; background: linear-gradient(135deg, rgba(0, 230, 118, 0.1), rgba(0, 200, 83, 0.05)); border: 1px solid var(--primary); border-radius: 16px; padding: 24px; margin-bottom: 30px; }
-        .tip-icon { font-size: 40px; }
-        .tip-content h3 { color: var(--primary); margin-bottom: 8px; font-size: 18px; text-transform: uppercase; letter-spacing: 1px; }
-        .tip-content p { color: rgba(255,255,255,0.9); line-height: 1.6; font-size: 16px; }
+        .moneybot-tip { 
+            display: flex; align-items: flex-start; gap: 24px; 
+            background: linear-gradient(135deg, rgba(0, 230, 118, 0.1), rgba(0, 0, 0, 0.8)); 
+            border: 1px solid var(--primary); border-left: 6px solid var(--primary);
+            border-radius: 16px; padding: 30px; margin-bottom: 40px;
+            box-shadow: 0 10px 30px rgba(0,230,118,0.1);
+        }
+        .tip-icon { font-size: 48px; filter: drop-shadow(0 0 10px rgba(0,230,118,0.5)); }
+        .tip-content h3 { color: var(--primary); margin-bottom: 10px; font-size: 16px; text-transform: uppercase; letter-spacing: 2px; font-weight: 800; font-family: 'JetBrains Mono', monospace; }
+        .tip-content p { color: rgba(255,255,255,0.8); line-height: 1.7; font-size: 16px; }
 
         /* End Screen */
-        .winner-card { text-align: center; padding: 60px 20px; background: radial-gradient(circle at center, rgba(0, 176, 255, 0.2) 0%, transparent 70%); }
-        .winner-title { font-size: 36px; margin-bottom: 20px; }
-        .winner-diff { font-size: 64px; font-weight: 900; color: var(--primary); margin-bottom: 40px; text-shadow: 0 0 40px rgba(0,230,118,0.5); }
+        .winner-card { 
+            text-align: center; padding: 60px 40px; 
+            background: var(--bg-card); border: 1px solid var(--buyer); border-radius: 30px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.6), inset 0 0 50px rgba(0,176,255,0.1);
+            position: relative; overflow: hidden; backdrop-filter: blur(20px);
+        }
+        .winner-card::before {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle at center, rgba(0,176,255,0.15) 0%, transparent 60%);
+            animation: spin 20s linear infinite; pointer-events: none;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
         
-        .lesson-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 40px; }
-        .lesson-card { background: rgba(255,255,255,0.05); padding: 24px; border-radius: 16px; border-left: 4px solid var(--primary); text-align: left; }
-        .lesson-card h4 { font-size: 18px; margin-bottom: 12px; color: var(--primary); }
-        .lesson-card p { font-size: 14px; color: rgba(255,255,255,0.7); line-height: 1.5; }
+        .winner-title { font-size: 24px; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 3px; margin-bottom: 20px; font-family: 'JetBrains Mono', monospace; }
+        .winner-name { font-size: 90px; font-weight: 900; margin-bottom: 10px; text-shadow: 0 0 50px rgba(0,176,255,0.6); letter-spacing: -2px; }
+        .stat-label-large { font-size: 16px; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px; margin-top: 30px;}
+        .winner-diff { font-size: 72px; font-weight: 900; color: var(--primary); margin-bottom: 50px; text-shadow: 0 0 40px rgba(0,230,118,0.5); font-family: 'JetBrains Mono', monospace; }
+        
+        .lesson-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; margin-bottom: 50px; text-align: left; }
+        .lesson-card { 
+            background: rgba(0,0,0,0.4); padding: 30px; border-radius: 20px; 
+            border: 1px solid rgba(255,255,255,0.05); position: relative;
+            transition: transform 0.3s;
+        }
+        .lesson-card:hover { transform: translateY(-5px); background: rgba(0,0,0,0.6); border-color: rgba(0,230,118,0.3); }
+        .lesson-number { position: absolute; top: -15px; left: 20px; background: var(--primary); color: #000; font-weight: 900; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border-radius: 8px; font-family: 'JetBrains Mono', monospace; }
+        .lesson-card h4 { font-size: 20px; margin-bottom: 15px; color: #fff; margin-top: 10px; }
+        .lesson-card p { font-size: 15px; color: rgba(255,255,255,0.6); line-height: 1.6; }
 
     </style>
+
+<meta http-equiv="Cache-Control" content="no-cache">
 </head>
 <body>
     <div class="container">
@@ -129,17 +242,17 @@
                 
                 <div class="input-group">
                     <label>Target Home Price ($)</label>
-                    <input type="number" id="homePrice" value="300000" step="10000">
+                    <div class="input-wrapper"><input type="number" id="homePrice" value="300000" step="10000"></div>
                 </div>
                 
                 <div class="input-group">
                     <label>Starting Savings ($)</label>
-                    <input type="number" id="savings" value="25000" step="1000">
+                    <div class="input-wrapper"><input type="number" id="savings" value="25000" step="1000"></div>
                 </div>
                 
                 <div class="input-group">
                     <label>Current Monthly Rent ($)</label>
-                    <input type="number" id="startingRent" value="1500" step="50">
+                    <div class="input-wrapper"><input type="number" id="startingRent" value="1500" step="50"></div>
                 </div>
                 
                 <button class="btn" onclick="sim.start()">Start Simulation</button>
@@ -157,8 +270,10 @@
         <!-- SIMULATION SCREEN -->
         <div id="simScreen" class="screen">
             <div class="timeline-controls">
-                <div class="year-display">Year <span id="yearVal">0</span></div>
-                <div class="year-label">of 30 Year Mortgage</div>
+                <div class="timeline-display">
+                    <div class="year-display">YEAR <span id="yearVal">0</span></div>
+                    <div class="year-label">of 30 Year Mortgage</div>
+                </div>
                 <div class="control-btns">
                     <button class="btn secondary" onclick="sim.advance(1)">+ 1 Year</button>
                     <button class="btn secondary" onclick="sim.advance(5)">+ 5 Years</button>
@@ -256,21 +371,24 @@
         <div id="endScreen" class="screen">
             <div class="winner-card">
                 <div class="winner-title">After 30 Years, the Winner is...</div>
-                <div style="font-size: 80px; margin-bottom: 10px;">🏆 <span id="winnerName" style="color: var(--buyer);">HOMEOWNER</span> 🏆</div>
-                <div class="stat-label">Net Worth Difference</div>
+                <div class="winner-name" id="winnerName" style="color: var(--buyer);">HOMEOWNER</div>
+                <div class="stat-label-large">Net Worth Difference</div>
                 <div class="winner-diff" id="winnerDiff">+$0</div>
                 
                 <div class="lesson-grid">
                     <div class="lesson-card">
-                        <h4>1. Forced Savings</h4>
+                        <div class="lesson-number">1</div>
+                        <h4>Forced Savings</h4>
                         <p>Every mortgage payment pays down principal. A house acts like a giant, illiquid savings account that forces you to build wealth every month.</p>
                     </div>
                     <div class="lesson-card">
-                        <h4>2. Inflation Protection</h4>
+                        <div class="lesson-number">2</div>
+                        <h4>Inflation Protection</h4>
                         <p>The renter's monthly payment doubled over 30 years. The homeowner's principal & interest payment stayed exactly the same for 3 decades.</p>
                     </div>
                     <div class="lesson-card">
-                        <h4>3. Leverage</h4>
+                        <div class="lesson-number">3</div>
+                        <h4>Leverage</h4>
                         <p>The buyer put down a fraction of the home's value, but gets 100% of the appreciation. A 4% gain on a $300k home is $12k in the first year alone!</p>
                     </div>
                 </div>
