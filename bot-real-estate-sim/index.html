@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real Estate Simulator | Rent vs Buy</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&display=swap');
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --primary: #00E676;
+            --primary-dark: #00C853;
+            --renter: #FF3D00;
+            --buyer: #00B0FF;
+            --bg-dark: #0a0a1a;
+            --bg-card: rgba(255,255,255,0.05);
+            --border: rgba(255, 255, 255, 0.1);
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--bg-dark) 0%, #111122 100%);
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        
+        .back-link {
+            display: inline-flex; align-items: center; gap: 8px;
+            color: rgba(255,255,255,0.6); text-decoration: none;
+            padding: 12px 0; font-weight: 600; transition: color 0.3s;
+        }
+        .back-link:hover { color: var(--primary); }
+
+        header { text-align: center; margin-bottom: 40px; }
+        h1 { font-size: 48px; font-weight: 900; background: linear-gradient(135deg, var(--primary), #00B0FF); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; }
+        .subtitle { color: rgba(255,255,255,0.6); font-size: 18px; }
+
+        /* Screens */
+        .screen { display: none; animation: fadeIn 0.5s ease; }
+        .screen.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Setup Screen */
+        .setup-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; padding: 40px; max-width: 600px; margin: 0 auto; text-align: center; backdrop-filter: blur(10px); }
+        .setup-card h2 { font-size: 32px; margin-bottom: 20px; }
+        .setup-card p { color: rgba(255,255,255,0.7); margin-bottom: 30px; line-height: 1.6; }
+        
+        .input-group { margin-bottom: 24px; text-align: left; }
+        .input-group label { display: block; font-size: 14px; color: rgba(255,255,255,0.6); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
+        .input-group input { width: 100%; background: rgba(0,0,0,0.5); border: 2px solid var(--border); border-radius: 12px; padding: 16px; color: #fff; font-size: 18px; font-family: 'Inter', sans-serif; transition: border-color 0.3s; }
+        .input-group input:focus { outline: none; border-color: var(--primary); }
+
+        .btn { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: #000; border: none; padding: 18px 40px; border-radius: 50px; font-size: 20px; font-weight: 800; cursor: pointer; text-transform: uppercase; letter-spacing: 2px; box-shadow: 0 10px 30px rgba(0,230,118,0.3); transition: all 0.3s; width: 100%; margin-top: 20px; }
+        .btn:hover { transform: translateY(-3px); box-shadow: 0 15px 40px rgba(0,230,118,0.5); }
+        .btn.secondary { background: rgba(255,255,255,0.1); color: #fff; box-shadow: none; width: auto; }
+        .btn.secondary:hover { background: rgba(255,255,255,0.2); }
+
+        /* Sim Screen */
+        .dashboard { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px; }
+        @media (max-width: 768px) { .dashboard { grid-template-columns: 1fr; } }
+
+        .persona-card { background: var(--bg-card); border: 2px solid var(--border); border-radius: 24px; padding: 30px; position: relative; overflow: hidden; }
+        .persona-card.renter { border-top: 4px solid var(--renter); }
+        .persona-card.buyer { border-top: 4px solid var(--buyer); }
+        
+        .persona-header { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; }
+        .persona-icon { width: 60px; height: 60px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 30px; }
+        .renter .persona-icon { background: rgba(255, 61, 0, 0.2); color: var(--renter); }
+        .buyer .persona-icon { background: rgba(0, 176, 255, 0.2); color: var(--buyer); }
+        
+        .persona-title { font-size: 24px; font-weight: 800; }
+        .persona-subtitle { font-size: 14px; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 1px; }
+
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+        .stat-box { background: rgba(0,0,0,0.3); padding: 16px; border-radius: 12px; }
+        .stat-label { font-size: 12px; color: rgba(255,255,255,0.5); text-transform: uppercase; margin-bottom: 4px; }
+        .stat-val { font-size: 24px; font-weight: 800; }
+        
+        .net-worth-box { background: rgba(255,255,255,0.05); padding: 24px; border-radius: 16px; text-align: center; border: 1px solid rgba(255,255,255,0.1); }
+        .net-worth-val { font-size: 42px; font-weight: 900; margin: 8px 0; }
+        .renter .net-worth-val { color: var(--renter); text-shadow: 0 0 20px rgba(255, 61, 0, 0.4); }
+        .buyer .net-worth-val { color: var(--buyer); text-shadow: 0 0 20px rgba(0, 176, 255, 0.4); }
+
+        .timeline-controls { background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; padding: 30px; text-align: center; margin-bottom: 30px; }
+        .year-display { font-size: 64px; font-weight: 900; color: var(--primary); margin-bottom: 10px; text-shadow: 0 0 30px rgba(0,230,118,0.4); }
+        .year-label { font-size: 16px; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 30px; }
+        
+        .control-btns { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; }
+        
+        .chart-container { background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; padding: 30px; margin-bottom: 30px; height: 400px; position: relative; }
+        #nwChart { width: 100%; height: 100%; }
+
+        .moneybot-tip { display: flex; align-items: flex-start; gap: 20px; background: linear-gradient(135deg, rgba(0, 230, 118, 0.1), rgba(0, 200, 83, 0.05)); border: 1px solid var(--primary); border-radius: 16px; padding: 24px; margin-bottom: 30px; }
+        .tip-icon { font-size: 40px; }
+        .tip-content h3 { color: var(--primary); margin-bottom: 8px; font-size: 18px; text-transform: uppercase; letter-spacing: 1px; }
+        .tip-content p { color: rgba(255,255,255,0.9); line-height: 1.6; font-size: 16px; }
+
+        /* End Screen */
+        .winner-card { text-align: center; padding: 60px 20px; background: radial-gradient(circle at center, rgba(0, 176, 255, 0.2) 0%, transparent 70%); }
+        .winner-title { font-size: 36px; margin-bottom: 20px; }
+        .winner-diff { font-size: 64px; font-weight: 900; color: var(--primary); margin-bottom: 40px; text-shadow: 0 0 40px rgba(0,230,118,0.5); }
+        
+        .lesson-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 40px; }
+        .lesson-card { background: rgba(255,255,255,0.05); padding: 24px; border-radius: 16px; border-left: 4px solid var(--primary); text-align: left; }
+        .lesson-card h4 { font-size: 18px; margin-bottom: 12px; color: var(--primary); }
+        .lesson-card p { font-size: 14px; color: rgba(255,255,255,0.7); line-height: 1.5; }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../moneybot-official/" class="back-link">← Back to Arcade</a>
+        
+        <header>
+            <h1>Real Estate Simulator</h1>
+            <p class="subtitle">The Ultimate Showdown: Renting vs. Buying in America</p>
+        </header>
+
+        <!-- SETUP SCREEN -->
+        <div id="setupScreen" class="screen active">
+            <div class="setup-card">
+                <h2>Set Your Baseline</h2>
+                <p>Let's simulate 30 years of your financial life. Will renting or buying build more wealth?</p>
+                
+                <div class="input-group">
+                    <label>Target Home Price ($)</label>
+                    <input type="number" id="homePrice" value="300000" step="10000">
+                </div>
+                
+                <div class="input-group">
+                    <label>Starting Savings ($)</label>
+                    <input type="number" id="savings" value="25000" step="1000">
+                </div>
+                
+                <div class="input-group">
+                    <label>Current Monthly Rent ($)</label>
+                    <input type="number" id="startingRent" value="1500" step="50">
+                </div>
+                
+                <button class="btn" onclick="sim.start()">Start Simulation</button>
+            </div>
+            
+            <div class="moneybot-tip" style="margin-top: 40px; max-width: 800px; margin-left: auto; margin-right: auto;">
+                <div class="tip-icon">🤖</div>
+                <div class="tip-content">
+                    <h3>MoneyBot Coach</h3>
+                    <p>Many young Americans think renting is cheaper because the monthly payment might be lower. But they forget about <strong>rent inflation</strong>, <strong>home appreciation</strong>, and <strong>forced savings</strong> (equity). Let's look at the math over a lifetime!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SIMULATION SCREEN -->
+        <div id="simScreen" class="screen">
+            <div class="timeline-controls">
+                <div class="year-display">Year <span id="yearVal">0</span></div>
+                <div class="year-label">of 30 Year Mortgage</div>
+                <div class="control-btns">
+                    <button class="btn secondary" onclick="sim.advance(1)">+ 1 Year</button>
+                    <button class="btn secondary" onclick="sim.advance(5)">+ 5 Years</button>
+                    <button class="btn" onclick="sim.advance(30)" style="width: auto; margin-top: 0; padding: 18px 30px;">Jump to End</button>
+                </div>
+            </div>
+
+            <div class="dashboard">
+                <!-- RENTER CARD -->
+                <div class="persona-card renter">
+                    <div class="persona-header">
+                        <div class="persona-icon">🏢</div>
+                        <div>
+                            <div class="persona-title">The Renter</div>
+                            <div class="persona-subtitle">Invests Down Payment in Stocks</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-grid">
+                        <div class="stat-box">
+                            <div class="stat-label">Current Monthly Rent</div>
+                            <div class="stat-val" id="r_monthlyRent">$0</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">Total Sunk Rent (Cumulative)</div>
+                            <div class="stat-val" id="r_sunkRent" style="color: var(--renter);">$0</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">Stock Portfolio</div>
+                            <div class="stat-val" id="r_portfolio">$0</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">Home Equity</div>
+                            <div class="stat-val">$0</div>
+                        </div>
+                    </div>
+                    
+                    <div class="net-worth-box">
+                        <div class="stat-label">Renter Net Worth</div>
+                        <div class="net-worth-val" id="r_netWorth">$0</div>
+                    </div>
+                </div>
+
+                <!-- BUYER CARD -->
+                <div class="persona-card buyer">
+                    <div class="persona-header">
+                        <div class="persona-icon">🏡</div>
+                        <div>
+                            <div class="persona-title">The Homeowner</div>
+                            <div class="persona-subtitle">Buys Home with Fixed Rate</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-grid">
+                        <div class="stat-box">
+                            <div class="stat-label">Fixed Monthly Mortgage (P&I)</div>
+                            <div class="stat-val" id="b_monthlyMortgage">$0</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">Taxes & Insurance (Monthly)</div>
+                            <div class="stat-val" id="b_taxes">$0</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">Current Home Value</div>
+                            <div class="stat-val" id="b_homeValue" style="color: var(--buyer);">$0</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">Remaining Loan Balance</div>
+                            <div class="stat-val" id="b_loanBalance">$0</div>
+                        </div>
+                    </div>
+                    
+                    <div class="net-worth-box">
+                        <div class="stat-label">Homeowner Net Worth</div>
+                        <div class="net-worth-val" id="b_netWorth">$0</div>
+                        <div style="font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 4px;">(Home Value + Cash - Loan)</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <canvas id="nwChart"></canvas>
+            </div>
+            
+            <div id="dynamicTip" class="moneybot-tip">
+                <div class="tip-icon">💡</div>
+                <div class="tip-content">
+                    <h3 id="tipTitle">Observation</h3>
+                    <p id="tipText">Watch the renter's monthly cost. Over time, inflation makes renting much more expensive, while the homeowner's principal and interest payment never changes.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- END SCREEN -->
+        <div id="endScreen" class="screen">
+            <div class="winner-card">
+                <div class="winner-title">After 30 Years, the Winner is...</div>
+                <div style="font-size: 80px; margin-bottom: 10px;">🏆 <span id="winnerName" style="color: var(--buyer);">HOMEOWNER</span> 🏆</div>
+                <div class="stat-label">Net Worth Difference</div>
+                <div class="winner-diff" id="winnerDiff">+$0</div>
+                
+                <div class="lesson-grid">
+                    <div class="lesson-card">
+                        <h4>1. Forced Savings</h4>
+                        <p>Every mortgage payment pays down principal. A house acts like a giant, illiquid savings account that forces you to build wealth every month.</p>
+                    </div>
+                    <div class="lesson-card">
+                        <h4>2. Inflation Protection</h4>
+                        <p>The renter's monthly payment doubled over 30 years. The homeowner's principal & interest payment stayed exactly the same for 3 decades.</p>
+                    </div>
+                    <div class="lesson-card">
+                        <h4>3. Leverage</h4>
+                        <p>The buyer put down a fraction of the home's value, but gets 100% of the appreciation. A 4% gain on a $300k home is $12k in the first year alone!</p>
+                    </div>
+                </div>
+                
+                <button class="btn" onclick="location.reload()">Run Another Scenario</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const formatMoney = (num) => '$' + Math.round(num).toLocaleString();
+
+        const sim = {
+            year: 0,
+            maxYears: 30,
+            history: { renter: [], buyer: [] },
+            
+            // Constants / Rates
+            rentInflation: 0.035, // 3.5% annual rent increase
+            homeAppreciation: 0.04, // 4% annual home appreciation
+            stockReturn: 0.07, // 7% stock market return
+            propertyTaxRate: 0.012, // 1.2% property tax
+            maintenanceRate: 0.01, // 1% home maintenance
+            mortgageRate: 0.065, // 6.5% interest rate
+            
+            // State
+            r_rent: 0,
+            r_sunk: 0,
+            r_portfolio: 0,
+            
+            b_homeValue: 0,
+            b_loanBalance: 0,
+            b_cash: 0,
+            b_monthlyMortgage: 0, // Principal & Interest (Fixed)
+            
+            start() {
+                // Get inputs
+                const homePrice = parseFloat(document.getElementById('homePrice').value);
+                const savings = parseFloat(document.getElementById('savings').value);
+                const startingRent = parseFloat(document.getElementById('startingRent').value);
+                
+                // Initialize Renter (Starts by investing the savings)
+                this.r_rent = startingRent;
+                this.r_sunk = 0;
+                this.r_portfolio = savings; 
+                
+                // Initialize Buyer
+                // Let's assume FHA or low down payment (e.g., $15k down + $10k closing = $25k total out of pocket)
+                // We'll just use the exact "savings" as the total down payment + closing costs for simplicity.
+                const downPayment = savings * 0.7; // 70% of savings goes to down payment, rest to closing
+                this.b_homeValue = homePrice;
+                this.b_loanBalance = homePrice - downPayment;
+                this.b_cash = 0; // Used all savings
+                
+                // Calculate fixed monthly P&I
+                const monthlyRate = this.mortgageRate / 12;
+                const numPayments = this.maxYears * 12;
+                this.b_monthlyMortgage = this.b_loanBalance * (monthlyRate * Math.pow(1 + monthlyRate, numPayments)) / (Math.pow(1 + monthlyRate, numPayments) - 1);
+                
+                this.year = 0;
+                this.history = { renter: [], buyer: [] };
+                this.recordHistory();
+                this.updateUI();
+                
+                document.getElementById('setupScreen').classList.remove('active');
+                document.getElementById('simScreen').classList.add('active');
+                
+                this.drawChart();
+            },
+            
+            advance(years) {
+                const targetYear = Math.min(this.year + years, this.maxYears);
+                
+                while(this.year < targetYear) {
+                    this.simulateYear();
+                }
+                
+                this.updateUI();
+                this.drawChart();
+                this.updateTip();
+                
+                if(this.year >= this.maxYears) {
+                    setTimeout(() => this.showEndScreen(), 1500);
+                }
+            },
+            
+            simulateYear() {
+                // --- RENTER ---
+                // Rent goes up
+                this.r_rent *= (1 + this.rentInflation);
+                const yearlyRent = this.r_rent * 12;
+                this.r_sunk += yearlyRent;
+                
+                // Portfolio grows
+                this.r_portfolio *= (1 + this.stockReturn);
+                
+                // --- BUYER ---
+                // Buyer's taxes, insurance, maintenance scale with home value
+                const yearlyTaxesIns = this.b_homeValue * this.propertyTaxRate;
+                const yearlyMaint = this.b_homeValue * this.maintenanceRate;
+                const yearlyMortgage = this.b_monthlyMortgage * 12;
+                
+                // Total buyer housing cost
+                const buyerTotalHousingCost = yearlyMortgage + yearlyTaxesIns + yearlyMaint;
+                
+                // Difference in housing costs
+                // If renting is cheaper, renter invests the difference.
+                // If buying is cheaper, buyer invests the difference in cash.
+                const costDiff = buyerTotalHousingCost - yearlyRent;
+                
+                if (costDiff > 0) {
+                    // Buying costs more, renter invests the extra cash they didn't spend
+                    this.r_portfolio += costDiff;
+                } else {
+                    // Renting costs more, buyer saves the extra cash
+                    this.b_cash += Math.abs(costDiff);
+                }
+                
+                // Buyer cash grows (invested in market)
+                this.b_cash *= (1 + this.stockReturn);
+                
+                // Amortization (paying down loan)
+                // Rough estimate for annual principal paydown
+                if (this.b_loanBalance > 0) {
+                    let interestPaid = this.b_loanBalance * this.mortgageRate;
+                    let principalPaid = yearlyMortgage - interestPaid;
+                    this.b_loanBalance -= principalPaid;
+                    if (this.b_loanBalance < 0) this.b_loanBalance = 0;
+                }
+                
+                // Home appreciates
+                this.b_homeValue *= (1 + this.homeAppreciation);
+                
+                this.year++;
+                this.recordHistory();
+            },
+            
+            recordHistory() {
+                this.history.renter.push(this.r_portfolio);
+                const b_netWorth = this.b_homeValue - this.b_loanBalance + this.b_cash;
+                this.history.buyer.push(b_netWorth);
+            },
+            
+            updateUI() {
+                document.getElementById('yearVal').textContent = this.year;
+                
+                // Renter
+                document.getElementById('r_monthlyRent').textContent = formatMoney(this.r_rent);
+                document.getElementById('r_sunkRent').textContent = formatMoney(this.r_sunk);
+                document.getElementById('r_portfolio').textContent = formatMoney(this.r_portfolio);
+                document.getElementById('r_netWorth').textContent = formatMoney(this.r_portfolio);
+                
+                // Buyer
+                const b_monthlyTaxes = (this.b_homeValue * this.propertyTaxRate) / 12;
+                document.getElementById('b_monthlyMortgage').textContent = formatMoney(this.b_monthlyMortgage);
+                document.getElementById('b_taxes').textContent = formatMoney(b_monthlyTaxes);
+                document.getElementById('b_homeValue').textContent = formatMoney(this.b_homeValue);
+                document.getElementById('b_loanBalance').textContent = formatMoney(this.b_loanBalance);
+                
+                const b_netWorth = this.b_homeValue - this.b_loanBalance + this.b_cash;
+                document.getElementById('b_netWorth').textContent = formatMoney(b_netWorth);
+            },
+            
+            updateTip() {
+                const title = document.getElementById('tipTitle');
+                const text = document.getElementById('tipText');
+                
+                if (this.year === 10) {
+                    title.textContent = "10 Year Mark";
+                    text.textContent = `Look at the Renter's monthly rent. It has grown significantly due to 3.5% inflation. Meanwhile, the Homeowner is still paying the exact same ${formatMoney(this.b_monthlyMortgage)} for their mortgage!`;
+                } else if (this.year === 20) {
+                    title.textContent = "Equity Explosion";
+                    text.textContent = "By year 20, the Homeowner's loan balance is dropping rapidly, and the home value is soaring. Leverage (borrowing money to buy an appreciating asset) is working its magic.";
+                } else if (this.year === 30) {
+                    title.textContent = "Mortgage Paid Off!";
+                    text.textContent = "The Homeowner just made their final mortgage payment! They now own the home free and clear. The renter is still paying rent every single month forever.";
+                }
+            },
+            
+            showEndScreen() {
+                document.getElementById('simScreen').classList.remove('active');
+                document.getElementById('endScreen').classList.add('active');
+                
+                const r_netWorth = this.r_portfolio;
+                const b_netWorth = this.b_homeValue - this.b_loanBalance + this.b_cash;
+                
+                const diff = b_netWorth - r_netWorth;
+                
+                if (diff > 0) {
+                    document.getElementById('winnerName').textContent = "HOMEOWNER";
+                    document.getElementById('winnerName').style.color = "var(--buyer)";
+                    document.getElementById('winnerDiff').textContent = "+" + formatMoney(diff);
+                } else {
+                    document.getElementById('winnerName').textContent = "RENTER";
+                    document.getElementById('winnerName').style.color = "var(--renter)";
+                    document.getElementById('winnerDiff').textContent = "+" + formatMoney(Math.abs(diff));
+                }
+            },
+            
+            drawChart() {
+                const canvas = document.getElementById('nwChart');
+                const ctx = canvas.getContext('2d');
+                const rect = canvas.parentElement.getBoundingClientRect();
+                
+                // High DPI support
+                canvas.width = rect.width * 2;
+                canvas.height = rect.height * 2;
+                ctx.scale(2, 2);
+                
+                const width = rect.width;
+                const height = rect.height;
+                const padding = 40;
+                
+                ctx.clearRect(0, 0, width, height);
+                
+                if (this.history.renter.length === 0) return;
+                
+                const maxVal = Math.max(
+                    ...this.history.renter,
+                    ...this.history.buyer
+                );
+                
+                // Draw Grid
+                ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+                ctx.lineWidth = 1;
+                for(let i=0; i<=4; i++) {
+                    const y = padding + (height - padding*2) * (i/4);
+                    ctx.beginPath();
+                    ctx.moveTo(padding, y);
+                    ctx.lineTo(width - padding, y);
+                    ctx.stroke();
+                    
+                    // Y axis labels
+                    ctx.fillStyle = 'rgba(255,255,255,0.5)';
+                    ctx.font = '12px Inter';
+                    ctx.textAlign = 'right';
+                    ctx.textBaseline = 'middle';
+                    const val = maxVal * (1 - i/4);
+                    ctx.fillText(formatMoney(val), padding - 10, y);
+                }
+                
+                // Draw Lines function
+                const drawLine = (data, color) => {
+                    ctx.strokeStyle = color;
+                    ctx.lineWidth = 4;
+                    ctx.lineJoin = 'round';
+                    ctx.beginPath();
+                    
+                    data.forEach((val, i) => {
+                        const x = padding + ((width - padding*2) * (i / this.maxYears));
+                        const y = height - padding - ((height - padding*2) * (val / maxVal));
+                        if(i === 0) ctx.moveTo(x, y);
+                        else ctx.lineTo(x, y);
+                    });
+                    ctx.stroke();
+                    
+                    // Draw dot at current year
+                    const currentI = this.year;
+                    if(currentI < data.length) {
+                        const x = padding + ((width - padding*2) * (currentI / this.maxYears));
+                        const y = height - padding - ((height - padding*2) * (data[currentI] / maxVal));
+                        ctx.fillStyle = color;
+                        ctx.beginPath();
+                        ctx.arc(x, y, 6, 0, Math.PI*2);
+                        ctx.fill();
+                        ctx.strokeStyle = '#fff';
+                        ctx.lineWidth = 2;
+                        ctx.stroke();
+                    }
+                };
+                
+                drawLine(this.history.renter, '#FF3D00');
+                drawLine(this.history.buyer, '#00B0FF');
+                
+                // Legend
+                ctx.fillStyle = '#fff';
+                ctx.font = '14px Inter';
+                ctx.textAlign = 'left';
+                
+                ctx.fillStyle = '#00B0FF';
+                ctx.fillRect(padding + 20, 10, 15, 15);
+                ctx.fillStyle = '#fff';
+                ctx.fillText("Homeowner Net Worth", padding + 45, 22);
+                
+                ctx.fillStyle = '#FF3D00';
+                ctx.fillRect(padding + 220, 10, 15, 15);
+                ctx.fillStyle = '#fff';
+                ctx.fillText("Renter Net Worth", padding + 245, 22);
+            }
+        };
+        
+        // Initial setup
+        const canvas = document.getElementById('nwChart');
+        const resizeChart = () => {
+            if(document.getElementById('simScreen').classList.contains('active')) {
+                sim.drawChart();
+            }
+        };
+        window.addEventListener('resize', resizeChart);
+    </script>
+</body>
+</html>
