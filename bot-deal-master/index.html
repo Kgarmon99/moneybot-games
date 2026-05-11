@@ -1,0 +1,1720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Deal Master - Negotiation Game</title>
+    <style>
+        :root {
+            --bg-white: #FFFFFF;
+            --accent-green: #00C853;
+            --accent-green-light: #00E676;
+            --accent-green-soft: #E8F5E9;
+            --text-dark: #1A1A1A;
+            --text-muted: #666666;
+            --text-light: #999999;
+            --border-light: #E0E0E0;
+            --panel-bg: #F5F5F5;
+            --success: #00C853;
+            --warning: #FFB300;
+            --danger: #FF5252;
+            --info: #2196F3;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--bg-white);
+            color: var(--text-dark);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .app-container {
+            max-width: 480px;
+            margin: 0 auto;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Header */
+        .header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--bg-white);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 700;
+            font-size: 20px;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--accent-green);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+        }
+
+        .score-display {
+            display: flex;
+            gap: 16px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .score-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .score-label {
+            font-size: 10px;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .score-value {
+            color: var(--accent-green);
+            font-size: 16px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        /* Screen Management */
+        .screen {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Welcome Screen */
+        .welcome-title {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 8px;
+            line-height: 1.2;
+        }
+
+        .welcome-subtitle {
+            color: var(--text-muted);
+            font-size: 16px;
+            margin-bottom: 32px;
+        }
+
+        .difficulty-selector {
+            margin-bottom: 32px;
+        }
+
+        .selector-label {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-light);
+            margin-bottom: 12px;
+        }
+
+        .difficulty-options {
+            display: flex;
+            gap: 12px;
+        }
+
+        .difficulty-btn {
+            flex: 1;
+            padding: 16px 12px;
+            border: 2px solid var(--border-light);
+            border-radius: 12px;
+            background: var(--bg-white);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .difficulty-btn.active {
+            border-color: var(--accent-green);
+            background: var(--accent-green-soft);
+        }
+
+        .difficulty-btn .label {
+            font-weight: 700;
+            font-size: 14px;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .difficulty-btn .desc {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .scenarios-grid {
+            display: grid;
+            gap: 12px;
+        }
+
+        .scenario-card {
+            padding: 20px;
+            border: 1px solid var(--border-light);
+            border-radius: 16px;
+            background: var(--bg-white);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .scenario-card:hover, .scenario-card:active {
+            border-color: var(--accent-green);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0, 200, 83, 0.15);
+        }
+
+        .scenario-card.locked {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .scenario-card.locked:hover {
+            border-color: var(--border-light);
+            transform: none;
+            box-shadow: none;
+        }
+
+        .scenario-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--accent-green-soft);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 12px;
+        }
+
+        .scenario-title {
+            font-weight: 700;
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+
+        .scenario-desc {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .scenario-status {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 24px;
+            height: 24px;
+            background: var(--accent-green);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+        }
+
+        /* Game Screen */
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .scenario-info h2 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .scenario-info p {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .round-badge {
+            background: var(--accent-green);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        /* Meters */
+        .meters-container {
+            display: grid;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .meter {
+            background: var(--panel-bg);
+            padding: 16px;
+            border-radius: 12px;
+        }
+
+        .meter-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .meter-label {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+        }
+
+        .meter-value {
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .meter-bar {
+            height: 8px;
+            background: var(--border-light);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .meter-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s ease, background-color 0.3s ease;
+        }
+
+        .meter-fill.deal { background: var(--accent-green); }
+        .meter-fill.relationship { background: var(--info); }
+        .meter-fill.batna { background: var(--warning); }
+
+        /* Negotiation Area */
+        .negotiation-area {
+            background: var(--panel-bg);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .opponent-section {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .opponent-avatar {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--accent-green), var(--accent-green-light));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+        }
+
+        .opponent-details h3 {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .opponent-details p {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .opponent-mood {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+            margin-top: 4px;
+            padding: 4px 8px;
+            background: var(--bg-white);
+            border-radius: 12px;
+        }
+
+        .dialogue-box {
+            background: var(--bg-white);
+            border-left: 4px solid var(--accent-green);
+            padding: 16px;
+            border-radius: 0 12px 12px 0;
+            margin-bottom: 20px;
+            font-size: 15px;
+            line-height: 1.5;
+            min-height: 80px;
+        }
+
+        .dialogue-box.opponent {
+            border-left-color: var(--info);
+        }
+
+        /* Offer Section */
+        .offer-section {
+            margin-bottom: 20px;
+        }
+
+        .offer-label {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+
+        .offer-input-container {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .offer-input {
+            flex: 1;
+            padding: 16px;
+            border: 2px solid var(--border-light);
+            border-radius: 12px;
+            font-size: 24px;
+            font-weight: 700;
+            text-align: center;
+            transition: border-color 0.2s ease;
+        }
+
+        .offer-input:focus {
+            outline: none;
+            border-color: var(--accent-green);
+        }
+
+        .offer-adjust {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .adjust-btn {
+            width: 44px;
+            height: 44px;
+            border: 2px solid var(--border-light);
+            background: var(--bg-white);
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .adjust-btn:hover {
+            border-color: var(--accent-green);
+            background: var(--accent-green-soft);
+        }
+
+        /* Tactics */
+        .tactics-section {
+            margin-bottom: 20px;
+        }
+
+        .tactics-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .tactic-btn {
+            padding: 14px 12px;
+            border: 2px solid var(--border-light);
+            background: var(--bg-white);
+            border-radius: 12px;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s ease;
+        }
+
+        .tactic-btn:hover:not(:disabled) {
+            border-color: var(--accent-green);
+            background: var(--accent-green-soft);
+        }
+
+        .tactic-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .tactic-btn.active {
+            border-color: var(--accent-green);
+            background: var(--accent-green);
+            color: white;
+        }
+
+        .tactic-btn .name {
+            font-weight: 700;
+            font-size: 13px;
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .tactic-btn .desc {
+            font-size: 11px;
+            opacity: 0.8;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 16px 24px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: var(--accent-green);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-green-light);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0, 200, 83, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--panel-bg);
+            color: var(--text-dark);
+            border: 2px solid var(--border-light);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--accent-green);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-full {
+            grid-column: span 2;
+        }
+
+        /* Feedback Toast */
+        .feedback-toast {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--text-dark);
+            color: white;
+            padding: 16px 24px;
+            border-radius: 12px;
+            font-size: 14px;
+            max-width: 90%;
+            width: max-content;
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 200;
+            text-align: center;
+        }
+
+        .feedback-toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .feedback-toast.success { background: var(--success); }
+        .feedback-toast.warning { background: var(--warning); color: var(--text-dark); }
+        .feedback-toast.error { background: var(--danger); }
+
+        /* Results Screen */
+        .results-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .results-emoji {
+            font-size: 64px;
+            margin-bottom: 16px;
+        }
+
+        .results-title {
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .results-subtitle {
+            color: var(--text-muted);
+            font-size: 15px;
+        }
+
+        .score-breakdown {
+            background: var(--panel-bg);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .breakdown-title {
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .breakdown-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .breakdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .breakdown-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .breakdown-value {
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .breakdown-value.positive { color: var(--success); }
+        .breakdown-value.negative { color: var(--danger); }
+
+        .total-score {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 16px;
+            margin-top: 16px;
+            border-top: 2px solid var(--accent-green);
+        }
+
+        .total-score .label {
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .total-score .value {
+            font-weight: 800;
+            font-size: 28px;
+            color: var(--accent-green);
+        }
+
+        .lessons-learned {
+            background: var(--accent-green-soft);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .lessons-title {
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .lesson-item {
+            font-size: 13px;
+            padding: 8px 0;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .lesson-item::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: var(--accent-green);
+            font-weight: 700;
+        }
+
+        .unlocked-tactics {
+            margin-bottom: 24px;
+        }
+
+        .unlocked-title {
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .tactic-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--accent-green);
+            color: white;
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-right: 8px;
+            margin-bottom: 8px;
+        }
+
+        /* Tactics Library */
+        .library-grid {
+            display: grid;
+            gap: 12px;
+        }
+
+        .library-card {
+            background: var(--panel-bg);
+            border-radius: 12px;
+            padding: 16px;
+            border: 2px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .library-card.unlocked {
+            border-color: var(--accent-green);
+        }
+
+        .library-card.locked {
+            opacity: 0.6;
+        }
+
+        .library-card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
+        .library-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--accent-green-soft);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .library-card.locked .library-icon {
+            background: var(--border-light);
+        }
+
+        .library-name {
+            font-weight: 700;
+            font-size: 15px;
+        }
+
+        .library-status {
+            font-size: 11px;
+            color: var(--accent-green);
+            font-weight: 600;
+        }
+
+        .library-card.locked .library-status {
+            color: var(--text-light);
+        }
+
+        .library-desc {
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 300;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--bg-white);
+            border-radius: 20px;
+            padding: 24px;
+            max-width: 400px;
+            width: 100%;
+            animation: modalIn 0.3s ease;
+        }
+
+        @keyframes modalIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 800;
+            margin-bottom: 12px;
+        }
+
+        .modal-text {
+            font-size: 15px;
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .modal-buttons .btn {
+            flex: 1;
+        }
+
+        /* Deal Value Calculator */
+        .calculator-section {
+            background: var(--panel-bg);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .calc-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            font-size: 14px;
+        }
+
+        .calc-row.total {
+            border-top: 1px solid var(--border-light);
+            margin-top: 8px;
+            padding-top: 12px;
+            font-weight: 700;
+        }
+
+        /* Responsive */
+        @media (max-width: 380px) {
+            .tactics-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                grid-template-columns: 1fr;
+            }
+            
+            .btn-full {
+                grid-column: span 1;
+            }
+        }
+
+        /* Animations */
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .shake {
+            animation: shake 0.5s ease;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <div class="logo-icon">🤝</div>
+                <span>Deal Master</span>
+            </div>
+            <div class="score-display">
+                <div class="score-item">
+                    <span class="score-label">Total Score</span>
+                    <span class="score-value" id="totalScore">0</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Welcome Screen -->
+            <div class="screen active" id="welcomeScreen">
+                <h1 class="welcome-title">Master the Art of the Deal</h1>
+                <p class="welcome-subtitle">Learn negotiation tactics through realistic scenarios. Close deals, preserve relationships, and maximize value.</p>
+
+                <div class="difficulty-selector">
+                    <div class="selector-label">Select Difficulty</div>
+                    <div class="difficulty-options">
+                        <div class="difficulty-btn active" data-diff="easy">
+                            <span class="label">Easy</span>
+                            <span class="desc">Cooperative opponents</span>
+                        </div>
+                        <div class="difficulty-btn" data-diff="medium">
+                            <span class="label">Medium</span>
+                            <span class="desc">Balanced negotiators</span>
+                        </div>
+                        <div class="difficulty-btn" data-diff="hard">
+                            <span class="label">Hard</span>
+                            <span class="desc">Tough opponents</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="selector-label">Choose a Scenario</div>
+                <div class="scenarios-grid" id="scenariosGrid">
+                    <!-- Scenarios injected by JS -->
+                </div>
+            </div>
+
+            <!-- Game Screen -->
+            <div class="screen" id="gameScreen">
+                <div class="game-header">
+                    <div class="scenario-info">
+                        <h2 id="gameScenarioTitle">Scenario</h2>
+                        <p id="gameScenarioDesc">Description</p>
+                    </div>
+                    <div class="round-badge" id="roundBadge">Round 1/3</div>
+                </div>
+
+                <div class="meters-container">
+                    <div class="meter">
+                        <div class="meter-header">
+                            <span class="meter-label">Deal Value</span>
+                            <span class="meter-value" id="dealValue">$0</span>
+                        </div>
+                        <div class="meter-bar">
+                            <div class="meter-fill deal" id="dealMeter" style="width: 50%"></div>
+                        </div>
+                    </div>
+                    <div class="meter">
+                        <div class="meter-header">
+                            <span class="meter-label">Relationship</span>
+                            <span class="meter-value" id="relationshipValue">50%</span>
+                        </div>
+                        <div class="meter-bar">
+                            <div class="meter-fill relationship" id="relationshipMeter" style="width: 50%"></div>
+                        </div>
+                    </div>
+                    <div class="meter">
+                        <div class="meter-header">
+                            <span class="meter-label">Your BATNA</span>
+                            <span class="meter-value" id="batnaValue">$0</span>
+                        </div>
+                        <div class="meter-bar">
+                            <div class="meter-fill batna" id="batnaMeter" style="width: 30%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="negotiation-area">
+                    <div class="opponent-section">
+                        <div class="opponent-avatar" id="opponentAvatar">👤</div>
+                        <div class="opponent-details">
+                            <h3 id="opponentName">Opponent</h3>
+                            <p id="opponentRole">Role</p>
+                            <span class="opponent-mood" id="opponentMood">😐 Neutral</span>
+                        </div>
+                    </div>
+
+                    <div class="dialogue-box opponent" id="opponentDialogue">
+                        Welcome to the negotiation. What's your opening offer?
+                    </div>
+
+                    <div class="calculator-section" id="dealCalculator" style="display: none;">
+                        <div class="calc-row">
+                            <span>Market Value</span>
+                            <span id="calcMarket">$0</span>
+                        </div>
+                        <div class="calc-row">
+                            <span>Your Offer</span>
+                            <span id="calcOffer">$0</span>
+                        </div>
+                        <div class="calc-row">
+                            <span>Savings vs Market</span>
+                            <span id="calcSavings" style="color: var(--success);">$0</span>
+                        </div>
+                        <div class="calc-row total">
+                            <span>Deal Quality</span>
+                            <span id="calcQuality">0%</span>
+                        </div>
+                    </div>
+
+                    <div class="offer-section">
+                        <div class="offer-label">Your Offer</div>
+                        <div class="offer-input-container">
+                            <button class="adjust-btn" id="decreaseOffer">−</button>
+                            <input type="number" class="offer-input" id="offerInput" value="0" min="0">
+                            <button class="adjust-btn" id="increaseOffer">+</button>
+                        </div>
+                    </div>
+
+                    <div class="tactics-section">
+                        <div class="offer-label">Tactics (Optional)</div>
+                        <div class="tactics-grid" id="tacticsGrid">
+                            <!-- Tactics injected by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-secondary" id="walkAwayBtn">Walk Away</button>
+                    <button class="btn btn-primary" id="makeOfferBtn">Make Offer</button>
+                    <button class="btn btn-primary btn-full" id="acceptDealBtn" style="display: none;">Accept Deal</button>
+                </div>
+            </div>
+
+            <!-- Results Screen -->
+            <div class="screen" id="resultsScreen">
+                <div class="results-header">
+                    <div class="results-emoji" id="resultEmoji">🎉</div>
+                    <h2 class="results-title" id="resultTitle">Deal Closed!</h2>
+                    <p class="results-subtitle" id="resultSubtitle">You successfully negotiated a great deal.</p>
+                </div>
+
+                <div class="score-breakdown">
+                    <div class="breakdown-title">Score Breakdown</div>
+                    <div class="breakdown-item">
+                        <span class="breakdown-label">💰 Deal Value</span>
+                        <span class="breakdown-value positive" id="scoreDeal">+500</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <span class="breakdown-label">🤝 Relationship</span>
+                        <span class="breakdown-value positive" id="scoreRelationship">+200</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <span class="breakdown-label">⚡ Tactics Used</span>
+                        <span class="breakdown-value positive" id="scoreTactics">+150</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <span class="breakdown-label">⏱️ Rounds Bonus</span>
+                        <span class="breakdown-value positive" id="speedBonus">+100</span>
+                    </div>
+                    <div class="total-score">
+                        <span class="label">Total Score</span>
+                        <span class="value" id="finalScore">950</span>
+                    </div>
+                </div>
+
+                <div class="lessons-learned" id="lessonsSection">
+                    <div class="lessons-title">📚 Lessons Learned</div>
+                    <div id="lessonsList">
+                        <!-- Lessons injected by JS -->
+                    </div>
+                </div>
+
+                <div class="unlocked-tactics" id="unlockedSection" style="display: none;">
+                    <div class="unlocked-title">🔓 Tactics Unlocked</div>
+                    <div id="unlockedList"></div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-secondary" id="playAgainBtn">Play Again</button>
+                    <button class="btn btn-primary" id="nextScenarioBtn">Next Scenario</button>
+                </div>
+            </div>
+
+            <!-- Tactics Library Screen -->
+            <div class="screen" id="libraryScreen">
+                <h1 class="welcome-title">Tactics Library</h1>
+                <p class="welcome-subtitle">Master these negotiation tactics to become a Deal Master.</p>
+
+                <div class="library-grid" id="libraryGrid">
+                    <!-- Library items injected by JS -->
+                </div>
+
+                <div class="action-buttons" style="margin-top: 24px;">
+                    <button class="btn btn-primary btn-full" id="backToMenuBtn">Back to Menu</button>
+                </div>
+            </div>
+        </main>
+
+        <!-- Feedback Toast -->
+        <div class="feedback-toast" id="feedbackToast"></div>
+
+        <!-- Modal -->
+        <div class="modal-overlay" id="modalOverlay">
+            <div class="modal">
+                <h3 class="modal-title" id="modalTitle">Title</h3>
+                <p class="modal-text" id="modalText">Message</p>
+                <div class="modal-buttons" id="modalButtons">
+                    <button class="btn btn-secondary" id="modalCancel">Cancel</button>
+                    <button class="btn btn-primary" id="modalConfirm">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game Data
+        const scenarios = [
+            {
+                id: 'real-estate',
+                icon: '🏠',
+                title: 'Real Estate Deal',
+                description: 'Buy a property below market value',
+                opponent: { name: 'Marcus Chen', role: 'Property Seller', avatar: '🏡' },
+                marketValue: 500000,
+                askingPrice: 480000,
+                batna: 450000,
+                targetPrice: 460000,
+                unit: '$',
+                prefix: '$',
+                intro: "I\'m looking to sell this property quickly, but I know what it\'s worth. What\'s your offer?"
+            },
+            {
+                id: 'acquisition',
+                icon: '🏢',
+                title: 'Business Acquisition',
+                description: 'Negotiate a company purchase',
+                opponent: { name: 'Sarah Williams', role: 'Founder & CEO', avatar: '💼' },
+                marketValue: 2000000,
+                askingPrice: 1800000,
+                batna: 1600000,
+                targetPrice: 1700000,
+                unit: '$',
+                prefix: '$',
+                intro: "I\'ve built this company for 10 years. I need a buyer who respects what we\'ve created."
+            },
+            {
+                id: 'vendor',
+                icon: '📦',
+                title: 'Vendor Contract',
+                description: 'Secure favorable terms',
+                opponent: { name: 'David Park', role: 'Supplier Manager', avatar: '🚚' },
+                marketValue: 100000,
+                askingPrice: 95000,
+                batna: 85000,
+                targetPrice: 90000,
+                unit: '$',
+                prefix: '$',
+                intro: "We provide premium quality. Our standard rate is competitive for what we deliver."
+            },
+            {
+                id: 'partnership',
+                icon: '🤝',
+                title: 'Partnership Agreement',
+                description: 'Split equity and control',
+                opponent: { name: 'Elena Rodriguez', role: 'Potential Co-Founder', avatar: '⚡' },
+                marketValue: 100,
+                askingPrice: 50,
+                batna: 30,
+                targetPrice: 45,
+                unit: '%',
+                prefix: '',
+                suffix: '% equity',
+                intro: "I\'m bringing crucial expertise. I believe a fair split reflects our respective contributions."
+            },
+            {
+                id: 'salary',
+                icon: '💰',
+                title: 'Salary Negotiation',
+                description: 'Executive compensation package',
+                opponent: { name: 'James Thompson', role: 'Hiring Manager', avatar: '👔' },
+                marketValue: 150000,
+                askingPrice: 140000,
+                batna: 120000,
+                targetPrice: 135000,
+                unit: '$',
+                prefix: '$',
+                intro: "We\'re excited about your potential. Let\'s discuss a package that works for both of us."
+            }
+        ];
+
+        const tactics = [
+            {
+                id: 'anchoring',
+                name: 'Anchoring',
+                desc: 'Set the first number to influence perception',
+                unlocked: true,
+                effect: 'Shifts opponent expectations toward your offer',
+                icon: '⚓'
+            },
+            {
+                id: 'silence',
+                name: 'Strategic Silence',
+                desc: 'Pause after offer to create pressure',
+                unlocked: false,
+                effect: 'Opponent may improve their position',
+                icon: '🤐'
+            },
+            {
+                id: 'batna',
+                name: 'BATNA Play',
+                desc: 'Hint at your best alternative',
+                unlocked: false,
+                effect: 'Strengthens your negotiating position',
+                icon: '🎯'
+            },
+            {
+                id: 'walkaway',
+                name: 'Walk-Away Ready',
+                desc: 'Show willingness to leave',
+                unlocked: false,
+                effect: 'Opponent may make concessions',
+                icon: '🚪'
+            }
+        ];
+
+        // Game State
+        let gameState = {
+            difficulty: 'easy',
+            currentScenario: null,
+            round: 1,
+            maxRounds: 3,
+            offer: 0,
+            dealValue: 0,
+            relationship: 50,
+            tacticsUsed: [],
+            opponentMood: 'neutral',
+            gameHistory: [],
+            unlockedTactics: ['anchoring'],
+            totalScore: 0,
+            scenariosCompleted: []
+        };
+
+        // Difficulty multipliers
+        const difficultySettings = {
+            easy: { opponentFlexibility: 0.15, relationshipDecay: 5 },
+            medium: { opponentFlexibility: 0.08, relationshipDecay: 8 },
+            hard: { opponentFlexibility: 0.04, relationshipDecay: 12 }
+        };
+
+        // DOM Elements
+        const screens = {
+            welcome: document.getElementById('welcomeScreen'),
+            game: document.getElementById('gameScreen'),
+            results: document.getElementById('resultsScreen'),
+            library: document.getElementById('libraryScreen')
+        };
+
+        // Initialize
+        function init() {
+            renderScenarios();
+            renderTactics();
+            renderLibrary();
+            setupEventListeners();
+            updateTotalScore();
+        }
+
+        function renderScenarios() {
+            const grid = document.getElementById('scenariosGrid');
+            grid.innerHTML = scenarios.map((scenario, index) => `
+                <div class="scenario-card ${index > 0 && !gameState.scenariosCompleted.includes(scenarios[index-1].id) ? 'locked' : ''}" 
+                     data-scenario="${scenario.id}">
+                    <div class="scenario-icon">${scenario.icon}</div>
+                    <div class="scenario-title">${scenario.title}</div>
+                    <div class="scenario-desc">${scenario.description}</div>
+                    ${gameState.scenariosCompleted.includes(scenario.id) ? '<div class="scenario-status">✓</div>' : ''}
+                </div>
+            `).join('');
+        }
+
+        function renderTactics() {
+            const grid = document.getElementById('tacticsGrid');
+            grid.innerHTML = tactics.map(tactic => `
+                <button class="tactic-btn ${gameState.unlockedTactics.includes(tactic.id) ? '' : 'locked'}" 
+                        data-tactic="${tactic.id}"
+                        ${!gameState.unlockedTactics.includes(tactic.id) ? 'disabled' : ''}>
+                    <span class="name">${tactic.icon} ${tactic.name}</span>
+                    <span class="desc">${tactic.desc}</span>
+                </button>
+            `).join('');
+        }
+
+        function renderLibrary() {
+            const grid = document.getElementById('libraryGrid');
+            grid.innerHTML = tactics.map(tactic => `
+                <div class="library-card ${gameState.unlockedTactics.includes(tactic.id) ? 'unlocked' : 'locked'}">
+                    <div class="library-card-header">
+                        <div class="library-icon">${tactic.icon}</div>
+                        <div>
+                            <div class="library-name">${tactic.name}</div>
+                            <div class="library-status">${gameState.unlockedTactics.includes(tactic.id) ? '✓ Unlocked' : '🔒 Locked'}</div>
+                        </div>
+                    </div>
+                    <div class="library-desc">${tactic.desc}. ${tactic.effect}</div>
+                </div>
+            `).join('');
+        }
+
+        function setupEventListeners() {
+            // Difficulty selection
+            document.querySelectorAll('.difficulty-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.difficulty-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    gameState.difficulty = btn.dataset.diff;
+                });
+            });
+
+            // Scenario selection
+            document.getElementById('scenariosGrid').addEventListener('click', (e) => {
+                const card = e.target.closest('.scenario-card');
+                if (card && !card.classList.contains('locked')) {
+                    startGame(card.dataset.scenario);
+                }
+            });
+
+            // Offer adjustments
+            document.getElementById('decreaseOffer').addEventListener('click', () => adjustOffer(-1000));
+            document.getElementById('increaseOffer').addEventListener('click', () => adjustOffer(1000));
+            document.getElementById('offerInput').addEventListener('change', (e) => {
+                gameState.offer = parseInt(e.target.value) || 0;
+                updateCalculator();
+            });
+
+            // Tactics
+            document.getElementById('tacticsGrid').addEventListener('click', (e) => {
+                const btn = e.target.closest('.tactic-btn');
+                if (btn && !btn.disabled) {
+                    btn.classList.toggle('active');
+                    const tacticId = btn.dataset.tactic;
+                    if (btn.classList.contains('active')) {
+                        if (!gameState.tacticsUsed.includes(tacticId)) {
+                            gameState.tacticsUsed.push(tacticId);
+                        }
+                    } else {
+                        gameState.tacticsUsed = gameState.tacticsUsed.filter(t => t !== tacticId);
+                    }
+                }
+            });
+
+            // Action buttons
+            document.getElementById('makeOfferBtn').addEventListener('click', makeOffer);
+            document.getElementById('walkAwayBtn').addEventListener('click', walkAway);
+            document.getElementById('acceptDealBtn').addEventListener('click', acceptDeal);
+            document.getElementById('playAgainBtn').addEventListener('click', () => switchScreen('welcome'));
+            document.getElementById('nextScenarioBtn').addEventListener('click', nextScenario);
+            document.getElementById('backToMenuBtn').addEventListener('click', () => switchScreen('welcome'));
+        }
+
+        function switchScreen(screenName) {
+            Object.values(screens).forEach(s => s.classList.remove('active'));
+            screens[screenName].classList.add('active');
+        }
+
+        function startGame(scenarioId) {
+            gameState.currentScenario = scenarios.find(s => s.id === scenarioId);
+            gameState.round = 1;
+            gameState.tacticsUsed = [];
+            gameState.gameHistory = [];
+            gameState.relationship = 50;
+            gameState.opponentMood = 'neutral';
+            
+            const scenario = gameState.currentScenario;
+            gameState.offer = scenario.batna;
+
+            // Update UI
+            document.getElementById('gameScenarioTitle').textContent = scenario.title;
+            document.getElementById('gameScenarioDesc').textContent = scenario.description;
+            document.getElementById('opponentAvatar').textContent = scenario.opponent.avatar;
+            document.getElementById('opponentName').textContent = scenario.opponent.name;
+            document.getElementById('opponentRole').textContent = scenario.opponent.role;
+            document.getElementById('opponentDialogue').textContent = scenario.intro;
+            document.getElementById('roundBadge').textContent = `Round ${gameState.round}/${gameState.maxRounds}`;
+            document.getElementById('batnaValue').textContent = formatMoney(scenario.batna, scenario.unit);
+            document.getElementById('batnaMeter').style.width = '30%';
+
+            // Reset offer input
+            document.getElementById('offerInput').value = gameState.offer;
+            
+            // Reset tactics
+            document.querySelectorAll('.tactic-btn').forEach(btn => btn.classList.remove('active'));
+
+            // Show calculator
+            document.getElementById('dealCalculator').style.display = 'block';
+            document.getElementById('acceptDealBtn').style.display = 'none';
+            document.getElementById('makeOfferBtn').style.display = 'block';
+            document.getElementById('walkAwayBtn').textContent = 'Walk Away';
+            document.getElementById('walkAwayBtn').className = 'btn btn-secondary';
+
+            updateMeters();
+            updateCalculator();
+            switchScreen('game');
+        }
+
+        function adjustOffer(delta) {
+            gameState.offer = Math.max(0, gameState.offer + delta);
+            document.getElementById('offerInput').value = gameState.offer;
+            updateCalculator();
+        }
+
+        function formatMoney(value, unit = '$') {
+            const scenario = gameState.currentScenario;
+            if (scenario?.suffix) {
+                return value + scenario.suffix;
+            }
+            if (value >= 1000000) {
+                return unit + (value / 1000000).toFixed(1) + 'M';
+            } else if (value >= 1000) {
+                return unit + (value / 1000).toFixed(0) + 'K';
+            }
+            return unit + value;
+        }
+
+        function updateCalculator() {
+            const scenario = gameState.currentScenario;
+            if (!scenario) return;
+
+            const savings = scenario.marketValue - gameState.offer;
+            const quality = Math.max(0, Math.min(100, (savings / (scenario.marketValue - scenario.targetPrice)) * 100));
+
+            document.getElementById('calcMarket').textContent = formatMoney(scenario.marketValue);
+            document.getElementById('calcOffer').textContent = formatMoney(gameState.offer);
+            document.getElementById('calcSavings').textContent = (savings >= 0 ? '+' : '') + formatMoney(Math.abs(savings));
+            document.getElementById('calcSavings').style.color = savings >= 0 ? 'var(--success)' : 'var(--danger)';
+            document.getElementById('calcQuality').textContent = Math.round(quality) + '%';
+        }
+
+        function updateMeters() {
+            const scenario = gameState.currentScenario;
+            if (!scenario) return;
+
+            const savings = Math.max(0, scenario.marketValue - gameState.offer);
+            const dealQuality = Math.min(100, (savings / (scenario.marketValue - scenario.targetPrice)) * 50);
+            
+            document.getElementById('dealValue').textContent = formatMoney(savings);
+            document.getElementById('dealMeter').style.width = dealQuality + '%';
+            
+            document.getElementById('relationshipValue').textContent = gameState.relationship + '%';
+            document.getElementById('relationshipMeter').style.width = gameState.relationship + '%';
+
+            // Update mood
+            const moodEmojis = { happy: '😊', neutral: '😐', frustrated: '😤', angry: '😠' };
+            document.getElementById('opponentMood').textContent = `${moodEmojis[gameState.opponentMood]} ${gameState.opponentMood.charAt(0).toUpperCase() + gameState.opponentMood.slice(1)}`;
+        }
+
+        function makeOffer() {
+            const scenario = gameState.currentScenario;
+            const settings = difficultySettings[gameState.difficulty];
+
+            // Calculate opponent response
+            const gap = gameState.offer - scenario.targetPrice;
+            const flexibility = scenario.askingPrice - scenario.targetPrice;
+            
+            let response = '';
+            let accepted = false;
+            let counterOffer = 0;
+
+            // Apply tactic effects
+            let adjustedGap = gap;
+            if (gameState.tacticsUsed.includes('anchoring')) {
+                adjustedGap *= 0.9; // Anchoring makes opponent more flexible
+            }
+            if (gameState.tacticsUsed.includes('batna')) {
+                adjustedGap *= 0.85; // BATNA strengthens position
+            }
+
+            if (gameState.offer <= scenario.targetPrice) {
+                response = "That's a strong offer. I think we have a deal!";
+                accepted = true;
+                gameState.opponentMood = 'happy';
+                gameState.relationship = Math.min(100, gameState.relationship + 15);
+            } else if (gameState.offer <= scenario.targetPrice + flexibility * 0.3) {
+                response = "We're getting close. Could you come up just a bit?";
+                counterOffer = Math.round((gameState.offer + scenario.targetPrice) / 2);
+                gameState.opponentMood = 'neutral';
+                gameState.relationship = Math.max(0, gameState.relationship - settings.relationshipDecay);
+            } else if (gameState.offer <= scenario.askingPrice) {
+                response = "That's still quite far from what I'm looking for.";
+                counterOffer = Math.round(scenario.targetPrice + flexibility * 0.4);
+                gameState.opponentMood = 'frustrated';
+                gameState.relationship = Math.max(0, gameState.relationship - settings.relationshipDecay * 1.5);
+            } else {
+                response = "That offer is insulting. I'm not sure we can work together.";
+                counterOffer = scenario.askingPrice;
+                gameState.opponentMood = 'angry';
+                gameState.relationship = Math.max(0, gameState.relationship - settings.relationshipDecay * 2);
+            }
+
+            // Silence tactic effect
+            if (gameState.tacticsUsed.includes('silence') && !accepted) {
+                response += " [Silence creates pressure... opponent reconsiders]";
+                counterOffer = Math.round(counterOffer * 0.95);
+                gameState.relationship = Math.max(0, gameState.relationship - 3);
+            }
+
+            gameState.gameHistory.push({
+                round: gameState.round,
+                offer: gameState.offer,
+                tactics: [...gameState.tacticsUsed],
+                response: response,
+                accepted: accepted
+            });
+
+            if (accepted) {
+                document.getElementById('opponentDialogue').textContent = response;
+                document.getElementById('makeOfferBtn').style.display = 'none';
+                document.getElementById('acceptDealBtn').style.display = 'block';
+                showFeedback('Deal accepted! Click to finalize.', 'success');
+            } else if (gameState.round >= gameState.maxRounds) {
+                document.getElementById('opponentDialogue').textContent = "We couldn't reach an agreement. That's unfortunate.";
+                setTimeout(() => endGame(false), 1500);
+            } else {
+                document.getElementById('opponentDialogue').textContent = response + (counterOffer ? ` How about ${formatMoney(counterOffer)}?` : '');
+                
+                // Auto-adjust offer towards counter
+                if (counterOffer > 0) {
+                    gameState.offer = Math.round((gameState.offer + counterOffer) / 2);
+                    document.getElementById('offerInput').value = gameState.offer;
+                }
+                
+                gameState.round++;
+                document.getElementById('roundBadge').textContent = `Round ${gameState.round}/${gameState.maxRounds}`;
+                
+                // Clear tactics
+                gameState.tacticsUsed = [];
+                document.querySelectorAll('.tactic-btn').forEach(btn => btn.classList.remove('active'));
+                
+                showFeedback('Counter-offer received. Adjust your position.', 'warning');
+            }
+
+            updateMeters();
+            updateCalculator();
+        }
+
+        function acceptDeal() {
+            endGame(true);
+        }
+
+        function walkAway() {
+            showModal(
+                'Walk Away?',
+                'Walking away means losing this deal. Your BATNA will be your fallback. Are you sure?',
+                () => {
+                    endGame(false, true);
+                },
+                () => {}
+            );
+        }
+
+        function endGame(success, walkedAway = false) {
+            const scenario = gameState.currentScenario;
+            let dealScore = 0;
+            let relationshipScore = 0;
+            let tacticsScore = 0;
+            let speedBonus = 0;
+
+            if (success) {
+                const savings = scenario.marketValue - gameState.offer;
+                const maxSavings = scenario.marketValue - scenario.targetPrice;
+                dealScore = Math.round((savings / maxSavings) * 500);
+                dealScore = Math.max(100, Math.min(500, dealScore));
+                
+                relationshipScore = Math.round((gameState.relationship / 100) * 200);
+                tacticsScore = gameState.gameHistory.reduce((sum, h) => sum + h.tactics.length * 50, 0);
+                speedBonus = (gameState.maxRounds - gameState.round + 1) * 50;
+            } else if (walkedAway) {
+                const batnaSavings = scenario.marketValue - scenario.batna;
+                const maxSavings = scenario.marketValue - scenario.targetPrice;
+                dealScore = Math.round((batnaSavings / maxSavings) * 300);
+                dealScore = Math.max(50, Math.min(300, dealScore));
+                relationshipScore = 50; // Neutral for walking away
+            }
+
+            const totalScore = dealScore + relationshipScore + tacticsScore + speedBonus;
+            gameState.totalScore += totalScore;
+
+            // Update results screen
+            document.getElementById('resultEmoji').textContent = success ? '🎉' : (walkedAway ? '🚪' : '❌');
+            document.getElementById('resultTitle').textContent = success ? 'Deal Closed!' : (walkedAway ? 'Walked Away' : 'Deal Failed');
+            document.getElementById('resultSubtitle').textContent = success 
+                ? `You secured ${formatMoney(scenario.marketValue - gameState.offer)} in value.` 
+                : (walkedAway ? `You exercised your BATNA at ${formatMoney(scenario.batna)}.` : 'The negotiation ended without agreement.');
+
+            document.getElementById('scoreDeal').textContent = '+' + dealScore;
+            document.getElementById('scoreRelationship').textContent = '+' + relationshipScore;
+            document.getElementById('scoreTactics').textContent = '+' + tacticsScore;
+            document.getElementById('speedBonus').textContent = '+' + speedBonus;
+            document.getElementById('finalScore').textContent = totalScore;
+
+            // Lessons learned
+            const lessons = [];
+            if (success) {
+                if (dealScore > 400) lessons.push("Your aggressive opening created strong anchor points.");
+                if (relationshipScore > 150) lessons.push("You maintained a positive relationship throughout.");
+                if (tacticsScore > 0) lessons.push("Strategic tactics amplified your negotiating power.");
+                if (gameState.round === 1) lessons.push("Closing in round 1 shows confidence and preparation.");
+            } else {
+                lessons.push("Sometimes walking away is the best negotiating tactic.");
+                lessons.push("Your BATNA provides a safety net - know it before you negotiate.");
+            }
+            if (gameState.tacticsUsed.includes('anchoring')) lessons.push("Anchoring sets the frame for the entire negotiation.");
+            if (gameState.tacticsUsed.includes('silence')) lessons.push("Silence creates pressure without damaging relationships.");
+
+            document.getElementById('lessonsList').innerHTML = lessons.map(l => `<div class="lesson-item">${l}</div>`).join('');
+
+            // Unlock tactics
+            const newUnlocks = [];
+            if (totalScore > 500 && !gameState.unlockedTactics.includes('silence')) {
+                gameState.unlockedTactics.push('silence');
+                newUnlocks.push(tactics.find(t => t.id === 'silence'));
+            }
+            if (totalScore > 800 && !gameState.unlockedTactics.includes('batna')) {
+                gameState.unlockedTactics.push('batna');
+                newUnlocks.push(tactics.find(t => t.id === 'batna'));
+            }
+            if (walkedAway && !gameState.unlockedTactics.includes('walkaway')) {
+                gameState.unlockedTactics.push('walkaway');
+                newUnlocks.push(tactics.find(t => t.id === 'walkaway'));
+            }
+
+            if (newUnlocks.length > 0) {
+                document.getElementById('unlockedSection').style.display = 'block';
+                document.getElementById('unlockedList').innerHTML = newUnlocks.map(t => 
+                    `<span class="tactic-tag">${t.icon} ${t.name}</span>`
+                ).join('');
+            } else {
+                document.getElementById('unlockedSection').style.display = 'none';
+            }
+
+            // Mark scenario complete
+            if (!gameState.scenariosCompleted.includes(scenario.id)) {
+                gameState.scenariosCompleted.push(scenario.id);
+            }
+
+            updateTotalScore();
+            renderScenarios();
+            renderTactics();
+            renderLibrary();
+            switchScreen('results');
+        }
+
+        function nextScenario() {
+            const currentIndex = scenarios.findIndex(s => s.id === gameState.currentScenario.id);
+            if (currentIndex < scenarios.length - 1) {
+                const nextScenario = scenarios[currentIndex + 1];
+                if (gameState.scenariosCompleted.includes(gameState.currentScenario.id) || currentIndex === 0) {
+                    startGame(nextScenario.id);
+                } else {
+                    showFeedback('Complete current scenario first!', 'error');
+                }
+            } else {
+                switchScreen('welcome');
+            }
+        }
+
+        function updateTotalScore() {
+            document.getElementById('totalScore').textContent = gameState.totalScore;
+        }
+
+        function showFeedback(message, type = 'success') {
+            const toast = document.getElementById('feedbackToast');
+            toast.textContent = message;
+            toast.className = `feedback-toast ${type} show`;
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        function showModal(title, text, onConfirm, onCancel) {
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalText').textContent = text;
+            document.getElementById('modalOverlay').classList.add('active');
+
+            const confirmBtn = document.getElementById('modalConfirm');
+            const cancelBtn = document.getElementById('modalCancel');
+
+            confirmBtn.onclick = () => {
+                document.getElementById('modalOverlay').classList.remove('active');
+                onConfirm();
+            };
+
+            cancelBtn.onclick = () => {
+                document.getElementById('modalOverlay').classList.remove('active');
+                onCancel();
+            };
+        }
+
+        // Start the app
+        init();
+    </script>
+</body>
+</html>
