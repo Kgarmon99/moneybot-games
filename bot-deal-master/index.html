@@ -78,6 +78,21 @@
             font-size: 18px;
         }
 
+        .back-link {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--accent-green);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            padding: 8px 12px;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        .back-link:hover {
+            background: var(--accent-green-soft);
+        }
         .score-display {
             display: flex;
             gap: 16px;
@@ -910,6 +925,7 @@
     <div class="app-container">
         <!-- Header -->
         <header class="header">
+            <a href="../moneybot-official/" class="back-link">← Back to Games</a>
             <div class="logo">
                 <div class="logo-icon">🤝</div>
                 <span>Deal Master</span>
