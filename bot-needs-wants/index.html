@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Needs vs Wants Sorter - MoneyBot</title>
+  <link rel="stylesheet" href="../shared/styles.css">
+</head>
+<body>
+  <script src="../shared/game-engine.js"></script>
+  <script>
+    const gameConfig = {
+      gameTitle: 'Needs vs Wants',
+      instructions: 'Sort expenses into Needs (essential) or Wants (nice to have).',
+      categories: [
+        { id: 'needs', name: 'Needs', hint: 'Essential for living' },
+        { id: 'wants', name: 'Wants', hint: 'Nice to have' }
+      ],
+      items: [
+        { 
+          id: 'rent', 
+          name: 'Rent', 
+          category: 'needs',
+          explanation: 'Rent is a need because shelter is essential for survival and safety.'
+        },
+        { 
+          id: 'groceries', 
+          name: 'Groceries', 
+          category: 'needs',
+          explanation: 'Food is a fundamental need. We need nutritious meals to survive and function.'
+        },
+        { 
+          id: 'netflix', 
+          name: 'Netflix', 
+          category: 'wants',
+          explanation: 'Streaming services are entertainment — enjoyable but not essential for survival.'
+        },
+        { 
+          id: 'gym', 
+          name: 'Gym', 
+          category: 'wants',
+          explanation: 'While exercise is important, a gym membership is a want. You can exercise for free.'
+        },
+        { 
+          id: 'coffee', 
+          name: 'Coffee', 
+          category: 'wants',
+          explanation: 'Daily coffee shop visits add up! Making coffee at home is the frugal choice.'
+        },
+        { 
+          id: 'utilities', 
+          name: 'Utilities', 
+          category: 'needs',
+          explanation: 'Electricity, water, and heating are essential for a safe and functional home.'
+        },
+        { 
+          id: 'dining', 
+          name: 'Dining Out', 
+          category: 'wants',
+          explanation: 'Eating at restaurants is convenient and fun, but cooking at home is the need.'
+        },
+        { 
+          id: 'phone', 
+          name: 'Phone', 
+          category: 'needs',
+          explanation: 'A basic phone plan is essential for communication, work, and emergencies.'
+        },
+        { 
+          id: 'car', 
+          name: 'Car Payment', 
+          category: 'needs',
+          explanation: 'If you need a car to get to work, the payment is a need. Consider if you can downsize.'
+        },
+        { 
+          id: 'streaming', 
+          name: 'Streaming', 
+          category: 'wants',
+          explanation: 'Multiple streaming subscriptions are wants. Pick your favorite and cancel the rest!'
+        },
+        { 
+          id: 'insurance', 
+          name: 'Insurance', 
+          category: 'needs',
+          explanation: 'Health, auto, and renters insurance protect you from financial disaster.'
+        },
+        { 
+          id: 'shopping', 
+          name: 'Shopping', 
+          category: 'wants',
+          explanation: 'Non-essential shopping for clothes, gadgets, or hobbies is a want, not a need.'
+        }
+      ]
+    };
+    
+    new MoneyBotGame(gameConfig);
+  </script>
+</body>
+</html>

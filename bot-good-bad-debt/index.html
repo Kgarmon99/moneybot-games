@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Good Debt vs Bad Debt - MoneyBot</title>
+  <link rel="stylesheet" href="../shared/styles.css">
+</head>
+<body>
+  <script src="../shared/game-engine.js"></script>
+  <script>
+    const gameConfig = {
+      gameTitle: 'Good vs Bad Debt',
+      instructions: 'Sort debts into Good Debt (builds wealth) or Bad Debt (drains wealth).',
+      categories: [
+        { id: 'good', name: 'Good Debt', hint: 'Builds wealth or generates income' },
+        { id: 'bad', name: 'Bad Debt', hint: 'Depreciating assets or consumption' }
+      ],
+      items: [
+        { 
+          id: 'mortgage', 
+          name: 'Mortgage', 
+          category: 'good',
+          explanation: 'A mortgage on a primary residence is typically good debt — real estate usually appreciates over time.'
+        },
+        { 
+          id: 'creditcard', 
+          name: 'Credit Card', 
+          category: 'bad',
+          explanation: 'Credit card debt is bad debt — high interest rates on purchases that lose value immediately.'
+        },
+        { 
+          id: 'student', 
+          name: 'Student Loans', 
+          category: 'good',
+          explanation: 'Education loans that increase your earning potential are an investment in yourself.'
+        },
+        { 
+          id: 'carloan', 
+          name: 'Car Loan', 
+          category: 'bad',
+          explanation: 'Cars depreciate rapidly. A car loan is bad debt unless it\'s essential for income.'
+        },
+        { 
+          id: 'business', 
+          name: 'Business Loan', 
+          category: 'good',
+          explanation: 'Debt to start or grow a revenue-generating business can be a smart investment.'
+        },
+        { 
+          id: 'payday', 
+          name: 'Payday Loan', 
+          category: 'bad',
+          explanation: 'Payday loans have extremely high interest rates and trap borrowers in cycles of debt.'
+        },
+        { 
+          id: 'investment', 
+          name: 'Investment Property', 
+          category: 'good',
+          explanation: 'A mortgage on rental property that generates positive cash flow is good debt.'
+        },
+        { 
+          id: 'vacation', 
+          name: 'Personal Loan (Vacation)', 
+          category: 'bad',
+          explanation: 'Borrowing for vacations or consumption creates debt for experiences with no return.'
+        }
+      ]
+    };
+    
+    new MoneyBotGame(gameConfig);
+  </script>
+</body>
+</html>

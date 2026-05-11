@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Active vs Passive Income - MoneyBot</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+
+    :root {
+      --mb-green: #00E676;
+      --mb-green-dark: #00C853;
+      --mb-green-soft: #69F0AE;
+      --mb-ink: #07111F;
+      --mb-ink-2: #0B1628;
+      --mb-panel: rgba(10, 24, 42, 0.86);
+      --mb-line: rgba(0, 200, 83, 0.22);
+      --mb-white: #F8FAFC;
+      --mb-muted: #AAB8C8;
+      --mb-gold: #FBBF24;
+      --mb-red: #FB7185;
+      --mb-blue: #38BDF8;
+      --mb-radius-sm: 12px;
+      --mb-radius-md: 18px;
+      --mb-radius-lg: 28px;
+      --mb-shadow: 0 24px 80px rgba(0, 0, 0, 0.34);
+      --mb-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--mb-white);
+      color: var(--mb-ink);
+      min-height: 100vh;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .game-container {
+      max-width: 480px;
+      margin: 0 auto;
+      width: 100%;
+      padding: 16px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 16px;
+    }
+
+    .logo {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--mb-green-dark);
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+
+    h1 {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--mb-ink);
+      margin-bottom: 4px;
+    }
+
+    .subtitle {
+      font-size: 14px;
+      color: var(--mb-muted);
+    }
+
+    .hud {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      margin-bottom: 16px;
+    }
+
+    .hud-item {
+      text-align: center;
+    }
+
+    .hud-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--mb-muted);
+      margin-bottom: 4px;
+    }
+
+    .hud-value {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--mb-green-dark);
+    }
+
+    .drop-zones {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .drop-zone {
+      background: white;
+      border: 3px dashed var(--mb-line);
+      border-radius: var(--mb-radius-lg);
+      padding: 16px 8px;
+      min-height: 200px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: all 0.2s var(--mb-spring);
+    }
+
+    .drop-zone.active {
+      border-color: var(--mb-green);
+      background: rgba(0, 230, 118, 0.05);
+      transform: scale(1.02);
+    }
+
+    .drop-zone.correct {
+      border-color: var(--mb-green-dark);
+      background: rgba(0, 200, 83, 0.1);
+    }
+
+    .drop-zone.incorrect {
+      border-color: var(--mb-red);
+      background: rgba(251, 113, 133, 0.1);
+      animation: shake 0.4s ease;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-6px); }
+      40%, 80% { transform: translateX(6px); }
+    }
+
+    .zone-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--mb-ink);
+      margin-bottom: 8px;
+      text-align: center;
+    }
+
+    .zone-subtitle {
+      font-size: 11px;
+      color: var(--mb-muted);
+      text-align: center;
+      margin-bottom: 12px;
+    }
+
+    .zone-items {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      width: 100%;
+      align-items: center;
+    }
+
+    .draggable-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      padding: 16px;
+      background: rgba(0, 200, 83, 0.05);
+      border-radius: var(--mb-radius-lg);
+      margin-bottom: 16px;
+      min-height: 120px;
+    }
+
+    .draggable {
+      background: white;
+      border: 2px solid var(--mb-green-dark);
+      border-radius: var(--mb-radius-md);
+      padding: 12px 16px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--mb-ink);
+      cursor: grab;
+      user-select: none;
+      touch-action: none;
+      transition: all 0.15s var(--mb-spring);
+      box-shadow: 0 2px 8px rgba(0, 200, 83, 0.15);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .draggable:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(0, 200, 83, 0.25);
+    }
+
+    .draggable.dragging {
+      opacity: 0.5;
+      transform: scale(1.05);
+      cursor: grabbing;
+    }
+
+    .draggable.placed {
+      cursor: default;
+      opacity: 0.9;
+      font-size: 12px;
+      padding: 8px 12px;
+    }
+
+    .draggable.placed.correct-placement {
+      border-color: var(--mb-green-dark);
+      background: rgba(0, 230, 118, 0.1);
+    }
+
+    .draggable.placed.wrong-placement {
+      border-color: var(--mb-red);
+      background: rgba(251, 113, 133, 0.1);
+    }
+
+    .icon {
+      font-size: 18px;
+    }
+
+    .feedback {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      background: var(--mb-green-dark);
+      color: white;
+      padding: 16px 32px;
+      border-radius: var(--mb-radius-lg);
+      font-size: 18px;
+      font-weight: 700;
+      z-index: 100;
+      pointer-events: none;
+      transition: transform 0.3s var(--mb-spring);
+    }
+
+    .feedback.show {
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    .feedback.error {
+      background: var(--mb-red);
+    }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(7, 17, 31, 0.85);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .modal-overlay.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal {
+      background: white;
+      border-radius: var(--mb-radius-lg);
+      padding: 32px 24px;
+      max-width: 360px;
+      width: 90%;
+      text-align: center;
+      transform: scale(0.9);
+      transition: transform 0.3s var(--mb-spring);
+    }
+
+    .modal-overlay.show .modal {
+      transform: scale(1);
+    }
+
+    .modal h2 {
+      font-size: 24px;
+      font-weight: 800;
+      margin-bottom: 12px;
+      color: var(--mb-ink);
+    }
+
+    .modal p {
+      font-size: 14px;
+      color: var(--mb-muted);
+      margin-bottom: 24px;
+      line-height: 1.5;
+    }
+
+    .btn {
+      background: var(--mb-green-dark);
+      color: white;
+      border: none;
+      padding: 14px 32px;
+      font-size: 16px;
+      font-weight: 700;
+      border-radius: var(--mb-radius-md);
+      cursor: pointer;
+      transition: all 0.2s var(--mb-spring);
+      width: 100%;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 200, 83, 0.4);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      border: 2px solid var(--mb-green-dark);
+      color: var(--mb-green-dark);
+      margin-top: 12px;
+    }
+
+    .score-display {
+      font-size: 48px;
+      font-weight: 800;
+      color: var(--mb-green-dark);
+      margin: 16px 0;
+    }
+
+    .instructions {
+      background: rgba(0, 200, 83, 0.08);
+      border-radius: var(--mb-radius-md);
+      padding: 16px;
+      margin-bottom: 16px;
+      font-size: 13px;
+      color: var(--mb-ink-2);
+      line-height: 1.5;
+    }
+
+    .instructions strong {
+      color: var(--mb-green-dark);
+    }
+
+    @media (max-width: 400px) {
+      .game-container {
+        padding: 12px;
+      }
+
+      h1 {
+        font-size: 20px;
+      }
+
+      .draggable {
+        padding: 10px 12px;
+        font-size: 13px;
+      }
+
+      .drop-zone {
+        padding: 12px 6px;
+        min-height: 180px;
+      }
+
+      .zone-title {
+        font-size: 12px;
+      }
+
+      .zone-subtitle {
+        font-size: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="game-container">
+    <header class="header">
+      <div class="logo">💰 MONEYBOT</div>
+      <h1>Active vs Passive Income</h1>
+      <p class="subtitle">Sort income sources by how much ongoing work they require</p>
+    </header>
+
+    <div class="hud">
+      <div class="hud-item">
+        <div class="hud-label">Score</div>
+        <div class="hud-value" id="score">0</div>
+      </div>
+      <div class="hud-item">
+        <div class="hud-label">Items</div>
+        <div class="hud-value" id="remaining">10</div>
+      </div>
+    </div>
+
+    <div class="instructions" id="instructions">
+      <strong>How to play:</strong> Drag each income source to the correct category. <strong>Active</strong> income requires ongoing work to earn. <strong>Passive</strong> income keeps coming with little to no ongoing effort.
+    </div>
+
+    <div class="drop-zones">
+      <div class="drop-zone" data-category="active">
+        <div class="zone-title">💪 Active</div>
+        <div class="zone-subtitle">Trade time for money</div>
+        <div class="zone-items" id="active-items"></div>
+      </div>
+      <div class="drop-zone" data-category="passive">
+        <div class="zone-title">😴 Passive</div>
+        <div class="zone-subtitle">Money works for you</div>
+        <div class="zone-items" id="passive-items"></div>
+      </div>
+    </div>
+
+    <div class="draggable-container" id="items-container">
+      <!-- Items will be generated here -->
+    </div>
+  </div>
+
+  <div class="feedback" id="feedback"></div>
+
+  <div class="modal-overlay" id="start-modal">
+    <div class="modal">
+      <h2>💪 vs 😴</h2>
+      <p>Can you tell which income sources require ongoing work? Drag each item to the correct category. Learn the difference between active and passive income!</p>
+      <button class="btn" onclick="startGame()">Start Game</button>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="end-modal">
+    <div class="modal">
+      <h2 id="end-title">Level Complete!</h2>
+      <div class="score-display" id="final-score">0/10</div>
+      <p id="end-message">Great job learning about income types!</p>
+      <button class="btn" onclick="restartGame()">Play Again</button>
+      <button class="btn btn-secondary" onclick="showLearnMore()">Learn More</button>
+    </div>
+  </div>
+
+  <script>
+    const items = [
+      { name: 'Salary', category: 'active', icon: '💼' },
+      { name: 'Rental Income', category: 'passive', icon: '🏠' },
+      { name: 'Freelance Work', category: 'active', icon: '💻' },
+      { name: 'Dividends', category: 'passive', icon: '📈' },
+      { name: 'Side Hustle', category: 'active', icon: '⚡' },
+      { name: 'Royalties', category: 'passive', icon: '🎵' },
+      { name: 'Commission', category: 'active', icon: '💰' },
+      { name: 'Interest', category: 'passive', icon: '🏦' },
+      { name: 'Business Profits', category: 'active', icon: '📊' },
+      { name: 'REITs', category: 'passive', icon: '🏢' }
+    ];
+
+    let score = 0;
+    let placedCount = 0;
+    let draggedElement = null;
+    let touchStartX = 0;
+    let touchStartY = 0;
+
+    function shuffle(array) {
+      const newArray = [...array];
+      for (let i = newArray.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+      }
+      return newArray;
+    }
+
+    function initGame() {
+      const container = document.getElementById('items-container');
+      container.innerHTML = '';
+      
+      const shuffledItems = shuffle(items);
+      
+      shuffledItems.forEach((item, index) => {
+        const el = document.createElement('div');
+        el.className = 'draggable';
+        el.draggable = true;
+        el.dataset.category = item.category;
+        el.dataset.name = item.name;
+        el.innerHTML = `<span class="icon">${item.icon}</span>${item.name}`;
+        el.id = `item-${index}`;
+        
+        // Mouse events
+        el.addEventListener('dragstart', handleDragStart);
+        el.addEventListener('dragend', handleDragEnd);
+        
+        // Touch events
+        el.addEventListener('touchstart', handleTouchStart, { passive: false });
+        el.addEventListener('touchmove', handleTouchMove, { passive: false });
+        el.addEventListener('touchend', handleTouchEnd);
+        
+        container.appendChild(el);
+      });
+    }
+
+    function handleDragStart(e) {
+      draggedElement = e.target;
+      e.target.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+    }
+
+    function handleDragEnd(e) {
+      e.target.classList.remove('dragging');
+      draggedElement = null;
+      document.querySelectorAll('.drop-zone').forEach(zone => {
+        zone.classList.remove('active');
+      });
+    }
+
+    function handleTouchStart(e) {
+      const touch = e.touches[0];
+      touchStartX = touch.clientX;
+      touchStartY = touch.clientY;
+      draggedElement = e.currentTarget;
+      draggedElement.classList.add('dragging');
+      e.preventDefault();
+    }
+
+    function handleTouchMove(e) {
+      if (!draggedElement) return;
+      e.preventDefault();
+      
+      const touch = e.touches[0];
+      const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
+      
+      document.querySelectorAll('.drop-zone').forEach(zone => {
+        zone.classList.remove('active');
+      });
+      
+      if (elementBelow) {
+        const dropZone = elementBelow.closest('.drop-zone');
+        if (dropZone) {
+          dropZone.classList.add('active');
+        }
+      }
+    }
+
+    function handleTouchEnd(e) {
+      if (!draggedElement) return;
+      
+      const touch = e.changedTouches[0];
+      const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
+      
+      draggedElement.classList.remove('dragging');
+      
+      if (elementBelow) {
+        const dropZone = elementBelow.closest('.drop-zone');
+        if (dropZone) {
+          handleDrop(dropZone, draggedElement);
+        }
+      }
+      
+      document.querySelectorAll('.drop-zone').forEach(zone => {
+        zone.classList.remove('active');
+      });
+      
+      draggedElement = null;
+    }
+
+    function setupDropZones() {
+      document.querySelectorAll('.drop-zone').forEach(zone => {
+        zone.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          zone.classList.add('active');
+        });
+
+        zone.addEventListener('dragleave', () => {
+          zone.classList.remove('active');
+        });
+
+        zone.addEventListener('drop', (e) => {
+          e.preventDefault();
+          zone.classList.remove('active');
+          
+          if (draggedElement) {
+            handleDrop(zone, draggedElement);
+          }
+        });
+      });
+    }
+
+    function handleDrop(zone, element) {
+      const targetCategory = zone.dataset.category;
+      const itemCategory = element.dataset.category;
+      const zoneItems = zone.querySelector('.zone-items');
+      
+      if (element.classList.contains('placed')) {
+        return;
+      }
+      
+      element.classList.add('placed');
+      element.draggable = false;
+      
+      if (targetCategory === itemCategory) {
+        element.classList.add('correct-placement');
+        score++;
+        showFeedback('✓ Correct!', false);
+      } else {
+        element.classList.add('wrong-placement');
+        showFeedback('✗ Try again!', true);
+      }
+      
+      zoneItems.appendChild(element);
+      placedCount++;
+      
+      updateHUD();
+      
+      if (placedCount === items.length) {
+        setTimeout(showEndScreen, 500);
+      }
+    }
+
+    function showFeedback(text, isError) {
+      const feedback = document.getElementById('feedback');
+      feedback.textContent = text;
+      feedback.className = 'feedback show' + (isError ? ' error' : '');
+      
+      setTimeout(() => {
+        feedback.classList.remove('show');
+      }, 800);
+    }
+
+    function updateHUD() {
+      document.getElementById('score').textContent = score;
+      document.getElementById('remaining').textContent = items.length - placedCount;
+    }
+
+    function showEndScreen() {
+      const modal = document.getElementById('end-modal');
+      const finalScore = document.getElementById('final-score');
+      const endTitle = document.getElementById('end-title');
+      const endMessage = document.getElementById('end-message');
+      
+      finalScore.textContent = `${score}/${items.length}`;
+      
+      if (score === items.length) {
+        endTitle.textContent = '🎉 Perfect!';
+        endMessage.textContent = 'You mastered income types! Active income requires your time and effort. Passive income keeps flowing with minimal ongoing work.';
+      } else if (score >= items.length * 0.7) {
+        endTitle.textContent = '⭐ Great Job!';
+        endMessage.textContent = `You got ${score} out of ${items.length} correct. Keep practicing to master the difference between active and passive income.`;
+      } else {
+        endTitle.textContent = '💪 Keep Learning!';
+        endMessage.textContent = `You got ${score} out of ${items.length} correct. Remember: active = trading time for money, passive = money works for you.`;
+      }
+      
+      modal.classList.add('show');
+    }
+
+    function startGame() {
+      document.getElementById('start-modal').classList.remove('show');
+      document.getElementById('instructions').style.display = 'block';
+    }
+
+    function restartGame() {
+      score = 0;
+      placedCount = 0;
+      draggedElement = null;
+      
+      document.getElementById('end-modal').classList.remove('show');
+      document.getElementById('active-items').innerHTML = '';
+      document.getElementById('passive-items').innerHTML = '';
+      
+      initGame();
+      updateHUD();
+    }
+
+    function showLearnMore() {
+      alert('Active income requires ongoing work (salary, freelance, side hustles). Passive income requires little ongoing effort after setup (rental income, dividends, royalties, interest). Building passive income streams is key to financial freedom!');
+    }
+
+    // Initialize
+    initGame();
+    setupDropZones();
+    updateHUD();
+  </script>
+</body>
+</html>

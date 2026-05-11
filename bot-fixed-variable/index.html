@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Fixed vs Variable Expenses - MoneyBot</title>
+  <link rel="stylesheet" href="../shared/styles.css">
+</head>
+<body>
+  <script src="../shared/game-engine.js"></script>
+  <script>
+    const gameConfig = {
+      gameTitle: 'Fixed vs Variable',
+      instructions: 'Sort expenses into Fixed (same amount) or Variable (changes month to month).',
+      categories: [
+        { id: 'fixed', name: 'Fixed Expenses', hint: 'Same amount each month' },
+        { id: 'variable', name: 'Variable Expenses', hint: 'Amount changes monthly' }
+      ],
+      items: [
+        { 
+          id: 'rent', 
+          name: 'Rent', 
+          category: 'fixed',
+          explanation: 'Rent is typically the same amount every month, making it a fixed expense.'
+        },
+        { 
+          id: 'groceries', 
+          name: 'Groceries', 
+          category: 'variable',
+          explanation: 'Grocery spending varies based on what you buy, sales, and how often you eat out.'
+        },
+        { 
+          id: 'car', 
+          name: 'Car Payment', 
+          category: 'fixed',
+          explanation: 'Car loan payments are fixed — the same amount is due every month.'
+        },
+        { 
+          id: 'utilities', 
+          name: 'Utilities', 
+          category: 'variable',
+          explanation: 'Electric and gas bills change based on usage and seasons.'
+        },
+        { 
+          id: 'dining', 
+          name: 'Dining Out', 
+          category: 'variable',
+          explanation: 'Restaurant spending varies wildly depending on your choices each month.'
+        },
+        { 
+          id: 'insurance', 
+          name: 'Insurance', 
+          category: 'fixed',
+          explanation: 'Insurance premiums are usually fixed monthly or annual payments.'
+        },
+        { 
+          id: 'gas', 
+          name: 'Gas', 
+          category: 'variable',
+          explanation: 'Gas prices fluctuate, and your driving needs change month to month.'
+        },
+        { 
+          id: 'subscriptions', 
+          name: 'Subscriptions', 
+          category: 'fixed',
+          explanation: 'Monthly subscriptions like Netflix or Spotify charge the same amount each month.'
+        },
+        { 
+          id: 'loan', 
+          name: 'Loan Payment', 
+          category: 'fixed',
+          explanation: 'Personal loan payments are fixed — you pay the same amount until it\'s paid off.'
+        },
+        { 
+          id: 'entertainment', 
+          name: 'Entertainment', 
+          category: 'variable',
+          explanation: 'Movies, concerts, and fun activities vary based on what you choose to do.'
+        }
+      ]
+    };
+    
+    new MoneyBotGame(gameConfig);
+  </script>
+</body>
+</html>

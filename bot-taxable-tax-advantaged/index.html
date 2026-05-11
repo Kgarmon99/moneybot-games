@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Taxable vs Tax-Advantaged - MoneyBot</title>
+  <link rel="stylesheet" href="../shared/styles.css">
+</head>
+<body>
+  <script src="../shared/game-engine.js"></script>
+  <script>
+    const gameConfig = {
+      gameTitle: 'Tax-Advantaged Accounts',
+      instructions: 'Sort accounts by their tax treatment: Taxable, Tax-Deferred, or Tax-Free.',
+      categories: [
+        { id: 'taxable', name: 'Taxable', hint: 'Pay taxes on gains yearly' },
+        { id: 'deferred', name: 'Tax-Deferred', hint: 'Pay taxes later on withdrawals' },
+        { id: 'taxfree', name: 'Tax-Free', hint: 'No taxes on qualified withdrawals' }
+      ],
+      items: [
+        { 
+          id: 'brokerage', 
+          name: 'Regular Brokerage', 
+          category: 'taxable',
+          explanation: 'Standard brokerage accounts are taxable — you pay taxes on dividends and capital gains yearly.'
+        },
+        { 
+          id: '401k', 
+          name: '401k', 
+          category: 'deferred',
+          explanation: '401(k)s are tax-deferred. You deduct contributions now and pay taxes on withdrawals in retirement.'
+        },
+        { 
+          id: 'roth', 
+          name: 'Roth IRA', 
+          category: 'taxfree',
+          explanation: 'Roth IRAs are tax-free growth. You pay taxes on contributions, but withdrawals in retirement are tax-free!'
+        },
+        { 
+          id: 'hsa', 
+          name: 'HSA', 
+          category: 'taxfree',
+          explanation: 'HSAs are triple tax-advantaged: tax-free contributions, growth, AND withdrawals for medical expenses!'
+        },
+        { 
+          id: 'savings', 
+          name: 'Savings Account', 
+          category: 'taxable',
+          explanation: 'Regular savings accounts are taxable — you owe taxes on the interest earned each year.'
+        },
+        { 
+          id: 'traditional', 
+          name: 'Traditional IRA', 
+          category: 'deferred',
+          explanation: 'Traditional IRAs are tax-deferred. Contributions may be deductible, but withdrawals are taxed.'
+        },
+        { 
+          id: 'plan529', 
+          name: '529 Plan', 
+          category: 'taxfree',
+          explanation: '529 plans offer tax-free growth when used for qualified education expenses.'
+        },
+        { 
+          id: 'muni', 
+          name: 'Municipal Bonds', 
+          category: 'taxfree',
+          explanation: 'Municipal bonds are typically exempt from federal (and sometimes state) income tax.'
+        }
+      ]
+    };
+    
+    new MoneyBotGame(gameConfig);
+  </script>
+</body>
+</html>
