@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Budget Builder - MoneyBot</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --mb-green: #00C853;
+            --mb-green-light: #00E676;
+            --mb-slate: #334155;
+            --mb-slate-light: #64748B;
+            --mb-red: #EF4444;
+            --mb-amber: #F59E0B;
+            --mb-blue: #3B82F6;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #FFFFFF;
+            color: var(--mb-slate);
+            min-height: 100vh;
+            overflow-x: hidden;
+            touch-action: manipulation;
+        }
+
+        .game-container {
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 16px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 16px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--mb-slate);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .header h1 span {
+            color: var(--mb-green);
+        }
+
+        .subtitle {
+            font-size: 13px;
+            color: var(--mb-slate-light);
+            margin-top: 4px;
+        }
+
+        /* Budget Display */
+        .budget-display {
+            background: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 16px;
+            border: 2px solid #E2E8F0;
+        }
+
+        .budget-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .budget-row:last-child {
+            margin-bottom: 0;
+            padding-top: 12px;
+            border-top: 2px dashed #CBD5E1;
+        }
+
+        .budget-label {
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .budget-value {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .income { color: var(--mb-green); }
+        .expense { color: var(--mb-red); }
+        .savings { color: var(--mb-blue); }
+
+        .savings-bar {
+            width: 100%;
+            height: 8px;
+            background: #E2E8F0;
+            border-radius: 4px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+
+        .savings-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--mb-green), var(--mb-green-light));
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .savings-target {
+            font-size: 11px;
+            color: var(--mb-slate-light);
+            text-align: center;
+            margin-top: 6px;
+        }
+
+        /* Game Area */
+        .game-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .section-title {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--mb-slate-light);
+            margin-bottom: 4px;
+        }
+
+        /* Blocks Container */
+        .blocks-container {
+            background: #F8FAFC;
+            border-radius: 16px;
+            padding: 16px;
+            min-height: 180px;
+            border: 2px dashed #CBD5E1;
+        }
+
+        .blocks-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .block {
+            aspect-ratio: 1;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: grab;
+            transition: transform 0.15s, box-shadow 0.15s;
+            font-size: 11px;
+            font-weight: 700;
+            text-align: center;
+            padding: 6px;
+            user-select: none;
+            touch-action: none;
+        }
+
+        .block:active {
+            cursor: grabbing;
+            transform: scale(0.95);
+        }
+
+        .block.dragging {
+            opacity: 0.5;
+            transform: scale(1.05);
+        }
+
+        .block.income-block {
+            background: linear-gradient(135deg, #DCFCE7 0%, #BBF7D0 100%);
+            border: 2px solid var(--mb-green);
+            color: #166534;
+        }
+
+        .block.expense-block {
+            background: linear-gradient(135deg, #FEE2E2 0%, #FECACA 100%);
+            border: 2px solid var(--mb-red);
+            color: #991B1B;
+        }
+
+        .block-icon {
+            font-size: 20px;
+            margin-bottom: 2px;
+        }
+
+        .block-amount {
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        /* Budget Slots */
+        .slots-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .slot-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .slot {
+            flex: 1;
+            min-height: 70px;
+            border-radius: 12px;
+            border: 2px dashed #CBD5E1;
+            background: #F8FAFC;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .slot.drag-over {
+            border-color: var(--mb-green);
+            background: #F0FDF4;
+            transform: scale(1.02);
+        }
+
+        .slot-label {
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--mb-slate-light);
+            text-transform: uppercase;
+        }
+
+        .slot-hint {
+            font-size: 9px;
+            color: #94A3B8;
+            margin-top: 2px;
+        }
+
+        .slot .block {
+            width: 90%;
+            height: 90%;
+            position: absolute;
+            top: 5%;
+            left: 5%;
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 14px 20px;
+            border-radius: 12px;
+            border: none;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.15s;
+            font-family: inherit;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-primary {
+            background: var(--mb-green);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--mb-green-light);
+        }
+
+        .btn-secondary {
+            background: #F1F5F9;
+            color: var(--mb-slate);
+        }
+
+        .btn-secondary:hover {
+            background: #E2E8F0;
+        }
+
+        /* Screens */
+        .screen {
+            position: fixed;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.98);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            z-index: 100;
+            text-align: center;
+        }
+
+        .screen.hidden {
+            display: none;
+        }
+
+        .screen h2 {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 12px;
+            color: var(--mb-slate);
+        }
+
+        .screen h2 span {
+            color: var(--mb-green);
+        }
+
+        .screen p {
+            font-size: 15px;
+            color: var(--mb-slate-light);
+            line-height: 1.6;
+            max-width: 320px;
+            margin-bottom: 24px;
+        }
+
+        .instructions-list {
+            background: #F8FAFC;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 24px;
+            text-align: left;
+            max-width: 320px;
+        }
+
+        .instruction-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+
+        .instruction-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .instruction-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .instruction-icon.income {
+            background: #DCFCE7;
+        }
+
+        .instruction-icon.expense {
+            background: #FEE2E2;
+        }
+
+        .instruction-icon.goal {
+            background: #DBEAFE;
+        }
+
+        /* Result Screen */
+        .result-stats {
+            background: #F8FAFC;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 320px;
+        }
+
+        .result-stat {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .result-stat:last-child {
+            margin-bottom: 0;
+            padding-top: 10px;
+            border-top: 1px solid #E2E8F0;
+            font-weight: 700;
+        }
+
+        .success { color: var(--mb-green); }
+        .failure { color: var(--mb-red); }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .badge.success {
+            background: #DCFCE7;
+        }
+
+        .badge.failure {
+            background: #FEE2E2;
+        }
+
+        /* Animations */
+        @keyframes pop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .pop {
+            animation: pop 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .slide-in {
+            animation: slideIn 0.4s ease;
+        }
+
+        /* Confetti */
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            pointer-events: none;
+            z-index: 200;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="header">
+            <h1>💰 Budget <span>Builder</span></h1>
+            <p class="subtitle">Drag blocks to balance your monthly budget</p>
+        </div>
+
+        <div class="budget-display">
+            <div class="budget-row">
+                <span class="budget-label">
+                    <span>📥</span> Income
+                </span>
+                <span class="budget-value income" id="income-total">$0</span>
+            </div>
+            <div class="budget-row">
+                <span class="budget-label">
+                    <span>📤</span> Expenses
+                </span>
+                <span class="budget-value expense" id="expense-total">$0</span>
+            </div>
+            <div class="budget-row">
+                <span class="budget-label">
+                    <span>💎</span> Savings
+                </span>
+                <span class="budget-value savings" id="savings-total">$0</span>
+            </div>
+            <div class="savings-bar">
+                <div class="savings-fill" id="savings-bar" style="width: 0%"></div>
+            </div>
+            <div class="savings-target">Target: 20% savings rate</div>
+        </div>
+
+        <div class="game-area">
+            <div class="section-title">Available Blocks</div>
+            <div class="blocks-container">
+                <div class="blocks-grid" id="blocks-pool">
+                    <!-- Blocks generated by JS -->
+                </div>
+            </div>
+
+            <div class="section-title">Your Budget</div>
+            <div class="slots-container">
+                <div class="slot-row">
+                    <div class="slot" data-type="income" data-index="0">
+                        <span class="slot-label">Income</span>
+                        <span class="slot-hint">Drop income here</span>
+                    </div>
+                    <div class="slot" data-type="income" data-index="1">
+                        <span class="slot-label">Income</span>
+                        <span class="slot-hint">Drop income here</span>
+                    </div>
+                    <div class="slot" data-type="expense" data-index="0">
+                        <span class="slot-label">Expense</span>
+                        <span class="slot-hint">Drop expense here</span>
+                    </div>
+                </div>
+                <div class="slot-row">
+                    <div class="slot" data-type="expense" data-index="1">
+                        <span class="slot-label">Expense</span>
+                        <span class="slot-hint">Drop expense here</span>
+                    </div>
+                    <div class="slot" data-type="expense" data-index="2">
+                        <span class="slot-label">Expense</span>
+                        <span class="slot-hint">Drop expense here</span>
+                    </div>
+                    <div class="slot" data-type="expense" data-index="3">
+                        <span class="slot-label">Expense</span>
+                        <span class="slot-hint">Drop expense here</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-secondary" onclick="resetBudget()">Reset</button>
+            <button class="btn btn-primary" onclick="checkBudget()">Check Budget</button>
+        </div>
+    </div>
+
+    <!-- Start Screen -->
+    <div class="screen" id="start-screen">
+        <h2>💰 Budget <span>Builder</span></h2>
+        <p>Master the art of cash flow! Build a balanced budget by allocating income and managing expenses.</p>
+        
+        <div class="instructions-list">
+            <div class="instruction-item">
+                <div class="instruction-icon income">📥</div>
+                <div>Drag <strong>income</strong> blocks to income slots</div>
+            </div>
+            <div class="instruction-item">
+                <div class="instruction-icon expense">📤</div>
+                <div>Drag <strong>expense</strong> blocks to expense slots</div>
+            </div>
+            <div class="instruction-item">
+                <div class="instruction-icon goal">🎯</div>
+                <div>Aim for <strong>20%+ savings</strong> to win!</div>
+            </div>
+        </div>
+
+        <button class="btn btn-primary" onclick="startGame()" style="min-width: 200px;">Start Building</button>
+    </div>
+
+    <!-- Win Screen -->
+    <div class="screen hidden" id="win-screen">
+        <div class="badge success">
+            <span>🏆</span> Budget Balanced!
+        </div>
+        <h2>Great <span>Job!</span></h2>
+        <p>You've built a healthy budget with positive cash flow!</p>
+        
+        <div class="result-stats">
+            <div class="result-stat">
+                <span>Total Income</span>
+                <span class="success" id="win-income">$0</span>
+            </div>
+            <div class="result-stat">
+                <span>Total Expenses</span>
+                <span class="failure" id="win-expense">$0</span>
+            </div>
+            <div class="result-stat">
+                <span>Savings Rate</span>
+                <span id="win-rate">0%</span>
+            </div>
+        </div>
+
+        <button class="btn btn-primary" onclick="restartGame()" style="min-width: 200px;">Build Another</button>
+    </div>
+
+    <!-- Lose Screen -->
+    <div class="screen hidden" id="lose-screen">
+        <div class="badge failure">
+            <span>⚠️</span> Needs Work
+        </div>
+        <h2>Budget <span>Deficit</span></h2>
+        <p id="lose-reason">Your expenses exceed your income. Try again!</p>
+        
+        <div class="result-stats">
+            <div class="result-stat">
+                <span>Total Income</span>
+                <span class="success" id="lose-income">$0</span>
+            </div>
+            <div class="result-stat">
+                <span>Total Expenses</span>
+                <span class="failure" id="lose-expense">$0</span>
+            </div>
+            <div class="result-stat">
+                <span>Savings Rate</span>
+                <span id="lose-rate">0%</span>
+            </div>
+        </div>
+
+        <button class="btn btn-primary" onclick="restartGame()" style="min-width: 200px;">Try Again</button>
+    </div>
+
+    <script>
+        // Game Data
+        const incomeBlocks = [
+            { id: 'i1', icon: '💼', label: 'Salary', amount: 5000, type: 'income' },
+            { id: 'i2', icon: '💻', label: 'Freelance', amount: 1200, type: 'income' },
+            { id: 'i3', icon: '📈', label: 'Investments', amount: 400, type: 'income' },
+            { id: 'i4', icon: '🏠', label: 'Rental', amount: 800, type: 'income' },
+            { id: 'i5', icon: '🎨', label: 'Side Hustle', amount: 600, type: 'income' },
+            { id: 'i6', icon: '💰', label: 'Bonus', amount: 1000, type: 'income' }
+        ];
+
+        const expenseBlocks = [
+            { id: 'e1', icon: '🏠', label: 'Rent', amount: 1800, type: 'expense' },
+            { id: 'e2', icon: '🍽️', label: 'Food', amount: 600, type: 'expense' },
+            { id: 'e3', icon: '🚗', label: 'Transport', amount: 400, type: 'expense' },
+            { id: 'e4', icon: '⚡', label: 'Utilities', amount: 200, type: 'expense' },
+            { id: 'e5', icon: '📱', label: 'Phone', amount: 80, type: 'expense' },
+            { id: 'e6', icon: '🎬', label: 'Streaming', amount: 50, type: 'expense' },
+            { id: 'e7', icon: '🏋️', label: 'Gym', amount: 60, type: 'expense' },
+            { id: 'e8', icon: '☕', label: 'Coffee', amount: 150, type: 'expense' },
+            { id: 'e9', icon: '🎮', label: 'Entertainment', amount: 200, type: 'expense' }
+        ];
+
+        // Game State
+        let slots = {
+            income: [null, null],
+            expense: [null, null, null, null]
+        };
+        let draggedBlock = null;
+        let dragSource = null;
+
+        // Initialize
+        function initGame() {
+            renderBlocksPool();
+            setupDragAndDrop();
+            updateBudget();
+        }
+
+        function renderBlocksPool() {
+            const pool = document.getElementById('blocks-pool');
+            pool.innerHTML = '';
+            
+            // Combine and shuffle blocks
+            const allBlocks = [...incomeBlocks, ...expenseBlocks]
+                .sort(() => Math.random() - 0.5)
+                .slice(0, 9);
+            
+            allBlocks.forEach(block => {
+                const el = createBlockElement(block);
+                pool.appendChild(el);
+            });
+        }
+
+        function createBlockElement(block) {
+            const el = document.createElement('div');
+            el.className = `block ${block.type}-block`;
+            el.draggable = true;
+            el.dataset.id = block.id;
+            el.dataset.type = block.type;
+            el.dataset.amount = block.amount;
+            el.innerHTML = `
+                <span class="block-icon">${block.icon}</span>
+                <span class="block-amount">$${block.amount}</span>
+            `;
+            
+            // Touch events for mobile
+            el.addEventListener('touchstart', handleTouchStart, { passive: false });
+            el.addEventListener('touchmove', handleTouchMove, { passive: false });
+            el.addEventListener('touchend', handleTouchEnd);
+            
+            // Mouse events for desktop
+            el.addEventListener('dragstart', handleDragStart);
+            el.addEventListener('dragend', handleDragEnd);
+            
+            return el;
+        }
+
+        // Touch handling for mobile
+        let touchEl = null;
+        let touchOffset = { x: 0, y: 0 };
+
+        function handleTouchStart(e) {
+            e.preventDefault();
+            const touch = e.touches[0];
+            touchEl = e.currentTarget.cloneNode(true);
+            touchEl.style.position = 'fixed';
+            touchEl.style.zIndex = '1000';
+            touchEl.style.pointerEvents = 'none';
+            touchEl.style.opacity = '0.9';
+            touchEl.style.transform = 'scale(1.1)';
+            
+            const rect = e.currentTarget.getBoundingClientRect();
+            touchOffset.x = touch.clientX - rect.left;
+            touchOffset.y = touch.clientY - rect.top;
+            
+            touchEl.style.left = (touch.clientX - touchOffset.x) + 'px';
+            touchEl.style.top = (touch.clientY - touchOffset.y) + 'px';
+            touchEl.style.width = rect.width + 'px';
+            touchEl.style.height = rect.height + 'px';
+            
+            document.body.appendChild(touchEl);
+            draggedBlock = e.currentTarget;
+            dragSource = draggedBlock.parentElement;
+            draggedBlock.classList.add('dragging');
+        }
+
+        function handleTouchMove(e) {
+            e.preventDefault();
+            if (!touchEl) return;
+            
+            const touch = e.touches[0];
+            touchEl.style.left = (touch.clientX - touchOffset.x) + 'px';
+            touchEl.style.top = (touch.clientY - touchOffset.y) + 'px';
+            
+            // Highlight drop zones
+            const slots = document.querySelectorAll('.slot');
+            slots.forEach(slot => slot.classList.remove('drag-over'));
+            
+            const el = document.elementFromPoint(touch.clientX, touch.clientY);
+            const slot = el?.closest('.slot');
+            if (slot && canDrop(slot, draggedBlock)) {
+                slot.classList.add('drag-over');
+            }
+        }
+
+        function handleTouchEnd(e) {
+            if (!touchEl) return;
+            
+            const touch = e.changedTouches[0];
+            const el = document.elementFromPoint(touch.clientX, touch.clientY);
+            const slot = el?.closest('.slot');
+            
+            if (slot && canDrop(slot, draggedBlock)) {
+                dropBlock(slot, draggedBlock);
+            }
+            
+            touchEl.remove();
+            touchEl = null;
+            
+            if (draggedBlock) {
+                draggedBlock.classList.remove('dragging');
+                draggedBlock = null;
+            }
+            
+            document.querySelectorAll('.slot').forEach(s => s.classList.remove('drag-over'));
+        }
+
+        // Desktop drag handling
+        function handleDragStart(e) {
+            draggedBlock = e.target;
+            dragSource = e.target.parentElement;
+            e.target.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+        }
+
+        function handleDragEnd(e) {
+            e.target.classList.remove('dragging');
+            document.querySelectorAll('.slot').forEach(s => s.classList.remove('drag-over'));
+        }
+
+        function setupDragAndDrop() {
+            const slots = document.querySelectorAll('.slot');
+            
+            slots.forEach(slot => {
+                slot.addEventListener('dragover', e => {
+                    e.preventDefault();
+                    if (canDrop(slot, draggedBlock)) {
+                        slot.classList.add('drag-over');
+                    }
+                });
+                
+                slot.addEventListener('dragleave', () => {
+                    slot.classList.remove('drag-over');
+                });
+                
+                slot.addEventListener('drop', e => {
+                    e.preventDefault();
+                    slot.classList.remove('drag-over');
+                    if (draggedBlock && canDrop(slot, draggedBlock)) {
+                        dropBlock(slot, draggedBlock);
+                    }
+                });
+            });
+        }
+
+        function canDrop(slot, block) {
+            if (!block) return false;
+            const slotType = slot.dataset.type;
+            const blockType = block.dataset.type;
+            return slotType === blockType;
+        }
+
+        function dropBlock(slot, block) {
+            const slotType = slot.dataset.type;
+            const slotIndex = parseInt(slot.dataset.index);
+            
+            // Remove from previous slot if applicable
+            if (dragSource && dragSource.classList.contains('slot')) {
+                const prevType = dragSource.dataset.type;
+                const prevIndex = parseInt(dragSource.dataset.index);
+                slots[prevType][prevIndex] = null;
+            }
+            
+            // If slot is occupied, return block to pool
+            const existingBlock = slot.querySelector('.block');
+            if (existingBlock) {
+                returnToPool(existingBlock);
+            }
+            
+            // Place block in slot
+            const blockData = {
+                id: block.dataset.id,
+                type: block.dataset.type,
+                amount: parseInt(block.dataset.amount),
+                icon: block.querySelector('.block-icon').textContent
+            };
+            
+            slots[slotType][slotIndex] = blockData;
+            
+            // Move DOM element
+            const newBlock = block.cloneNode(true);
+            newBlock.classList.remove('dragging');
+            newBlock.draggable = true;
+            
+            // Re-attach events
+            newBlock.addEventListener('touchstart', handleTouchStart, { passive: false });
+            newBlock.addEventListener('touchmove', handleTouchMove, { passive: false });
+            newBlock.addEventListener('touchend', handleTouchEnd);
+            newBlock.addEventListener('dragstart', handleDragStart);
+            newBlock.addEventListener('dragend', handleDragEnd);
+            
+            // Clear slot and add block
+            slot.innerHTML = '';
+            slot.appendChild(newBlock);
+            
+            // Remove from pool if coming from pool
+            if (dragSource && dragSource.id === 'blocks-pool') {
+                block.remove();
+            }
+            
+            updateBudget();
+            slot.classList.add('pop');
+            setTimeout(() => slot.classList.remove('pop'), 300);
+        }
+
+        function returnToPool(block) {
+            const pool = document.getElementById('blocks-pool');
+            const newBlock = block.cloneNode(true);
+            newBlock.classList.remove('dragging');
+            newBlock.draggable = true;
+            
+            newBlock.addEventListener('touchstart', handleTouchStart, { passive: false });
+            newBlock.addEventListener('touchmove', handleTouchMove, { passive: false });
+            newBlock.addEventListener('touchend', handleTouchEnd);
+            newBlock.addEventListener('dragstart', handleDragStart);
+            newBlock.addEventListener('dragend', handleDragEnd);
+            
+            pool.appendChild(newBlock);
+        }
+
+        function updateBudget() {
+            let income = 0;
+            let expenses = 0;
+            
+            slots.income.forEach(block => {
+                if (block) income += block.amount;
+            });
+            
+            slots.expense.forEach(block => {
+                if (block) expenses += block.amount;
+            });
+            
+            const savings = income - expenses;
+            const savingsRate = income > 0 ? (savings / income) * 100 : 0;
+            
+            document.getElementById('income-total').textContent = `$${income.toLocaleString()}`;
+            document.getElementById('expense-total').textContent = `$${expenses.toLocaleString()}`;
+            document.getElementById('savings-total').textContent = `$${savings.toLocaleString()}`;
+            
+            const savingsEl = document.getElementById('savings-total');
+            if (savings >= 0) {
+                savingsEl.style.color = 'var(--mb-blue)';
+            } else {
+                savingsEl.style.color = 'var(--mb-red)';
+            }
+            
+            document.getElementById('savings-bar').style.width = `${Math.max(0, Math.min(100, savingsRate))}%`;
+        }
+
+        function resetBudget() {
+            // Return all blocks to pool
+            document.querySelectorAll('.slot .block').forEach(block => {
+                returnToPool(block);
+            });
+            
+            // Clear slots
+            document.querySelectorAll('.slot').forEach(slot => {
+                const type = slot.dataset.type;
+                slot.innerHTML = `
+                    <span class="slot-label">${type === 'income' ? 'Income' : 'Expense'}</span>
+                    <span class="slot-hint">Drop ${type} here</span>
+                `;
+            });
+            
+            slots = { income: [null, null], expense: [null, null, null, null] };
+            updateBudget();
+        }
+
+        function checkBudget() {
+            let income = 0;
+            let expenses = 0;
+            let filledSlots = 0;
+            
+            slots.income.forEach(block => {
+                if (block) {
+                    income += block.amount;
+                    filledSlots++;
+                }
+            });
+            
+            slots.expense.forEach(block => {
+                if (block) {
+                    expenses += block.amount;
+                    filledSlots++;
+                }
+            });
+            
+            const savings = income - expenses;
+            const savingsRate = income > 0 ? (savings / income) * 100 : 0;
+            
+            // Win condition: positive savings with at least 20% savings rate
+            // And must have at least 2 income and 2 expense slots filled
+            const incomeFilled = slots.income.filter(b => b).length;
+            const expenseFilled = slots.expense.filter(b => b).length;
+            
+            if (incomeFilled < 1 || expenseFilled < 1) {
+                alert('Fill at least one income and one expense slot!');
+                return;
+            }
+            
+            if (savings > 0 && savingsRate >= 20) {
+                showWin(income, expenses, savingsRate);
+            } else {
+                showLose(income, expenses, savingsRate, savings <= 0 ? 'deficit' : 'savings');
+            }
+        }
+
+        function showWin(income, expenses, rate) {
+            document.getElementById('win-income').textContent = `$${income.toLocaleString()}`;
+            document.getElementById('win-expense').textContent = `$${expenses.toLocaleString()}`;
+            document.getElementById('win-rate').textContent = `${rate.toFixed(1)}%`;
+            document.getElementById('win-rate').className = rate >= 20 ? 'success' : '';
+            
+            document.getElementById('win-screen').classList.remove('hidden');
+            createConfetti();
+        }
+
+        function showLose(income, expenses, rate, reason) {
+            document.getElementById('lose-income').textContent = `$${income.toLocaleString()}`;
+            document.getElementById('lose-expense').textContent = `$${expenses.toLocaleString()}`;
+            document.getElementById('lose-rate').textContent = `${rate.toFixed(1)}%`;
+            
+            const reasonText = reason === 'deficit' 
+                ? 'Your expenses exceed your income. Try adding more income sources or reducing expenses!'
+                : 'Your savings rate is below 20%. Try to save more by reducing discretionary spending!';
+            document.getElementById('lose-reason').textContent = reasonText;
+            
+            document.getElementById('lose-screen').classList.remove('hidden');
+        }
+
+        function startGame() {
+            document.getElementById('start-screen').classList.add('hidden');
+            initGame();
+        }
+
+        function restartGame() {
+            document.getElementById('win-screen').classList.add('hidden');
+            document.getElementById('lose-screen').classList.add('hidden');
+            resetBudget();
+            renderBlocksPool();
+        }
+
+        function createConfetti() {
+            const colors = ['#00C853', '#00E676', '#3B82F6', '#F59E0B'];
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.top = '-10px';
+                confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+                document.body.appendChild(confetti);
+                
+                const duration = 2000 + Math.random() * 2000;
+                confetti.animate([
+                    { transform: `translateY(0) rotate(0deg)`, opacity: 1 },
+                    { transform: `translateY(${window.innerHeight}px) rotate(${Math.random() * 720}deg)`, opacity: 0 }
+                ], {
+                    duration: duration,
+                    easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)'
+                }).onfinish = () => confetti.remove();
+            }
+        }
+
+        // Initialize on load
+        window.addEventListener('DOMContentLoaded', () => {
+            // Game starts with start screen visible
+        });
+    </script>
+</body>
+</html>
