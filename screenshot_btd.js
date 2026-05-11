@@ -12,15 +12,11 @@ const path = require('path');
     await page.goto(url, { waitUntil: 'networkidle', timeout: 5000 });
     await page.waitForTimeout(1000);
     
-    // Click start
-    await page.click('#actionBtn');
+    // Click start using JavaScript to avoid animation issues
+    await page.evaluate(() => document.getElementById('actionBtn').click());
     
     // Wait for the chart to generate some data
-    await page.waitForTimeout(3000);
-    
-    // Click buy to show UI change
-    await page.click('#buyBtn');
-    await page.waitForTimeout(1000);
+    await page.waitForTimeout(4000);
     
     const thumbDir = `/Users/kahlilgarmon/.openclaw/workspace/moneybot-games/bot-buy-the-dip/assets`;
     if (!fs.existsSync(thumbDir)) {
