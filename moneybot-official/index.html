@@ -136,6 +136,75 @@
             .games-grid { grid-template-columns: 1fr; }
             .game-image { aspect-ratio: 16/9; }
         }
+        
+        /* Promo Banner */
+        .promo-banner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+            background: linear-gradient(135deg, #00C853 0%, #00E676 100%);
+            border: 2px solid #0f0;
+            border-radius: 12px;
+            padding: 20px 28px;
+            margin-bottom: 40px;
+            text-decoration: none;
+            color: white;
+            box-shadow: 0 4px 20px rgba(0,255,0,0.3);
+            transition: all 0.2s;
+        }
+        .promo-banner:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 30px rgba(0,255,0,0.4);
+        }
+        .promo-content {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .promo-icon {
+            width: 48px;
+            height: 48px;
+            background: white;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+        }
+        .promo-headline {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 4px;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+        .promo-sub {
+            font-size: 13px;
+            opacity: 0.95;
+        }
+        .promo-cta {
+            background: white;
+            color: #00C853;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 14px;
+            white-space: nowrap;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        @media (max-width: 768px) {
+            .promo-banner {
+                flex-direction: column;
+                text-align: center;
+                padding: 20px;
+            }
+            .promo-content {
+                flex-direction: column;
+            }
+            .promo-cta {
+                width: 100%;
+            }
+        }
     </style>
 </head>
 <body>
@@ -200,6 +269,18 @@
             <p>Financial Education Through Play</p>
             <div class="game-count"><span id="totalGames">100+</span> games to master your money</div>
         </div>
+        
+        <!-- MoneyBot Promo Banner -->
+        <a href="https://getmoneybot.com" target="_blank" class="promo-banner">
+            <div class="promo-content">
+                <div class="promo-icon">🤖</div>
+                <div class="promo-text">
+                    <div class="promo-headline">Master Your Money with MoneyBot</div>
+                    <div class="promo-sub">AI-powered financial coaching • Budget smarter • Build wealth faster</div>
+                </div>
+            </div>
+            <span class="promo-cta">Get Started Free →</span>
+        </a>
         
         <!-- FEATURED SECTION - Top 12 Most Polished -->
         <section class="section" id="featured">

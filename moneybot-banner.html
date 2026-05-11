@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MoneyBot Banner</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        /* Banner Styles */
+        .banner {
+            width: 100%;
+            max-width: 728px;
+            background: linear-gradient(135deg, #00C853 0%, #00E676 50%, #00C853 100%);
+            border-radius: 16px;
+            padding: 24px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+            box-shadow: 0 8px 32px rgba(0,200,83,0.4);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .banner::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 300px;
+            height: 300px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+        }
+        
+        .banner::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            left: -10%;
+            width: 200px;
+            height: 200px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 50%;
+        }
+        
+        .banner-content {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            z-index: 1;
+        }
+        
+        .logo-icon {
+            width: 60px;
+            height: 60px;
+            background: white;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        .text-content {
+            color: white;
+        }
+        
+        .headline {
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 4px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .subheadline {
+            font-size: 14px;
+            opacity: 0.95;
+            font-weight: 500;
+        }
+        
+        .cta-button {
+            background: white;
+            color: #00C853;
+            padding: 14px 28px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 16px;
+            white-space: nowrap;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            transition: all 0.2s;
+            z-index: 1;
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+        
+        /* Mobile Banner */
+        .banner-mobile {
+            display: none;
+            width: 100%;
+            max-width: 320px;
+            background: linear-gradient(135deg, #00C853 0%, #00E676 100%);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0,200,83,0.4);
+        }
+        
+        .banner-mobile .logo-icon {
+            margin: 0 auto 16px;
+            width: 50px;
+            height: 50px;
+            font-size: 28px;
+        }
+        
+        .banner-mobile .headline {
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+        
+        .banner-mobile .subheadline {
+            font-size: 13px;
+            margin-bottom: 16px;
+        }
+        
+        .banner-mobile .cta-button {
+            display: inline-block;
+            width: 100%;
+        }
+        
+        /* Responsive */
+        @media (max-width: 600px) {
+            .banner { display: none; }
+            .banner-mobile { display: block; }
+        }
+        
+        /* Variations */
+        .banner-dark {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            border: 2px solid #00C853;
+        }
+        
+        .banner-dark .headline,
+        .banner-dark .subheadline {
+            color: white;
+        }
+        
+        .banner-dark .cta-button {
+            background: #00C853;
+            color: white;
+        }
+        
+        .banner-minimal {
+            background: white;
+            border: 3px solid #00C853;
+        }
+        
+        .banner-minimal .headline {
+            color: #1a1a1a;
+        }
+        
+        .banner-minimal .subheadline {
+            color: #666;
+        }
+        
+        .banner-minimal .cta-button {
+            background: #00C853;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- Standard Banner (Desktop) -->
+    <a href="https://getmoneybot.com" target="_blank" class="banner">
+        <div class="banner-content">
+            <div class="logo-icon">🤖</div>
+            <div class="text-content">
+                <div class="headline">Master Your Money with MoneyBot</div>
+                <div class="subheadline">AI-powered financial coaching • Budget smarter • Build wealth faster</div>
+            </div>
+        </div>
+        <span class="cta-button">Get Started Free →</span>
+    </a>
+    
+    <!-- Mobile Banner -->
+    <a href="https://getmoneybot.com" target="_blank" class="banner-mobile">
+        <div class="logo-icon">🤖</div>
+        <div class="headline">Master Your Money</div>
+        <div class="subheadline">AI-powered financial coaching</div>
+        <span class="cta-button">Get Started Free →</span>
+    </a>
+    
+    <!-- Dark Theme Variation -->
+    <a href="https://getmoneybot.com" target="_blank" class="banner banner-dark" style="margin-top: 40px;">
+        <div class="banner-content">
+            <div class="logo-icon">🤖</div>
+            <div class="text-content">
+                <div class="headline">MoneyBot: Your AI Financial Coach</div>
+                <div class="subheadline">108 free games • Real financial education • Start building wealth today</div>
+            </div>
+        </div>
+        <span class="cta-button">Join Free →</span>
+    </a>
+    
+    <!-- Minimal Variation -->
+    <a href="https://getmoneybot.com" target="_blank" class="banner banner-minimal" style="margin-top: 40px;">
+        <div class="banner-content">
+            <div class="logo-icon">🤖</div>
+            <div class="text-content">
+                <div class="headline">Learn Finance by Playing</div>
+                <div class="subheadline">108 educational games • From budgeting to investing</div>
+            </div>
+        </div>
+        <span class="cta-button">Play Now →</span>
+    </a>
+</body>
+</html>
