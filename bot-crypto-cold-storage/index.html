@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Crypto Cold Storage - MoneyBot Games</title>
+  <style>
+    :root {
+      --mb-green: #00C853;
+      --mb-green-soft: #69F0AE;
+      --mb-ink: #1a1a2e;
+      --mb-slate: #475569;
+      --mb-white: #FFFFFF;
+      --mb-panel: #f8fafc;
+      --mb-line: rgba(0, 200, 83, 0.2);
+      --mb-gold: #FBBF24;
+      --mb-muted: #94a3b8;
+      --mb-red: #FB7185;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--mb-white);
+      color: var(--mb-ink);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    .game-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      max-width: 480px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 16px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 16px;
+    }
+
+    .logo {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--mb-green);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 8px;
+    }
+
+    h1 {
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--mb-ink);
+      margin-bottom: 4px;
+    }
+
+    .subtitle {
+      font-size: 14px;
+      color: var(--mb-slate);
+    }
+
+    .security-status {
+      background: var(--mb-panel);
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 16px;
+      border: 1px solid var(--mb-line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .status-item {
+      text-align: center;
+    }
+
+    .status-label {
+      font-size: 11px;
+      color: var(--mb-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+
+    .status-value {
+      font-size: 20px;
+      font-weight: 800;
+    }
+
+    .status-value.safe {
+      color: var(--mb-green);
+    }
+
+    .status-value.danger {
+      color: var(--mb-red);
+    }
+
+    .health-bar {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 16px;
+    }
+
+    .health-segment {
+      flex: 1;
+      height: 8px;
+      background: #e2e8f0;
+      border-radius: 4px;
+      transition: all 0.3s;
+    }
+
+    .health-segment.active {
+      background: var(--mb-green);
+    }
+
+    .health-segment.lost {
+      background: var(--mb-red);
+    }
+
+    .wallet-card {
+      background: linear-gradient(135deg, #1a1a2e 0%, #2d2d44 100%);
+      border-radius: 20px;
+      padding: 24px;
+      margin-bottom: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .wallet-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -50%;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle, rgba(0, 200, 83, 0.1) 0%, transparent 70%);
+    }
+
+    .wallet-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .wallet-label {
+      font-size: 12px;
+      color: var(--mb-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .wallet-balance {
+      font-size: 32px;
+      font-weight: 800;
+      color: var(--mb-green);
+      position: relative;
+      z-index: 1;
+    }
+
+    .wallet-balance span {
+      font-size: 16px;
+      color: var(--mb-muted);
+    }
+
+    .seed-phrase-box {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: 16px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .seed-label {
+      font-size: 11px;
+      color: var(--mb-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+    }
+
+    .seed-words {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .seed-word {
+      background: rgba(0, 200, 83, 0.15);
+      border: 1px solid rgba(0, 200, 83, 0.3);
+      border-radius: 8px;
+      padding: 10px 8px;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--mb-green-soft);
+      font-family: 'Courier New', monospace;
+    }
+
+    .seed-word.hidden {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: rgba(255, 255, 255, 0.1);
+      color: transparent;
+    }
+
+    .seed-word.hidden::after {
+      content: '•••';
+      color: var(--mb-muted);
+    }
+
+    .threat-alert {
+      background: linear-gradient(135deg, rgba(251, 113, 133, 0.15) 0%, rgba(251, 113, 133, 0.05) 100%);
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 16px;
+      border: 1px solid rgba(251, 113, 133, 0.3);
+      display: none;
+    }
+
+    .threat-alert.active {
+      display: block;
+      animation: threatPulse 2s infinite;
+    }
+
+    @keyframes threatPulse {
+      0%, 100% { border-color: rgba(251, 113, 133, 0.3); }
+      50% { border-color: rgba(251, 113, 133, 0.8); }
+    }
+
+    .threat-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .threat-icon {
+      font-size: 24px;
+      animation: shake 0.5s infinite;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-3px); }
+      75% { transform: translateX(3px); }
+    }
+
+    .threat-header h3 {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--mb-red);
+    }
+
+    .threat-alert p {
+      font-size: 14px;
+      color: var(--mb-slate);
+    }
+
+    .input-section {
+      background: var(--mb-panel);
+      border-radius: 20px;
+      padding: 20px;
+      margin-bottom: 16px;
+      border: 1px solid var(--mb-line);
+    }
+
+    .input-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--mb-ink);
+      margin-bottom: 12px;
+    }
+
+    .word-inputs {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .word-input {
+      background: white;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 12px 8px;
+      text-align: center;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--mb-ink);
+      text-transform: lowercase;
+      transition: all 0.2s;
+    }
+
+    .word-input:focus {
+      outline: none;
+      border-color: var(--mb-green);
+    }
+
+    .word-input.correct {
+      border-color: var(--mb-green);
+      background: rgba(0, 200, 83, 0.1);
+    }
+
+    .word-input.wrong {
+      border-color: var(--mb-red);
+      background: rgba(251, 113, 133, 0.1);
+      animation: shake 0.3s;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 14px;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+    }
+
+    .btn-primary {
+      background: var(--mb-green);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(0, 200, 83, 0.3);
+    }
+
+    .btn-secondary {
+      background: white;
+      color: var(--mb-slate);
+      border: 2px solid #e2e8f0;
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--mb-green);
+      color: var(--mb-green);
+    }
+
+    .education-card {
+      background: var(--mb-panel);
+      border-radius: 16px;
+      padding: 16px;
+      border: 1px solid var(--mb-line);
+    }
+
+    .education-card h3 {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--mb-green);
+      margin-bottom: 8px;
+    }
+
+    .education-card p {
+      font-size: 13px;
+      color: var(--mb-slate);
+      line-height: 1.5;
+    }
+
+    .start-screen, .game-over-screen, .victory-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: var(--mb-white);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+      padding: 40px 20px;
+      text-align: center;
+    }
+
+    .start-screen.hidden, .game-over-screen.hidden, .victory-screen.hidden {
+      display: none;
+    }
+
+    .start-icon, .game-over-icon, .victory-icon {
+      font-size: 80px;
+      margin-bottom: 24px;
+    }
+
+    .start-screen h1, .game-over-screen h1, .victory-screen h1 {
+      font-size: 32px;
+      margin-bottom: 16px;
+    }
+
+    .start-screen p, .game-over-screen p, .victory-screen p {
+      font-size: 18px;
+      color: var(--mb-slate);
+      margin-bottom: 32px;
+      max-width: 320px;
+      line-height: 1.5;
+    }
+
+    .start-btn, .restart-btn {
+      padding: 20px 48px;
+      font-size: 18px;
+      background: var(--mb-green);
+      color: white;
+      border: none;
+      border-radius: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .start-btn:hover, .restart-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(0, 200, 83, 0.3);
+    }
+
+    .level-badge {
+      display: inline-block;
+      background: var(--mb-green);
+      color: white;
+      padding: 8px 20px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+
+    .threat-types {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .threat-type {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+      color: var(--mb-slate);
+    }
+
+    .threat-type span:first-child {
+      font-size: 20px;
+    }
+
+    .memorize-timer {
+      font-size: 48px;
+      font-weight: 800;
+      color: var(--mb-green);
+      margin: 20px 0;
+    }
+
+    .memorize-phase {
+      text-align: center;
+    }
+
+    .memorize-phase h3 {
+      font-size: 18px;
+      margin-bottom: 8px;
+    }
+
+    .memorize-phase p {
+      color: var(--mb-muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="start-screen" id="startScreen">
+    <div class="start-icon">🔐</div>
+    <h1>Crypto Cold Storage</h1>
+    <p>Protect your crypto assets! Memorize your seed phrase, defend against hackers, and learn proper cold storage security practices.</p>
+    <div class="threat-types">
+      <div class="threat-type"><span>🎣</span> Phishing attacks</div>
+      <div class="threat-type"><span>👁️</span> Shoulder surfing</div>
+      <div class="threat-type"><span>🦠</span> Malware & keyloggers</div>
+      <div class="threat-type"><span>🔑</span> Brute force attempts</div>
+    </div>
+    <button class="start-btn" onclick="startGame()" style="margin-top: 24px;">Secure My Wallet</button>
+  </div>
+
+  <div class="game-over-screen hidden" id="gameOverScreen">
+    <div class="game-over-icon">💀</div>
+    <h1>Wallet Compromised!</h1>
+    <p>The hackers got your seed phrase. Your crypto is gone forever.</p>
+    <button class="restart-btn" onclick="restartGame()">Try Again</button>
+  </div>
+
+  <div class="victory-screen hidden" id="victoryScreen">
+    <div class="victory-icon">🛡️</div>
+    <div class="level-badge">Cold Storage Expert</div>
+    <h1>Assets Secured!</h1>
+    <p>You successfully defended your wallet against all attacks!</p>
+    <button class="restart-btn" onclick="restartGame()">Play Again</button>
+  </div>
+
+  <div class="game-container">
+    <div class="header">
+      <div class="logo">MoneyBot Games</div>
+      <h1>🔐 Crypto Cold Storage</h1>
+      <div class="subtitle">Protect your seed phrase</div>
+    </div>
+
+    <div class="security-status">
+      <div class="status-item">
+        <div class="status-label">Level</div>
+        <div class="status-value safe" id="levelDisplay">1</div>
+      </div>
+      <div class="status-item">
+        <div class="status-label">Security</div>
+        <div class="status-value safe" id="securityStatus">SAFE</div>
+      </div>
+      <div class="status-item">
+        <div class="status-label">Score</div>
+        <div class="status-value safe" id="scoreDisplay">0</div>
+      </div>
+    </div>
+
+    <div class="health-bar" id="healthBar">
+      <div class="health-segment active"></div>
+      <div class="health-segment active"></div>
+      <div class="health-segment active"></div>
+    </div>
+
+    <div class="wallet-card">
+      <div class="wallet-header">
+        <span class="wallet-label">Cold Storage Wallet</span>
+        <span style="font-size: 20px;">🔒</span>
+      </div>
+      <div class="wallet-balance">
+        <span>$</span><span id="walletBalance">50,000</span>
+      </div>
+      <div class="seed-phrase-box">
+        <div class="seed-label">Seed Phrase (MEMORIZE THIS)</div>
+        <div class="seed-words" id="seedWords">
+          <div class="seed-word">apple</div>
+          <div class="seed-word">banana</div>
+          <div class="seed-word">cherry</div>
+          <div class="seed-word">dragon</div>
+          <div class="seed-word">eagle</div>
+          <div class="seed-word">falcon</div>
+          <div class="seed-word">grape</div>
+          <div class="seed-word">honey</div>
+          <div class="seed-word">iguana</div>
+          <div class="seed-word">jungle</div>
+          <div class="seed-word">kite</div>
+          <div class="seed-word">lemon</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="threat-alert" id="threatAlert">
+      <div class="threat-header">
+        <span class="threat-icon">🚨</span>
+        <h3 id="threatTitle">Hacker Attack!</h3>
+      </div>
+      <p id="threatMessage">A phishing email is trying to steal your seed phrase. Verify your backup now!</p>
+    </div>
+
+    <div class="input-section" id="inputSection" style="display: none;">
+      <div class="input-title">Enter the missing words to verify:</div>
+      <div class="word-inputs" id="wordInputs">
+        <!-- Generated dynamically -->
+      </div>
+      <div class="action-buttons">
+        <button class="btn btn-secondary" onclick="peekAtWords()">👁️ Peek (-5s)</button>
+        <button class="btn btn-primary" onclick="verifyWords()">Verify</button>
+      </div>
+    </div>
+
+    <div class="education-card" id="educationCard">
+      <h3>💡 Security Tip</h3>
+      <p id="securityTip">Never store your seed phrase digitally. Write it on paper and keep it in a secure, fireproof location. Consider a metal backup for extra protection.</p>
+    </div>
+  </div>
+
+  <script>
+    // Game state
+    let state = {
+      level: 1,
+      score: 0,
+      health: 3,
+      currentWords: [],
+      hiddenIndices: [],
+      isAttacking: false,
+      wordsVisible: true,
+      threatsDefeated: 0
+    };
+
+    // Word banks for different levels
+    const wordBanks = {
+      1: ['apple', 'banana', 'cherry', 'dragon', 'eagle', 'falcon', 'grape', 'honey', 'iguana', 'jungle', 'kite', 'lemon'],
+      2: ['abandon', 'ability', 'absent', 'abstract', 'academic', 'accept', 'access', 'accident', 'account', 'accuse', 'achieve', 'acid'],
+      3: ['quantum', 'ledger', 'secure', 'crypto', 'wallet', 'token', 'block', 'chain', 'verify', 'sign', 'hash', 'node']
+    };
+
+    const securityTips = [
+      'Never store your seed phrase digitally. Write it on paper and keep it in a secure, fireproof location.',
+      'Consider a metal backup plate for your seed phrase. Paper can burn or get wet.',
+      'Never share your seed phrase with anyone. Legitimate services will NEVER ask for it.',
+      'Use a hardware wallet for large amounts. Keep only spending money on hot wallets.',
+      'Test your backup by restoring your wallet before storing significant funds.',
+      'Beware of fake wallet apps and browser extensions. Only download from official sources.',
+      'Keep multiple copies of your seed phrase in different secure locations.',
+      'Never take a photo of your seed phrase. Photos are backed up to the cloud automatically.'
+    ];
+
+    const threatTypes = [
+      { icon: '🎣', title: 'Phishing Attack!', message: 'Fake wallet website detected! Verify your seed phrase immediately.' },
+      { icon: '👁️', title: 'Shoulder Surfer!', message: 'Someone is watching! Quick, hide your seed phrase.' },
+      { icon: '🦠', title: 'Malware Detected!', message: 'Keylogger active! Verify you have a secure backup.' },
+      { icon: '🔑', title: 'Brute Force Attempt!', message: 'Hackers trying common phrases! Confirm your unique seed.' }
+    ];
+
+    function startGame() {
+      document.getElementById('startScreen').classList.add('hidden');
+      state = {
+        level: 1,
+        score: 0,
+        health: 3,
+        currentWords: [...wordBanks[1]],
+        hiddenIndices: [],
+        isAttacking: false,
+        wordsVisible: true,
+        threatsDefeated: 0
+      };
+      updateUI();
+      startLevel();
+    }
+
+    function startLevel() {
+      state.currentWords = [...wordBanks[Math.min(state.level, 3)]];
+      state.hiddenIndices = [];
+      state.isAttacking = false;
+      state.wordsVisible = true;
+      
+      renderSeedWords();
+      document.getElementById('inputSection').style.display = 'none';
+      document.getElementById('threatAlert').classList.remove('active');
+      
+      // Show words for memorization period
+      setTimeout(() => {
+        if (!state.isAttacking) {
+          triggerAttack();
+        }
+      }, 3000 + (state.level * 1000));
+    }
+
+    function renderSeedWords() {
+      const container = document.getElementById('seedWords');
+      container.innerHTML = '';
+      
+      state.currentWords.forEach((word, i) => {
+        const div = document.createElement('div');
+        div.className = 'seed-word';
+        div.textContent = word;
+        div.id = `word-${i}`;
+        
+        if (state.hiddenIndices.includes(i)) {
+          div.classList.add('hidden');
+        }
+        
+        container.appendChild(div);
+      });
+    }
+
+    function triggerAttack() {
+      state.isAttacking = true;
+      
+      // Hide random words
+      const numToHide = Math.min(3 + state.level, 6);
+      state.hiddenIndices = [];
+      
+      while (state.hiddenIndices.length < numToHide) {
+        const idx = Math.floor(Math.random() * 12);
+        if (!state.hiddenIndices.includes(idx)) {
+          state.hiddenIndices.push(idx);
+        }
+      }
+      
+      renderSeedWords();
+      
+      // Show threat alert
+      const threat = threatTypes[Math.floor(Math.random() * threatTypes.length)];
+      document.getElementById('threatAlert').querySelector('.threat-icon').textContent = threat.icon;
+      document.getElementById('threatTitle').textContent = threat.title;
+      document.getElementById('threatMessage').textContent = threat.message;
+      document.getElementById('threatAlert').classList.add('active');
+      
+      // Show input section
+      renderInputFields();
+      document.getElementById('inputSection').style.display = 'block';
+      
+      // Update security tip
+      document.getElementById('securityTip').textContent = securityTips[Math.floor(Math.random() * securityTips.length)];
+    }
+
+    function renderInputFields() {
+      const container = document.getElementById('wordInputs');
+      container.innerHTML = '';
+      
+      state.hiddenIndices.forEach((wordIndex, i) => {
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'word-input';
+        input.placeholder = `Word ${wordIndex + 1}`;
+        input.dataset.index = wordIndex;
+        input.autocomplete = 'off';
+        input.spellcheck = false;
+        container.appendChild(input);
+      });
+    }
+
+    function peekAtWords() {
+      // Temporarily reveal words
+      state.hiddenIndices.forEach(i => {
+        const el = document.getElementById(`word-${i}`);
+        el.classList.remove('hidden');
+      });
+      
+      setTimeout(() => {
+        renderSeedWords();
+      }, 2000);
+    }
+
+    function verifyWords() {
+      const inputs = document.querySelectorAll('.word-input');
+      let allCorrect = true;
+      
+      inputs.forEach(input => {
+        const wordIndex = parseInt(input.dataset.index);
+        const entered = input.value.toLowerCase().trim();
+        const correct = state.currentWords[wordIndex];
+        
+        if (entered === correct) {
+          input.classList.add('correct');
+          input.classList.remove('wrong');
+        } else {
+          input.classList.add('wrong');
+          input.classList.remove('correct');
+          allCorrect = false;
+        }
+      });
+      
+      if (allCorrect) {
+        // Success!
+        state.score += 100 * state.level;
+        state.threatsDefeated++;
+        
+        if (state.threatsDefeated >= 3) {
+          levelUp();
+        } else {
+          setTimeout(() => {
+            startLevel();
+          }, 1500);
+        }
+      } else {
+        // Wrong - lose health
+        setTimeout(() => {
+          loseHealth();
+        }, 1000);
+      }
+      
+      updateUI();
+    }
+
+    function levelUp() {
+      if (state.level >= 3) {
+        victory();
+      } else {
+        state.level++;
+        state.threatsDefeated = 0;
+        state.score += 500;
+        updateUI();
+        
+        // Show level up message
+        document.getElementById('securityTip').textContent = `Level ${state.level}! The attacks are getting more sophisticated. Stay vigilant!`;
+        
+        setTimeout(() => {
+          startLevel();
+        }, 2000);
+      }
+    }
+
+    function loseHealth() {
+      state.health--;
+      updateUI();
+      
+      if (state.health <= 0) {
+        gameOver();
+      } else {
+        // Reveal correct answers and continue
+        const inputs = document.querySelectorAll('.word-input');
+        inputs.forEach(input => {
+          const wordIndex = parseInt(input.dataset.index);
+          input.value = state.currentWords[wordIndex];
+          input.classList.add('correct');
+        });
+        
+        setTimeout(() => {
+          startLevel();
+        }, 2000);
+      }
+    }
+
+    function updateUI() {
+      document.getElementById('levelDisplay').textContent = state.level;
+      document.getElementById('scoreDisplay').textContent = state.score;
+      document.getElementById('walletBalance').textContent = (50000 + state.score * 10).toLocaleString();
+      
+      const healthSegments = document.querySelectorAll('.health-segment');
+      healthSegments.forEach((seg, i) => {
+        seg.classList.remove('active', 'lost');
+        if (i < state.health) {
+          seg.classList.add('active');
+        } else {
+          seg.classList.add('lost');
+        }
+      });
+      
+      const securityStatus = document.getElementById('securityStatus');
+      if (state.health === 3) {
+        securityStatus.textContent = 'SAFE';
+        securityStatus.className = 'status-value safe';
+      } else if (state.health === 2) {
+        securityStatus.textContent = 'WARN';
+        securityStatus.className = 'status-value';
+        securityStatus.style.color = 'var(--mb-gold)';
+      } else {
+        securityStatus.textContent = 'CRITICAL';
+        securityStatus.className = 'status-value danger';
+      }
+    }
+
+    function gameOver() {
+      document.getElementById('gameOverScreen').classList.remove('hidden');
+    }
+
+    function victory() {
+      document.getElementById('victoryScreen').classList.remove('hidden');
+    }
+
+    function restartGame() {
+      document.getElementById('gameOverScreen').classList.add('hidden');
+      document.getElementById('victoryScreen').classList.add('hidden');
+      startGame();
+    }
+  </script>
+</body>
+</html>

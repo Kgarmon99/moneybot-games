@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Inflation Eater - MoneyBot</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            touch-action: manipulation;
+        }
+
+        :root {
+            --mb-green: #00C853;
+            --mb-green-soft: #69F0AE;
+            --mb-ink: #1a1a2e;
+            --mb-slate: #475569;
+            --mb-white: #FFFFFF;
+            --mb-red: #FF5252;
+            --mb-gold: #FFD700;
+            --mb-blue: #448AFF;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--mb-white);
+            color: var(--mb-ink);
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #gameCanvas {
+            flex: 1;
+            display: block;
+            touch-action: none;
+        }
+
+        .hud {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 12px 16px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(255,255,255,0.9) 100%);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            border-bottom: 2px solid var(--mb-green);
+        }
+
+        .hud-left, .hud-right {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .hud-item {
+            background: var(--mb-white);
+            border: 2px solid var(--mb-green);
+            border-radius: 20px;
+            padding: 8px 14px;
+            font-weight: 700;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 2px 8px rgba(0,200,83,0.15);
+        }
+
+        .hud-item.danger {
+            border-color: var(--mb-red);
+            color: var(--mb-red);
+        }
+
+        .hud-item.warning {
+            border-color: var(--mb-gold);
+            color: #B8860B;
+        }
+
+        .wave-indicator {
+            position: fixed;
+            top: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--mb-green);
+            color: white;
+            padding: 6px 20px;
+            border-radius: 20px;
+            font-weight: 800;
+            font-size: 13px;
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(0,200,83,0.3);
+        }
+
+        .controls {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 16px;
+            background: linear-gradient(0deg, rgba(255,255,255,0.98) 0%, rgba(255,255,255,0.9) 100%);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            z-index: 100;
+            border-top: 2px solid var(--mb-green);
+        }
+
+        .btn {
+            padding: 14px 20px;
+            border-radius: 12px;
+            border: none;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            min-width: 90px;
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        .btn-primary {
+            background: var(--mb-green);
+            color: white;
+            box-shadow: 0 4px 12px rgba(0,200,83,0.3);
+        }
+
+        .btn-primary:disabled {
+            background: #ccc;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: white;
+            border: 2px solid var(--mb-blue);
+            color: var(--mb-blue);
+        }
+
+        .btn-tertiary {
+            background: white;
+            border: 2px solid var(--mb-gold);
+            color: #B8860B;
+        }
+
+        .btn-cost {
+            font-size: 11px;
+            opacity: 0.9;
+            font-weight: 600;
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255,255,255,0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 24px;
+            padding: 32px 24px;
+            max-width: 380px;
+            width: 100%;
+            text-align: center;
+            border: 3px solid var(--mb-green);
+            box-shadow: 0 20px 60px rgba(0,200,83,0.2);
+        }
+
+        .modal h1 {
+            font-size: 28px;
+            margin-bottom: 12px;
+            color: var(--mb-ink);
+        }
+
+        .modal h2 {
+            font-size: 22px;
+            margin-bottom: 12px;
+            color: var(--mb-ink);
+        }
+
+        .modal p {
+            color: var(--mb-slate);
+            line-height: 1.6;
+            margin-bottom: 20px;
+            font-size: 15px;
+        }
+
+        .modal .btn {
+            width: 100%;
+            margin-top: 8px;
+            padding: 16px;
+            font-size: 16px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin: 20px 0;
+        }
+
+        .stat-box {
+            background: #f8fafc;
+            padding: 12px;
+            border-radius: 12px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--mb-slate);
+            margin-bottom: 4px;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--mb-ink);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .tutorial-tip {
+            position: fixed;
+            bottom: 140px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--mb-ink);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-size: 13px;
+            z-index: 90;
+            max-width: 320px;
+            text-align: center;
+            animation: fadeInOut 4s ease-in-out;
+        }
+
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0; transform: translateX(-50%) translateY(10px); }
+            20%, 80% { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="hud">
+        <div class="hud-left">
+            <div class="hud-item" id="savingsDisplay">
+                <span>💰</span>
+                <span id="savingsValue">$50,000</span>
+            </div>
+            <div class="hud-item" id="powerDisplay">
+                <span>⚡</span>
+                <span id="powerValue">100%</span>
+            </div>
+        </div>
+        <div class="hud-right">
+            <div class="hud-item danger" id="inflationDisplay">
+                <span>📈</span>
+                <span id="inflationValue">3%</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="wave-indicator" id="waveIndicator">WAVE 1</div>
+
+    <canvas id="gameCanvas"></canvas>
+
+    <div class="controls" id="gameControls">
+        <button class="btn btn-primary" id="buyStockBtn">
+            <span>📈 Stocks</span>
+            <span class="btn-cost">$5,000</span>
+        </button>
+        <button class="btn btn-secondary" id="buyBondBtn">
+            <span>📋 Bonds</span>
+            <span class="btn-cost">$3,000</span>
+        </button>
+        <button class="btn btn-tertiary" id="buyGoldBtn">
+            <span>🥇 Gold</span>
+            <span class="btn-cost">$8,000</span>
+        </button>
+    </div>
+
+    <div class="modal" id="startModal">
+        <div class="modal-content">
+            <h1>🛡️ Inflation Eater</h1>
+            <p>Inflation monsters are attacking your savings! Invest wisely in stocks, bonds, and gold to fight back and preserve your purchasing power.</p>
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-label">Starting Savings</div>
+                    <div class="stat-value">$50,000</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Goal</div>
+                    <div class="stat-value">Survive 10 Waves</div>
+                </div>
+            </div>
+            <p style="font-size: 13px;">Each investment type fights inflation differently. Diversify to win!</p>
+            <button class="btn btn-primary" onclick="game.start()">Start Defense</button>
+        </div>
+    </div>
+
+    <div class="modal hidden" id="gameOverModal">
+        <div class="modal-content">
+            <h2 id="gameOverTitle">💸 Savings Destroyed!</h2>
+            <p id="gameOverText">Inflation ate through your savings. Your purchasing power hit zero.</p>
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-label">Waves Survived</div>
+                    <div class="stat-value" id="finalWave">0</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Final Savings</div>
+                    <div class="stat-value" id="finalSavings">$0</div>
+                </div>
+            </div>
+            <p id="gameOverTip" style="font-size: 13px; color: var(--mb-green); font-weight: 600;"></p>
+            <button class="btn btn-primary" onclick="game.restart()">Play Again</button>
+        </div>
+    </div>
+
+    <div class="modal hidden" id="winModal">
+        <div class="modal-content">
+            <h2>🎉 Victory!</h2>
+            <p>You survived all 10 waves of inflation! Your diversified portfolio protected your wealth.</p>
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-label">Final Savings</div>
+                    <div class="stat-value" id="winSavings">$0</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Purchasing Power</div>
+                    <div class="stat-value" id="winPower">0%</div>
+                </div>
+            </div>
+            <p style="font-size: 13px; color: var(--mb-green); font-weight: 600;">Diversification is your best defense against inflation!</p>
+            <button class="btn btn-primary" onclick="game.restart()">Play Again</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        class Particle {
+            constructor(x, y, color, type = 'burst') {
+                this.x = x;
+                this.y = y;
+                this.color = color;
+                this.type = type;
+                const angle = Math.random() * Math.PI * 2;
+                const speed = Math.random() * 4 + 2;
+                this.vx = Math.cos(angle) * speed;
+                this.vy = Math.sin(angle) * speed;
+                this.life = 1;
+                this.decay = Math.random() * 0.02 + 0.02;
+                this.size = Math.random() * 6 + 3;
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.vy += 0.15;
+                this.life -= this.decay;
+                this.size *= 0.95;
+            }
+
+            draw(ctx) {
+                ctx.save();
+                ctx.globalAlpha = this.life;
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        class FloatingText {
+            constructor(x, y, text, color) {
+                this.x = x;
+                this.y = y;
+                this.text = text;
+                this.color = color;
+                this.life = 1;
+                this.vy = -2;
+            }
+
+            update() {
+                this.y += this.vy;
+                this.life -= 0.02;
+            }
+
+            draw(ctx) {
+                ctx.save();
+                ctx.globalAlpha = this.life;
+                ctx.fillStyle = this.color;
+                ctx.font = 'bold 18px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(this.text, this.x, this.y);
+                ctx.restore();
+            }
+        }
+
+        class Projectile {
+            constructor(x, y, targetX, targetY, type) {
+                this.x = x;
+                this.y = y;
+                this.type = type;
+                const angle = Math.atan2(targetY - y, targetX - x);
+                const speed = 8;
+                this.vx = Math.cos(angle) * speed;
+                this.vy = Math.sin(angle) * speed;
+                this.life = 100;
+                
+                const colors = {
+                    stock: '#00C853',
+                    bond: '#448AFF',
+                    gold: '#FFD700'
+                };
+                this.color = colors[type];
+                this.damage = type === 'stock' ? 25 : type === 'bond' ? 15 : 35;
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.life--;
+            }
+
+            draw(ctx) {
+                ctx.save();
+                ctx.fillStyle = this.color;
+                ctx.shadowColor = this.color;
+                ctx.shadowBlur = 10;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, 6, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        class Tower {
+            constructor(x, y, type) {
+                this.x = x;
+                this.y = y;
+                this.type = type;
+                this.level = 1;
+                this.cooldown = 0;
+                this.maxCooldown = type === 'stock' ? 30 : type === 'bond' ? 20 : 45;
+                this.range = type === 'stock' ? 200 : type === 'bond' ? 150 : 250;
+                
+                const colors = {
+                    stock: '#00C853',
+                    bond: '#448AFF',
+                    gold: '#FFD700'
+                };
+                this.color = colors[type];
+                this.emoji = type === 'stock' ? '📈' : type === 'bond' ? '📋' : '🥇';
+            }
+
+            update(enemies, projectiles) {
+                if (this.cooldown > 0) this.cooldown--;
+
+                if (this.cooldown <= 0) {
+                    let nearest = null;
+                    let nearestDist = this.range;
+
+                    for (const enemy of enemies) {
+                        const dist = Math.hypot(enemy.x - this.x, enemy.y - this.y);
+                        if (dist < nearestDist) {
+                            nearestDist = dist;
+                            nearest = enemy;
+                        }
+                    }
+
+                    if (nearest) {
+                        projectiles.push(new Projectile(this.x, this.y, nearest.x, nearest.y, this.type));
+                        this.cooldown = this.maxCooldown;
+                    }
+                }
+            }
+
+            draw(ctx) {
+                ctx.save();
+                
+                // Range indicator (subtle)
+                ctx.strokeStyle = this.color + '22';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.range, 0, Math.PI * 2);
+                ctx.stroke();
+
+                // Tower base
+                ctx.fillStyle = this.color + '30';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, 25, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.strokeStyle = this.color;
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, 25, 0, Math.PI * 2);
+                ctx.stroke();
+
+                // Level indicator
+                for (let i = 0; i < this.level; i++) {
+                    ctx.fillStyle = this.color;
+                    ctx.beginPath();
+                    ctx.arc(this.x - 8 + i * 8, this.y - 35, 3, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                ctx.restore();
+
+                // Emoji
+                ctx.font = '24px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(this.emoji, this.x, this.y);
+            }
+
+            upgrade() {
+                this.level++;
+                this.maxCooldown = Math.max(10, this.maxCooldown - 5);
+                this.damage *= 1.2;
+            }
+        }
+
+        class Enemy {
+            constructor(y, wave) {
+                this.x = canvas.width + 50;
+                this.y = y;
+                this.wave = wave;
+                this.baseHealth = 50 + wave * 25;
+                this.health = this.baseHealth;
+                this.maxHealth = this.health;
+                this.speed = 0.5 + wave * 0.1;
+                this.radius = 22;
+                this.frozen = 0;
+                
+                const types = ['📉', '💸', '📊', '🔥'];
+                this.emoji = types[Math.floor(Math.random() * types.length)];
+                this.inflationRate = 2 + wave * 0.5;
+            }
+
+            update() {
+                if (this.frozen > 0) {
+                    this.frozen--;
+                    this.speed *= 0.5;
+                }
+                this.x -= this.speed;
+            }
+
+            draw(ctx) {
+                ctx.save();
+                
+                // Health bar
+                const barWidth = 40;
+                const barHeight = 6;
+                ctx.fillStyle = '#e2e8f0';
+                ctx.fillRect(this.x - barWidth/2, this.y - 40, barWidth, barHeight);
+                ctx.fillStyle = this.health > this.maxHealth * 0.5 ? '#00C853' : '#FF5252';
+                ctx.fillRect(this.x - barWidth/2, this.y - 40, barWidth * (this.health / this.maxHealth), barHeight);
+
+                // Enemy body
+                ctx.font = '28px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(this.emoji, this.x, this.y);
+
+                // Inflation rate label
+                ctx.fillStyle = '#FF5252';
+                ctx.font = 'bold 11px sans-serif';
+                ctx.fillText(`+${this.inflationRate.toFixed(1)}%`, this.x, this.y + 32);
+
+                ctx.restore();
+            }
+
+            takeDamage(dmg) {
+                this.health -= dmg;
+                return this.health <= 0;
+            }
+        }
+
+        class Game {
+            constructor() {
+                this.state = 'start';
+                this.savings = 50000;
+                this.purchasingPower = 100;
+                this.wave = 1;
+                this.maxWaves = 10;
+                this.inflationRate = 3;
+                this.towers = [];
+                this.enemies = [];
+                this.projectiles = [];
+                this.particles = [];
+                this.floatingTexts = [];
+                this.waveActive = false;
+                this.enemiesSpawned = 0;
+                this.enemiesPerWave = 5;
+                this.spawnTimer = 0;
+                this.waveTimer = 0;
+                this.baseX = 80;
+                this.towerSlots = [
+                    { x: 150, y: canvas.height * 0.3, occupied: false },
+                    { x: 150, y: canvas.height * 0.5, occupied: false },
+                    { x: 150, y: canvas.height * 0.7, occupied: false },
+                    { x: 280, y: canvas.height * 0.25, occupied: false },
+                    { x: 280, y: canvas.height * 0.45, occupied: false },
+                    { x: 280, y: canvas.height * 0.65, occupied: false },
+                    { x: 280, y: canvas.height * 0.85, occupied: false },
+                    { x: 410, y: canvas.height * 0.35, occupied: false },
+                    { x: 410, y: canvas.height * 0.55, occupied: false },
+                    { x: 410, y: canvas.height * 0.75, occupied: false }
+                ];
+                
+                this.costs = {
+                    stock: 5000,
+                    bond: 3000,
+                    gold: 8000
+                };
+
+                this.setupControls();
+                this.updateUI();
+            }
+
+            setupControls() {
+                document.getElementById('buyStockBtn').onclick = () => this.buyTower('stock');
+                document.getElementById('buyBondBtn').onclick = () => this.buyTower('bond');
+                document.getElementById('buyGoldBtn').onclick = () => this.buyTower('gold');
+            }
+
+            start() {
+                document.getElementById('startModal').classList.add('hidden');
+                this.state = 'playing';
+                this.startWave();
+                this.loop();
+            }
+
+            restart() {
+                this.savings = 50000;
+                this.purchasingPower = 100;
+                this.wave = 1;
+                this.inflationRate = 3;
+                this.towers = [];
+                this.enemies = [];
+                this.projectiles = [];
+                this.particles = [];
+                this.floatingTexts = [];
+                this.waveActive = false;
+                this.enemiesSpawned = 0;
+                
+                this.towerSlots.forEach(slot => slot.occupied = false);
+                
+                document.getElementById('gameOverModal').classList.add('hidden');
+                document.getElementById('winModal').classList.add('hidden');
+                document.getElementById('startModal').classList.remove('hidden');
+                
+                this.updateUI();
+            }
+
+            buyTower(type) {
+                const cost = this.costs[type];
+                if (this.savings < cost) {
+                    this.showFloatingText(canvas.width/2, canvas.height/2, 'Not enough savings!', '#FF5252');
+                    return;
+                }
+
+                const slot = this.towerSlots.find(s => !s.occupied);
+                if (!slot) {
+                    this.showFloatingText(canvas.width/2, canvas.height/2, 'No space!', '#FF5252');
+                    return;
+                }
+
+                // Check if upgrading existing tower
+                const existingTower = this.towers.find(t => 
+                    Math.hypot(t.x - slot.x, t.y - slot.y) < 50 && t.type === type
+                );
+
+                if (existingTower) {
+                    existingTower.upgrade();
+                    this.savings -= cost;
+                    this.showFloatingText(slot.x, slot.y - 30, 'UPGRADED!', '#00C853');
+                    this.createParticles(slot.x, slot.y, '#00C853', 15);
+                } else {
+                    this.towers.push(new Tower(slot.x, slot.y, type));
+                    slot.occupied = true;
+                    this.savings -= cost;
+                    this.showFloatingText(slot.x, slot.y - 30, `-${cost.toLocaleString()}`, '#FF5252');
+                    this.createParticles(slot.x, slot.y, '#00C853', 10);
+                }
+
+                this.updateUI();
+            }
+
+            startWave() {
+                this.waveActive = true;
+                this.enemiesSpawned = 0;
+                this.enemiesPerWave = 4 + this.wave * 2;
+                this.spawnTimer = 0;
+                this.inflationRate = 2 + this.wave * 0.8;
+                this.updateUI();
+            }
+
+            spawnEnemy() {
+                const y = 120 + Math.random() * (canvas.height - 240);
+                this.enemies.push(new Enemy(y, this.wave));
+                this.enemiesSpawned++;
+            }
+
+            update() {
+                if (this.state !== 'playing') return;
+
+                // Spawn enemies
+                if (this.waveActive && this.enemiesSpawned < this.enemiesPerWave) {
+                    this.spawnTimer++;
+                    if (this.spawnTimer > 80 - this.wave * 3) {
+                        this.spawnEnemy();
+                        this.spawnTimer = 0;
+                    }
+                }
+
+                // Check wave complete
+                if (this.waveActive && this.enemiesSpawned >= this.enemiesPerWave && this.enemies.length === 0) {
+                    this.waveComplete();
+                }
+
+                // Update towers
+                this.towers.forEach(tower => tower.update(this.enemies, this.projectiles));
+
+                // Update projectiles
+                this.projectiles = this.projectiles.filter(proj => {
+                    proj.update();
+                    
+                    // Check collision with enemies
+                    for (let i = this.enemies.length - 1; i >= 0; i--) {
+                        const enemy = this.enemies[i];
+                        const dist = Math.hypot(proj.x - enemy.x, proj.y - enemy.y);
+                        if (dist < enemy.radius + 6) {
+                            const killed = enemy.takeDamage(proj.damage);
+                            this.createParticles(enemy.x, enemy.y, '#FF5252', 5);
+                            
+                            if (killed) {
+                                this.savings += 500;
+                                this.showFloatingText(enemy.x, enemy.y, '+$500', '#00C853');
+                                this.createParticles(enemy.x, enemy.y, '#00C853', 12);
+                                this.enemies.splice(i, 1);
+                            }
+                            return false;
+                        }
+                    }
+                    
+                    return proj.life > 0 && proj.x > 0 && proj.x < canvas.width;
+                });
+
+                // Update enemies
+                for (let i = this.enemies.length - 1; i >= 0; i--) {
+                    const enemy = this.enemies[i];
+                    enemy.update();
+
+                    // Enemy reached base
+                    if (enemy.x < this.baseX) {
+                        this.purchasingPower -= enemy.inflationRate;
+                        this.showFloatingText(this.baseX, enemy.y, `-${enemy.inflationRate.toFixed(1)}%`, '#FF5252');
+                        this.createParticles(this.baseX, enemy.y, '#FF5252', 8);
+                        this.enemies.splice(i, 1);
+
+                        if (this.purchasingPower <= 0) {
+                            this.gameOver();
+                        }
+                    }
+                }
+
+                // Update particles
+                this.particles = this.particles.filter(p => {
+                    p.update();
+                    return p.life > 0;
+                });
+
+                // Update floating text
+                this.floatingTexts = this.floatingTexts.filter(t => {
+                    t.update();
+                    return t.life > 0;
+                });
+
+                this.updateUI();
+            }
+
+            waveComplete() {
+                this.waveActive = false;
+                this.wave++;
+                
+                if (this.wave > this.maxWaves) {
+                    this.win();
+                } else {
+                    this.showFloatingText(canvas.width/2, canvas.height/2, `WAVE ${this.wave - 1} COMPLETE!`, '#00C853');
+                    this.savings += 2000;
+                    setTimeout(() => this.startWave(), 1500);
+                }
+            }
+
+            gameOver() {
+                this.state = 'gameover';
+                document.getElementById('finalWave').textContent = this.wave;
+                document.getElementById('finalSavings').textContent = `$${Math.max(0, this.savings).toLocaleString()}`;
+                
+                const tips = [
+                    "Tip: Stocks deal high damage but fire slowly. Mix with Bonds for faster attacks!",
+                    "Tip: Gold has the longest range. Place it in the back to cover more ground.",
+                    "Tip: Diversify! Each investment type counters different inflation monsters.",
+                    "Tip: Upgrade existing towers instead of always buying new ones."
+                ];
+                document.getElementById('gameOverTip').textContent = tips[Math.floor(Math.random() * tips.length)];
+                
+                document.getElementById('gameOverModal').classList.remove('hidden');
+            }
+
+            win() {
+                this.state = 'win';
+                document.getElementById('winSavings').textContent = `$${this.savings.toLocaleString()}`;
+                document.getElementById('winPower').textContent = `${Math.max(0, this.purchasingPower).toFixed(1)}%`;
+                document.getElementById('winModal').classList.remove('hidden');
+            }
+
+            createParticles(x, y, color, count) {
+                for (let i = 0; i < count; i++) {
+                    this.particles.push(new Particle(x, y, color));
+                }
+            }
+
+            showFloatingText(x, y, text, color) {
+                this.floatingTexts.push(new FloatingText(x, y, text, color));
+            }
+
+            updateUI() {
+                document.getElementById('savingsValue').textContent = `$${this.savings.toLocaleString()}`;
+                document.getElementById('powerValue').textContent = `${Math.max(0, this.purchasingPower).toFixed(1)}%`;
+                document.getElementById('inflationValue').textContent = `${this.inflationRate.toFixed(1)}%`;
+                document.getElementById('waveIndicator').textContent = `WAVE ${this.wave}/${this.maxWaves}`;
+
+                const powerDisplay = document.getElementById('powerDisplay');
+                if (this.purchasingPower < 30) {
+                    powerDisplay.classList.add('danger');
+                    powerDisplay.classList.remove('warning');
+                } else if (this.purchasingPower < 60) {
+                    powerDisplay.classList.add('warning');
+                    powerDisplay.classList.remove('danger');
+                } else {
+                    powerDisplay.classList.remove('danger', 'warning');
+                }
+
+                // Update button states
+                document.getElementById('buyStockBtn').disabled = this.savings < this.costs.stock;
+                document.getElementById('buyBondBtn').disabled = this.savings < this.costs.bond;
+                document.getElementById('buyGoldBtn').disabled = this.savings < this.costs.gold;
+            }
+
+            draw() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                // Draw grid lines
+                ctx.strokeStyle = '#f1f5f9';
+                ctx.lineWidth = 1;
+                for (let x = 0; x < canvas.width; x += 40) {
+                    ctx.beginPath();
+                    ctx.moveTo(x, 0);
+                    ctx.lineTo(x, canvas.height);
+                    ctx.stroke();
+                }
+                for (let y = 0; y < canvas.height; y += 40) {
+                    ctx.beginPath();
+                    ctx.moveTo(0, y);
+                    ctx.lineTo(canvas.width, y);
+                    ctx.stroke();
+                }
+
+                // Draw base (savings vault)
+                ctx.fillStyle = '#00C85320';
+                ctx.fillRect(20, 100, 80, canvas.height - 200);
+                ctx.strokeStyle = '#00C853';
+                ctx.lineWidth = 3;
+                ctx.strokeRect(20, 100, 80, canvas.height - 200);
+
+                ctx.font = '40px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('🏦', 60, canvas.height / 2);
+
+                // Draw tower slots
+                this.towerSlots.forEach(slot => {
+                    if (!slot.occupied) {
+                        ctx.strokeStyle = '#00C85340';
+                        ctx.lineWidth = 2;
+                        ctx.setLineDash([5, 5]);
+                        ctx.beginPath();
+                        ctx.arc(slot.x, slot.y, 25, 0, Math.PI * 2);
+                        ctx.stroke();
+                        ctx.setLineDash([]);
+                    }
+                });
+
+                // Draw towers
+                this.towers.forEach(tower => tower.draw(ctx));
+
+                // Draw enemies
+                this.enemies.forEach(enemy => enemy.draw(ctx));
+
+                // Draw projectiles
+                this.projectiles.forEach(proj => proj.draw(ctx));
+
+                // Draw particles
+                this.particles.forEach(p => p.draw(ctx));
+
+                // Draw floating text
+                this.floatingTexts.forEach(t => t.draw(ctx));
+            }
+
+            loop() {
+                if (this.state === 'playing') {
+                    this.update();
+                    this.draw();
+                    requestAnimationFrame(() => this.loop());
+                }
+            }
+        }
+
+        const game = new Game();
+    </script>
+</body>
+</html>

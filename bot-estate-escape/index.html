@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Estate Escape Room - MoneyBot Games</title>
+  <style>
+    :root {
+      --mb-green: #00C853;
+      --mb-green-soft: #69F0AE;
+      --mb-ink: #1a1a2e;
+      --mb-slate: #475569;
+      --mb-white: #FFFFFF;
+      --mb-panel: #f8fafc;
+      --mb-line: rgba(0, 200, 83, 0.2);
+      --mb-gold: #FBBF24;
+      --mb-muted: #94a3b8;
+      --mb-red: #FB7185;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--mb-white);
+      color: var(--mb-ink);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    .game-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      max-width: 480px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 16px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 16px;
+    }
+
+    .logo {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--mb-green);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 8px;
+    }
+
+    h1 {
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--mb-ink);
+      margin-bottom: 4px;
+    }
+
+    .subtitle {
+      font-size: 14px;
+      color: var(--mb-slate);
+    }
+
+    .timer-bar {
+      background: var(--mb-panel);
+      border-radius: 12px;
+      padding: 12px 16px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border: 1px solid var(--mb-line);
+    }
+
+    .timer-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--mb-slate);
+    }
+
+    .timer-display {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--mb-ink);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .timer-display.warning {
+      color: var(--mb-red);
+      animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+
+    .progress-dots {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #e2e8f0;
+      transition: all 0.3s;
+    }
+
+    .dot.active {
+      background: var(--mb-green);
+      transform: scale(1.2);
+    }
+
+    .dot.solved {
+      background: var(--mb-green);
+    }
+
+    .room-card {
+      background: var(--mb-panel);
+      border-radius: 20px;
+      padding: 20px;
+      margin-bottom: 16px;
+      border: 2px solid var(--mb-line);
+    }
+
+    .room-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .room-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--mb-green) 0%, var(--mb-green-soft) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+    }
+
+    .room-title h2 {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--mb-ink);
+    }
+
+    .room-title span {
+      font-size: 13px;
+      color: var(--mb-muted);
+    }
+
+    .clue-box {
+      background: white;
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 16px;
+      border-left: 4px solid var(--mb-green);
+    }
+
+    .clue-box h3 {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--mb-ink);
+      margin-bottom: 8px;
+    }
+
+    .clue-box p {
+      font-size: 15px;
+      color: var(--mb-slate);
+      line-height: 1.5;
+    }
+
+    .puzzle-area {
+      background: white;
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+
+    .puzzle-question {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--mb-ink);
+      margin-bottom: 16px;
+      line-height: 1.4;
+    }
+
+    .answer-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .answer-btn {
+      background: var(--mb-panel);
+      border: 2px solid transparent;
+      border-radius: 12px;
+      padding: 14px 16px;
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 14px;
+      color: var(--mb-ink);
+      line-height: 1.4;
+    }
+
+    .answer-btn:hover {
+      border-color: var(--mb-green);
+      transform: translateX(4px);
+    }
+
+    .answer-btn.correct {
+      background: linear-gradient(135deg, rgba(0, 200, 83, 0.15) 0%, rgba(105, 240, 174, 0.15) 100%);
+      border-color: var(--mb-green);
+    }
+
+    .answer-btn.wrong {
+      background: linear-gradient(135deg, rgba(251, 113, 133, 0.15) 0%, rgba(251, 113, 133, 0.1) 100%);
+      border-color: var(--mb-red);
+    }
+
+    .hint-box {
+      background: linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, rgba(251, 191, 36, 0.05) 100%);
+      border-radius: 12px;
+      padding: 12px 16px;
+      margin-top: 12px;
+      border-left: 4px solid var(--mb-gold);
+      display: none;
+    }
+
+    .hint-box.visible {
+      display: block;
+      animation: slideDown 0.3s ease;
+    }
+
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .hint-box span {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--mb-gold);
+      text-transform: uppercase;
+    }
+
+    .hint-box p {
+      font-size: 13px;
+      color: var(--mb-slate);
+      margin-top: 4px;
+    }
+
+    .hint-btn {
+      background: transparent;
+      border: 2px dashed var(--mb-gold);
+      color: var(--mb-gold);
+      padding: 10px 16px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 12px;
+      transition: all 0.2s;
+    }
+
+    .hint-btn:hover {
+      background: rgba(251, 191, 36, 0.1);
+    }
+
+    .educational-note {
+      background: linear-gradient(135deg, rgba(0, 200, 83, 0.1) 0%, rgba(105, 240, 174, 0.1) 100%);
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: 16px;
+      display: none;
+    }
+
+    .educational-note.visible {
+      display: block;
+      animation: slideUp 0.4s ease;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .educational-note h4 {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--mb-green);
+      margin-bottom: 8px;
+    }
+
+    .educational-note p {
+      font-size: 14px;
+      color: var(--mb-slate);
+      line-height: 1.5;
+    }
+
+    .next-room-btn {
+      width: 100%;
+      padding: 16px;
+      background: var(--mb-green);
+      color: white;
+      border: none;
+      border-radius: 14px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 16px;
+      display: none;
+    }
+
+    .next-room-btn.visible {
+      display: block;
+    }
+
+    .next-room-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(0, 200, 83, 0.3);
+    }
+
+    .start-screen, .end-screen, .game-over-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: var(--mb-white);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+      padding: 40px 20px;
+      text-align: center;
+    }
+
+    .start-screen.hidden, .end-screen.hidden, .game-over-screen.hidden {
+      display: none;
+    }
+
+    .start-icon, .end-icon, .game-over-icon {
+      font-size: 80px;
+      margin-bottom: 24px;
+    }
+
+    .start-screen h1, .end-screen h1, .game-over-screen h1 {
+      font-size: 32px;
+      margin-bottom: 16px;
+    }
+
+    .start-screen p, .end-screen p, .game-over-screen p {
+      font-size: 18px;
+      color: var(--mb-slate);
+      margin-bottom: 32px;
+      max-width: 320px;
+      line-height: 1.5;
+    }
+
+    .start-btn, .restart-btn {
+      padding: 20px 48px;
+      font-size: 18px;
+      background: var(--mb-green);
+      color: white;
+      border: none;
+      border-radius: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .start-btn:hover, .restart-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(0, 200, 83, 0.3);
+    }
+
+    .final-stats {
+      background: var(--mb-panel);
+      border-radius: 20px;
+      padding: 24px;
+      margin-bottom: 24px;
+      border: 2px solid var(--mb-line);
+      width: 100%;
+      max-width: 320px;
+    }
+
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .stat-row:last-child {
+      border-bottom: none;
+    }
+
+    .stat-row span:first-child {
+      color: var(--mb-muted);
+      font-size: 14px;
+    }
+
+    .stat-row span:last-child {
+      color: var(--mb-ink);
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .escape-rating {
+      font-size: 48px;
+      font-weight: 800;
+      color: var(--mb-green);
+      margin-bottom: 8px;
+    }
+
+    .lock-animation {
+      font-size: 60px;
+      animation: unlock 0.5s ease forwards;
+    }
+
+    @keyframes unlock {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.2) rotate(10deg); }
+      100% { transform: scale(1) rotate(0deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="start-screen" id="startScreen">
+    <div class="start-icon">🔐</div>
+    <h1>Estate Escape Room</h1>
+    <p>You're locked in the Estate Planning Office! Solve puzzles about wills, trusts, and beneficiary designations to escape before time runs out.</p>
+    <button class="start-btn" onclick="startGame()">Enter the Room</button>
+  </div>
+
+  <div class="game-over-screen hidden" id="gameOverScreen">
+    <div class="game-over-icon">⏰</div>
+    <h1>Time's Up!</h1>
+    <p>You didn't escape in time. The probate court has taken over!</p>
+    <div class="final-stats">
+      <div class="stat-row">
+        <span>Puzzles Solved</span>
+        <span id="gameOverSolved">0/5</span>
+      </div>
+      <div class="stat-row">
+        <span>Time Remaining</span>
+        <span>0:00</span>
+      </div>
+    </div>
+    <button class="restart-btn" onclick="restartGame()">Try Again</button>
+  </div>
+
+  <div class="end-screen hidden" id="endScreen">
+    <div class="end-icon" id="endIcon">🗝️</div>
+    <div class="escape-rating" id="escapeRating">ESCAPED!</div>
+    <h1>Congratulations!</h1>
+    <p>You've mastered estate planning and escaped the room!</p>
+    <div class="final-stats">
+      <div class="stat-row">
+        <span>Puzzles Solved</span>
+        <span id="finalSolved">5/5</span>
+      </div>
+      <div class="stat-row">
+        <span>Time Remaining</span>
+        <span id="finalTime">2:34</span>
+      </div>
+      <div class="stat-row">
+        <span>Hints Used</span>
+        <span id="finalHints">2</span>
+      </div>
+    </div>
+    <button class="restart-btn" onclick="restartGame()">Play Again</button>
+  </div>
+
+  <div class="game-container">
+    <div class="header">
+      <div class="logo">MoneyBot Games</div>
+      <h1>🔐 Estate Escape Room</h1>
+      <div class="subtitle">Solve to escape probate!</div>
+    </div>
+
+    <div class="timer-bar">
+      <span class="timer-label">⏱️ Time Remaining</span>
+      <span class="timer-display" id="timerDisplay">5:00</span>
+    </div>
+
+    <div class="progress-dots" id="progressDots">
+      <div class="dot active"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+    </div>
+
+    <div class="room-card">
+      <div class="room-header">
+        <div class="room-icon" id="roomIcon">📜</div>
+        <div class="room-title">
+          <h2 id="roomName">The Will Chamber</h2>
+          <span id="roomTopic">Testamentary Puzzles</span>
+        </div>
+      </div>
+
+      <div class="clue-box">
+        <h3>🔍 The Clue</h3>
+        <p id="clueText">A wealthy person died without a will. Their estate is worth $500,000. According to intestacy laws, the surviving spouse gets the first $150,000 plus half of the remainder.</p>
+      </div>
+
+      <div class="puzzle-area">
+        <div class="puzzle-question" id="puzzleQuestion">
+          How much does the surviving spouse inherit?
+        </div>
+        <div class="answer-grid" id="answerGrid">
+          <button class="answer-btn" onclick="checkAnswer(0)" data-correct="false">$150,000</button>
+          <button class="answer-btn" onclick="checkAnswer(1)" data-correct="true">$325,000</button>
+          <button class="answer-btn" onclick="checkAnswer(2)" data-correct="false">$250,000</button>
+          <button class="answer-btn" onclick="checkAnswer(3)" data-correct="false">$500,000</button>
+        </div>
+        <button class="hint-btn" onclick="showHint()" id="hintBtn">💡 Need a Hint?</button>
+        <div class="hint-box" id="hintBox">
+          <span>Hint</span>
+          <p id="hintText">Calculate: $150,000 + (remaining $350,000 ÷ 2)</p>
+        </div>
+      </div>
+
+      <div class="educational-note" id="educationalNote">
+        <h4>📚 Why This Matters</h4>
+        <p id="educationalText">Dying without a will (intestate) means state laws decide who gets your assets, not you. This can lead to outcomes you wouldn't have chosen.</p>
+      </div>
+
+      <button class="next-room-btn" id="nextRoomBtn" onclick="nextRoom()">Unlock Next Room →</button>
+    </div>
+  </div>
+
+  <script>
+    // Game state
+    let state = {
+      currentRoom: 0,
+      timeRemaining: 300, // 5 minutes in seconds
+      hintsUsed: 0,
+      puzzlesSolved: 0,
+      timerInterval: null,
+      currentHintShown: false
+    };
+
+    // Room data
+    const rooms = [
+      {
+        icon: '📜',
+        name: 'The Will Chamber',
+        topic: 'Testamentary Puzzles',
+        clue: 'A wealthy person died without a will. Their estate is worth $500,000. According to intestacy laws, the surviving spouse gets the first $150,000 plus half of the remainder.',
+        question: 'How much does the surviving spouse inherit?',
+        answers: [
+          { text: '$150,000', correct: false },
+          { text: '$325,000', correct: true },
+          { text: '$250,000', correct: false },
+          { text: '$500,000', correct: false }
+        ],
+        hint: 'Calculate: $150,000 + (remaining $350,000 ÷ 2)',
+        education: 'Dying without a will (intestate) means state laws decide who gets your assets, not you. This can lead to outcomes you wouldn\'t have chosen.'
+      },
+      {
+        icon: '🏛️',
+        name: 'The Trust Vault',
+        topic: 'Revocable Living Trusts',
+        clue: 'A revocable living trust owns a house. The trust document names three successor trustees in order: spouse, then adult child, then sibling.',
+        question: 'Who manages the trust assets if the grantor becomes incapacitated but is still alive?',
+        answers: [
+          { text: 'The probate court automatically takes over', correct: false },
+          { text: 'The first named successor trustee (spouse)', correct: true },
+          { text: 'All three must agree unanimously', correct: false },
+          { text: 'The assets are frozen until death', correct: false }
+        ],
+        hint: 'Revocable trusts avoid probate and allow seamless transition of management during incapacity.',
+        education: 'A revocable living trust allows assets to be managed during your lifetime, even if you become incapacitated, without court intervention.'
+      },
+      {
+        icon: '👥',
+        name: 'Beneficiary Maze',
+        topic: 'Designation Disasters',
+        clue: 'John named his ex-wife as beneficiary on his $200,000 life insurance in 2015. They divorced in 2018. John died in 2024 without updating the designation. His will leaves everything to his current partner.',
+        question: 'Who receives the life insurance proceeds?',
+        answers: [
+          { text: 'The current partner (per the will)', correct: false },
+          { text: 'The estate, to be divided by probate', correct: false },
+          { text: 'The ex-wife (still named beneficiary)', correct: true },
+          { text: 'It goes to the state', correct: false }
+        ],
+        hint: 'Beneficiary designations on insurance and retirement accounts override wills.',
+        education: 'Beneficiary designations on life insurance, 401(k)s, and IRAs override whatever your will says. Update them after major life changes!' 
+      },
+      {
+        icon: '⚖️',
+        name: 'The Probate Puzzle',
+        topic: 'Probate Process',
+        clue: 'An estate goes through probate. The process takes 18 months. Court fees are 2%, attorney fees are 4%, and executor fees are 2% of the $400,000 estate.',
+        question: 'How much of the estate is lost to probate costs?',
+        answers: [
+          { text: '$8,000 (2%)', correct: false },
+          { text: '$16,000 (4%)', correct: false },
+          { text: '$32,000 (8%)', correct: true },
+          { text: '$40,000 (10%)', correct: false }
+        ],
+        hint: 'Add all the percentages: 2% + 4% + 2% = 8% of $400,000',
+        education: 'Probate can cost 5-10% of an estate\'s value and take 1-2 years. Assets in trusts or with named beneficiaries avoid probate entirely.'
+      },
+      {
+        icon: '🛡️',
+        name: 'Estate Tax Escape',
+        topic: 'Tax Planning',
+        clue: 'The federal estate tax exemption is $13.61 million per person (2024). A married couple has $20 million in assets. They have no estate planning.',
+        question: 'How much can they pass to heirs tax-free if they both die?',
+        answers: [
+          { text: '$13.61 million', correct: false },
+          { text: '$20 million (no tax due)', correct: false },
+          { text: '$27.22 million (both exemptions)', correct: true },
+          { text: '$6.39 million (tax on remainder)', correct: false }
+        ],
+        hint: 'Each person gets their own exemption. Married couples can combine exemptions with proper planning.',
+        education: 'Portability allows married couples to combine estate tax exemptions ($27.22M total in 2024). Without planning, the first spouse\'s exemption may be wasted.'
+      }
+    ];
+
+    function startGame() {
+      document.getElementById('startScreen').classList.add('hidden');
+      state.timeRemaining = 300;
+      state.hintsUsed = 0;
+      state.puzzlesSolved = 0;
+      state.currentRoom = 0;
+      loadRoom(0);
+      startTimer();
+    }
+
+    function startTimer() {
+      state.timerInterval = setInterval(() => {
+        state.timeRemaining--;
+        updateTimerDisplay();
+        
+        if (state.timeRemaining <= 0) {
+          endGame(false);
+        }
+      }, 1000);
+    }
+
+    function updateTimerDisplay() {
+      const minutes = Math.floor(state.timeRemaining / 60);
+      const seconds = state.timeRemaining % 60;
+      const display = document.getElementById('timerDisplay');
+      display.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+      
+      if (state.timeRemaining <= 60) {
+        display.classList.add('warning');
+      }
+    }
+
+    function loadRoom(index) {
+      state.currentRoom = index;
+      state.currentHintShown = false;
+      const room = rooms[index];
+      
+      // Update progress dots
+      const dots = document.querySelectorAll('.dot');
+      dots.forEach((dot, i) => {
+        dot.classList.remove('active', 'solved');
+        if (i < index) dot.classList.add('solved');
+        if (i === index) dot.classList.add('active');
+      });
+      
+      // Update room content
+      document.getElementById('roomIcon').textContent = room.icon;
+      document.getElementById('roomName').textContent = room.name;
+      document.getElementById('roomTopic').textContent = room.topic;
+      document.getElementById('clueText').textContent = room.clue;
+      document.getElementById('puzzleQuestion').textContent = room.question;
+      
+      // Update answers
+      const grid = document.getElementById('answerGrid');
+      grid.innerHTML = '';
+      room.answers.forEach((answer, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'answer-btn';
+        btn.textContent = answer.text;
+        btn.onclick = () => checkAnswer(i);
+        grid.appendChild(btn);
+      });
+      
+      // Reset hint and educational note
+      document.getElementById('hintBox').classList.remove('visible');
+      document.getElementById('educationalNote').classList.remove('visible');
+      document.getElementById('nextRoomBtn').classList.remove('visible');
+      document.getElementById('hintBtn').style.display = 'block';
+      document.getElementById('hintText').textContent = room.hint;
+      document.getElementById('educationalText').textContent = room.education;
+    }
+
+    function checkAnswer(answerIndex) {
+      const room = rooms[state.currentRoom];
+      const buttons = document.querySelectorAll('.answer-btn');
+      
+      buttons.forEach((btn, i) => {
+        btn.disabled = true;
+        if (i === answerIndex) {
+          btn.classList.add(room.answers[i].correct ? 'correct' : 'wrong');
+        } else if (room.answers[i].correct) {
+          btn.classList.add('correct');
+        }
+      });
+      
+      if (room.answers[answerIndex].correct) {
+        state.puzzlesSolved++;
+        document.getElementById('educationalNote').classList.add('visible');
+        document.getElementById('nextRoomBtn').classList.add('visible');
+        document.getElementById('hintBtn').style.display = 'none';
+        
+        if (state.currentRoom === rooms.length - 1) {
+          document.getElementById('nextRoomBtn').textContent = '🎉 Escape the Room!';
+        }
+      } else {
+        // Wrong answer costs 15 seconds
+        state.timeRemaining = Math.max(0, state.timeRemaining - 15);
+        updateTimerDisplay();
+        
+        setTimeout(() => {
+          buttons.forEach(btn => {
+            btn.disabled = false;
+            btn.classList.remove('correct', 'wrong');
+          });
+        }, 1500);
+      }
+    }
+
+    function showHint() {
+      if (!state.currentHintShown) {
+        state.hintsUsed++;
+        state.currentHintShown = true;
+        state.timeRemaining = Math.max(0, state.timeRemaining - 30);
+        updateTimerDisplay();
+      }
+      document.getElementById('hintBox').classList.add('visible');
+    }
+
+    function nextRoom() {
+      if (state.currentRoom < rooms.length - 1) {
+        loadRoom(state.currentRoom + 1);
+      } else {
+        endGame(true);
+      }
+    }
+
+    function endGame(escaped) {
+      clearInterval(state.timerInterval);
+      
+      if (escaped) {
+        const minutes = Math.floor(state.timeRemaining / 60);
+        const seconds = state.timeRemaining % 60;
+        document.getElementById('finalSolved').textContent = `${state.puzzlesSolved}/${rooms.length}`;
+        document.getElementById('finalTime').textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        document.getElementById('finalHints').textContent = state.hintsUsed;
+        document.getElementById('endScreen').classList.remove('hidden');
+      } else {
+        document.getElementById('gameOverSolved').textContent = `${state.puzzlesSolved}/${rooms.length}`;
+        document.getElementById('gameOverScreen').classList.remove('hidden');
+      }
+    }
+
+    function restartGame() {
+      document.getElementById('endScreen').classList.add('hidden');
+      document.getElementById('gameOverScreen').classList.add('hidden');
+      document.getElementById('timerDisplay').classList.remove('warning');
+      startGame();
+    }
+  </script>
+</body>
+</html>

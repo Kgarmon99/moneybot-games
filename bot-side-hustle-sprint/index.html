@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Side Hustle Sprint - MoneyBot</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            touch-action: manipulation;
+        }
+
+        :root {
+            --mb-green: #00C853;
+            --mb-green-soft: #69F0AE;
+            --mb-ink: #1a1a2e;
+            --mb-slate: #475569;
+            --mb-white: #FFFFFF;
+            --mb-red: #FF5252;
+            --mb-gold: #FFD700;
+            --mb-blue: #448AFF;
+            --mb-purple: #9C27B0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--mb-white);
+            color: var(--mb-ink);
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .hud {
+            padding: 12px 16px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(255,255,255,0.9) 100%);
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid var(--mb-green);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .hud-left, .hud-right {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .hud-item {
+            background: var(--mb-white);
+            border: 2px solid var(--mb-green);
+            border-radius: 20px;
+            padding: 8px 14px;
+            font-weight: 700;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 2px 8px rgba(0,200,83,0.15);
+        }
+
+        .hud-item.warning {
+            border-color: var(--mb-gold);
+            color: #B8860B;
+        }
+
+        .hud-item.danger {
+            border-color: var(--mb-red);
+            color: var(--mb-red);
+        }
+
+        .game-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 16px;
+            gap: 16px;
+            overflow-y: auto;
+        }
+
+        .clock-section {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border-radius: 20px;
+            padding: 20px;
+            text-align: center;
+            border: 2px solid var(--mb-green);
+        }
+
+        .clock-display {
+            font-size: 48px;
+            font-weight: 800;
+            color: var(--mb-ink);
+            font-variant-numeric: tabular-nums;
+            margin-bottom: 8px;
+        }
+
+        .clock-display.night {
+            color: var(--mb-purple);
+        }
+
+        .day-indicator {
+            font-size: 14px;
+            color: var(--mb-slate);
+            font-weight: 600;
+        }
+
+        .progress-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .progress-card {
+            background: white;
+            border-radius: 16px;
+            padding: 16px;
+            border: 2px solid #e2e8f0;
+            text-align: center;
+        }
+
+        .progress-card.income {
+            border-color: var(--mb-green);
+        }
+
+        .progress-card.energy {
+            border-color: var(--mb-blue);
+        }
+
+        .progress-label {
+            font-size: 12px;
+            color: var(--mb-slate);
+            font-weight: 600;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .progress-value {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--mb-ink);
+            margin-bottom: 8px;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .progress-fill.income { background: var(--mb-green); }
+        .progress-fill.energy { background: var(--mb-blue); }
+        .progress-fill.energy.low { background: var(--mb-red); }
+
+        .activities-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--mb-slate);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .activity-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .activity-btn {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 16px 12px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .activity-btn:active {
+            transform: scale(0.97);
+        }
+
+        .activity-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .activity-btn.work {
+            border-color: var(--mb-blue);
+        }
+
+        .activity-btn.work:hover:not(:disabled) {
+            background: #E3F2FD;
+        }
+
+        .activity-btn.hustle {
+            border-color: var(--mb-green);
+        }
+
+        .activity-btn.hustle:hover:not(:disabled) {
+            background: #E8F5E9;
+        }
+
+        .activity-btn.rest {
+            border-color: var(--mb-purple);
+        }
+
+        .activity-btn.rest:hover:not(:disabled) {
+            background: #F3E5F5;
+        }
+
+        .activity-icon {
+            font-size: 28px;
+        }
+
+        .activity-name {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--mb-ink);
+        }
+
+        .activity-stats {
+            font-size: 11px;
+            color: var(--mb-slate);
+            line-height: 1.4;
+        }
+
+        .activity-stats .positive {
+            color: var(--mb-green);
+            font-weight: 600;
+        }
+
+        .activity-stats .negative {
+            color: var(--mb-red);
+            font-weight: 600;
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255,255,255,0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 24px;
+            padding: 32px 24px;
+            max-width: 380px;
+            width: 100%;
+            text-align: center;
+            border: 3px solid var(--mb-green);
+            box-shadow: 0 20px 60px rgba(0,200,83,0.2);
+        }
+
+        .modal h1 {
+            font-size: 28px;
+            margin-bottom: 12px;
+            color: var(--mb-ink);
+        }
+
+        .modal h2 {
+            font-size: 22px;
+            margin-bottom: 12px;
+            color: var(--mb-ink);
+        }
+
+        .modal p {
+            color: var(--mb-slate);
+            line-height: 1.6;
+            margin-bottom: 20px;
+            font-size: 15px;
+        }
+
+        .modal .btn {
+            width: 100%;
+            margin-top: 8px;
+            padding: 16px;
+            font-size: 16px;
+        }
+
+        .btn {
+            padding: 14px 24px;
+            border-radius: 12px;
+            border: none;
+            font-weight: 700;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .btn:active {
+            transform: scale(0.97);
+        }
+
+        .btn-primary {
+            background: var(--mb-green);
+            color: white;
+            box-shadow: 0 4px 12px rgba(0,200,83,0.3);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin: 20px 0;
+        }
+
+        .stat-box {
+            background: #f8fafc;
+            padding: 12px;
+            border-radius: 12px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--mb-slate);
+            margin-bottom: 4px;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--mb-ink);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .event-toast {
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: var(--mb-ink);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-size: 14px;
+            z-index: 150;
+            max-width: 340px;
+            text-align: center;
+            transition: transform 0.3s ease;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+
+        .event-toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .event-toast.success {
+            background: var(--mb-green);
+        }
+
+        .event-toast.warning {
+            background: var(--mb-gold);
+            color: var(--mb-ink);
+        }
+
+        .event-toast.danger {
+            background: var(--mb-red);
+        }
+    </style>
+</head>
+<body>
+    <div class="hud">
+        <div class="hud-left">
+            <div class="hud-item">
+                <span>📅</span>
+                <span id="dayDisplay">Day 1</span>
+            </div>
+        </div>
+        <div class="hud-right">
+            <div class="hud-item" id="incomeDisplay">
+                <span>💰</span>
+                <span id="incomeValue">$0</span>
+            </div>
+            <div class="hud-item" id="energyDisplay">
+                <span>⚡</span>
+                <span id="energyValue">100%</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="game-area">
+        <div class="clock-section">
+            <div class="clock-display" id="clockDisplay">06:00</div>
+            <div class="day-indicator" id="periodIndicator">Morning - Time to hustle!</div>
+        </div>
+
+        <div class="progress-section">
+            <div class="progress-card income">
+                <div class="progress-label">Monthly Income</div>
+                <div class="progress-value" id="incomeProgress">$0 / $5,000</div>
+                <div class="progress-bar">
+                    <div class="progress-fill income" id="incomeBar" style="width: 0%"></div>
+                </div>
+            </div>
+            <div class="progress-card energy">
+                <div class="progress-label">Energy Level</div>
+                <div class="progress-value" id="energyProgress">100%</div>
+                <div class="progress-bar">
+                    <div class="progress-fill energy" id="energyBar" style="width: 100%"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="activities-section">
+            <div class="section-title">Choose Your Activity</div>
+            <div class="activity-grid">
+                <button class="activity-btn work" onclick="game.doActivity('dayjob')">
+                    <span class="activity-icon">💼</span>
+                    <span class="activity-name">Day Job</span>
+                    <span class="activity-stats">
+                        <span class="positive">+$150</span> • 
+                        <span class="negative">-20 energy</span>
+                    </span>
+                </button>
+                <button class="activity-btn hustle" onclick="game.doActivity('freelance')">
+                    <span class="activity-icon">💻</span>
+                    <span class="activity-name">Freelance</span>
+                    <span class="activity-stats">
+                        <span class="positive">+$80</span> • 
+                        <span class="negative">-15 energy</span>
+                    </span>
+                </button>
+                <button class="activity-btn hustle" onclick="game.doActivity('delivery')">
+                    <span class="activity-icon">🚗</span>
+                    <span class="activity-name">Delivery</span>
+                    <span class="activity-stats">
+                        <span class="positive">+$60</span> • 
+                        <span class="negative">-25 energy</span>
+                    </span>
+                </button>
+                <button class="activity-btn hustle" onclick="game.doActivity('content')">
+                    <span class="activity-icon">📱</span>
+                    <span class="activity-name">Content</span>
+                    <span class="activity-stats">
+                        <span class="positive">+$40-120</span> • 
+                        <span class="negative">-10 energy</span>
+                    </span>
+                </button>
+                <button class="activity-btn rest" onclick="game.doActivity('nap')">
+                    <span class="activity-icon">😴</span>
+                    <span class="activity-name">Power Nap</span>
+                    <span class="activity-stats">
+                        <span class="positive">+30 energy</span> • 
+                        <span class="negative">-2 hrs</span>
+                    </span>
+                </button>
+                <button class="activity-btn rest" onclick="game.doActivity('sleep')">
+                    <span class="activity-icon">🛏️</span>
+                    <span class="activity-name">Sleep</span>
+                    <span class="activity-stats">
+                        <span class="positive">Full energy</span> • 
+                        <span class="negative">Next day</span>
+                    </span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="event-toast" id="eventToast"></div>
+
+    <div class="modal" id="startModal">
+        <div class="modal-content">
+            <h1>⚡ Side Hustle Sprint</h1>
+            <p>Balance your day job with side hustles to hit your monthly income goal. Manage your energy wisely - burnout is real!</p>
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-label">Goal</div>
+                    <div class="stat-value">$5,000</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Days</div>
+                    <div class="stat-value">30</div>
+                </div>
+            </div>
+            <p style="font-size: 13px;">Day job = steady income. Side hustles = extra cash but drain energy. Rest = keep going longer.</p>
+            <button class="btn btn-primary" onclick="game.start()">Start Sprint</button>
+        </div>
+    </div>
+
+    <div class="modal hidden" id="gameOverModal">
+        <div class="modal-content">
+            <h2 id="endTitle">Month Complete!</h2>
+            <p id="endText">Let's see how you did...</p>
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-label">Total Income</div>
+                    <div class="stat-value" id="finalIncome">$0</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Goal</div>
+                    <div class="stat-value" id="goalDisplay">$5,000</div>
+                </div>
+            </div>
+            <p id="endMessage" style="font-size: 14px; font-weight: 600;"></p>
+            <button class="btn btn-primary" onclick="game.restart()">Play Again</button>
+        </div>
+    </div>
+
+    <script>
+        class Game {
+            constructor() {
+                this.state = 'start';
+                this.day = 1;
+                this.maxDays = 30;
+                this.hour = 6;
+                this.minute = 0;
+                this.income = 0;
+                this.goal = 5000;
+                this.energy = 100;
+                this.maxEnergy = 100;
+                this.activities = {
+                    dayjob: { income: 150, energy: -20, hours: 2, name: 'Day Job' },
+                    freelance: { income: 80, energy: -15, hours: 1.5, name: 'Freelance' },
+                    delivery: { income: 60, energy: -25, hours: 1.5, name: 'Delivery' },
+                    content: { income: null, energy: -10, hours: 1, name: 'Content', random: [40, 80, 120] },
+                    nap: { income: 0, energy: 30, hours: 2, name: 'Power Nap' },
+                    sleep: { income: 0, energy: 100, hours: null, name: 'Sleep', nextDay: true }
+                };
+                this.randomEvents = [
+                    { text: "💰 Client gave you a bonus! +$50", effect: () => { this.income += 50; this.showToast("💰 Client bonus! +$50", 'success'); }, chance: 0.1 },
+                    { text: "🚗 Car trouble! Lost time and $30", effect: () => { this.income = Math.max(0, this.income - 30); this.hour += 1; this.showToast("🚗 Car trouble! -$30", 'danger'); }, chance: 0.08 },
+                    { text: "🔥 Viral post! Content income doubled", effect: () => { this.showToast("🔥 Viral post! Content 2x", 'success'); }, chance: 0.05, multiplier: { content: 2 } },
+                    { text: "☕ Coffee spill! Energy -10", effect: () => { this.energy = Math.max(0, this.energy - 10); this.showToast("☕ Coffee spill! -10 energy", 'warning'); }, chance: 0.1 },
+                    { text: "💡 Great idea! Next activity +20% income", effect: () => { this.showToast("💡 Great idea! +20% next", 'success'); }, chance: 0.08, buff: 1.2 }
+                ];
+                this.currentBuff = 1;
+                this.contentMultiplier = 1;
+            }
+
+            start() {
+                document.getElementById('startModal').classList.add('hidden');
+                this.state = 'playing';
+                this.updateUI();
+            }
+
+            restart() {
+                this.day = 1;
+                this.hour = 6;
+                this.minute = 0;
+                this.income = 0;
+                this.energy = 100;
+                this.currentBuff = 1;
+                this.contentMultiplier = 1;
+                this.state = 'start';
+                document.getElementById('gameOverModal').classList.add('hidden');
+                document.getElementById('startModal').classList.remove('hidden');
+                this.updateUI();
+            }
+
+            doActivity(type) {
+                if (this.state !== 'playing') return;
+
+                const activity = this.activities[type];
+
+                // Check if can afford energy cost
+                if (activity.energy < 0 && this.energy + activity.energy < 0) {
+                    this.showToast("😴 Too tired! Rest first.", 'warning');
+                    return;
+                }
+
+                // Calculate income
+                let income = activity.income;
+                if (activity.random) {
+                    income = activity.random[Math.floor(Math.random() * activity.random.length)];
+                }
+                if (type === 'content') {
+                    income *= this.contentMultiplier;
+                }
+                income *= this.currentBuff;
+                income = Math.floor(income);
+
+                // Apply effects
+                this.income += income;
+                this.energy = Math.min(this.maxEnergy, Math.max(0, this.energy + activity.energy));
+
+                // Advance time
+                if (activity.nextDay) {
+                    this.nextDay();
+                } else {
+                    this.hour += Math.floor(activity.hours);
+                    this.minute += (activity.hours % 1) * 60;
+                    if (this.minute >= 60) {
+                        this.hour += 1;
+                        this.minute -= 60;
+                    }
+
+                    // Check if day ended
+                    if (this.hour >= 22) {
+                        this.showToast("🌙 It's late! Auto-sleep...", 'warning');
+                        setTimeout(() => this.nextDay(), 1000);
+                    }
+                }
+
+                // Reset buffs
+                this.currentBuff = 1;
+                this.contentMultiplier = 1;
+
+                // Show feedback
+                if (income > 0) {
+                    this.showToast(`💰 ${activity.name}: +$${income}`, 'success');
+                } else if (activity.energy > 0) {
+                    this.showToast(`⚡ ${activity.name}: +${activity.energy} energy`, 'success');
+                }
+
+                // Random events
+                this.checkRandomEvents();
+
+                this.updateUI();
+
+                // Check win condition
+                if (this.income >= this.goal) {
+                    setTimeout(() => this.endGame(true), 500);
+                } else if (this.day > this.maxDays) {
+                    setTimeout(() => this.endGame(false), 500);
+                }
+            }
+
+            nextDay() {
+                this.day++;
+                this.hour = 6;
+                this.minute = 0;
+                this.energy = this.maxEnergy;
+                this.currentBuff = 1;
+                this.contentMultiplier = 1;
+
+                if (this.day <= this.maxDays) {
+                    this.showToast(`📅 Day ${this.day} started!`, 'success');
+                }
+            }
+
+            checkRandomEvents() {
+                for (const event of this.randomEvents) {
+                    if (Math.random() < event.chance) {
+                        if (event.multiplier) {
+                            this.contentMultiplier = event.multiplier.content || 1;
+                        }
+                        if (event.buff) {
+                            this.currentBuff = event.buff;
+                        }
+                        event.effect();
+                        break; // Only one event per activity
+                    }
+                }
+            }
+
+            showToast(message, type = '') {
+                const toast = document.getElementById('eventToast');
+                toast.textContent = message;
+                toast.className = 'event-toast ' + type;
+                setTimeout(() => toast.classList.add('show'), 10);
+                setTimeout(() => toast.classList.remove('show'), 2500);
+            }
+
+            endGame(won) {
+                this.state = 'ended';
+                document.getElementById('finalIncome').textContent = `$${this.income.toLocaleString()}`;
+                document.getElementById('goalDisplay').textContent = `$${this.goal.toLocaleString()}`;
+
+                if (won) {
+                    document.getElementById('endTitle').textContent = '🎉 Goal Crushed!';
+                    document.getElementById('endText').textContent = `You hit $${this.goal.toLocaleString()} in ${this.day} days!`;
+                    const extra = this.income - this.goal;
+                    document.getElementById('endMessage').textContent = `Extra earnings: $${extra.toLocaleString()} | Great hustle balance!`;
+                    document.getElementById('endMessage').style.color = '#00C853';
+                } else {
+                    document.getElementById('endTitle').textContent = '⏰ Month Ended';
+                    document.getElementById('endText').textContent = 'Time ran out on your sprint.';
+                    const shortfall = this.goal - this.income;
+                    document.getElementById('endMessage').textContent = `Missed by $${shortfall.toLocaleString()}. Try more side hustles!`;
+                    document.getElementById('endMessage').style.color = '#FF5252';
+                }
+
+                document.getElementById('gameOverModal').classList.remove('hidden');
+            }
+
+            updateUI() {
+                // Clock
+                const timeStr = `${this.hour.toString().padStart(2, '0')}:${this.minute.toString().padStart(2, '0')}`;
+                document.getElementById('clockDisplay').textContent = timeStr;
+
+                // Period indicator
+                let period = '';
+                if (this.hour < 12) period = 'Morning - Time to hustle!';
+                else if (this.hour < 17) period = 'Afternoon - Keep grinding!';
+                else if (this.hour < 20) period = 'Evening - Final push!';
+                else period = 'Night - Time to rest?';
+                document.getElementById('periodIndicator').textContent = period;
+
+                // Day
+                document.getElementById('dayDisplay').textContent = `Day ${this.day}/${this.maxDays}`;
+
+                // Income
+                document.getElementById('incomeValue').textContent = `$${this.income.toLocaleString()}`;
+                document.getElementById('incomeProgress').textContent = `$${this.income.toLocaleString()} / $${this.goal.toLocaleString()}`;
+                const incomePercent = Math.min(100, (this.income / this.goal) * 100);
+                document.getElementById('incomeBar').style.width = `${incomePercent}%`;
+
+                // Energy
+                document.getElementById('energyValue').textContent = `${Math.floor(this.energy)}%`;
+                document.getElementById('energyProgress').textContent = `${Math.floor(this.energy)}%`;
+                document.getElementById('energyBar').style.width = `${this.energy}%`;
+
+                const energyBar = document.getElementById('energyBar');
+                const energyDisplay = document.getElementById('energyDisplay');
+                if (this.energy < 25) {
+                    energyBar.classList.add('low');
+                    energyDisplay.classList.add('danger');
+                    energyDisplay.classList.remove('warning');
+                } else if (this.energy < 50) {
+                    energyBar.classList.remove('low');
+                    energyDisplay.classList.add('warning');
+                    energyDisplay.classList.remove('danger');
+                } else {
+                    energyBar.classList.remove('low');
+                    energyDisplay.classList.remove('danger', 'warning');
+                }
+
+                // Update button states based on energy
+                document.querySelectorAll('.activity-btn').forEach(btn => {
+                    const onclick = btn.getAttribute('onclick');
+                    if (onclick) {
+                        const type = onclick.match(/'([^']+)'/)?.[1];
+                        if (type) {
+                            const activity = this.activities[type];
+                            if (activity.energy < 0 && this.energy < Math.abs(activity.energy)) {
+                                btn.disabled = true;
+                            } else {
+                                btn.disabled = false;
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        const game = new Game();
+    </script>
+</body>
+</html>

@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>HSA Health Hero - MoneyBot</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            touch-action: manipulation;
+        }
+
+        :root {
+            --mb-green: #00C853;
+            --mb-green-soft: #69F0AE;
+            --mb-ink: #1a1a2e;
+            --mb-slate: #475569;
+            --mb-white: #FFFFFF;
+            --mb-red: #FF5252;
+            --mb-gold: #FFD700;
+            --mb-blue: #448AFF;
+            --mb-purple: #9C27B0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--mb-white);
+            color: var(--mb-ink);
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #gameCanvas {
+            flex: 1;
+            display: block;
+            touch-action: none;
+        }
+
+        .hud {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 12px 16px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(255,255,255,0.9) 100%);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            border-bottom: 2px solid var(--mb-green);
+        }
+
+        .hud-left, .hud-right {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .hud-item {
+            background: var(--mb-white);
+            border: 2px solid var(--mb-green);
+            border-radius: 20px;
+            padding: 8px 12px;
+            font-weight: 700;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            box-shadow: 0 2px 8px rgba(0,200,83,0.15);
+        }
+
+        .hud-item.hsa {
+            border-color: var(--mb-green);
+            background: #E8F5E9;
+        }
+
+        .hud-item.taxable {
+            border-color: var(--mb-red);
+            color: var(--mb-red);
+        }
+
+        .hud-item.savings {
+            border-color: var(--mb-blue);
+            color: var(--mb-blue);
+        }
+
+        .level-indicator {
+            position: fixed;
+            top: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--mb-green);
+            color: white;
+            padding: 6px 18px;
+            border-radius: 20px;
+            font-weight: 800;
+            font-size: 13px;
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(0,200,83,0.3);
+        }
+
+        .controls {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 12px 16px;
+            background: linear-gradient(0deg, rgba(255,255,255,0.98) 0%, rgba(255,255,255,0.9) 100%);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            z-index: 100;
+            border-top: 2px solid var(--mb-green);
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .control-label {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--mb-slate);
+            text-transform: uppercase;
+        }
+
+        .btn {
+            padding: 12px 16px;
+            border-radius: 12px;
+            border: none;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            min-width: 70px;
+            justify-content: center;
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        .btn-hsa {
+            background: var(--mb-green);
+            color: white;
+            box-shadow: 0 4px 12px rgba(0,200,83,0.3);
+        }
+
+        .btn-tax {
+            background: white;
+            border: 2px solid var(--mb-red);
+            color: var(--mb-red);
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255,255,255,0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 24px;
+            padding: 32px 24px;
+            max-width: 380px;
+            width: 100%;
+            text-align: center;
+            border: 3px solid var(--mb-green);
+            box-shadow: 0 20px 60px rgba(0,200,83,0.2);
+        }
+
+        .modal h1 {
+            font-size: 26px;
+            margin-bottom: 12px;
+            color: var(--mb-ink);
+        }
+
+        .modal h2 {
+            font-size: 22px;
+            margin-bottom: 12px;
+            color: var(--mb-ink);
+        }
+
+        .modal p {
+            color: var(--mb-slate);
+            line-height: 1.6;
+            margin-bottom: 20px;
+            font-size: 15px;
+        }
+
+        .modal .btn {
+            width: 100%;
+            margin-top: 8px;
+            padding: 16px;
+            font-size: 16px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin: 20px 0;
+        }
+
+        .stat-box {
+            background: #f8fafc;
+            padding: 12px;
+            border-radius: 12px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .stat-box.hsa-box {
+            border-color: var(--mb-green);
+            background: #E8F5E9;
+        }
+
+        .stat-box.tax-box {
+            border-color: var(--mb-red);
+            background: #FFEBEE;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: var(--mb-slate);
+            margin-bottom: 4px;
+            font-weight: 600;
+        }
+
+        .stat-value {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--mb-ink);
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin: 16px 0;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .legend-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 3px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .mobile-hint {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--mb-ink);
+            color: white;
+            padding: 10px 18px;
+            border-radius: 20px;
+            font-size: 12px;
+            z-index: 90;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="hud">
+        <div class="hud-left">
+            <div class="hud-item hsa">
+                <span>🏥</span>
+                <span id="hsaValue">$0</span>
+            </div>
+        </div>
+        <div class="hud-right">
+            <div class="hud-item taxable">
+                <span>💸</span>
+                <span id="taxableValue">$0</span>
+            </div>
+            <div class="hud-item savings">
+                <span>💰</span>
+                <span id="savingsValue">$1,000</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="level-indicator" id="levelIndicator">LEVEL 1</div>
+
+    <canvas id="gameCanvas"></canvas>
+
+    <div class="mobile-hint" id="mobileHint">Swipe or use arrows to move</div>
+
+    <div class="controls">
+        <div class="control-group">
+            <span class="control-label">Move</span>
+            <div style="display: flex; gap: 4px;">
+                <button class="btn btn-hsa" onclick="game.move('up')">⬆️</button>
+            </div>
+            <div style="display: flex; gap: 4px; margin-top: 4px;">
+                <button class="btn btn-hsa" onclick="game.move('left')">⬅️</button>
+                <button class="btn btn-hsa" onclick="game.move('down')">⬇️</button>
+                <button class="btn btn-hsa" onclick="game.move('right')">➡️</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="startModal">
+        <div class="modal-content">
+            <h1>🏥 HSA Health Hero</h1>
+            <p>Navigate the healthcare maze! Collect HSA contributions (tax-free) and avoid unnecessary taxable expenses.</p>
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-dot" style="background: #00C853;"></div>
+                    <span>HSA Contribution</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-dot" style="background: #FF5252;"></div>
+                    <span>Taxable Expense</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-dot" style="background: #FFD700;"></div>
+                    <span>Exit</span>
+                </div>
+            </div>
+            <p style="font-size: 13px;">HSA = Tax-free savings. Taxable expenses reduce your net worth. Reach the exit with maximum HSA balance!</p>
+            <button class="btn btn-hsa" onclick="game.start()">Start Game</button>
+        </div>
+    </div>
+
+    <div class="modal hidden" id="levelCompleteModal">
+        <div class="modal-content">
+            <h2>✅ Level Complete!</h2>
+            <p>Great job navigating the healthcare costs!</p>
+            <div class="stats-grid">
+                <div class="stat-box hsa-box">
+                    <div class="stat-label">HSA Collected</div>
+                    <div class="stat-value" id="levelHsa">$0</div>
+                </div>
+                <div class="stat-box tax-box">
+                    <div class="stat-label">Taxable Spent</div>
+                    <div class="stat-value" id="levelTax">$0</div>
+                </div>
+            </div>
+            <button class="btn btn-hsa" onclick="game.nextLevel()">Next Level</button>
+        </div>
+    </div>
+
+    <div class="modal hidden" id="gameOverModal">
+        <div class="modal-content">
+            <h2 id="endTitle">🏆 Game Complete!</h2>
+            <p>You've mastered the healthcare maze!</p>
+            <div class="stats-grid">
+                <div class="stat-box hsa-box">
+                    <div class="stat-label">Total HSA</div>
+                    <div class="stat-value" id="totalHsa">$0</div>
+                </div>
+                <div class="stat-box tax-box">
+                    <div class="stat-label">Total Taxable</div>
+                    <div class="stat-value" id="totalTax">$0</div>
+                </div>
+            </div>
+            <div class="stat-box" style="margin: 12px 0;">
+                <div class="stat-label">Tax Savings</div>
+                <div class="stat-value" id="taxSavings" style="color: #00C853;">$0</div>
+            </div>
+            <p id="endMessage" style="font-size: 13px; font-weight: 600;"></p>
+            <button class="btn btn-hsa" onclick="game.restart()">Play Again</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight - 160;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        const TILE_SIZE = 40;
+        const WALL = 1;
+        const PATH = 0;
+        const HSA = 2;
+        const TAX = 3;
+        const EXIT = 4;
+
+        const LEVELS = [
+            {
+                name: "Level 1: The Basics",
+                map: [
+                    [1,1,1,1,1,1,1,1,1,1],
+                    [1,2,0,0,1,0,0,3,0,1],
+                    [1,0,1,0,1,0,1,1,0,1],
+                    [1,0,1,0,0,0,0,0,0,1],
+                    [1,0,1,1,1,1,1,1,2,1],
+                    [1,0,0,0,3,0,0,0,0,1],
+                    [1,1,1,1,1,1,1,0,1,1],
+                    [1,2,0,0,0,0,0,0,4,1],
+                    [1,1,1,1,1,1,1,1,1,1]
+                ],
+                start: { x: 1, y: 1 },
+                hsaValue: 100,
+                taxValue: 50
+            },
+            {
+                name: "Level 2: The Maze",
+                map: [
+                    [1,1,1,1,1,1,1,1,1,1,1,1],
+                    [1,2,0,0,1,3,0,0,0,0,2,1],
+                    [1,0,1,0,1,0,1,1,1,1,0,1],
+                    [1,0,1,0,0,0,0,3,0,1,0,1],
+                    [1,0,1,1,1,1,1,1,0,1,0,1],
+                    [1,0,0,0,2,0,0,0,0,0,0,1],
+                    [1,1,1,0,1,1,1,1,1,1,0,1],
+                    [1,3,0,0,0,0,0,0,0,0,0,1],
+                    [1,0,1,1,1,0,1,1,1,1,1,1],
+                    [1,0,0,2,1,0,0,0,3,0,4,1],
+                    [1,1,1,1,1,1,1,1,1,1,1,1]
+                ],
+                start: { x: 1, y: 1 },
+                hsaValue: 150,
+                taxValue: 75
+            },
+            {
+                name: "Level 3: The Gauntlet",
+                map: [
+                    [1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                    [1,2,0,0,0,3,0,0,1,0,0,0,2,1],
+                    [1,0,1,1,1,1,1,0,1,0,1,1,0,1],
+                    [1,0,0,0,0,0,0,0,0,0,0,3,0,1],
+                    [1,1,1,0,1,1,1,1,1,1,1,1,0,1],
+                    [1,3,0,0,0,0,2,0,0,0,0,0,0,1],
+                    [1,0,1,1,1,1,1,0,1,1,1,1,1,1],
+                    [1,0,0,0,3,0,0,0,0,0,0,0,2,1],
+                    [1,1,1,1,1,0,1,1,1,1,1,1,0,1],
+                    [1,2,0,0,0,0,0,3,0,0,0,0,0,1],
+                    [1,0,1,1,1,1,1,1,1,1,0,1,1,1],
+                    [1,0,0,0,0,0,0,0,0,0,0,4,1,1],
+                    [1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+                ],
+                start: { x: 1, y: 1 },
+                hsaValue: 200,
+                taxValue: 100
+            }
+        ];
+
+        class Particle {
+            constructor(x, y, color) {
+                this.x = x;
+                this.y = y;
+                this.color = color;
+                const angle = Math.random() * Math.PI * 2;
+                const speed = Math.random() * 3 + 2;
+                this.vx = Math.cos(angle) * speed;
+                this.vy = Math.sin(angle) * speed;
+                this.life = 1;
+                this.decay = 0.03;
+                this.size = Math.random() * 5 + 3;
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.vy += 0.1;
+                this.life -= this.decay;
+                this.size *= 0.95;
+            }
+
+            draw(ctx) {
+                ctx.save();
+                ctx.globalAlpha = this.life;
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        class FloatingText {
+            constructor(x, y, text, color) {
+                this.x = x;
+                this.y = y;
+                this.text = text;
+                this.color = color;
+                this.life = 1;
+                this.vy = -1.5;
+            }
+
+            update() {
+                this.y += this.vy;
+                this.life -= 0.02;
+            }
+
+            draw(ctx) {
+                ctx.save();
+                ctx.globalAlpha = this.life;
+                ctx.fillStyle = this.color;
+                ctx.font = 'bold 16px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(this.text, this.x, this.y);
+                ctx.restore();
+            }
+        }
+
+        class Game {
+            constructor() {
+                this.state = 'start';
+                this.levelIndex = 0;
+                this.hsaBalance = 0;
+                this.taxableSpent = 0;
+                this.savings = 1000;
+                this.player = { x: 0, y: 0 };
+                this.map = [];
+                this.collected = new Set();
+                this.particles = [];
+                this.floatingTexts = [];
+                this.camera = { x: 0, y: 0 };
+
+                this.setupInput();
+            }
+
+            setupInput() {
+                document.addEventListener('keydown', (e) => {
+                    if (this.state !== 'playing') return;
+                    
+                    switch(e.key) {
+                        case 'ArrowUp': case 'w': case 'W': this.move('up'); break;
+                        case 'ArrowDown': case 's': case 'S': this.move('down'); break;
+                        case 'ArrowLeft': case 'a': case 'A': this.move('left'); break;
+                        case 'ArrowRight': case 'd': case 'D': this.move('right'); break;
+                    }
+                });
+
+                // Touch controls
+                let touchStartX = 0;
+                let touchStartY = 0;
+
+                canvas.addEventListener('touchstart', (e) => {
+                    touchStartX = e.touches[0].clientX;
+                    touchStartY = e.touches[0].clientY;
+                }, { passive: true });
+
+                canvas.addEventListener('touchend', (e) => {
+                    if (this.state !== 'playing') return;
+                    
+                    const touchEndX = e.changedTouches[0].clientX;
+                    const touchEndY = e.changedTouches[0].clientY;
+                    
+                    const dx = touchEndX - touchStartX;
+                    const dy = touchEndY - touchStartY;
+                    
+                    const minSwipe = 30;
+                    
+                    if (Math.abs(dx) > Math.abs(dy)) {
+                        if (Math.abs(dx) > minSwipe) {
+                            this.move(dx > 0 ? 'right' : 'left');
+                        }
+                    } else {
+                        if (Math.abs(dy) > minSwipe) {
+                            this.move(dy > 0 ? 'down' : 'up');
+                        }
+                    }
+                }, { passive: true });
+            }
+
+            start() {
+                document.getElementById('startModal').classList.add('hidden');
+                this.loadLevel(0);
+                this.state = 'playing';
+                this.loop();
+            }
+
+            loadLevel(index) {
+                this.levelIndex = index;
+                const level = LEVELS[index];
+                this.map = level.map.map(row => [...row]);
+                this.player = { ...level.start };
+                this.collected.clear();
+                this.particles = [];
+                this.floatingTexts = [];
+                document.getElementById('levelIndicator').textContent = level.name;
+                
+                // Hide mobile hint after level 1
+                if (index > 0) {
+                    document.getElementById('mobileHint').style.display = 'none';
+                }
+            }
+
+            move(direction) {
+                if (this.state !== 'playing') return;
+
+                const level = LEVELS[this.levelIndex];
+                let newX = this.player.x;
+                let newY = this.player.y;
+
+                switch(direction) {
+                    case 'up': newY--; break;
+                    case 'down': newY++; break;
+                    case 'left': newX--; break;
+                    case 'right': newX++; break;
+                }
+
+                // Check bounds
+                if (newY < 0 || newY >= this.map.length || newX < 0 || newX >= this.map[0].length) {
+                    return;
+                }
+
+                const tile = this.map[newY][newX];
+                const key = `${newX},${newY}`;
+
+                // Check wall collision
+                if (tile === WALL) {
+                    return;
+                }
+
+                // Move player
+                this.player.x = newX;
+                this.player.y = newY;
+
+                // Handle collectibles
+                if (tile === HSA && !this.collected.has(key)) {
+                    this.collected.add(key);
+                    this.hsaBalance += level.hsaValue;
+                    this.createParticles(this.getTileCenter(newX, newY), '#00C853');
+                    this.showFloatingText(newX, newY, `+${level.hsaValue} HSA`, '#00C853');
+                    this.map[newY][newX] = PATH;
+                }
+
+                if (tile === TAX && !this.collected.has(key)) {
+                    this.collected.add(key);
+                    this.taxableSpent += level.taxValue;
+                    this.savings -= level.taxValue;
+                    this.createParticles(this.getTileCenter(newX, newY), '#FF5252');
+                    this.showFloatingText(newX, newY, `-${level.taxValue}`, '#FF5252');
+                    this.map[newY][newX] = PATH;
+                }
+
+                // Check exit
+                if (tile === EXIT) {
+                    this.levelComplete();
+                }
+
+                this.updateUI();
+            }
+
+            getTileCenter(x, y) {
+                return {
+                    x: x * TILE_SIZE + TILE_SIZE / 2,
+                    y: y * TILE_SIZE + TILE_SIZE / 2
+                };
+            }
+
+            createParticles(center, color, count = 8) {
+                for (let i = 0; i < count; i++) {
+                    this.particles.push(new Particle(center.x, center.y, color));
+                }
+            }
+
+            showFloatingText(x, y, text, color) {
+                const center = this.getTileCenter(x, y);
+                this.floatingTexts.push(new FloatingText(center.x, center.y - 20, text, color));
+            }
+
+            levelComplete() {
+                this.state = 'levelComplete';
+                const level = LEVELS[this.levelIndex];
+                
+                document.getElementById('levelHsa').textContent = `$${this.hsaBalance.toLocaleString()}`;
+                document.getElementById('levelTax').textContent = `$${this.taxableSpent.toLocaleString()}`;
+                document.getElementById('levelCompleteModal').classList.remove('hidden');
+            }
+
+            nextLevel() {
+                document.getElementById('levelCompleteModal').classList.add('hidden');
+                
+                if (this.levelIndex + 1 < LEVELS.length) {
+                    this.loadLevel(this.levelIndex + 1);
+                    this.state = 'playing';
+                } else {
+                    this.gameComplete();
+                }
+            }
+
+            gameComplete() {
+                this.state = 'gameComplete';
+                
+                const taxRate = 0.25;
+                const taxSavings = this.hsaBalance * taxRate;
+                
+                document.getElementById('totalHsa').textContent = `$${this.hsaBalance.toLocaleString()}`;
+                document.getElementById('totalTax').textContent = `$${this.taxableSpent.toLocaleString()}`;
+                document.getElementById('taxSavings').textContent = `$${taxSavings.toLocaleString()}`;
+                
+                const messages = [
+                    "Smart move! HSA contributions are tax-deductible AND grow tax-free.",
+                    "You saved on taxes while building a healthcare safety net!",
+                    "Triple tax advantage: deductible, grows tax-free, withdrawals tax-free for medical!"
+                ];
+                document.getElementById('endMessage').textContent = messages[Math.floor(Math.random() * messages.length)];
+                
+                document.getElementById('gameOverModal').classList.remove('hidden');
+            }
+
+            restart() {
+                this.levelIndex = 0;
+                this.hsaBalance = 0;
+                this.taxableSpent = 0;
+                this.savings = 1000;
+                this.state = 'start';
+                document.getElementById('gameOverModal').classList.add('hidden');
+                document.getElementById('startModal').classList.remove('hidden');
+                document.getElementById('mobileHint').style.display = 'block';
+                this.updateUI();
+            }
+
+            update() {
+                if (this.state !== 'playing') return;
+
+                // Update particles
+                this.particles = this.particles.filter(p => {
+                    p.update();
+                    return p.life > 0;
+                });
+
+                // Update floating text
+                this.floatingTexts = this.floatingTexts.filter(t => {
+                    t.update();
+                    return t.life > 0;
+                });
+
+                // Update camera to follow player
+                const playerPixelX = this.player.x * TILE_SIZE + TILE_SIZE / 2;
+                const playerPixelY = this.player.y * TILE_SIZE + TILE_SIZE / 2;
+                
+                this.camera.x = playerPixelX - canvas.width / 2;
+                this.camera.y = playerPixelY - canvas.height / 2;
+            }
+
+            draw() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                ctx.save();
+                ctx.translate(-this.camera.x, -this.camera.y);
+
+                // Draw map
+                for (let y = 0; y < this.map.length; y++) {
+                    for (let x = 0; x < this.map[y].length; x++) {
+                        const tile = this.map[y][x];
+                        const px = x * TILE_SIZE;
+                        const py = y * TILE_SIZE;
+
+                        // Draw floor
+                        ctx.fillStyle = '#f8fafc';
+                        ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
+
+                        // Draw tile content
+                        switch(tile) {
+                            case WALL:
+                                ctx.fillStyle = '#e2e8f0';
+                                ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
+                                ctx.strokeStyle = '#cbd5e1';
+                                ctx.strokeRect(px, py, TILE_SIZE, TILE_SIZE);
+                                break;
+                            case HSA:
+                                ctx.fillStyle = '#E8F5E9';
+                                ctx.fillRect(px + 2, py + 2, TILE_SIZE - 4, TILE_SIZE - 4);
+                                ctx.font = '20px sans-serif';
+                                ctx.textAlign = 'center';
+                                ctx.textBaseline = 'middle';
+                                ctx.fillText('💚', px + TILE_SIZE/2, py + TILE_SIZE/2);
+                                break;
+                            case TAX:
+                                ctx.fillStyle = '#FFEBEE';
+                                ctx.fillRect(px + 2, py + 2, TILE_SIZE - 4, TILE_SIZE - 4);
+                                ctx.font = '20px sans-serif';
+                                ctx.textAlign = 'center';
+                                ctx.textBaseline = 'middle';
+                                ctx.fillText('💸', px + TILE_SIZE/2, py + TILE_SIZE/2);
+                                break;
+                            case EXIT:
+                                ctx.fillStyle = '#FFF8E1';
+                                ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
+                                ctx.fillStyle = '#FFD700';
+                                ctx.beginPath();
+                                ctx.arc(px + TILE_SIZE/2, py + TILE_SIZE/2, 12, 0, Math.PI * 2);
+                                ctx.fill();
+                                ctx.font = '16px sans-serif';
+                                ctx.textAlign = 'center';
+                                ctx.textBaseline = 'middle';
+                                ctx.fillText('🚪', px + TILE_SIZE/2, py + TILE_SIZE/2);
+                                break;
+                        }
+                    }
+                }
+
+                // Draw player
+                const playerX = this.player.x * TILE_SIZE + TILE_SIZE / 2;
+                const playerY = this.player.y * TILE_SIZE + TILE_SIZE / 2;
+                
+                ctx.fillStyle = '#00C853';
+                ctx.shadowColor = '#00C853';
+                ctx.shadowBlur = 15;
+                ctx.beginPath();
+                ctx.arc(playerX, playerY, 14, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.shadowBlur = 0;
+                
+                ctx.font = '20px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('🏃', playerX, playerY);
+
+                // Draw particles
+                this.particles.forEach(p => p.draw(ctx));
+
+                // Draw floating text
+                this.floatingTexts.forEach(t => t.draw(ctx));
+
+                ctx.restore();
+            }
+
+            updateUI() {
+                document.getElementById('hsaValue').textContent = `$${this.hsaBalance.toLocaleString()}`;
+                document.getElementById('taxableValue').textContent = `$${this.taxableSpent.toLocaleString()}`;
+                document.getElementById('savingsValue').textContent = `$${this.savings.toLocaleString()}`;
+            }
+
+            loop() {
+                if (this.state === 'playing') {
+                    this.update();
+                    this.draw();
+                    requestAnimationFrame(() => this.loop());
+                }
+            }
+        }
+
+        const game = new Game();
+    </script>
+</body>
+</html>

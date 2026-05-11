@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Negotiation Nation - MoneyBot Games</title>
+  <style>
+    :root {
+      --mb-green: #00C853;
+      --mb-green-soft: #69F0AE;
+      --mb-ink: #1a1a2e;
+      --mb-slate: #475569;
+      --mb-white: #FFFFFF;
+      --mb-panel: #f8fafc;
+      --mb-line: rgba(0, 200, 83, 0.2);
+      --mb-gold: #FBBF24;
+      --mb-muted: #94a3b8;
+      --mb-red: #FB7185;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--mb-white);
+      color: var(--mb-ink);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    .game-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      max-width: 480px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 16px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .logo {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--mb-green);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 8px;
+    }
+
+    h1 {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--mb-ink);
+      margin-bottom: 4px;
+    }
+
+    .subtitle {
+      font-size: 14px;
+      color: var(--mb-slate);
+    }
+
+    .score-board {
+      display: flex;
+      justify-content: space-around;
+      background: var(--mb-panel);
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 20px;
+      border: 1px solid var(--mb-line);
+    }
+
+    .score-item {
+      text-align: center;
+    }
+
+    .score-label {
+      font-size: 11px;
+      color: var(--mb-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+
+    .score-value {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--mb-green);
+    }
+
+    .scenario-card {
+      background: var(--mb-panel);
+      border-radius: 20px;
+      padding: 20px;
+      margin-bottom: 16px;
+      border: 2px solid var(--mb-line);
+    }
+
+    .scenario-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .scenario-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--mb-green) 0%, var(--mb-green-soft) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+    }
+
+    .scenario-title {
+      flex: 1;
+    }
+
+    .scenario-title h2 {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--mb-ink);
+    }
+
+    .scenario-title span {
+      font-size: 13px;
+      color: var(--mb-muted);
+    }
+
+    .scenario-context {
+      background: white;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+      border-left: 4px solid var(--mb-green);
+    }
+
+    .scenario-context p {
+      font-size: 15px;
+      line-height: 1.5;
+      color: var(--mb-slate);
+    }
+
+    .opponent-section {
+      background: white;
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .opponent-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .opponent-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    .opponent-info h3 {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--mb-ink);
+    }
+
+    .opponent-info span {
+      font-size: 12px;
+      color: var(--mb-muted);
+    }
+
+    .opponent-message {
+      background: #f1f5f9;
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-size: 15px;
+      color: var(--mb-ink);
+      position: relative;
+    }
+
+    .opponent-message::before {
+      content: '';
+      position: absolute;
+      top: -8px;
+      left: 20px;
+      border-left: 8px solid transparent;
+      border-right: 8px solid transparent;
+      border-bottom: 8px solid #f1f5f9;
+    }
+
+    .responses {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .response-btn {
+      background: white;
+      border: 2px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 16px;
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 15px;
+      color: var(--mb-ink);
+      line-height: 1.4;
+    }
+
+    .response-btn:hover {
+      border-color: var(--mb-green);
+      transform: translateX(4px);
+    }
+
+    .response-btn:active {
+      transform: translateX(2px);
+    }
+
+    .response-btn.selected {
+      border-color: var(--mb-green);
+      background: linear-gradient(135deg, rgba(0, 200, 83, 0.1) 0%, rgba(105, 240, 174, 0.1) 100%);
+    }
+
+    .response-btn.good {
+      border-color: var(--mb-green);
+      background: linear-gradient(135deg, rgba(0, 200, 83, 0.15) 0%, rgba(105, 240, 174, 0.15) 100%);
+    }
+
+    .response-btn.bad {
+      border-color: var(--mb-red);
+      background: linear-gradient(135deg, rgba(251, 113, 133, 0.15) 0%, rgba(251, 113, 133, 0.1) 100%);
+    }
+
+    .feedback-section {
+      background: white;
+      border-radius: 16px;
+      padding: 20px;
+      margin-top: 16px;
+      display: none;
+    }
+
+    .feedback-section.active {
+      display: block;
+      animation: slideUp 0.3s ease;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .feedback-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .feedback-header h3 {
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .feedback-header.good h3 {
+      color: var(--mb-green);
+    }
+
+    .feedback-header.bad h3 {
+      color: var(--mb-red);
+    }
+
+    .feedback-text {
+      font-size: 14px;
+      color: var(--mb-slate);
+      line-height: 1.5;
+      margin-bottom: 16px;
+    }
+
+    .tactic-tag {
+      display: inline-block;
+      background: var(--mb-panel);
+      border-radius: 20px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--mb-green);
+      margin-bottom: 12px;
+    }
+
+    .next-btn {
+      width: 100%;
+      padding: 16px;
+      background: var(--mb-green);
+      color: white;
+      border: none;
+      border-radius: 14px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .next-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(0, 200, 83, 0.3);
+    }
+
+    .progress-bar {
+      height: 6px;
+      background: #e2e8f0;
+      border-radius: 3px;
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--mb-green) 0%, var(--mb-green-soft) 100%);
+      border-radius: 3px;
+      transition: width 0.5s ease;
+    }
+
+    .start-screen, .end-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: var(--mb-white);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+      padding: 40px 20px;
+      text-align: center;
+    }
+
+    .start-screen.hidden, .end-screen.hidden {
+      display: none;
+    }
+
+    .start-icon, .end-icon {
+      font-size: 80px;
+      margin-bottom: 24px;
+    }
+
+    .start-screen h1, .end-screen h1 {
+      font-size: 32px;
+      margin-bottom: 16px;
+    }
+
+    .start-screen p, .end-screen p {
+      font-size: 18px;
+      color: var(--mb-slate);
+      margin-bottom: 32px;
+      max-width: 320px;
+      line-height: 1.5;
+    }
+
+    .start-btn, .restart-btn {
+      padding: 20px 48px;
+      font-size: 18px;
+    }
+
+    .final-score {
+      background: var(--mb-panel);
+      border-radius: 20px;
+      padding: 24px;
+      margin-bottom: 24px;
+      border: 2px solid var(--mb-line);
+    }
+
+    .final-score-value {
+      font-size: 48px;
+      font-weight: 800;
+      color: var(--mb-green);
+    }
+
+    .final-score-label {
+      font-size: 14px;
+      color: var(--mb-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .tactics-learned {
+      text-align: left;
+      max-width: 320px;
+      margin-bottom: 24px;
+    }
+
+    .tactics-learned h3 {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: var(--mb-ink);
+    }
+
+    .tactic-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 0;
+      font-size: 14px;
+      color: var(--mb-slate);
+    }
+
+    .tactic-item::before {
+      content: '✓';
+      width: 20px;
+      height: 20px;
+      background: var(--mb-green);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .result-badge {
+      display: inline-block;
+      padding: 8px 20px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+
+    .result-badge.expert {
+      background: linear-gradient(135deg, var(--mb-green) 0%, var(--mb-green-soft) 100%);
+      color: white;
+    }
+
+    .result-badge.pro {
+      background: linear-gradient(135deg, var(--mb-gold) 0%, #f59e0b 100%);
+      color: white;
+    }
+
+    .result-badge.novice {
+      background: #e2e8f0;
+      color: var(--mb-slate);
+    }
+  </style>
+</head>
+<body>
+  <div class="start-screen" id="startScreen">
+    <div class="start-icon">🤝</div>
+    <h1>Negotiation Nation</h1>
+    <p>Master the art of negotiation! Practice salary talks, rent discussions, and big purchases. Every conversation is an opportunity to save.</p>
+    <button class="btn btn-primary start-btn" onclick="startGame()">Start Negotiating</button>
+  </div>
+
+  <div class="end-screen hidden" id="endScreen">
+    <div class="end-icon">🏆</div>
+    <div class="result-badge" id="resultBadge">Expert Negotiator</div>
+    <h1>Negotiation Complete!</h1>
+    <div class="final-score">
+      <div class="final-score-label">Total Savings</div>
+      <div class="final-score-value" id="finalScore">$0</div>
+    </div>
+    <div class="tactics-learned" id="tacticsLearned">
+      <h3>Tactics Mastered:</h3>
+    </div>
+    <button class="btn btn-primary restart-btn" onclick="restartGame()">Negotiate Again</button>
+  </div>
+
+  <div class="game-container">
+    <div class="header">
+      <div class="logo">MoneyBot Games</div>
+      <h1>🤝 Negotiation Nation</h1>
+      <div class="subtitle">Master the art of the deal</div>
+    </div>
+
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+    </div>
+
+    <div class="score-board">
+      <div class="score-item">
+        <div class="score-label">Savings</div>
+        <div class="score-value" id="totalSavings">$0</div>
+      </div>
+      <div class="score-item">
+        <div class="score-label">Round</div>
+        <div class="score-value" id="currentRound">1/3</div>
+      </div>
+      <div class="score-item">
+        <div class="score-label">Score</div>
+        <div class="score-value" id="score">0</div>
+      </div>
+    </div>
+
+    <div class="scenario-card" id="scenarioCard">
+      <div class="scenario-header">
+        <div class="scenario-icon" id="scenarioIcon">💼</div>
+        <div class="scenario-title">
+          <h2 id="scenarioName">Salary Negotiation</h2>
+          <span id="scenarioDifficulty">Professional Setting</span>
+        </div>
+      </div>
+
+      <div class="scenario-context">
+        <p id="scenarioContext">You've received a job offer for $75,000. Research shows the market rate for this role is $85,000-$95,000.</p>
+      </div>
+
+      <div class="opponent-section">
+        <div class="opponent-header">
+          <div class="opponent-avatar" id="opponentAvatar">👔</div>
+          <div class="opponent-info">
+            <h3 id="opponentName">Hiring Manager</h3>
+            <span id="opponentRole">Tech Company</span>
+          </div>
+        </div>
+        <div class="opponent-message" id="opponentMessage">
+          "We're excited to offer you $75,000. This is our standard starting salary for this position."
+        </div>
+      </div>
+    </div>
+
+    <div class="responses" id="responses">
+      <button class="response-btn" onclick="selectResponse(0)" id="resp0">
+        "That sounds great! When do I start?"
+      </button>
+      <button class="response-btn" onclick="selectResponse(1)" id="resp1">
+        "I appreciate the offer. Based on my research and experience, I was expecting something in the $90,000 range."
+      </button>
+      <button class="response-btn" onclick="selectResponse(2)" id="resp2">
+        "I need at least $100,000 or I'm walking."
+      </button>
+    </div>
+
+    <div class="feedback-section" id="feedbackSection">
+      <div class="feedback-header" id="feedbackHeader">
+        <span id="feedbackEmoji">✅</span>
+        <h3 id="feedbackTitle">Great Move!</h3>
+      </div>
+      <div class="tactic-tag" id="tacticTag">Market Research</div>
+      <p class="feedback-text" id="feedbackText">
+        You used data to support your position. This is one of the strongest negotiation tactics.
+      </p>
+      <button class="next-btn" onclick="nextScenario()">Continue →</button>
+    </div>
+  </div>
+
+  <script>
+    // Game state
+    let state = {
+      currentScenario: 0,
+      totalSavings: 0,
+      score: 0,
+      tacticsLearned: [],
+      scenariosCompleted: []
+    };
+
+    // Scenarios data
+    const scenarios = [
+      {
+        id: 'salary',
+        icon: '💼',
+        name: 'Salary Negotiation',
+        difficulty: 'Professional Setting',
+        context: "You've received a job offer for $75,000. Research shows the market rate for this role is $85,000-$95,000.",
+        opponent: {
+          avatar: '👔',
+          name: 'Hiring Manager',
+          role: 'Tech Company',
+          message: "We're excited to offer you $75,000. This is our standard starting salary for this position."
+        },
+        responses: [
+          {
+            text: "That sounds great! When do I start?",
+            outcome: "bad",
+            savings: 0,
+            tactic: "None",
+            feedback: "You left money on the table! Most employers expect negotiation and build in room for increases."
+          },
+          {
+            text: "I appreciate the offer. Based on my research and experience, I was expecting something in the $90,000 range.",
+            outcome: "good",
+            savings: 15000,
+            tactic: "Market Research + Anchoring",
+            feedback: "Excellent! You used data to support your position and anchored high within the reasonable range. This typically results in a $10,000-$15,000 increase."
+          },
+          {
+            text: "I need at least $100,000 or I'm walking.",
+            outcome: "bad",
+            savings: 0,
+            tactic: "None",
+            feedback: "Too aggressive! Ultimatums can backfire unless you have significant leverage. You risked losing the offer entirely."
+          }
+        ]
+      },
+      {
+        id: 'rent',
+        icon: '🏠',
+        name: 'Rent Negotiation',
+        difficulty: 'Housing Market',
+        context: "You're renewing your lease. The landlord wants to increase rent from $1,800 to $2,000/month. You've been a reliable tenant for 2 years.",
+        opponent: {
+          avatar: '🏢',
+          name: 'Property Manager',
+          role: 'Sunset Apartments',
+          message: "Due to market conditions, your new rent will be $2,000/month. This reflects current rates in the area."
+        },
+        responses: [
+          {
+            text: "Okay, I understand. I'll sign the new lease.",
+            outcome: "bad",
+            savings: 0,
+            tactic: "None",
+            feedback: "You accepted the increase without question! As a reliable long-term tenant, you had leverage to negotiate."
+          },
+          {
+            text: "I've been a reliable tenant for 2 years with no late payments. I'd like to discuss keeping the rent closer to $1,850 to stay within my budget.",
+            outcome: "good",
+            savings: 1800,
+            tactic: "Relationship Leverage",
+            feedback: "Perfect! You leveraged your track record as a reliable tenant. Landlords prefer keeping good tenants over finding new ones. You saved $150/month = $1,800/year!"
+          },
+          {
+            text: "That's ridiculous! I'm going to leave a bad review and tell everyone about this.",
+            outcome: "bad",
+            savings: 0,
+            tactic: "None",
+            feedback: "Threats damage relationships and rarely work. Professional negotiation focuses on mutual benefit, not intimidation."
+          }
+        ]
+      },
+      {
+        id: 'car',
+        icon: '🚗',
+        name: 'Car Purchase',
+        difficulty: 'Dealership Negotiation',
+        context: "You're buying a used car listed at $22,000. You've done your homework and know similar cars sell for $19,000-$20,000.",
+        opponent: {
+          avatar: '🚙',
+          name: 'Sales Manager',
+          role: 'AutoMax Dealership',
+          message: "This is a great vehicle at $22,000. We have another buyer interested, so I recommend moving quickly."
+        },
+        responses: [
+          {
+            text: "I really like this car. Can you do $21,000?",
+            outcome: "bad",
+            savings: 1000,
+            tactic: "Weak Anchoring",
+            feedback: "You anchored too close to their asking price! In car negotiations, start much lower to give yourself room to move up."
+          },
+          {
+            text: "I've seen similar cars listed for $19,000. I'd be comfortable at $19,500 given the mileage.",
+            outcome: "good",
+            savings: 2500,
+            tactic: "Competitive Data + Justification",
+            feedback: "Excellent strategy! You used market data and provided a specific justification (mileage). This approach typically saves $2,000-$3,000 on used cars."
+          },
+          {
+            text: "I can pay $18,000 cash today.",
+            outcome: "good",
+            savings: 3000,
+            tactic: "Cash Leverage",
+            feedback: "Cash is king! Dealerships love cash deals because they're quick and certain. Your offer was aggressive but reasonable, saving you $3,000!"
+          }
+        ]
+      }
+    ];
+
+    function startGame() {
+      document.getElementById('startScreen').classList.add('hidden');
+      loadScenario(0);
+    }
+
+    function loadScenario(index) {
+      state.currentScenario = index;
+      const scenario = scenarios[index];
+      
+      // Update progress
+      const progress = ((index) / scenarios.length) * 100;
+      document.getElementById('progressFill').style.width = progress + '%';
+      document.getElementById('currentRound').textContent = `${index + 1}/${scenarios.length}`;
+      
+      // Update scenario card
+      document.getElementById('scenarioIcon').textContent = scenario.icon;
+      document.getElementById('scenarioName').textContent = scenario.name;
+      document.getElementById('scenarioDifficulty').textContent = scenario.difficulty;
+      document.getElementById('scenarioContext').textContent = scenario.context;
+      
+      // Update opponent
+      document.getElementById('opponentAvatar').textContent = scenario.opponent.avatar;
+      document.getElementById('opponentName').textContent = scenario.opponent.name;
+      document.getElementById('opponentRole').textContent = scenario.opponent.role;
+      document.getElementById('opponentMessage').textContent = scenario.opponent.message;
+      
+      // Update responses
+      scenario.responses.forEach((resp, i) => {
+        const btn = document.getElementById(`resp${i}`);
+        btn.textContent = resp.text;
+        btn.className = 'response-btn';
+        btn.disabled = false;
+      });
+      
+      // Hide feedback
+      document.getElementById('feedbackSection').classList.remove('active');
+    }
+
+    function selectResponse(responseIndex) {
+      const scenario = scenarios[state.currentScenario];
+      const response = scenario.responses[responseIndex];
+      
+      // Disable all buttons
+      scenario.responses.forEach((_, i) => {
+        document.getElementById(`resp${i}`).disabled = true;
+      });
+      
+      // Highlight selected
+      const selectedBtn = document.getElementById(`resp${responseIndex}`);
+      selectedBtn.classList.add('selected');
+      selectedBtn.classList.add(response.outcome);
+      
+      // Update score
+      state.totalSavings += response.savings;
+      state.score += response.outcome === 'good' ? 100 : 20;
+      
+      if (response.outcome === 'good' && !state.tacticsLearned.includes(response.tactic)) {
+        state.tacticsLearned.push(response.tactic);
+      }
+      
+      // Update displays
+      document.getElementById('totalSavings').textContent = `$${state.totalSavings.toLocaleString()}`;
+      document.getElementById('score').textContent = state.score;
+      
+      // Show feedback
+      const feedbackSection = document.getElementById('feedbackSection');
+      const feedbackHeader = document.getElementById('feedbackHeader');
+      
+      document.getElementById('feedbackEmoji').textContent = response.outcome === 'good' ? '✅' : '❌';
+      document.getElementById('feedbackTitle').textContent = response.outcome === 'good' ? 'Great Move!' : 'Could Be Better';
+      document.getElementById('tacticTag').textContent = response.tactic;
+      document.getElementById('feedbackText').textContent = response.feedback;
+      
+      feedbackHeader.className = 'feedback-header ' + response.outcome;
+      feedbackSection.classList.add('active');
+    }
+
+    function nextScenario() {
+      if (state.currentScenario < scenarios.length - 1) {
+        loadScenario(state.currentScenario + 1);
+      } else {
+        showEndScreen();
+      }
+    }
+
+    function showEndScreen() {
+      document.getElementById('progressFill').style.width = '100%';
+      document.getElementById('endScreen').classList.remove('hidden');
+      document.getElementById('finalScore').textContent = `$${state.totalSavings.toLocaleString()}`;
+      
+      // Determine badge
+      const badge = document.getElementById('resultBadge');
+      if (state.score >= 250) {
+        badge.textContent = 'Expert Negotiator';
+        badge.className = 'result-badge expert';
+      } else if (state.score >= 150) {
+        badge.textContent = 'Skilled Negotiator';
+        badge.className = 'result-badge pro';
+      } else {
+        badge.textContent = 'Negotiation Novice';
+        badge.className = 'result-badge novice';
+      }
+      
+      // Show tactics learned
+      const tacticsContainer = document.getElementById('tacticsLearned');
+      tacticsContainer.innerHTML = '<h3>Tactics Mastered:</h3>';
+      
+      if (state.tacticsLearned.length === 0) {
+        tacticsContainer.innerHTML += '<div class="tactic-item">Keep practicing to master negotiation tactics!</div>';
+      } else {
+        state.tacticsLearned.forEach(tactic => {
+          tacticsContainer.innerHTML += `<div class="tactic-item">${tactic}</div>`;
+        });
+      }
+    }
+
+    function restartGame() {
+      state = {
+        currentScenario: 0,
+        totalSavings: 0,
+        score: 0,
+        tacticsLearned: [],
+        scenariosCompleted: []
+      };
+      
+      document.getElementById('totalSavings').textContent = '$0';
+      document.getElementById('score').textContent = '0';
+      document.getElementById('endScreen').classList.add('hidden');
+      loadScenario(0);
+    }
+  </script>
+</body>
+</html>

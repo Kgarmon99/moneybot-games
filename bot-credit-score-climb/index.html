@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Credit Score Climb - MoneyBot</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #FFFFFF;
+            color: #07111F;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            touch-action: none;
+        }
+        .header { text-align: center; margin-bottom: 15px; }
+        .header h1 { font-size: 24px; color: #00C853; margin-bottom: 5px; }
+        .header p { color: #64748B; font-size: 13px; }
+        .score-display {
+            background: linear-gradient(135deg, #00C853, #00E676);
+            color: white;
+            padding: 20px 40px;
+            border-radius: 16px;
+            text-align: center;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 16px rgba(0,200,83,0.3);
+        }
+        .score-display .label { font-size: 12px; opacity: 0.9; text-transform: uppercase; }
+        .score-display .value { font-size: 48px; font-weight: 700; }
+        .score-display .rating { font-size: 14px; margin-top: 5px; }
+        .game-container {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            height: 450px;
+            background: linear-gradient(180deg, #E8F5E9 0%, #F8FAFC 50%, #FFF3E0 100%);
+            border-radius: 16px;
+            overflow: hidden;
+            border: 2px solid #00C853;
+        }
+        .platforms {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+        .platform {
+            position: absolute;
+            height: 12px;
+            background: #00C853;
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0,200,83,0.3);
+        }
+        .player {
+            position: absolute;
+            width: 35px;
+            height: 35px;
+            background: #00C853;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            box-shadow: 0 4px 12px rgba(0,200,83,0.4);
+            transition: none;
+        }
+        .item {
+            position: absolute;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+        .item.payment { background: #00C853; }
+        .item.late { background: #FF5252; }
+        .item.inquiry { background: #FF9800; }
+        .legend {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+            font-size: 12px;
+            color: #64748B;
+        }
+        .legend-item { display: flex; align-items: center; gap: 5px; }
+        .legend-icon { width: 16px; height: 16px; border-radius: 50%; }
+        .controls {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+        }
+        .btn {
+            padding: 12px 30px;
+            background: #00C853;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .game-over {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+        .game-over.show { display: flex; }
+        .game-over h2 { font-size: 28px; margin-bottom: 10px; }
+        .game-over.win h2 { color: #00E676; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🏔️ Credit Score Climb</h1>
+        <p>Climb to 850! Collect payments, avoid late fees.</p>
+    </div>
+
+    <div class="score-display">
+        <div class="label">Credit Score</div>
+        <div class="value" id="score">300</div>
+        <div class="rating" id="rating">Poor</div>
+    </div>
+
+    <div class="game-container" id="gameContainer">
+        <div class="platforms" id="platforms"></div>
+        <div class="player" id="player">🧗</div>
+        <div class="game-over" id="gameOver">
+            <h2 id="gameOverTitle">Game Over</h2>
+            <p id="gameOverText"></p>
+            <button class="btn" onclick="restart()">Play Again</button>
+        </div>
+    </div>
+
+    <div class="legend">
+        <div class="legend-item"><div class="legend-icon" style="background:#00C853"></div>On-time (+15)</div>
+        <div class="legend-item"><div class="legend-icon" style="background:#FF5252"></div>Late (-30)</div>
+        <div class="legend-item"><div class="legend-icon" style="background:#FF9800"></div>Inquiry (-10)</div>
+    </div>
+
+    <div class="controls">
+        <button class="btn" id="startBtn" onclick="startGame()">START</button>
+    </div>
+
+    <script>
+        const container = document.getElementById('gameContainer');
+        const platformsContainer = document.getElementById('platforms');
+        const player = document.getElementById('player');
+        const scoreEl = document.getElementById('score');
+        const ratingEl = document.getElementById('rating');
+        const gameOver = document.getElementById('gameOver');
+        const gameOverTitle = document.getElementById('gameOverTitle');
+        const gameOverText = document.getElementById('gameOverText');
+        const startBtn = document.getElementById('startBtn');
+
+        let score = 300;
+        let isPlaying = false;
+        let playerX = 50;
+        let playerY = 400;
+        let velocityY = 0;
+        let platforms = [];
+        let items = [];
+        let gameLoop;
+
+        const ratings = [
+            { min: 300, max: 579, label: 'Poor', color: '#FF5252' },
+            { min: 580, max: 669, label: 'Fair', color: '#FF9800' },
+            { min: 670, max: 739, label: 'Good', color: '#FFC107' },
+            { min: 740, max: 799, label: 'Very Good', color: '#00C853' },
+            { min: 800, max: 850, label: 'Excellent', color: '#00E676' }
+        ];
+
+        function getRating(score) {
+            return ratings.find(r => score >= r.min && score <= r.max) || ratings[0];
+        }
+
+        function updateScoreDisplay() {
+            scoreEl.textContent = score;
+            const rating = getRating(score);
+            ratingEl.textContent = rating.label;
+            document.querySelector('.score-display').style.background = `linear-gradient(135deg, ${rating.color}, ${rating.color}DD)`;
+        }
+
+        function createPlatforms() {
+            platformsContainer.innerHTML = '';
+            platforms = [];
+            for (let i = 0; i < 6; i++) {
+                const y = 380 - i * 70;
+                const width = 80 + Math.random() * 60;
+                const x = Math.random() * (400 - width);
+                const platform = document.createElement('div');
+                platform.className = 'platform';
+                platform.style.left = x + 'px';
+                platform.style.top = y + 'px';
+                platform.style.width = width + 'px';
+                platformsContainer.appendChild(platform);
+                platforms.push({ x, y, width, el: platform });
+
+                // Add items to some platforms
+                if (Math.random() > 0.3) {
+                    createItem(x + width/2, y - 25);
+                }
+            }
+        }
+
+        function createItem(x, y) {
+            const rand = Math.random();
+            let type, emoji;
+            if (rand < 0.5) { type = 'payment'; emoji = '✓'; }
+            else if (rand < 0.8) { type = 'late'; emoji = '✗'; }
+            else { type = 'inquiry'; emoji = '?'; }
+
+            const item = document.createElement('div');
+            item.className = `item ${type}`;
+            item.textContent = emoji;
+            item.style.left = x + 'px';
+            item.style.top = y + 'px';
+            item.dataset.type = type;
+            platformsContainer.appendChild(item);
+            items.push({ x, y, type, el: item });
+        }
+
+        // Controls
+        document.addEventListener('keydown', (e) => {
+            if (!isPlaying) return;
+            if (e.key === 'ArrowLeft') playerX = Math.max(5, playerX - 5);
+            if (e.key === 'ArrowRight') playerX = Math.min(95, playerX + 5);
+            if (e.key === 'ArrowUp' || e.key === ' ') velocityY = -12;
+            updatePlayer();
+        });
+
+        container.addEventListener('touchstart', (e) => {
+            if (!isPlaying) return;
+            const touchX = e.touches[0].clientX;
+            const rect = container.getBoundingClientRect();
+            const relX = ((touchX - rect.left) / rect.width) * 100;
+            if (relX < 50) playerX = Math.max(5, playerX - 8);
+            else playerX = Math.min(95, playerX + 8);
+            velocityY = -12;
+            updatePlayer();
+        });
+
+        function updatePlayer() {
+            player.style.left = playerX + '%';
+            player.style.top = playerY + 'px';
+        }
+
+        function update() {
+            velocityY += 0.5; // gravity
+            playerY += velocityY;
+
+            // Platform collision
+            let onPlatform = false;
+            platforms.forEach(p => {
+                const px = (p.x / 400) * 100;
+                const pw = (p.width / 400) * 100;
+                if (playerX > px - 5 && playerX < px + pw + 5 &&
+                    playerY > p.y - 35 && playerY < p.y - 20 && velocityY > 0) {
+                    playerY = p.y - 35;
+                    velocityY = 0;
+                    onPlatform = true;
+                }
+            });
+
+            // Item collection
+            items.forEach((item, idx) => {
+                const ix = (item.x / 400) * 100;
+                if (Math.abs(playerX - ix) < 8 && Math.abs(playerY - item.y) < 30) {
+                    if (item.type === 'payment') score = Math.min(850, score + 15);
+                    else if (item.type === 'late') score = Math.max(300, score - 30);
+                    else if (item.type === 'inquiry') score = Math.max(300, score - 10);
+                    
+                    item.el.remove();
+                    items.splice(idx, 1);
+                    updateScoreDisplay();
+
+                    if (score >= 850) endGame(true);
+                }
+            });
+
+            // Fall off screen
+            if (playerY > 450) {
+                score = Math.max(300, score - 50);
+                playerY = 400;
+                playerX = 50;
+                velocityY = 0;
+                updateScoreDisplay();
+            }
+
+            updatePlayer();
+        }
+
+        function startGame() {
+            isPlaying = true;
+            startBtn.disabled = true;
+            score = 300;
+            playerX = 50;
+            playerY = 400;
+            velocityY = 0;
+            updateScoreDisplay();
+            createPlatforms();
+            gameLoop = setInterval(update, 20);
+        }
+
+        function endGame(won) {
+            isPlaying = false;
+            clearInterval(gameLoop);
+            gameOver.classList.add('show');
+            if (won) {
+                gameOver.classList.add('win');
+                gameOverTitle.textContent = '🎉 Excellent Score!';
+                gameOverText.textContent = `You reached ${score}! You'll qualify for the best rates.`;
+            } else {
+                gameOverTitle.textContent = 'Game Over';
+                gameOverText.textContent = `Final score: ${score}. Keep practicing good credit habits!`;
+            }
+        }
+
+        function restart() {
+            isPlaying = false;
+            clearInterval(gameLoop);
+            score = 300;
+            playerX = 50;
+            playerY = 400;
+            velocityY = 0;
+            items.forEach(i => i.el.remove());
+            items = [];
+            platformsContainer.innerHTML = '';
+            gameOver.classList.remove('show', 'win');
+            startBtn.disabled = false;
+            updateScoreDisplay();
+            updatePlayer();
+        }
+
+        updateScoreDisplay();
+        updatePlayer();
+    </script>
+</body>
+</html>

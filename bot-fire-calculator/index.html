@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>FIRE Calculator - MoneyBot Games</title>
+  <style>
+    :root {
+      --mb-green: #00C853;
+      --mb-green-soft: #69F0AE;
+      --mb-ink: #1a1a2e;
+      --mb-slate: #475569;
+      --mb-white: #FFFFFF;
+      --mb-panel: #f8fafc;
+      --mb-line: rgba(0, 200, 83, 0.2);
+      --mb-gold: #FBBF24;
+      --mb-muted: #94a3b8;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--mb-white);
+      color: var(--mb-ink);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    .game-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      max-width: 480px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 16px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .logo {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--mb-green);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 8px;
+    }
+
+    h1 {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--mb-ink);
+      margin-bottom: 4px;
+    }
+
+    .subtitle {
+      font-size: 14px;
+      color: var(--mb-slate);
+    }
+
+    .freedom-meter {
+      background: var(--mb-panel);
+      border-radius: 20px;
+      padding: 20px;
+      margin-bottom: 20px;
+      border: 2px solid var(--mb-line);
+    }
+
+    .meter-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .meter-label span {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--mb-slate);
+    }
+
+    .years-to-fire {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--mb-green);
+    }
+
+    .progress-container {
+      height: 24px;
+      background: #e2e8f0;
+      border-radius: 12px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--mb-green) 0%, var(--mb-green-soft) 100%);
+      border-radius: 12px;
+      transition: width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+      position: relative;
+    }
+
+    .progress-bar::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.3) 50%, transparent 100%);
+      animation: shimmer 2s infinite;
+    }
+
+    @keyframes shimmer {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+
+    .fire-status {
+      text-align: center;
+      margin-top: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--mb-ink);
+    }
+
+    .fire-status.fired {
+      color: var(--mb-green);
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .stat-card {
+      background: var(--mb-panel);
+      border-radius: 16px;
+      padding: 16px;
+      text-align: center;
+      border: 1px solid var(--mb-line);
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: var(--mb-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+
+    .stat-value {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--mb-ink);
+    }
+
+    .stat-value.green {
+      color: var(--mb-green);
+    }
+
+    .controls-section {
+      background: var(--mb-panel);
+      border-radius: 20px;
+      padding: 20px;
+      margin-bottom: 20px;
+      border: 1px solid var(--mb-line);
+    }
+
+    .section-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--mb-ink);
+      margin-bottom: 16px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .slider-group {
+      margin-bottom: 20px;
+    }
+
+    .slider-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .slider-label span {
+      font-size: 14px;
+      color: var(--mb-slate);
+    }
+
+    .slider-value {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--mb-green);
+    }
+
+    input[type="range"] {
+      width: 100%;
+      height: 8px;
+      border-radius: 4px;
+      background: #e2e8f0;
+      outline: none;
+      -webkit-appearance: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--mb-green);
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0, 200, 83, 0.4);
+      transition: transform 0.1s;
+    }
+
+    input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.1);
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 16px 20px;
+      border-radius: 16px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+      text-align: center;
+    }
+
+    .btn-primary {
+      background: var(--mb-green);
+      color: white;
+      box-shadow: 0 4px 16px rgba(0, 200, 83, 0.3);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 200, 83, 0.4);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    .btn-secondary {
+      background: white;
+      color: var(--mb-slate);
+      border: 2px solid #e2e8f0;
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--mb-green);
+      color: var(--mb-green);
+    }
+
+    .milestones {
+      background: var(--mb-panel);
+      border-radius: 20px;
+      padding: 20px;
+      border: 1px solid var(--mb-line);
+    }
+
+    .milestone-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .milestone {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      border-radius: 12px;
+      background: white;
+      transition: all 0.3s;
+    }
+
+    .milestone.achieved {
+      background: linear-gradient(135deg, rgba(0, 200, 83, 0.1) 0%, rgba(105, 240, 174, 0.1) 100%);
+      border: 1px solid var(--mb-line);
+    }
+
+    .milestone-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      background: #e2e8f0;
+      transition: all 0.3s;
+    }
+
+    .milestone.achieved .milestone-icon {
+      background: var(--mb-green);
+      transform: scale(1.1);
+    }
+
+    .milestone-content {
+      flex: 1;
+    }
+
+    .milestone-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--mb-ink);
+    }
+
+    .milestone-desc {
+      font-size: 12px;
+      color: var(--mb-muted);
+    }
+
+    .milestone-check {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: white;
+      transition: all 0.3s;
+    }
+
+    .milestone.achieved .milestone-check {
+      background: var(--mb-green);
+    }
+
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 20px;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 24px;
+      padding: 32px;
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+      animation: modalPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    @keyframes modalPop {
+      0% { transform: scale(0.8); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .modal-icon {
+      font-size: 64px;
+      margin-bottom: 16px;
+    }
+
+    .modal h2 {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--mb-ink);
+      margin-bottom: 12px;
+    }
+
+    .modal p {
+      font-size: 16px;
+      color: var(--mb-slate);
+      margin-bottom: 24px;
+      line-height: 1.5;
+    }
+
+    .firework {
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      animation: firework 1s ease-out forwards;
+    }
+
+    @keyframes firework {
+      0% { transform: translate(0, 0); opacity: 1; }
+      100% { transform: translate(var(--x), var(--y)); opacity: 0; }
+    }
+
+    .savings-rate-display {
+      font-size: 48px;
+      font-weight: 800;
+      color: var(--mb-green);
+      text-align: center;
+      margin: 20px 0;
+    }
+
+    .start-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: var(--mb-white);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+      padding: 40px 20px;
+      text-align: center;
+    }
+
+    .start-screen.hidden {
+      display: none;
+    }
+
+    .start-icon {
+      font-size: 80px;
+      margin-bottom: 24px;
+    }
+
+    .start-screen h1 {
+      font-size: 32px;
+      margin-bottom: 16px;
+    }
+
+    .start-screen p {
+      font-size: 18px;
+      color: var(--mb-slate);
+      margin-bottom: 32px;
+      max-width: 320px;
+      line-height: 1.5;
+    }
+
+    .start-btn {
+      padding: 20px 48px;
+      font-size: 18px;
+    }
+
+    .tip-box {
+      background: linear-gradient(135deg, rgba(0, 200, 83, 0.1) 0%, rgba(105, 240, 174, 0.1) 100%);
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: 16px;
+      border-left: 4px solid var(--mb-green);
+    }
+
+    .tip-box h4 {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--mb-green);
+      margin-bottom: 4px;
+    }
+
+    .tip-box p {
+      font-size: 13px;
+      color: var(--mb-slate);
+      line-height: 1.4;
+    }
+  </style>
+</head>
+<body>
+  <div class="start-screen" id="startScreen">
+    <div class="start-icon">🔥</div>
+    <h1>FIRE Calculator</h1>
+    <p>Every dollar saved brings you closer to Financial Independence. Adjust your savings rate and watch your years to freedom shrink!</p>
+    <button class="btn btn-primary start-btn" onclick="startGame()">Start Journey</button>
+  </div>
+
+  <div class="game-container">
+    <div class="header">
+      <div class="logo">MoneyBot Games</div>
+      <h1>🔥 FIRE Calculator</h1>
+      <div class="subtitle">Financial Independence, Retire Early</div>
+    </div>
+
+    <div class="freedom-meter">
+      <div class="meter-label">
+        <span>Years to FIRE</span>
+        <div class="years-to-fire" id="yearsToFire">25.0</div>
+      </div>
+      <div class="progress-container">
+        <div class="progress-bar" id="progressBar" style="width: 20%"></div>
+      </div>
+      <div class="fire-status" id="fireStatus">Keep saving to reach freedom!</div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Savings Rate</div>
+        <div class="stat-value green" id="savingsRateDisplay">20%</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Monthly Savings</div>
+        <div class="stat-value" id="monthlySavings">$1,667</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Annual Savings</div>
+        <div class="stat-value" id="annualSavings">$20,000</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">FIRE Number</div>
+        <div class="stat-value" id="fireNumber">$1.5M</div>
+      </div>
+    </div>
+
+    <div class="controls-section">
+      <div class="section-title">Your Parameters</div>
+      
+      <div class="slider-group">
+        <div class="slider-label">
+          <span>Annual Income</span>
+          <span class="slider-value" id="incomeValue">$100,000</span>
+        </div>
+        <input type="range" id="incomeSlider" min="30000" max="500000" step="5000" value="100000">
+      </div>
+
+      <div class="slider-group">
+        <div class="slider-label">
+          <span>Current Savings</span>
+          <span class="slider-value" id="currentSavingsValue">$50,000</span>
+        </div>
+        <input type="range" id="currentSavingsSlider" min="0" max="1000000" step="10000" value="50000">
+      </div>
+
+      <div class="slider-group">
+        <div class="slider-label">
+          <span>Savings Rate</span>
+          <span class="slider-value" id="savingsRateValue">20%</span>
+        </div>
+        <input type="range" id="savingsRateSlider" min="5" max="80" step="1" value="20">
+      </div>
+
+      <div class="slider-group">
+        <div class="slider-label">
+          <span>Expected Return</span>
+          <span class="slider-value" id="returnValue">7%</span>
+        </div>
+        <input type="range" id="returnSlider" min="3" max="12" step="0.5" value="7">
+      </div>
+
+      <div class="tip-box">
+        <h4>💡 Pro Tip</h4>
+        <p id="tipText">Increasing your savings rate has the biggest impact on your FIRE timeline.</p>
+      </div>
+    </div>
+
+    <div class="action-buttons">
+      <button class="btn btn-primary" onclick="simulateFIRE()">📈 Simulate Growth</button>
+      <button class="btn btn-secondary" onclick="resetGame()">🔄 Reset</button>
+    </div>
+
+    <div class="milestones">
+      <div class="section-title">Freedom Milestones</div>
+      <div class="milestone-list" id="milestoneList">
+        <div class="milestone" id="milestone1">
+          <div class="milestone-icon">🌱</div>
+          <div class="milestone-content">
+            <div class="milestone-title">Seedling Saver</div>
+            <div class="milestone-desc">Save 6 months of expenses</div>
+          </div>
+          <div class="milestone-check">✓</div>
+        </div>
+        <div class="milestone" id="milestone2">
+          <div class="milestone-icon">🌿</div>
+          <div class="milestone-content">
+            <div class="milestone-title">Growing Green</div>
+            <div class="milestone-desc">Reach $100K net worth</div>
+          </div>
+          <div class="milestone-check">✓</div>
+        </div>
+        <div class="milestone" id="milestone3">
+          <div class="milestone-icon">🌳</div>
+          <div class="milestone-content">
+            <div class="milestone-title">Quarter Million</div>
+            <div class="milestone-desc">Reach $250K invested</div>
+          </div>
+          <div class="milestone-check">✓</div>
+        </div>
+        <div class="milestone" id="milestone4">
+          <div class="milestone-icon">🏔️</div>
+          <div class="milestone-content">
+            <div class="milestone-title">Halfway Home</div>
+            <div class="milestone-desc">Reach 50% of FIRE number</div>
+          </div>
+          <div class="milestone-check">✓</div>
+        </div>
+        <div class="milestone" id="milestone5">
+          <div class="milestone-icon">🔥</div>
+          <div class="milestone-content">
+            <div class="milestone-title">FIRE Achieved!</div>
+            <div class="milestone-desc">Financially Independent!</div>
+          </div>
+          <div class="milestone-check">✓</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="fireModal">
+    <div class="modal-content">
+      <div class="modal-icon">🎉</div>
+      <h2>FIRE Achieved!</h2>
+      <p id="fireMessage">You reached financial independence in <strong>15 years</strong>! Your investments now generate enough passive income to cover your expenses forever.</p>
+      <button class="btn btn-primary" onclick="closeModal()">Play Again</button>
+    </div>
+  </div>
+
+  <script>
+    // Game state
+    let state = {
+      income: 100000,
+      currentSavings: 50000,
+      savingsRate: 20,
+      expectedReturn: 7,
+      yearsToFire: 25,
+      isSimulating: false
+    };
+
+    // DOM elements
+    const incomeSlider = document.getElementById('incomeSlider');
+    const currentSavingsSlider = document.getElementById('currentSavingsSlider');
+    const savingsRateSlider = document.getElementById('savingsRateSlider');
+    const returnSlider = document.getElementById('returnSlider');
+
+    // Format currency
+    function formatCurrency(num) {
+      if (num >= 1000000) {
+        return '$' + (num / 1000000).toFixed(1) + 'M';
+      } else if (num >= 1000) {
+        return '$' + (num / 1000).toFixed(0) + 'K';
+      }
+      return '$' + num;
+    }
+
+    // Calculate years to FIRE using 4% rule
+    function calculateFIRE() {
+      const annualExpenses = state.income * (1 - state.savingsRate / 100);
+      const fireNumber = annualExpenses * 25; // 4% rule
+      const annualSavings = state.income * (state.savingsRate / 100);
+      
+      if (annualSavings <= 0) return 999;
+      
+      // Compound interest calculation with monthly contributions
+      let balance = state.currentSavings;
+      let years = 0;
+      const monthlyRate = state.expectedReturn / 100 / 12;
+      const monthlySavings = annualSavings / 12;
+      
+      while (balance < fireNumber && years < 100) {
+        for (let month = 0; month < 12; month++) {
+          balance = balance * (1 + monthlyRate) + monthlySavings;
+        }
+        years++;
+      }
+      
+      return years;
+    }
+
+    // Update UI
+    function updateUI() {
+      state.yearsToFire = calculateFIRE();
+      
+      const annualExpenses = state.income * (1 - state.savingsRate / 100);
+      const fireNumber = annualExpenses * 25;
+      const annualSavings = state.income * (state.savingsRate / 100);
+      const monthlySavings = annualSavings / 12;
+      
+      // Update displays
+      document.getElementById('yearsToFire').textContent = state.yearsToFire >= 100 ? '∞' : state.yearsToFire.toFixed(1);
+      document.getElementById('savingsRateDisplay').textContent = state.savingsRate + '%';
+      document.getElementById('monthlySavings').textContent = formatCurrency(monthlySavings);
+      document.getElementById('annualSavings').textContent = formatCurrency(annualSavings);
+      document.getElementById('fireNumber').textContent = formatCurrency(fireNumber);
+      
+      // Update slider values
+      document.getElementById('incomeValue').textContent = formatCurrency(state.income);
+      document.getElementById('currentSavingsValue').textContent = formatCurrency(state.currentSavings);
+      document.getElementById('savingsRateValue').textContent = state.savingsRate + '%';
+      document.getElementById('returnValue').textContent = state.expectedReturn + '%';
+      
+      // Update progress bar
+      const maxYears = 50;
+      const progress = Math.max(0, Math.min(100, ((maxYears - state.yearsToFire) / maxYears) * 100));
+      document.getElementById('progressBar').style.width = progress + '%';
+      
+      // Update status
+      const statusEl = document.getElementById('fireStatus');
+      if (state.yearsToFire <= 10) {
+        statusEl.textContent = '🔥 Fast FIRE! You\'re on the express lane!';
+        statusEl.classList.add('fired');
+      } else if (state.yearsToFire <= 20) {
+        statusEl.textContent = '💪 Solid progress! Keep optimizing.';
+        statusEl.classList.remove('fired');
+      } else if (state.yearsToFire >= 100) {
+        statusEl.textContent = '⚠️ Need to save more to reach FIRE';
+        statusEl.classList.remove('fired');
+      } else {
+        statusEl.textContent = 'Keep saving to reach freedom!';
+        statusEl.classList.remove('fired');
+      }
+      
+      // Update milestones
+      updateMilestones(fireNumber);
+      
+      // Update tip
+      updateTip();
+    }
+
+    function updateMilestones(fireNumber) {
+      const milestones = [
+        { id: 'milestone1', threshold: state.income * 0.5 }, // 6 months expenses
+        { id: 'milestone2', threshold: 100000 },
+        { id: 'milestone3', threshold: 250000 },
+        { id: 'milestone4', threshold: fireNumber * 0.5 },
+        { id: 'milestone5', threshold: fireNumber }
+      ];
+      
+      let balance = state.currentSavings;
+      milestones.forEach(m => {
+        const el = document.getElementById(m.id);
+        if (balance >= m.threshold) {
+          el.classList.add('achieved');
+        } else {
+          el.classList.remove('achieved');
+        }
+      });
+    }
+
+    function updateTip() {
+      const tips = [
+        'Increasing your savings rate has the biggest impact on your FIRE timeline.',
+        'Every 1% increase in savings rate gets you closer to freedom.',
+        'The 4% rule: You can safely withdraw 4% of your portfolio annually.',
+        'Compound interest accelerates as your portfolio grows.',
+        'Reducing expenses helps both your savings rate and your FIRE number.'
+      ];
+      
+      if (state.savingsRate < 20) {
+        document.getElementById('tipText').textContent = 'Try increasing your savings rate to 20% or more for faster FIRE.';
+      } else if (state.expectedReturn < 5) {
+        document.getElementById('tipText').textContent = 'Conservative returns extend your timeline. Consider diversified index funds.';
+      } else {
+        document.getElementById('tipText').textContent = tips[Math.floor(Math.random() * tips.length)];
+      }
+    }
+
+    // Event listeners
+    incomeSlider.addEventListener('input', (e) => {
+      state.income = parseInt(e.target.value);
+      updateUI();
+    });
+
+    currentSavingsSlider.addEventListener('input', (e) => {
+      state.currentSavings = parseInt(e.target.value);
+      updateUI();
+    });
+
+    savingsRateSlider.addEventListener('input', (e) => {
+      state.savingsRate = parseInt(e.target.value);
+      updateUI();
+    });
+
+    returnSlider.addEventListener('input', (e) => {
+      state.expectedReturn = parseFloat(e.target.value);
+      updateUI();
+    });
+
+    function startGame() {
+      document.getElementById('startScreen').classList.add('hidden');
+      updateUI();
+    }
+
+    function simulateFIRE() {
+      if (state.isSimulating) return;
+      state.isSimulating = true;
+      
+      const annualExpenses = state.income * (1 - state.savingsRate / 100);
+      const fireNumber = annualExpenses * 25;
+      
+      // Animate the progress
+      let currentSavings = state.currentSavings;
+      const monthlyRate = state.expectedReturn / 100 / 12;
+      const monthlySavings = (state.income * state.savingsRate / 100) / 12;
+      
+      const interval = setInterval(() => {
+        // Simulate 6 months per tick
+        for (let i = 0; i < 6; i++) {
+          currentSavings = currentSavings * (1 + monthlyRate) + monthlySavings;
+        }
+        
+        state.currentSavings = Math.min(currentSavings, fireNumber * 1.5);
+        currentSavingsSlider.value = Math.min(currentSavings, 1000000);
+        
+        updateUI();
+        
+        if (currentSavings >= fireNumber) {
+          clearInterval(interval);
+          state.isSimulating = false;
+          showFireModal();
+          createFireworks();
+        } else if (currentSavings >= 1000000) {
+          clearInterval(interval);
+          state.isSimulating = false;
+        }
+      }, 100);
+    }
+
+    function showFireModal() {
+      const annualExpenses = state.income * (1 - state.savingsRate / 100);
+      const fireNumber = annualExpenses * 25;
+      document.getElementById('fireMessage').innerHTML = 
+        `You reached financial independence with <strong>${formatCurrency(fireNumber)}</strong>! ` +
+        `Your investments now generate <strong>${formatCurrency(fireNumber * 0.04)}</strong> annually ` +
+        `— enough to cover your <strong>${formatCurrency(annualExpenses)}</strong> yearly expenses forever.`;
+      document.getElementById('fireModal').classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('fireModal').classList.remove('active');
+    }
+
+    function resetGame() {
+      state = {
+        income: 100000,
+        currentSavings: 50000,
+        savingsRate: 20,
+        expectedReturn: 7,
+        yearsToFire: 25,
+        isSimulating: false
+      };
+      
+      incomeSlider.value = state.income;
+      currentSavingsSlider.value = state.currentSavings;
+      savingsRateSlider.value = state.savingsRate;
+      returnSlider.value = state.expectedReturn;
+      
+      updateUI();
+    }
+
+    function createFireworks() {
+      const colors = ['#00C853', '#69F0AE', '#FBBF24', '#38BDF8'];
+      for (let i = 0; i < 30; i++) {
+        setTimeout(() => {
+          const firework = document.createElement('div');
+          firework.className = 'firework';
+          firework.style.left = '50%';
+          firework.style.top = '50%';
+          firework.style.background = colors[Math.floor(Math.random() * colors.length)];
+          firework.style.setProperty('--x', (Math.random() - 0.5) * 300 + 'px');
+          firework.style.setProperty('--y', (Math.random() - 0.5) * 300 + 'px');
+          document.body.appendChild(firework);
+          setTimeout(() => firework.remove(), 1000);
+        }, i * 50);
+      }
+    }
+
+    // Initialize
+    updateUI();
+  </script>
+</body>
+</html>

@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>401k Match Master - MoneyBot</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #FFFFFF;
+            color: #07111F;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            touch-action: none;
+        }
+        .header { text-align: center; margin-bottom: 15px; }
+        .header h1 { font-size: 24px; color: #00C853; margin-bottom: 5px; }
+        .header p { color: #64748B; font-size: 13px; }
+        .stats {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .stat-box {
+            background: #F8FAFC;
+            padding: 12px 20px;
+            border-radius: 10px;
+            text-align: center;
+            border: 2px solid #E2E8F0;
+        }
+        .stat-box.highlight { border-color: #00C853; background: #E8F5E9; }
+        .stat-box .label { font-size: 11px; color: #64748B; text-transform: uppercase; }
+        .stat-box .value { font-size: 20px; font-weight: 700; color: #00C853; }
+        .stat-box .value.missed { color: #FF5252; }
+        .game-container {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            height: 450px;
+            background: linear-gradient(180deg, #F8FAFC 0%, #E8F5E9 100%);
+            border-radius: 16px;
+            overflow: hidden;
+            border: 2px solid #00C853;
+        }
+        .basket {
+            position: absolute;
+            width: 80px;
+            height: 50px;
+            background: #00C853;
+            border-radius: 10px;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 4px 12px rgba(0,200,83,0.3);
+        }
+        .falling-item {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: 700;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        .falling-item.match { background: #00C853; color: white; }
+        .falling-item.contribution { background: #2979FF; color: white; }
+        .info-panel {
+            width: 100%;
+            max-width: 400px;
+            background: #F8FAFC;
+            padding: 15px;
+            border-radius: 12px;
+            margin-top: 15px;
+            border: 2px solid #E2E8F0;
+        }
+        .info-panel h3 { font-size: 14px; color: #64748B; margin-bottom: 10px; }
+        .match-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .match-progress {
+            flex: 1;
+            height: 20px;
+            background: #E2E8F0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .match-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00C853, #00E676);
+            border-radius: 10px;
+            transition: width 0.3s;
+        }
+        .controls {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+        }
+        .btn {
+            padding: 12px 30px;
+            background: #00C853;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .game-over {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+        .game-over.show { display: flex; }
+        .game-over h2 { font-size: 24px; margin-bottom: 15px; color: #00E676; }
+        .final-stats { background: rgba(255,255,255,0.1); padding: 20px; border-radius: 12px; margin: 15px 0; }
+        .final-stat { display: flex; justify-content: space-between; margin-bottom: 8px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎯 401k Match Master</h1>
+        <p>Catch employer matches before they expire! Don't leave free money on the table.</p>
+    </div>
+
+    <div class="stats">
+        <div class="stat-box">
+            <div class="label">Your Contributions</div>
+            <div class="value" id="yourContrib">$0</div>
+        </div>
+        <div class="stat-box highlight">
+            <div class="label">Employer Match</div>
+            <div class="value" id="employerMatch">$0</div>
+        </div>
+        <div class="stat-box">
+            <div class="label">Missed Match</div>
+            <div class="value missed" id="missedMatch">$0</div>
+        </div>
+    </div>
+
+    <div class="game-container" id="gameContainer">
+        <div class="basket" id="basket">🏦</div>
+        <div class="game-over" id="gameOver">
+            <h2>Year Complete!</h2>
+            <div class="final-stats">
+                <div class="final-stat"><span>Your Contributions:</span><span id="finalYour">$0</span></div>
+                <div class="final-stat"><span>Employer Match:</span><span id="finalMatch">$0</span></div>
+                <div class="final-stat"><span>Missed Match:</span><span id="finalMissed">$0</span></div>
+                <div class="final-stat"><span>Total 401k:</span><span id="finalTotal">$0</span></div>
+            </div>
+            <p id="gameOverText"></p>
+            <button class="btn" onclick="restart()">Play Again</button>
+        </div>
+    </div>
+
+    <div class="info-panel">
+        <h3>📊 Match Progress (50% match up to 6%)</h3>
+        <div class="match-bar">
+            <span>0%</span>
+            <div class="match-progress">
+                <div class="match-fill" id="matchFill" style="width: 0%"></div>
+            </div>
+            <span>6%</span>
+        </div>
+        <p style="font-size: 12px; color: #64748B;">Catch 💚 match blocks. Blue blocks are your contributions.</p>
+    </div>
+
+    <div class="controls">
+        <button class="btn" id="startBtn" onclick="startGame()">START</button>
+    </div>
+
+    <script>
+        const container = document.getElementById('gameContainer');
+        const basket = document.getElementById('basket');
+        const yourContribEl = document.getElementById('yourContrib');
+        const employerMatchEl = document.getElementById('employerMatch');
+        const missedMatchEl = document.getElementById('missedMatch');
+        const matchFill = document.getElementById('matchFill');
+        const gameOver = document.getElementById('gameOver');
+        const startBtn = document.getElementById('startBtn');
+
+        let yourContributions = 0;
+        let employerMatch = 0;
+        let missedMatch = 0;
+        let isPlaying = false;
+        let basketX = 50;
+        let items = [];
+        let gameLoop;
+        let spawnLoop;
+        let timeLeft = 60;
+
+        // Touch controls
+        let touchStartX = 0;
+        container.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+        });
+        container.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            const touchX = e.touches[0].clientX;
+            const rect = container.getBoundingClientRect();
+            basketX = ((touchX - rect.left) / rect.width) * 100;
+            basketX = Math.max(10, Math.min(90, basketX));
+            basket.style.left = basketX + '%';
+        });
+
+        // Mouse controls
+        container.addEventListener('mousemove', (e) => {
+            if (!isPlaying) return;
+            const rect = container.getBoundingClientRect();
+            basketX = ((e.clientX - rect.left) / rect.width) * 100;
+            basketX = Math.max(10, Math.min(90, basketX));
+            basket.style.left = basketX + '%';
+        });
+
+        function spawnItem() {
+            const item = document.createElement('div');
+            item.className = 'falling-item';
+            const isMatch = Math.random() > 0.5;
+            item.classList.add(isMatch ? 'match' : 'contribution');
+            item.textContent = isMatch ? '💚' : '🔵';
+            item.style.left = Math.random() * 80 + 10 + '%';
+            item.style.top = '-60px';
+            item.dataset.type = isMatch ? 'match' : 'contribution';
+            item.dataset.value = isMatch ? 50 : 100;
+            container.appendChild(item);
+            items.push(item);
+        }
+
+        function update() {
+            items.forEach((item, index) => {
+                let top = parseFloat(item.style.top);
+                top += 2.5;
+                item.style.top = top + 'px';
+
+                const itemRect = item.getBoundingClientRect();
+                const basketRect = basket.getBoundingClientRect();
+
+                if (itemRect.bottom > basketRect.top &&
+                    itemRect.top < basketRect.bottom &&
+                    itemRect.left < basketRect.right &&
+                    itemRect.right > basketRect.left) {
+                    
+                    const value = parseInt(item.dataset.value);
+                    if (item.dataset.type === 'match') {
+                        employerMatch += value;
+                    } else {
+                        yourContributions += value;
+                    }
+                    
+                    item.remove();
+                    items.splice(index, 1);
+                    updateDisplay();
+                }
+
+                if (top > 450) {
+                    if (item.dataset.type === 'match') {
+                        missedMatch += parseInt(item.dataset.value);
+                    }
+                    item.remove();
+                    items.splice(index, 1);
+                    updateDisplay();
+                }
+            });
+        }
+
+        function updateDisplay() {
+            yourContribEl.textContent = '$' + yourContributions.toLocaleString();
+            employerMatchEl.textContent = '$' + employerMatch.toLocaleString();
+            missedMatchEl.textContent = '$' + missedMatch.toLocaleString();
+            
+            // Calculate match progress (max match at 6% = roughly 1:1 ratio in this simplified model)
+            const matchPct = Math.min(100, (employerMatch / (yourContributions * 0.5 + 1)) * 50);
+            matchFill.style.width = matchPct + '%';
+        }
+
+        function startGame() {
+            isPlaying = true;
+            startBtn.disabled = true;
+            gameLoop = setInterval(update, 20);
+            spawnLoop = setInterval(spawnItem, 1000);
+            
+            setTimeout(() => {
+                endGame();
+            }, 30000); // 30 second rounds
+        }
+
+        function endGame() {
+            isPlaying = false;
+            clearInterval(gameLoop);
+            clearInterval(spawnLoop);
+            
+            document.getElementById('finalYour').textContent = '$' + yourContributions.toLocaleString();
+            document.getElementById('finalMatch').textContent = '$' + employerMatch.toLocaleString();
+            document.getElementById('finalMissed').textContent = '$' + missedMatch.toLocaleString();
+            document.getElementById('finalTotal').textContent = '$' + (yourContributions + employerMatch).toLocaleString();
+            
+            const text = document.getElementById('gameOverText');
+            if (missedMatch === 0) {
+                text.textContent = '🌟 Perfect! You captured every employer match!';
+            } else if (missedMatch < employerMatch) {
+                text.textContent = '👍 Good job! You captured most of the free money.';
+            } else {
+                text.textContent = '💡 Tip: Always contribute enough to get full employer match!';
+            }
+            
+            gameOver.classList.add('show');
+        }
+
+        function restart() {
+            yourContributions = 0;
+            employerMatch = 0;
+            missedMatch = 0;
+            basketX = 50;
+            basket.style.left = '50%';
+            items.forEach(i => i.remove());
+            items = [];
+            gameOver.classList.remove('show');
+            startBtn.disabled = false;
+            updateDisplay();
+        }
+
+        updateDisplay();
+    </script>
+</body>
+</html>
