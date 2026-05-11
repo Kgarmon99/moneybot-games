@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Refinance Racer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: #ffffff;
+            color: #1a1a2e;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        #app { max-width: 480px; margin: 0 auto; min-height: 100vh; position: relative; }
+        .screen { display: none; padding: 20px; min-height: 100vh; }
+        .screen.active { display: flex; flex-direction: column; }
+        
+        /* Header */
+        .game-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .game-title {
+            font-size: 32px;
+            font-weight: 900;
+            color: #1a1a2e;
+            line-height: 1.1;
+        }
+        .game-title .highlight { color: #00C853; }
+        .game-subtitle { font-size: 14px; color: #666; margin-top: 5px; }
+        
+        /* Input Section */
+        .input-section {
+            background: #f8f9fa;
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+        .input-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .input-group.full-width {
+            grid-column: 1 / -1;
+        }
+        .input-label {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        .input-field {
+            padding: 14px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+            text-align: center;
+            transition: border-color 0.2s;
+        }
+        .input-field:focus {
+            outline: none;
+            border-color: #00C853;
+        }
+        .input-suffix {
+            font-size: 12px;
+            color: #999;
+            margin-top: 5px;
+            text-align: center;
+        }
+        
+        /* Results Preview */
+        .results-preview {
+            background: linear-gradient(135deg, #00C853 0%, #00a344 100%);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 20px;
+            color: white;
+        }
+        .preview-header {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            opacity: 0.8;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        .preview-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .preview-item {
+            text-align: center;
+        }
+        .preview-label {
+            font-size: 11px;
+            opacity: 0.8;
+            margin-bottom: 5px;
+        }
+        .preview-value {
+            font-size: 24px;
+            font-weight: 800;
+        }
+        .preview-value.positive { color: #b9f6ca; }
+        .preview-value.negative { color: #ffcdd2; }
+        
+        /* Race Track */
+        .race-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .race-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .race-title {
+            font-size: 16px;
+            font-weight: 800;
+        }
+        .break-even-marker {
+            font-size: 12px;
+            color: #666;
+            background: #f0f0f0;
+            padding: 6px 12px;
+            border-radius: 20px;
+        }
+        
+        .track-container {
+            background: #f8f9fa;
+            border-radius: 20px;
+            padding: 20px;
+            flex: 1;
+            position: relative;
+        }
+        
+        .track {
+            position: relative;
+            height: 80px;
+            background: linear-gradient(90deg, #e0e0e0 0%, #e0e0e0 95%, #00C853 95%, #00C853 100%);
+            border-radius: 40px;
+            margin-bottom: 15px;
+            overflow: hidden;
+        }
+        .track-label {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 12px;
+            font-weight: 700;
+            color: #666;
+        }
+        .track-finish {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 20px;
+        }
+        
+        .racer {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 50px;
+            height: 50px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: left 0.3s linear;
+            z-index: 10;
+        }
+        .racer.refi { border: 3px solid #00C853; }
+        .racer.stay { border: 3px solid #ff9800; }
+        
+        .progress-bar {
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            background: rgba(0,200,83,0.2);
+            transition: width 0.3s;
+        }
+        
+        /* Savings Display */
+        .savings-display {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-top: 15px;
+            text-align: center;
+            border: 2px solid #e0e0e0;
+        }
+        .savings-label {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        .savings-value {
+            font-size: 36px;
+            font-weight: 900;
+            color: #00C853;
+        }
+        .savings-subtext {
+            font-size: 13px;
+            color: #666;
+            margin-top: 8px;
+        }
+        
+        /* Buttons */
+        .btn-mega {
+            width: 100%;
+            padding: 18px;
+            background: #00C853;
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 16px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: all 0.2s;
+        }
+        .btn-mega:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,200,83,0.4); }
+        .btn-mega:disabled { background: #ccc; cursor: not-allowed; transform: none; box-shadow: none; }
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid #00C853;
+            color: #00C853;
+        }
+        
+        /* Start Screen */
+        .start-hero { text-align: center; padding: 30px 0; }
+        .car-icon { font-size: 70px; margin-bottom: 15px; }
+        .instructions { background: #f8f9fa; border-radius: 16px; padding: 20px; margin: 15px 0; }
+        .instruction-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; font-size: 14px; }
+        .instruction-row:last-child { margin-bottom: 0; }
+        .dot { width: 10px; height: 10px; border-radius: 50%; }
+        .dot.green { background: #00C853; }
+        .dot.orange { background: #ff9800; }
+        .dot.blue { background: #2196f3; }
+        
+        /* Formula Box */
+        .formula-box {
+            background: #1a1a2e;
+            border-radius: 16px;
+            padding: 20px;
+            margin: 15px 0;
+            color: white;
+        }
+        .formula-title {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #00C853;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .formula {
+            font-family: monospace;
+            font-size: 13px;
+            line-height: 1.8;
+        }
+        .formula-highlight { color: #00C853; font-weight: 700; }
+        
+        /* Race Animation */
+        @keyframes pulse {
+            0%, 100% { transform: translateY(-50%) scale(1); }
+            50% { transform: translateY(-50%) scale(1.1); }
+        }
+        .racer.racing { animation: pulse 0.5s infinite; }
+        
+        /* Winner Effect */
+        .winner-glow {
+            box-shadow: 0 0 30px #00C853, 0 4px 15px rgba(0,0,0,0.2) !important;
+        }
+        
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            padding: 20px;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            max-width: 350px;
+            width: 100%;
+        }
+        .modal-icon { font-size: 60px; margin-bottom: 15px; }
+        .modal-title { font-size: 24px; font-weight: 800; margin-bottom: 10px; }
+        .modal-text { font-size: 14px; color: #666; margin-bottom: 20px; line-height: 1.5; }
+        
+        /* Comparison Table */
+        .comparison-table {
+            width: 100%;
+            margin: 15px 0;
+            border-collapse: collapse;
+        }
+        .comparison-table th,
+        .comparison-table td {
+            padding: 12px;
+            text-align: center;
+            font-size: 13px;
+        }
+        .comparison-table th {
+            background: #f8f9fa;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 1px;
+        }
+        .comparison-table td {
+            border-bottom: 1px solid #eee;
+        }
+        .comparison-table .highlight { color: #00C853; font-weight: 700; }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- Start Screen -->
+        <div id="start-screen" class="screen active">
+            <div class="start-hero">
+                <div class="car-icon">🏎️</div>
+                <h1 class="game-title">REFINANCE<br><span class="highlight">RACER</span></h1>
+                <p class="game-subtitle">Race to your break-even point</p>
+            </div>
+            <div class="formula-box">
+                <div class="formula-title">Break-Even Formula</div>
+                <div class="formula">
+                    <span class="formula-highlight">Closing Costs</span> ÷ 
+                    <span class="formula-highlight">Monthly Savings</span> = 
+                    <span class="formula-highlight">Months to Break Even</span>
+                </div>
+            </div>
+            <div class="instructions">
+                <div class="instruction-row"><span class="dot green"></span> Enter your current loan details</div>
+                <div class="instruction-row"><span class="dot orange"></span> Compare with new refinance offer</div>
+                <div class="instruction-row"><span class="dot blue"></span> Race to see when you break even!</div>
+            </div>
+            <button class="btn-mega" onclick="startGame()">START RACING</button>
+        </div>
+
+        <!-- Setup Screen -->
+        <div id="setup-screen" class="screen">
+            <div class="game-header">
+                <h1 class="game-title">ENTER YOUR<br><span class="highlight">LOAN DETAILS</span></h1>
+            </div>
+            
+            <div class="input-section">
+                <div class="input-grid">
+                    <div class="input-group">
+                        <label class="input-label">Loan Balance</label>
+                        <input type="number" class="input-field" id="loan-balance" placeholder="300000" value="300000">
+                        <span class="input-suffix">Current principal</span>
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Current Rate</label>
+                        <input type="number" class="input-field" id="current-rate" placeholder="6.5" value="6.5" step="0.1">
+                        <span class="input-suffix">Annual %</span>
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">New Rate</label>
+                        <input type="number" class="input-field" id="new-rate" placeholder="5.5" value="5.5" step="0.1">
+                        <span class="input-suffix">Refinance rate</span>
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Closing Costs</label>
+                        <input type="number" class="input-field" id="closing-costs" placeholder="5000" value="5000">
+                        <span class="input-suffix">Fees + points</span>
+                    </div>
+                    <div class="input-group full-width">
+                        <label class="input-label">Loan Term (Years)</label>
+                        <input type="number" class="input-field" id="loan-term" placeholder="30" value="30">
+                    </div>
+                </div>
+            </div>
+
+            <div class="results-preview">
+                <div class="preview-header">Estimated Results</div>
+                <div class="preview-grid">
+                    <div class="preview-item">
+                        <div class="preview-label">Monthly Savings</div>
+                        <div class="preview-value positive" id="preview-savings">$0</div>
+                    </div>
+                    <div class="preview-item">
+                        <div class="preview-label">Break-Even</div>
+                        <div class="preview-value" id="preview-breakeven">0 months</div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn-mega" onclick="startRace()">START THE RACE!</button>
+        </div>
+
+        <!-- Race Screen -->
+        <div id="race-screen" class="screen">
+            <div class="race-header">
+                <span class="race-title">🏁 RACE TO BREAK-EVEN</span>
+                <span class="break-even-marker" id="breakeven-display">Break-even: Month 0</span>
+            </div>
+
+            <div class="track-container">
+                <div class="track" id="track-refi">
+                    <div class="progress-bar" id="progress-refi"></div>
+                    <span class="track-label">REFINANCE</span>
+                    <div class="racer refi" id="racer-refi">🚗</div>
+                    <span class="track-finish">🏁</span>
+                </div>
+                
+                <div class="track" id="track-stay">
+                    <div class="progress-bar" id="progress-stay" style="background: rgba(255,152,0,0.2);"></div>
+                    <span class="track-label">STAY PUT</span>
+                    <div class="racer stay" id="racer-stay">🚙</div>
+                    <span class="track-finish">🏁</span>
+                </div>
+            </div>
+
+            <div class="savings-display">
+                <div class="savings-label">Total Savings So Far</div>
+                <div class="savings-value" id="total-savings">$0</div>
+                <div class="savings-subtext" id="savings-subtext">Keep racing to break even!</div>
+            </div>
+
+            <button class="btn-mega" id="race-btn" onclick="runRace()">RACE 6 MONTHS</button>
+            <button class="btn-mega btn-secondary" onclick="resetRace()" style="margin-top: 10px;">RESET</button>
+        </div>
+
+        <!-- Results Modal -->
+        <div class="modal-overlay" id="results-modal">
+            <div class="modal-content">
+                <div class="modal-icon" id="result-icon">🏆</div>
+                <h2 class="modal-title" id="result-title">Break-Even Reached!</h2>
+                <p class="modal-text" id="result-text">Refinancing pays for itself!</p>
+                
+                <table class="comparison-table">
+                    <tr>
+                        <th></th>
+                        <th>Current</th>
+                        <th>Refinanced</th>
+                    </tr>
+                    <tr>
+                        <td>Rate</td>
+                        <td id="result-old-rate">6.5%</td>
+                        <td id="result-new-rate">5.5%</td>
+                    </tr>
+                    <tr>
+                        <td>Monthly</td>
+                        <td id="result-old-payment">$1,896</td>
+                        <td class="highlight" id="result-new-payment">$1,703</td>
+                    </tr>
+                    <tr>
+                        <td>Total Savings</td>
+                        <td>-</td>
+                        <td class="highlight" id="result-total-savings">$69,480</td>
+                    </tr>
+                </table>
+                
+                <button class="btn-mega" onclick="location.reload()">RACE AGAIN</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let loanData = {
+            balance: 300000,
+            currentRate: 6.5,
+            newRate: 5.5,
+            closingCosts: 5000,
+            term: 30
+        };
+
+        let raceState = {
+            currentMonth: 0,
+            totalSavings: 0,
+            monthlySavings: 0,
+            breakEvenMonth: 0,
+            oldPayment: 0,
+            newPayment: 0,
+            isRacing: false
+        };
+
+        // Update preview on input change
+        document.querySelectorAll('.input-field').forEach(input => {
+            input.addEventListener('input', updatePreview);
+        });
+
+        function updatePreview() {
+            loanData.balance = parseFloat(document.getElementById('loan-balance').value) || 0;
+            loanData.currentRate = parseFloat(document.getElementById('current-rate').value) || 0;
+            loanData.newRate = parseFloat(document.getElementById('new-rate').value) || 0;
+            loanData.closingCosts = parseFloat(document.getElementById('closing-costs').value) || 0;
+            loanData.term = parseFloat(document.getElementById('loan-term').value) || 30;
+
+            const oldPayment = calculateMonthlyPayment(loanData.balance, loanData.currentRate, loanData.term);
+            const newPayment = calculateMonthlyPayment(loanData.balance, loanData.newRate, loanData.term);
+            const monthlySavings = oldPayment - newPayment;
+            const breakEvenMonths = monthlySavings > 0 ? Math.ceil(loanData.closingCosts / monthlySavings) : 0;
+
+            document.getElementById('preview-savings').textContent = `$${monthlySavings.toLocaleString()}`;
+            document.getElementById('preview-breakeven').textContent = breakEvenMonths > 0 ? `${breakEvenMonths} months` : 'N/A';
+        }
+
+        function calculateMonthlyPayment(principal, annualRate, years) {
+            const monthlyRate = annualRate / 100 / 12;
+            const numPayments = years * 12;
+            if (monthlyRate === 0) return principal / numPayments;
+            return principal * (monthlyRate * Math.pow(1 + monthlyRate, numPayments)) / 
+                   (Math.pow(1 + monthlyRate, numPayments) - 1);
+        }
+
+        function startGame() {
+            document.getElementById('start-screen').classList.remove('active');
+            document.getElementById('setup-screen').classList.add('active');
+            updatePreview();
+        }
+
+        function startRace() {
+            const oldPayment = calculateMonthlyPayment(loanData.balance, loanData.currentRate, loanData.term);
+            const newPayment = calculateMonthlyPayment(loanData.balance, loanData.newRate, loanData.term);
+            const monthlySavings = oldPayment - newPayment;
+            
+            if (monthlySavings <= 0) {
+                alert('Your new rate isn\'t lower! No savings to race for.');
+                return;
+            }
+
+            raceState = {
+                currentMonth: 0,
+                totalSavings: 0,
+                monthlySavings: monthlySavings,
+                breakEvenMonth: Math.ceil(loanData.closingCosts / monthlySavings),
+                oldPayment: oldPayment,
+                newPayment: newPayment,
+                isRacing: false
+            };
+
+            document.getElementById('setup-screen').classList.remove('active');
+            document.getElementById('race-screen').classList.add('active');
+            
+            document.getElementById('breakeven-display').textContent = 
+                `Break-even: Month ${raceState.breakEvenMonth}`;
+            
+            resetRacers();
+        }
+
+        function resetRacers() {
+            document.getElementById('racer-refi').style.left = '10px';
+            document.getElementById('racer-stay').style.left = '10px';
+            document.getElementById('progress-refi').style.width = '0%';
+            document.getElementById('progress-stay').style.width = '0%';
+            document.getElementById('racer-refi').classList.remove('winner-glow');
+            document.getElementById('racer-stay').classList.remove('winner-glow');
+        }
+
+        function runRace() {
+            if (raceState.isRacing) return;
+            raceState.isRacing = true;
+
+            const btn = document.getElementById('race-btn');
+            btn.disabled = true;
+            btn.textContent = 'RACING...';
+
+            document.getElementById('racer-refi').classList.add('racing');
+            document.getElementById('racer-stay').classList.add('racing');
+
+            let monthsToRace = 6;
+            let racedMonths = 0;
+
+            const raceInterval = setInterval(() => {
+                racedMonths++;
+                raceState.currentMonth++;
+                raceState.totalSavings += raceState.monthlySavings;
+
+                // Update positions
+                const trackWidth = document.getElementById('track-refi').offsetWidth - 70;
+                const refiProgress = Math.min(raceState.currentMonth / raceState.breakEvenMonth, 1);
+                const stayProgress = Math.min(raceState.currentMonth / (raceState.breakEvenMonth * 1.5), 0.95);
+
+                document.getElementById('racer-refi').style.left = (10 + refiProgress * trackWidth) + 'px';
+                document.getElementById('racer-stay').style.left = (10 + stayProgress * trackWidth) + 'px';
+                document.getElementById('progress-refi').style.width = (refiProgress * 100) + '%';
+                document.getElementById('progress-stay').style.width = (stayProgress * 100) + '%';
+
+                // Update savings display
+                document.getElementById('total-savings').textContent = `$${raceState.totalSavings.toLocaleString()}`;
+                
+                const remaining = Math.max(0, loanData.closingCosts - raceState.totalSavings);
+                if (remaining > 0) {
+                    document.getElementById('savings-subtext').textContent = 
+                        `$${remaining.toLocaleString()} more to break even`;
+                } else {
+                    document.getElementById('savings-subtext').textContent = 
+                        `🎉 You've broken even! Every month is profit!`;
+                    document.getElementById('savings-subtext').style.color = '#00C853';
+                }
+
+                if (racedMonths >= monthsToRace) {
+                    clearInterval(raceInterval);
+                    finishRaceTurn();
+                }
+            }, 300);
+        }
+
+        function finishRaceTurn() {
+            raceState.isRacing = false;
+            document.getElementById('racer-refi').classList.remove('racing');
+            document.getElementById('racer-stay').classList.remove('racing');
+
+            const btn = document.getElementById('race-btn');
+            btn.disabled = false;
+
+            // Check if reached break-even
+            if (raceState.totalSavings >= loanData.closingCosts) {
+                document.getElementById('racer-refi').classList.add('winner-glow');
+                btn.textContent = 'VIEW RESULTS';
+                btn.onclick = showResults;
+            } else {
+                btn.textContent = 'RACE 6 MORE MONTHS';
+            }
+        }
+
+        function resetRace() {
+            raceState.currentMonth = 0;
+            raceState.totalSavings = 0;
+            document.getElementById('total-savings').textContent = '$0';
+            document.getElementById('savings-subtext').textContent = 'Keep racing to break even!';
+            document.getElementById('savings-subtext').style.color = '#666';
+            
+            const btn = document.getElementById('race-btn');
+            btn.textContent = 'RACE 6 MONTHS';
+            btn.onclick = runRace;
+            btn.disabled = false;
+            
+            resetRacers();
+        }
+
+        function showResults() {
+            const totalLifeSavings = (raceState.oldPayment - raceState.newPayment) * loanData.term * 12 - loanData.closingCosts;
+            
+            document.getElementById('result-old-rate').textContent = loanData.currentRate + '%';
+            document.getElementById('result-new-rate').textContent = loanData.newRate + '%';
+            document.getElementById('result-old-payment').textContent = `$${Math.round(raceState.oldPayment).toLocaleString()}`;
+            document.getElementById('result-new-payment').textContent = `$${Math.round(raceState.newPayment).toLocaleString()}`;
+            document.getElementById('result-total-savings').textContent = `$${Math.max(0, totalLifeSavings).toLocaleString()}`;
+            
+            document.getElementById('result-title').textContent = `Break-Even in ${raceState.breakEvenMonth} Months!`;
+            document.getElementById('result-text').textContent = 
+                `After ${raceState.breakEvenMonth} months, your refinance pays for itself. ` +
+                `Over ${loanData.term} years, you'll save $${Math.max(0, totalLifeSavings).toLocaleString()}!`;
+            
+            document.getElementById('results-modal').classList.add('active');
+        }
+    </script>
+</body>
+</html>

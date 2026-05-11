@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Expense Ratio Hunter - MoneyBot</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        :root {
+            --mb-green: #00C853;
+            --mb-green-light: #00E676;
+            --mb-green-soft: #69F0AE;
+            --mb-ink: #07111F;
+            --mb-ink-2: #0B1628;
+            --mb-panel: rgba(10, 24, 42, 0.86);
+            --mb-line: rgba(0, 200, 83, 0.22);
+            --mb-white: #FFFFFF;
+            --mb-muted: #AAB8C8;
+            --mb-gold: #FBBF24;
+            --mb-red: #FB7185;
+            --mb-blue: #38BDF8;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Inter, sans-serif;
+            background: var(--mb-white);
+            color: var(--mb-ink);
+            min-height: 100vh;
+            overflow-x: hidden;
+            touch-action: manipulation;
+        }
+        
+        .game-container {
+            max-width: 480px;
+            margin: 0 auto;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--mb-ink) 0%, var(--mb-ink-2) 100%);
+            padding: 16px 20px;
+            border-bottom: 2px solid var(--mb-green);
+        }
+        
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        
+        .logo {
+            width: 32px;
+            height: 32px;
+            background: var(--mb-green);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            color: var(--mb-ink);
+            font-size: 14px;
+        }
+        
+        .brand-text {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--mb-white);
+            letter-spacing: 0.5px;
+        }
+        
+        .title {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--mb-green);
+            margin-bottom: 4px;
+        }
+        
+        .subtitle {
+            font-size: 13px;
+            color: var(--mb-muted);
+        }
+        
+        /* Stats Bar */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            padding: 14px 16px;
+            background: var(--mb-white);
+            border-bottom: 1px solid rgba(0,0,0,0.06);
+        }
+        
+        .stat-card {
+            background: var(--mb-ink);
+            border-radius: 10px;
+            padding: 10px 6px;
+            text-align: center;
+            border: 1px solid var(--mb-line);
+        }
+        
+        .stat-label {
+            font-size: 9px;
+            color: var(--mb-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+        
+        .stat-value {
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--mb-green);
+        }
+        
+        .stat-value.found { color: var(--mb-gold); }
+        .stat-value.saved { color: var(--mb-blue); }
+        
+        /* Game Area */
+        .game-area {
+            flex: 1;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        
+        /* Level Info */
+        .level-info {
+            background: linear-gradient(135deg, rgba(0,200,83,0.08) 0%, rgba(0,200,83,0.03) 100%);
+            border: 1px dashed var(--mb-green);
+            border-radius: 12px;
+            padding: 14px 16px;
+            text-align: center;
+        }
+        
+        .level-title {
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--mb-green);
+            margin-bottom: 4px;
+        }
+        
+        .level-desc {
+            font-size: 12px;
+            color: var(--mb-ink);
+        }
+        
+        /* Fund Grid */
+        .fund-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            flex: 1;
+        }
+        
+        .fund-card {
+            background: var(--mb-white);
+            border: 2px solid rgba(0,0,0,0.08);
+            border-radius: 14px;
+            padding: 14px 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .fund-card:active { transform: scale(0.96); }
+        
+        .fund-card:hover {
+            border-color: var(--mb-green);
+            box-shadow: 0 4px 12px rgba(0,200,83,0.15);
+        }
+        
+        .fund-card.found {
+            border-color: var(--mb-red);
+            background: rgba(251,113,133,0.08);
+            animation: shake 0.4s ease;
+        }
+        
+        .fund-card.good {
+            border-color: var(--mb-green);
+            background: rgba(0,200,83,0.08);
+            animation: pulse 0.3s ease;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-4px); }
+            40% { transform: translateX(4px); }
+            60% { transform: translateX(-4px); }
+            80% { transform: translateX(4px); }
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .fund-icon {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            margin: 0 auto 10px;
+        }
+        
+        .fund-card.found .fund-icon {
+            background: linear-gradient(135deg, var(--mb-red) 0%, #f87171 100%);
+        }
+        
+        .fund-card.good .fund-icon {
+            background: linear-gradient(135deg, var(--mb-green) 0%, var(--mb-green-light) 100%);
+        }
+        
+        .fund-name {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--mb-ink);
+            margin-bottom: 6px;
+            line-height: 1.3;
+        }
+        
+        .fund-ratio {
+            font-size: 14px;
+            font-weight: 900;
+            padding: 4px 10px;
+            border-radius: 20px;
+            display: inline-block;
+        }
+        
+        .fund-ratio.high {
+            background: rgba(251,113,133,0.15);
+            color: var(--mb-red);
+        }
+        
+        .fund-ratio.low {
+            background: rgba(0,200,83,0.15);
+            color: var(--mb-green);
+        }
+        
+        .fund-badge {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 800;
+            opacity: 0;
+            transform: scale(0);
+            transition: all 0.3s ease;
+        }
+        
+        .fund-card.revealed .fund-badge {
+            opacity: 1;
+            transform: scale(1);
+        }
+        
+        .fund-badge.caught {
+            background: var(--mb-red);
+            color: white;
+        }
+        
+        .fund-badge.safe {
+            background: var(--mb-green);
+            color: var(--mb-ink);
+        }
+        
+        /* Impact Panel */
+        .impact-panel {
+            background: var(--mb-ink);
+            border-radius: 16px;
+            padding: 16px;
+            border: 1px solid var(--mb-line);
+        }
+        
+        .impact-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--mb-white);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 14px;
+        }
+        
+        .impact-comparison {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .impact-fund {
+            flex: 1;
+            text-align: center;
+            padding: 12px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+        }
+        
+        .impact-fund.bad {
+            border: 1px solid var(--mb-red);
+        }
+        
+        .impact-fund.good {
+            border: 1px solid var(--mb-green);
+        }
+        
+        .impact-ratio {
+            font-size: 18px;
+            font-weight: 900;
+        }
+        
+        .impact-ratio.bad { color: var(--mb-red); }
+        .impact-ratio.good { color: var(--mb-green); }
+        
+        .impact-value {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--mb-white);
+            margin-top: 4px;
+        }
+        
+        .impact-arrow {
+            font-size: 24px;
+            color: var(--mb-green);
+        }
+        
+        .impact-savings {
+            text-align: center;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--mb-line);
+        }
+        
+        .savings-amount {
+            font-size: 20px;
+            font-weight: 900;
+            color: var(--mb-gold);
+        }
+        
+        .savings-label {
+            font-size: 11px;
+            color: var(--mb-muted);
+        }
+        
+        /* Timer Bar */
+        .timer-container {
+            background: rgba(0,0,0,0.06);
+            border-radius: 8px;
+            height: 8px;
+            overflow: hidden;
+        }
+        
+        .timer-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--mb-green) 0%, var(--mb-green-light) 100%);
+            border-radius: 8px;
+            transition: width 0.1s linear;
+        }
+        
+        /* Controls */
+        .controls {
+            padding: 14px 16px 20px;
+        }
+        
+        .btn {
+            border: none;
+            border-radius: 14px;
+            padding: 16px 24px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            width: 100%;
+        }
+        
+        .btn:active { transform: scale(0.98); }
+        
+        .btn-primary {
+            background: var(--mb-green);
+            color: var(--mb-ink);
+            box-shadow: 0 4px 16px rgba(0,200,83,0.3);
+        }
+        
+        /* Modals */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(7,17,31,0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        
+        .modal {
+            background: var(--mb-white);
+            border-radius: 24px;
+            padding: 28px;
+            max-width: 360px;
+            width: 100%;
+            text-align: center;
+            transform: scale(0.9);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            border: 2px solid var(--mb-green);
+        }
+        
+        .modal-overlay.active .modal {
+            transform: scale(1);
+        }
+        
+        .modal-icon {
+            width: 72px;
+            height: 72px;
+            background: linear-gradient(135deg, var(--mb-green) 0%, var(--mb-green-light) 100%);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            margin: 0 auto 20px;
+            box-shadow: 0 8px 24px rgba(0,200,83,0.3);
+        }
+        
+        .modal-title {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--mb-ink);
+            margin-bottom: 12px;
+        }
+        
+        .modal-text {
+            font-size: 14px;
+            color: var(--mb-muted);
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        
+        .level-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .level-btn {
+            background: var(--mb-ink);
+            border: 1px solid var(--mb-line);
+            border-radius: 12px;
+            padding: 14px 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .level-btn:hover, .level-btn.active {
+            background: var(--mb-green);
+            border-color: var(--mb-green);
+        }
+        
+        .level-btn:hover .level-name, .level-btn.active .level-name {
+            color: var(--mb-ink);
+        }
+        
+        .level-name {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--mb-white);
+        }
+        
+        .level-difficulty {
+            font-size: 10px;
+            color: var(--mb-muted);
+            margin-top: 4px;
+        }
+        
+        .score-display {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            margin-bottom: 20px;
+        }
+        
+        .score-item {
+            text-align: center;
+        }
+        
+        .score-value {
+            font-size: 36px;
+            font-weight: 900;
+            color: var(--mb-green);
+        }
+        
+        .score-value.high-fee { color: var(--mb-red); }
+        
+        .score-label {
+            font-size: 12px;
+            color: var(--mb-muted);
+            margin-top: 4px;
+        }
+        
+        /* Particles */
+        .particle {
+            position: fixed;
+            pointer-events: none;
+            font-size: 20px;
+            font-weight: 800;
+            animation: particleFloat 0.8s ease-out forwards;
+            z-index: 50;
+        }
+        
+        @keyframes particleFloat {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-50px) scale(0.8); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <!-- Header -->
+        <div class="header">
+            <div class="brand">
+                <div class="logo">₿</div>
+                <div class="brand-text">MONEYBOT</div>
+            </div>
+            <h1 class="title">Expense Ratio Hunter</h1>
+            <p class="subtitle">Find the fee vampires hiding in plain sight</p>
+        </div>
+        
+        <!-- Stats -->
+        <div class="stats-bar">
+            <div class="stat-card">
+                <div class="stat-label">Level</div>
+                <div class="stat-value" id="levelDisplay">1/5</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">High-Fee Funds</div>
+                <div class="stat-value found" id="foundDisplay">0/3</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Money Saved</div>
+                <div class="stat-value saved" id="savedDisplay">$0</div>
+            </div>
+        </div>
+        
+        <!-- Game Area -->
+        <div class="game-area">
+            <div class="level-info">
+                <div class="level-title" id="levelTitle">Level 1: The Basics</div>
+                <div class="level-desc" id="levelDesc">Find the 2% expense ratio hiding among 0.03% index funds</div>
+            </div>
+            
+            <div class="timer-container">
+                <div class="timer-bar" id="timerBar" style="width: 100%"></div>
+            </div>
+            
+            <div class="fund-grid" id="fundGrid"></div>
+            
+            <div class="impact-panel" id="impactPanel" style="display: none;">
+                <div class="impact-title">30-Year Cost Impact</div>
+                <div class="impact-comparison">
+                    <div class="impact-fund bad">
+                        <div class="impact-ratio bad" id="badRatio">2.00%</div>
+                        <div class="impact-value" id="badValue">$89,000</div>
+                    </div>
+                    <div class="impact-arrow">→</div>
+                    <div class="impact-fund good">
+                        <div class="impact-ratio good" id="goodRatio">0.03%</div>
+                        <div class="impact-value" id="goodValue">$67,000</div>
+                    </div>
+                </div>
+                <div class="impact-savings">
+                    <div class="savings-amount" id="savingsAmount">$22,000 saved!</div>
+                    <div class="savings-label">by choosing low-cost index funds</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Controls -->
+        <div class="controls">
+            <button class="btn btn-primary" id="actionBtn" onclick="nextLevel()">Next Level</button>
+        </div>
+    </div>
+    
+    <!-- Start Modal -->
+    <div class="modal-overlay active" id="startModal">
+        <div class="modal">
+            <div class="modal-icon">🎯</div>
+            <h2 class="modal-title">Expense Ratio Hunter</h2>
+            <p class="modal-text">
+                High-fee funds are hiding among low-cost index funds. Find them before time runs out! Learn how much fees cost you over 30 years.
+            </p>
+            <div class="level-grid">
+                <div class="level-btn active" onclick="selectLevel(0)">
+                    <div class="level-name">Level 1</div>
+                    <div class="level-difficulty">Easy</div>
+                </div>
+                <div class="level-btn" onclick="selectLevel(1)">
+                    <div class="level-name">Level 2</div>
+                    <div class="level-difficulty">Medium</div>
+                </div>
+                <div class="level-btn" onclick="selectLevel(2)">
+                    <div class="level-name">Level 3</div>
+                    <div class="level-difficulty">Hard</div>
+                </div>
+            </div>
+            <button class="btn btn-primary" onclick="startGame()">Start Hunting</button>
+        </div>
+    </div>
+    
+    <!-- Level Complete Modal -->
+    <div class="modal-overlay" id="levelModal">
+        <div class="modal">
+            <div class="modal-icon">✓</div>
+            <h2 class="modal-title" id="levelModalTitle">Level Complete!</h2>
+            <div class="score-display">
+                <div class="score-item">
+                    <div class="score-value high-fee" id="levelFound">3</div>
+                    <div class="score-label">Found</div>
+                </div>
+                <div class="score-item">
+                    <div class="score-value" id="levelSaved">$22k</div>
+                    <div class="score-label">Saved</div>
+                </div>
+            </div>
+            <p class="modal-text" id="levelModalText">
+                Great job spotting those high-fee funds! Every 1% in fees costs you ~$50k over 30 years.
+            </p>
+            <button class="btn btn-primary" onclick="continueGame()">Continue</button>
+        </div>
+    </div>
+    
+    <!-- Final Modal -->
+    <div class="modal-overlay" id="finalModal">
+        <div class="modal">
+            <div class="modal-icon">🏆</div>
+            <h2 class="modal-title">Master Hunter!</h2>
+            <div class="score-display">
+                <div class="score-item">
+                    <div class="score-value high-fee" id="finalFound">0</div>
+                    <div class="score-label">Funds Caught</div>
+                </div>
+                <div class="score-item">
+                    <div class="score-value" id="finalSaved">$0</div>
+                    <div class="score-label">Total Saved</div>
+                </div>
+            </div>
+            <p class="modal-text" id="finalText">
+                You've mastered spotting fee vampires! Remember: low-cost index funds (0.03%) beat expensive actively managed funds (1-2%) most of the time.
+            </p>
+            <button class="btn btn-primary" onclick="resetGame()">Play Again</button>
+        </div>
+    </div>
+
+    <script>
+        // Level configurations
+        const levels = [
+            {
+                name: 'The Basics',
+                desc: 'Find the 2% expense ratio hiding among 0.03% index funds',
+                gridSize: 9,
+                badFunds: 1,
+                badRatio: 2.00,
+                goodRatio: 0.03,
+                timeLimit: 20,
+                fundNames: ['Growth Fund', 'Equity Plus', 'Total Market', 'S&P 500', 'Blue Chip', 'Global Equity', 'US Stocks', 'Core Fund', 'Index Plus']
+            },
+            {
+                name: 'The Sneaky Ones',
+                desc: 'Find 2 funds with 1.5% fees among 0.04% index funds',
+                gridSize: 12,
+                badFunds: 2,
+                badRatio: 1.50,
+                goodRatio: 0.04,
+                timeLimit: 25,
+                fundNames: ['Alpha Select', 'Smart Beta', 'Total Stock', 'Market Index', 'Growth Plus', 'Equity Select', 'S&P Index', 'Core Equity', 'US Total', 'Stock Market', 'Index Fund', 'Equity Growth']
+            },
+            {
+                name: 'Fee Vampire Nest',
+                desc: 'Find 3 funds with 1.2%+ fees among 0.05% index funds',
+                gridSize: 15,
+                badFunds: 3,
+                badRatio: 1.20,
+                goodRatio: 0.05,
+                timeLimit: 30,
+                fundNames: ['Premium Growth', 'Select Equity', 'Total Market', 'Index 500', 'Smart Select', 'Alpha Growth', 'Market Core', 'Equity Premium', 'Stock Select', 'Growth Index', 'US Equity', 'Market Plus', 'Core Index', 'Equity Market', 'Stock Total']
+            },
+            {
+                name: 'The Disguised',
+                desc: 'Find funds with hidden fees up to 1.8%',
+                gridSize: 16,
+                badFunds: 3,
+                badRatio: 1.80,
+                goodRatio: 0.06,
+                timeLimit: 35,
+                fundNames: ['Strategic Growth', 'Dynamic Equity', 'Passive Index', 'Market Tracker', 'Active Select', 'Core Growth', 'Broad Market', 'Stock Index', 'Premier Equity', 'Select Growth', 'Index Core', 'Total Equity', 'Market Fund', 'Growth Index', 'Equity Broad', 'Stock Core']
+            },
+            {
+                name: 'Final Boss',
+                desc: 'Find 4 high-fee funds in a sea of low-cost options',
+                gridSize: 20,
+                badFunds: 4,
+                badRatio: 2.50,
+                goodRatio: 0.03,
+                timeLimit: 40,
+                fundNames: ['Ultra Growth', 'Mega Cap', 'Index Fund', 'Market ETF', 'Premier Select', 'Elite Equity', 'Total Index', 'Stock Market', 'Active Growth', 'Core Select', 'Broad Index', 'Equity ETF', 'Smart Growth', 'Market Index', 'Select Fund', 'Growth ETF', 'Passive Core', 'Stock Index', 'Alpha Fund', 'Market Core']
+            }
+        ];
+        
+        // Game State
+        let state = {
+            currentLevel: 0,
+            funds: [],
+            found: 0,
+            totalSaved: 0,
+            timer: null,
+            timeLeft: 0,
+            gameActive: false
+        };
+        
+        function selectLevel(index) {
+            state.currentLevel = index;
+            document.querySelectorAll('.level-btn').forEach((btn, i) => {
+                btn.classList.toggle('active', i === index);
+            });
+        }
+        
+        function startGame() {
+            document.getElementById('startModal').classList.remove('active');
+            loadLevel(state.currentLevel);
+        }
+        
+        function loadLevel(levelIndex) {
+            const level = levels[levelIndex];
+            state.found = 0;
+            state.timeLeft = level.timeLimit;
+            state.gameActive = true;
+            
+            // Update UI
+            document.getElementById('levelDisplay').textContent = (levelIndex + 1) + '/' + levels.length;
+            document.getElementById('foundDisplay').textContent = '0/' + level.badFunds;
+            document.getElementById('levelTitle').textContent = 'Level ' + (levelIndex + 1) + ': ' + level.name;
+            document.getElementById('levelDesc').textContent = level.desc;
+            document.getElementById('impactPanel').style.display = 'none';
+            document.getElementById('actionBtn').textContent = 'Hunting...';
+            document.getElementById('actionBtn').disabled = true;
+            
+            // Generate funds
+            state.funds = [];
+            const badIndices = new Set();
+            while (badIndices.size < level.badFunds) {
+                badIndices.add(Math.floor(Math.random() * level.gridSize));
+            }
+            
+            for (let i = 0; i < level.gridSize; i++) {
+                state.funds.push({
+                    id: i,
+                    name: level.fundNames[i],
+                    ratio: badIndices.has(i) ? level.badRatio : level.goodRatio,
+                    isBad: badIndices.has(i),
+                    revealed: false
+                });
+            }
+            
+            renderGrid();
+            startTimer();
+        }
+        
+        function renderGrid() {
+            const grid = document.getElementById('fundGrid');
+            grid.innerHTML = '';
+            
+            // Adjust grid columns based on size
+            const level = levels[state.currentLevel];
+            if (level.gridSize <= 9) {
+                grid.style.gridTemplateColumns = 'repeat(3, 1fr)';
+            } else if (level.gridSize <= 12) {
+                grid.style.gridTemplateColumns = 'repeat(3, 1fr)';
+            } else {
+                grid.style.gridTemplateColumns = 'repeat(3, 1fr)';
+            }
+            
+            state.funds.forEach(fund => {
+                const card = document.createElement('div');
+                card.className = 'fund-card' + (fund.revealed ? (fund.isBad ? ' found revealed' : ' good revealed') : '');
+                card.onclick = () => clickFund(fund.id);
+                
+                const icon = fund.isBad ? '🧛' : '💚';
+                const ratioClass = fund.ratio > 0.5 ? 'high' : 'low';
+                
+                card.innerHTML = `
+                    <div class="fund-badge ${fund.isBad ? 'caught' : 'safe'}">${fund.isBad ? '✗' : '✓'}</div>
+                    <div class="fund-icon">${fund.revealed ? icon : '📊'}</div>
+                    <div class="fund-name">${fund.name}</div>
+                    <div class="fund-ratio ${ratioClass}">${fund.revealed ? fund.ratio.toFixed(2) + '%' : '???'}</div>
+                `;
+                
+                grid.appendChild(card);
+            });
+        }
+        
+        function clickFund(id) {
+            if (!state.gameActive || state.funds[id].revealed) return;
+            
+            const fund = state.funds[id];
+            fund.revealed = true;
+            
+            // Create particle
+            createParticle(fund.isBad ? '💰' : '✓');
+            
+            if (fund.isBad) {
+                state.found++;
+                document.getElementById('foundDisplay').textContent = state.found + '/' + levels[state.currentLevel].badFunds;
+                
+                // Calculate savings
+                const level = levels[state.currentLevel];
+                const savings = calculateSavings(level.badRatio, level.goodRatio);
+                state.totalSaved += savings;
+                document.getElementById('savedDisplay').textContent = '$' + (state.totalSaved / 1000).toFixed(0) + 'k';
+                
+                // Show impact
+                showImpact(level);
+            }
+            
+            renderGrid();
+            
+            // Check win condition
+            if (state.found >= levels[state.currentLevel].badFunds) {
+                levelComplete();
+            }
+        }
+        
+        function calculateSavings(badRatio, goodRatio) {
+            // Assume $10k initial, $500/month, 7% return, 30 years
+            const initial = 10000;
+            const monthly = 500;
+            const years = 30;
+            const baseReturn = 0.07;
+            
+            const badReturn = baseReturn - (badRatio / 100);
+            const goodReturn = baseReturn - (goodRatio / 100);
+            
+            const badValue = calculateFV(initial, monthly, badReturn, years);
+            const goodValue = calculateFV(initial, monthly, goodReturn, years);
+            
+            return Math.round(badValue - goodValue);
+        }
+        
+        function calculateFV(initial, monthly, rate, years) {
+            const r = rate / 12;
+            const n = years * 12;
+            const fvInitial = initial * Math.pow(1 + r, n);
+            const fvMonthly = monthly * (Math.pow(1 + r, n) - 1) / r;
+            return fvInitial + fvMonthly;
+        }
+        
+        function showImpact(level) {
+            const panel = document.getElementById('impactPanel');
+            const savings = calculateSavings(level.badRatio, level.goodRatio);
+            
+            document.getElementById('badRatio').textContent = level.badRatio.toFixed(2) + '%';
+            document.getElementById('goodRatio').textContent = level.goodRatio.toFixed(2) + '%';
+            
+            const badValue = calculateFV(10000, 500, 0.07 - level.badRatio/100, 30);
+            const goodValue = calculateFV(10000, 500, 0.07 - level.goodRatio/100, 30);
+            
+            document.getElementById('badValue').textContent = '$' + (badValue / 1000).toFixed(0) + 'k';
+            document.getElementById('goodValue').textContent = '$' + (goodValue / 1000).toFixed(0) + 'k';
+            document.getElementById('savingsAmount').textContent = '$' + (savings / 1000).toFixed(0) + 'k saved!';
+            
+            panel.style.display = 'block';
+        }
+        
+        function startTimer() {
+            clearInterval(state.timer);
+            updateTimerBar();
+            
+            state.timer = setInterval(() => {
+                state.timeLeft--;
+                updateTimerBar();
+                
+                if (state.timeLeft <= 0) {
+                    gameOver();
+                }
+            }, 1000);
+        }
+        
+        function updateTimerBar() {
+            const level = levels[state.currentLevel];
+            const pct = (state.timeLeft / level.timeLimit) * 100;
+            document.getElementById('timerBar').style.width = pct + '%';
+            
+            if (pct < 30) {
+                document.getElementById('timerBar').style.background = 'linear-gradient(90deg, var(--mb-red) 0%, #f87171 100%)';
+            } else {
+                document.getElementById('timerBar').style.background = 'linear-gradient(90deg, var(--mb-green) 0%, var(--mb-green-light) 100%)';
+            }
+        }
+        
+        function levelComplete() {
+            clearInterval(state.timer);
+            state.gameActive = false;
+            
+            const level = levels[state.currentLevel];
+            document.getElementById('levelModalTitle').textContent = 'Level ' + (state.currentLevel + 1) + ' Complete!';
+            document.getElementById('levelFound').textContent = state.found;
+            document.getElementById('levelSaved').textContent = '$' + (state.totalSaved / 1000).toFixed(0) + 'k';
+            
+            const messages = [
+                'Great start! High fees are wealth killers.',
+                'Nice hunting! Those fees add up fast.',
+                'Excellent! You\'re getting sharper.',
+                'Impressive! Fee vampires fear you.',
+                'Master level complete! You\'re a true hunter!'
+            ];
+            document.getElementById('levelModalText').textContent = messages[state.currentLevel];
+            
+            document.getElementById('levelModal').classList.add('active');
+        }
+        
+        function continueGame() {
+            document.getElementById('levelModal').classList.remove('active');
+            
+            if (state.currentLevel < levels.length - 1) {
+                state.currentLevel++;
+                loadLevel(state.currentLevel);
+            } else {
+                showFinalModal();
+            }
+        }
+        
+        function nextLevel() {
+            if (!state.gameActive) {
+                continueGame();
+            }
+        }
+        
+        function gameOver() {
+            clearInterval(state.timer);
+            state.gameActive = false;
+            
+            // Reveal all
+            state.funds.forEach(f => f.revealed = true);
+            renderGrid();
+            
+            document.getElementById('actionBtn').textContent = 'Time\'s Up!';
+            document.getElementById('actionBtn').disabled = false;
+            document.getElementById('actionBtn').onclick = () => {
+                loadLevel(state.currentLevel);
+            };
+        }
+        
+        function showFinalModal() {
+            document.getElementById('finalFound').textContent = state.found;
+            document.getElementById('finalSaved').textContent = '$' + (state.totalSaved / 1000).toFixed(0) + 'k';
+            document.getElementById('finalModal').classList.add('active');
+        }
+        
+        function resetGame() {
+            state.currentLevel = 0;
+            state.totalSaved = 0;
+            state.found = 0;
+            document.getElementById('savedDisplay').textContent = '$0';
+            document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active'));
+            document.getElementById('startModal').classList.add('active');
+        }
+        
+        function createParticle(emoji) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.textContent = emoji;
+            particle.style.left = (window.innerWidth / 2) + 'px';
+            particle.style.top = (window.innerHeight / 2) + 'px';
+            document.body.appendChild(particle);
+            setTimeout(() => particle.remove(), 800);
+        }
+    </script>
+</body>
+</html>

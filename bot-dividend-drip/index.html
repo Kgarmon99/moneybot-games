@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Dividend Drip - MoneyBot</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        :root {
+            --mb-green: #00C853;
+            --mb-green-light: #00E676;
+            --mb-green-soft: #69F0AE;
+            --mb-ink: #07111F;
+            --mb-ink-2: #0B1628;
+            --mb-panel: rgba(10, 24, 42, 0.86);
+            --mb-line: rgba(0, 200, 83, 0.22);
+            --mb-white: #FFFFFF;
+            --mb-muted: #AAB8C8;
+            --mb-gold: #FBBF24;
+            --mb-red: #FB7185;
+            --mb-blue: #38BDF8;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Inter, sans-serif;
+            background: var(--mb-white);
+            color: var(--mb-ink);
+            min-height: 100vh;
+            overflow-x: hidden;
+            touch-action: manipulation;
+        }
+        
+        .game-container {
+            max-width: 480px;
+            margin: 0 auto;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--mb-ink) 0%, var(--mb-ink-2) 100%);
+            padding: 16px 20px;
+            border-bottom: 2px solid var(--mb-green);
+        }
+        
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        
+        .logo {
+            width: 32px;
+            height: 32px;
+            background: var(--mb-green);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            color: var(--mb-ink);
+            font-size: 14px;
+        }
+        
+        .brand-text {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--mb-white);
+            letter-spacing: 0.5px;
+        }
+        
+        .title {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--mb-green);
+            margin-bottom: 4px;
+        }
+        
+        .subtitle {
+            font-size: 13px;
+            color: var(--mb-muted);
+        }
+        
+        /* Stats Bar */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            padding: 16px 20px;
+            background: var(--mb-white);
+            border-bottom: 1px solid rgba(0,0,0,0.06);
+        }
+        
+        .stat-card {
+            background: var(--mb-ink);
+            border-radius: 12px;
+            padding: 12px 8px;
+            text-align: center;
+            border: 1px solid var(--mb-line);
+        }
+        
+        .stat-label {
+            font-size: 10px;
+            color: var(--mb-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+        
+        .stat-value {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--mb-green);
+        }
+        
+        .stat-value.shares { color: var(--mb-green); }
+        .stat-value.dividend { color: var(--mb-gold); }
+        .stat-value.total { color: var(--mb-blue); }
+        
+        /* Main Game Area */
+        .game-area {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        
+        /* Share Visualization */
+        .share-garden {
+            background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+            border-radius: 20px;
+            padding: 20px;
+            min-height: 200px;
+            border: 2px solid var(--mb-line);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .share-grid {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 6px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .share-icon {
+            aspect-ratio: 1;
+            background: var(--mb-green);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            color: var(--mb-ink);
+            font-weight: 700;
+            animation: popIn 0.3s var(--mb-spring);
+            box-shadow: 0 2px 8px rgba(0,200,83,0.3);
+        }
+        
+        .share-icon.new {
+            animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        
+        @keyframes popIn {
+            0% { transform: scale(0) rotate(-10deg); opacity: 0; }
+            70% { transform: scale(1.1) rotate(2deg); }
+            100% { transform: scale(1) rotate(0); opacity: 1; }
+        }
+        
+        .share-count-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 2;
+            background: rgba(255,255,255,0.95);
+            padding: 16px 24px;
+            border-radius: 16px;
+            border: 2px solid var(--mb-green);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+        }
+        
+        .share-count-number {
+            font-size: 36px;
+            font-weight: 900;
+            color: var(--mb-green);
+            line-height: 1;
+        }
+        
+        .share-count-label {
+            font-size: 12px;
+            color: var(--mb-muted);
+            margin-top: 4px;
+            font-weight: 600;
+        }
+        
+        /* Growth Chart */
+        .chart-container {
+            background: var(--mb-ink);
+            border-radius: 16px;
+            padding: 16px;
+            border: 1px solid var(--mb-line);
+        }
+        
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .chart-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--mb-white);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .year-badge {
+            background: var(--mb-green);
+            color: var(--mb-ink);
+            font-size: 11px;
+            font-weight: 800;
+            padding: 4px 10px;
+            border-radius: 20px;
+        }
+        
+        .chart-canvas {
+            height: 100px;
+            position: relative;
+            background: rgba(255,255,255,0.03);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .chart-line {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 100%;
+        }
+        
+        .chart-path {
+            fill: none;
+            stroke: var(--mb-green);
+            stroke-width: 3;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+        
+        .chart-area {
+            fill: url(#chartGradient);
+            opacity: 0.3;
+        }
+        
+        .chart-point {
+            fill: var(--mb-green);
+            r: 4;
+        }
+        
+        /* Dividend Notification */
+        .dividend-toast {
+            background: linear-gradient(135deg, var(--mb-gold) 0%, #f59e0b 100%);
+            border-radius: 12px;
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: slideUp 0.4s ease-out;
+            box-shadow: 0 4px 16px rgba(251, 191, 36, 0.3);
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .dividend-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+        
+        .dividend-info {
+            flex: 1;
+        }
+        
+        .dividend-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--mb-ink);
+        }
+        
+        .dividend-amount {
+            font-size: 18px;
+            font-weight: 900;
+            color: var(--mb-ink);
+        }
+        
+        .dividend-action {
+            font-size: 11px;
+            color: rgba(7,17,31,0.7);
+            font-weight: 600;
+        }
+        
+        /* Controls */
+        .controls {
+            padding: 16px 20px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .btn {
+            border: none;
+            border-radius: 14px;
+            padding: 16px 24px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .btn:active { transform: scale(0.98); }
+        
+        .btn-primary {
+            background: var(--mb-green);
+            color: var(--mb-ink);
+            box-shadow: 0 4px 16px rgba(0,200,83,0.3);
+        }
+        
+        .btn-primary:hover {
+            background: var(--mb-green-light);
+            box-shadow: 0 6px 20px rgba(0,200,83,0.4);
+        }
+        
+        .btn-secondary {
+            background: var(--mb-ink);
+            color: var(--mb-white);
+            border: 1px solid var(--mb-line);
+        }
+        
+        .btn-secondary:hover {
+            background: var(--mb-ink-2);
+            border-color: var(--mb-green);
+        }
+        
+        .speed-controls {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+        }
+        
+        .speed-btn {
+            flex: 1;
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid var(--mb-line);
+            background: var(--mb-white);
+            color: var(--mb-muted);
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .speed-btn.active {
+            background: var(--mb-green);
+            color: var(--mb-ink);
+            border-color: var(--mb-green);
+        }
+        
+        /* Modals */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(7,17,31,0.85);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        
+        .modal {
+            background: var(--mb-white);
+            border-radius: 24px;
+            padding: 28px;
+            max-width: 360px;
+            width: 100%;
+            text-align: center;
+            transform: scale(0.9);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            border: 2px solid var(--mb-green);
+        }
+        
+        .modal-overlay.active .modal {
+            transform: scale(1);
+        }
+        
+        .modal-icon {
+            width: 72px;
+            height: 72px;
+            background: linear-gradient(135deg, var(--mb-green) 0%, var(--mb-green-light) 100%);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            margin: 0 auto 20px;
+            box-shadow: 0 8px 24px rgba(0,200,83,0.3);
+        }
+        
+        .modal-title {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--mb-ink);
+            margin-bottom: 12px;
+        }
+        
+        .modal-text {
+            font-size: 14px;
+            color: var(--mb-muted);
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+        
+        .modal-stat {
+            background: var(--mb-ink);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+        
+        .modal-stat-value {
+            font-size: 32px;
+            font-weight: 900;
+            color: var(--mb-green);
+        }
+        
+        .modal-stat-label {
+            font-size: 12px;
+            color: var(--mb-muted);
+            margin-top: 4px;
+        }
+        
+        /* Particles */
+        .particle {
+            position: absolute;
+            pointer-events: none;
+            animation: floatUp 1s ease-out forwards;
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--mb-green);
+            text-shadow: 0 2px 8px rgba(0,200,83,0.4);
+        }
+        
+        @keyframes floatUp {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-60px) scale(0.8); opacity: 0; }
+        }
+        
+        /* Tutorial hint */
+        .tutorial-hint {
+            background: rgba(0,200,83,0.1);
+            border: 1px dashed var(--mb-green);
+            border-radius: 12px;
+            padding: 14px 16px;
+            font-size: 13px;
+            color: var(--mb-ink);
+            text-align: center;
+        }
+        
+        .tutorial-hint strong {
+            color: var(--mb-green);
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <!-- Header -->
+        <div class="header">
+            <div class="brand">
+                <div class="logo">₿</div>
+                <div class="brand-text">MONEYBOT</div>
+            </div>
+            <h1 class="title">Dividend Drip</h1>
+            <p class="subtitle">Watch compound growth in action</p>
+        </div>
+        
+        <!-- Stats -->
+        <div class="stats-bar">
+            <div class="stat-card">
+                <div class="stat-label">Shares</div>
+                <div class="stat-value shares" id="sharesDisplay">1</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Quarterly Dividend</div>
+                <div class="stat-value dividend" id="dividendDisplay">$5.00</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Total Value</div>
+                <div class="stat-value total" id="valueDisplay">$100</div>
+            </div>
+        </div>
+        
+        <!-- Game Area -->
+        <div class="game-area">
+            <!-- Share Garden -->
+            <div class="share-garden" id="shareGarden">
+                <div class="share-grid" id="shareGrid"></div>
+                <div class="share-count-overlay">
+                    <div class="share-count-number" id="shareCountBig">1</div>
+                    <div class="share-count-label">Shares Owned</div>
+                </div>
+            </div>
+            
+            <!-- Growth Chart -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <span class="chart-title">Portfolio Growth</span>
+                    <span class="year-badge" id="yearBadge">Year 1</span>
+                </div>
+                <div class="chart-canvas">
+                    <svg width="100%" height="100%" viewBox="0 0 300 100" preserveAspectRatio="none">
+                        <defs>
+                            <linearGradient id="chartGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" style="stop-color:#00C853;stop-opacity:0.6" />
+                                <stop offset="100%" style="stop-color:#00C853;stop-opacity:0" />
+                            </linearGradient>
+                        </defs>
+                        <path id="chartArea" class="chart-area" d=""/>
+                        <path id="chartLine" class="chart-path" d=""/>
+                    </svg>
+                </div>
+            </div>
+            
+            <!-- Dividend Toast (hidden by default) -->
+            <div class="dividend-toast" id="dividendToast" style="display: none;">
+                <div class="dividend-icon">💰</div>
+                <div class="dividend-info">
+                    <div class="dividend-title">Dividend Received!</div>
+                    <div class="dividend-amount" id="toastAmount">+$5.00</div>
+                    <div class="dividend-action">Auto-reinvested → +0.05 shares</div>
+                </div>
+            </div>
+            
+            <!-- Tutorial -->
+            <div class="tutorial-hint" id="tutorial">
+                <strong>DRIP Power:</strong> Dividends buy more shares → More shares = bigger future dividends. Watch it compound!
+            </div>
+        </div>
+        
+        <!-- Controls -->
+        <div class="controls">
+            <div class="speed-controls">
+                <button class="speed-btn active" data-speed="1">1x</button>
+                <button class="speed-btn" data-speed="5">5x</button>
+                <button class="speed-btn" data-speed="10">10x</button>
+                <button class="speed-btn" data-speed="max">MAX</button>
+            </div>
+            <button class="btn btn-primary" id="startBtn">
+                <span>▶</span> Start Simulation
+            </button>
+            <button class="btn btn-secondary" id="resetBtn">
+                <span>↺</span> Reset
+            </button>
+        </div>
+    </div>
+    
+    <!-- Start Modal -->
+    <div class="modal-overlay" id="startModal">
+        <div class="modal">
+            <div class="modal-icon">💧</div>
+            <h2 class="modal-title">Dividend DRIP</h2>
+            <p class="modal-text">
+                Start with 1 share worth $100. Each quarter, receive a dividend that's automatically reinvested to buy more shares. Watch compound growth accelerate over time!
+            </p>
+            <button class="btn btn-primary" onclick="startGame()">Start Growing</button>
+        </div>
+    </div>
+    
+    <!-- Year Complete Modal -->
+    <div class="modal-overlay" id="yearModal">
+        <div class="modal">
+            <div class="modal-icon">📈</div>
+            <h2 class="modal-title" id="yearTitle">Year 1 Complete!</h2>
+            <div class="modal-stat">
+                <div class="modal-stat-value" id="yearShares">4.2</div>
+                <div class="modal-stat-label">Shares Owned</div>
+            </div>
+            <p class="modal-text" id="yearText">
+                Your dividends bought 3.2 additional shares this year. That's the power of DRIP!
+            </p>
+            <button class="btn btn-primary" onclick="continueSimulation()">Continue</button>
+        </div>
+    </div>
+    
+    <!-- Final Modal -->
+    <div class="modal-overlay" id="finalModal">
+        <div class="modal">
+            <div class="modal-icon">🎉</div>
+            <h2 class="modal-title">30 Year Journey Complete!</h2>
+            <div class="modal-stat">
+                <div class="modal-stat-value" id="finalShares">0</div>
+                <div class="modal-stat-label">Total Shares</div>
+            </div>
+            <p class="modal-text" id="finalText">
+                Without DRIP: 1 share worth $300<br>
+                With DRIP: <strong>X shares worth $Y</strong><br><br>
+                Compound growth turned small drips into a flood!
+            </p>
+            <button class="btn btn-primary" onclick="resetGame()">Play Again</button>
+        </div>
+    </div>
+
+    <script>
+        // Game State
+        let state = {
+            shares: 1,
+            sharePrice: 100,
+            dividendRate: 0.05, // 5% quarterly = ~20% annual
+            quarter: 1,
+            year: 1,
+            isRunning: false,
+            speed: 1,
+            history: [100],
+            totalDividends: 0
+        };
+        
+        let simulationInterval = null;
+        
+        // DOM Elements
+        const sharesDisplay = document.getElementById('sharesDisplay');
+        const dividendDisplay = document.getElementById('dividendDisplay');
+        const valueDisplay = document.getElementById('valueDisplay');
+        const shareCountBig = document.getElementById('shareCountBig');
+        const shareGrid = document.getElementById('shareGrid');
+        const yearBadge = document.getElementById('yearBadge');
+        const dividendToast = document.getElementById('dividendToast');
+        const toastAmount = document.getElementById('toastAmount');
+        const startBtn = document.getElementById('startBtn');
+        const chartLine = document.getElementById('chartLine');
+        const chartArea = document.getElementById('chartArea');
+        
+        // Initialize
+        function init() {
+            renderShares();
+            updateDisplay();
+            document.getElementById('startModal').classList.add('active');
+        }
+        
+        function startGame() {
+            document.getElementById('startModal').classList.remove('active');
+            state.isRunning = true;
+            startSimulation();
+            updateStartButton();
+        }
+        
+        function renderShares() {
+            shareGrid.innerHTML = '';
+            const displayShares = Math.min(state.shares, 64);
+            const wholeShares = Math.floor(displayShares);
+            
+            for (let i = 0; i < wholeShares; i++) {
+                const share = document.createElement('div');
+                share.className = 'share-icon';
+                share.textContent = '◈';
+                shareGrid.appendChild(share);
+            }
+            
+            // Add partial share indicator
+            const partial = displayShares - wholeShares;
+            if (partial > 0.1 && wholeShares < 64) {
+                const share = document.createElement('div');
+                share.className = 'share-icon';
+                share.style.opacity = partial;
+                share.textContent = '◈';
+                shareGrid.appendChild(share);
+            }
+        }
+        
+        function updateDisplay() {
+            sharesDisplay.textContent = state.shares.toFixed(2);
+            shareCountBig.textContent = state.shares.toFixed(2);
+            
+            const quarterlyDividend = state.shares * state.sharePrice * state.dividendRate;
+            dividendDisplay.textContent = '$' + quarterlyDividend.toFixed(2);
+            
+            const totalValue = state.shares * state.sharePrice;
+            valueDisplay.textContent = '$' + Math.floor(totalValue).toLocaleString();
+            
+            yearBadge.textContent = 'Year ' + state.year;
+            
+            updateChart();
+        }
+        
+        function updateChart() {
+            if (state.history.length < 2) return;
+            
+            const maxVal = Math.max(...state.history);
+            const minVal = Math.min(...state.history) * 0.9;
+            const range = maxVal - minVal || 1;
+            
+            const points = state.history.map((val, i) => {
+                const x = (i / (state.history.length - 1)) * 300;
+                const y = 100 - ((val - minVal) / range) * 90 - 5;
+                return `${x},${y}`;
+            }).join(' ');
+            
+            chartLine.setAttribute('d', `M ${points}`);
+            chartArea.setAttribute('d', `M 0,100 L ${points} L 300,100 Z`);
+        }
+        
+        function processQuarter() {
+            const dividendPerShare = state.sharePrice * state.dividendRate;
+            const totalDividend = state.shares * dividendPerShare;
+            state.totalDividends += totalDividend;
+            
+            // Reinvest
+            const newShares = totalDividend / state.sharePrice;
+            state.shares += newShares;
+            
+            // Show toast
+            showDividendToast(totalDividend, newShares);
+            
+            // Update history
+            state.history.push(state.shares * state.sharePrice);
+            if (state.history.length > 20) state.history.shift();
+            
+            // Update displays
+            renderShares();
+            updateDisplay();
+            
+            // Check year end
+            state.quarter++;
+            if (state.quarter > 4) {
+                state.quarter = 1;
+                state.year++;
+                if (state.year <= 30) {
+                    showYearModal();
+                } else {
+                    showFinalModal();
+                }
+            }
+        }
+        
+        function showDividendToast(amount, shares) {
+            toastAmount.textContent = '+$' + amount.toFixed(2);
+            dividendToast.style.display = 'flex';
+            dividendToast.querySelector('.dividend-action').textContent = 
+                `Auto-reinvested → +${shares.toFixed(3)} shares`;
+            
+            // Create particles
+            createParticles(dividendToast, 3);
+            
+            setTimeout(() => {
+                dividendToast.style.display = 'none';
+            }, 2500);
+        }
+        
+        function createParticles(element, count) {
+            const rect = element.getBoundingClientRect();
+            for (let i = 0; i < count; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.textContent = '+$';
+                particle.style.left = (rect.left + rect.width/2 + (Math.random() - 0.5) * 60) + 'px';
+                particle.style.top = (rect.top) + 'px';
+                document.body.appendChild(particle);
+                setTimeout(() => particle.remove(), 1000);
+            }
+        }
+        
+        function showYearModal() {
+            state.isRunning = false;
+            clearInterval(simulationInterval);
+            updateStartButton();
+            
+            document.getElementById('yearTitle').textContent = `Year ${state.year - 1} Complete!`;
+            document.getElementById('yearShares').textContent = state.shares.toFixed(2);
+            
+            const dripShares = state.shares - 1;
+            const dripValue = dripShares * state.sharePrice;
+            document.getElementById('yearText').innerHTML = 
+                `Your dividends bought <strong>${dripShares.toFixed(2)} additional shares</strong> so far.<br>` +
+                `That's $${dripValue.toFixed(0)} in value from reinvested dividends!`;
+            
+            document.getElementById('yearModal').classList.add('active');
+        }
+        
+        function continueSimulation() {
+            document.getElementById('yearModal').classList.remove('active');
+            state.isRunning = true;
+            startSimulation();
+            updateStartButton();
+        }
+        
+        function showFinalModal() {
+            clearInterval(simulationInterval);
+            state.isRunning = false;
+            updateStartButton();
+            
+            const finalValue = state.shares * state.sharePrice;
+            const noDripValue = 300; // 1 share at $300 (3% growth)
+            const gain = finalValue - noDripValue;
+            
+            document.getElementById('finalShares').textContent = state.shares.toFixed(2);
+            document.getElementById('finalText').innerHTML = 
+                `Without DRIP: 1 share worth $${noDripValue.toLocaleString()}<br>` +
+                `With DRIP: <strong>${state.shares.toFixed(2)} shares worth $${finalValue.toLocaleString()}</strong><br><br>` +
+                `You gained an extra <strong>$${gain.toLocaleString()}</strong> through compound growth!`;
+            
+            document.getElementById('finalModal').classList.add('active');
+        }
+        
+        function startSimulation() {
+            clearInterval(simulationInterval);
+            const interval = state.speed === 'max' ? 100 : 1000 / state.speed;
+            simulationInterval = setInterval(processQuarter, interval);
+        }
+        
+        function toggleSimulation() {
+            if (state.year > 30) {
+                resetGame();
+                return;
+            }
+            
+            state.isRunning = !state.isRunning;
+            if (state.isRunning) {
+                startSimulation();
+            } else {
+                clearInterval(simulationInterval);
+            }
+            updateStartButton();
+        }
+        
+        function updateStartButton() {
+            if (state.year > 30) {
+                startBtn.innerHTML = '<span>↺</span> Play Again';
+            } else if (state.isRunning) {
+                startBtn.innerHTML = '<span>⏸</span> Pause';
+            } else {
+                startBtn.innerHTML = '<span>▶</span> Resume';
+            }
+        }
+        
+        function resetGame() {
+            clearInterval(simulationInterval);
+            state = {
+                shares: 1,
+                sharePrice: 100,
+                dividendRate: 0.05,
+                quarter: 1,
+                year: 1,
+                isRunning: false,
+                speed: 1,
+                history: [100],
+                totalDividends: 0
+            };
+            
+            document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active'));
+            renderShares();
+            updateDisplay();
+            updateStartButton();
+            document.getElementById('tutorial').style.display = 'block';
+        }
+        
+        // Event Listeners
+        startBtn.addEventListener('click', toggleSimulation);
+        document.getElementById('resetBtn').addEventListener('click', resetGame);
+        
+        document.querySelectorAll('.speed-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.speed-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                state.speed = btn.dataset.speed === 'max' ? 'max' : parseInt(btn.dataset.speed);
+                if (state.isRunning) startSimulation();
+            });
+        });
+        
+        // Start
+        init();
+    </script>
+</body>
+</html>

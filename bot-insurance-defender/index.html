@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Insurance Defender</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: #ffffff;
+            color: #1a1a2e;
+            min-height: 100vh;
+            overflow-x: hidden;
+            touch-action: manipulation;
+        }
+        #app { max-width: 480px; margin: 0 auto; min-height: 100vh; position: relative; }
+        .screen { display: none; padding: 15px; min-height: 100vh; }
+        .screen.active { display: flex; flex-direction: column; }
+        
+        /* Header */
+        .game-header {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        .game-title {
+            font-size: 28px;
+            font-weight: 900;
+            color: #1a1a2e;
+            line-height: 1.1;
+        }
+        .game-title .highlight { color: #00C853; }
+        .game-subtitle { font-size: 13px; color: #666; margin-top: 5px; }
+        
+        /* HUD */
+        .hud {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .stat-pill {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 12px 8px;
+            text-align: center;
+        }
+        .stat-pill.highlight {
+            background: linear-gradient(135deg, #00C853 0%, #00a344 100%);
+            color: white;
+        }
+        .stat-label {
+            font-size: 9px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.7;
+            display: block;
+        }
+        .stat-value {
+            font-size: 18px;
+            font-weight: 800;
+            display: block;
+            margin-top: 3px;
+        }
+        
+        /* Game Board */
+        .game-board {
+            background: linear-gradient(180deg, #e8f5e9 0%, #c8e6c9 100%);
+            border-radius: 16px;
+            padding: 15px;
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            min-height: 350px;
+        }
+        
+        /* Path */
+        .path {
+            position: absolute;
+            width: 40px;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                #ddd 0px,
+                #ddd 20px,
+                #ccc 20px,
+                #ccc 40px
+            );
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 20px;
+        }
+        
+        /* Towers */
+        .tower-slot {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background: rgba(255,255,255,0.5);
+            border: 2px dashed #999;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .tower-slot:hover { background: rgba(255,255,255,0.8); border-color: #00C853; }
+        .tower-slot.occupied { border-style: solid; border-color: #00C853; background: white; }
+        
+        /* Tower Types */
+        .tower-health { background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); }
+        .tower-life { background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%); }
+        .tower-home { background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%); }
+        .tower-auto { background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); }
+        
+        /* Tower Labels */
+        .tower-label {
+            position: absolute;
+            bottom: -18px;
+            font-size: 8px;
+            font-weight: 700;
+            text-transform: uppercase;
+            white-space: nowrap;
+            color: #666;
+        }
+        
+        /* Enemies */
+        .enemy {
+            position: absolute;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: top 0.1s linear;
+            z-index: 10;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+        .enemy.accident { background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%); }
+        .enemy.illness { background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%); }
+        .enemy.fire { background: linear-gradient(135deg, #ffccbc 0%, #ffab91 100%); }
+        .enemy.death { background: linear-gradient(135deg, #e1bee7 0%, #ce93d8 100%); }
+        .enemy.theft { background: linear-gradient(135deg, #e0e0e0 0%, #bdbdbd 100%); }
+        .enemy.lawsuit { background: linear-gradient(135deg, #f8bbd9 0%, #f48fb1 100%); }
+        
+        .enemy-health {
+            position: absolute;
+            top: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 4px;
+            background: #ddd;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        .enemy-health-bar {
+            height: 100%;
+            background: #ff4757;
+            transition: width 0.2s;
+        }
+        
+        /* Projectiles */
+        .projectile {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            z-index: 5;
+            transition: all 0.3s linear;
+        }
+        .projectile.health { background: #2196f3; box-shadow: 0 0 8px #2196f3; }
+        .projectile.life { background: #9c27b0; box-shadow: 0 0 8px #9c27b0; }
+        .projectile.home { background: #ff9800; box-shadow: 0 0 8px #ff9800; }
+        .projectile.auto { background: #4caf50; box-shadow: 0 0 8px #4caf50; }
+        
+        /* Tower Selector */
+        .tower-selector {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .tower-option {
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 12px;
+            padding: 12px 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .tower-option:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .tower-option.selected { border-color: #00C853; background: #f1f8e9; }
+        .tower-option.disabled { opacity: 0.4; cursor: not-allowed; }
+        .tower-icon { font-size: 24px; display: block; margin-bottom: 5px; }
+        .tower-name { font-size: 9px; font-weight: 700; text-transform: uppercase; }
+        .tower-cost { font-size: 11px; font-weight: 800; color: #00C853; }
+        
+        /* Wave Info */
+        .wave-info {
+            background: #1a1a2e;
+            color: white;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .wave-text { font-size: 14px; font-weight: 700; }
+        .wave-enemies { font-size: 12px; opacity: 0.8; }
+        
+        /* Start Screen */
+        .start-hero { text-align: center; padding: 30px 0; }
+        .shield-icon { font-size: 70px; margin-bottom: 15px; }
+        .instructions { background: #f8f9fa; border-radius: 16px; padding: 20px; margin: 15px 0; }
+        .instruction-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; font-size: 14px; }
+        .instruction-row:last-child { margin-bottom: 0; }
+        .dot { width: 10px; height: 10px; border-radius: 50%; }
+        .dot.blue { background: #2196f3; }
+        .dot.purple { background: #9c27b0; }
+        .dot.orange { background: #ff9800; }
+        .dot.green { background: #4caf50; }
+        
+        /* Buttons */
+        .btn-mega {
+            width: 100%;
+            padding: 18px;
+            background: #00C853;
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 16px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: all 0.2s;
+        }
+        .btn-mega:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,200,83,0.4); }
+        .btn-mega:disabled { background: #ccc; cursor: not-allowed; transform: none; box-shadow: none; }
+        
+        /* Modals */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            padding: 20px;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            max-width: 350px;
+            width: 100%;
+        }
+        .modal-icon { font-size: 60px; margin-bottom: 15px; }
+        .modal-title { font-size: 24px; font-weight: 800; margin-bottom: 10px; }
+        .modal-text { font-size: 14px; color: #666; margin-bottom: 20px; line-height: 1.5; }
+        
+        /* Insurance Info Cards */
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        .info-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+        }
+        .info-icon { font-size: 30px; margin-bottom: 8px; }
+        .info-title { font-size: 12px; font-weight: 700; margin-bottom: 5px; }
+        .info-desc { font-size: 11px; color: #666; line-height: 1.4; }
+        
+        /* Damage Flash */
+        .damage-flash {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(255,71,87,0.3);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+            z-index: 50;
+        }
+        .damage-flash.active { opacity: 1; }
+        
+        /* Range Indicator */
+        .range-indicator {
+            position: absolute;
+            border: 2px dashed rgba(0,200,83,0.5);
+            border-radius: 50%;
+            pointer-events: none;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- Start Screen -->
+        <div id="start-screen" class="screen active">
+            <div class="start-hero">
+                <div class="shield-icon">🛡️</div>
+                <h1 class="game-title">INSURANCE<br><span class="highlight">DEFENDER</span></h1>
+                <p class="game-subtitle">Protect your wealth from life's surprises</p>
+            </div>
+            <div class="info-grid">
+                <div class="info-card">
+                    <div class="info-icon">🏥</div>
+                    <div class="info-title">Health</div>
+                    <div class="info-desc">Covers medical bills & illness</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-icon">💜</div>
+                    <div class="info-title">Life</div>
+                    <div class="info-desc">Protects family's income</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-icon">🏠</div>
+                    <div class="info-title">Home</div>
+                    <div class="info-desc">Covers property damage</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-icon">🚗</div>
+                    <div class="info-title">Auto</div>
+                    <div class="info-desc">Vehicle accidents & theft</div>
+                </div>
+            </div>
+            <div class="instructions">
+                <div class="instruction-row"><span class="dot blue"></span> Place Health towers to stop Illness</div>
+                <div class="instruction-row"><span class="dot purple"></span> Place Life towers to stop Death events</div>
+                <div class="instruction-row"><span class="dot orange"></span> Place Home towers to stop Fire/Theft</div>
+                <div class="instruction-row"><span class="dot green"></span> Place Auto towers to stop Accidents</div>
+            </div>
+            <button class="btn-mega" onclick="startGame()">START DEFENDING</button>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="game-screen" class="screen">
+            <div class="hud">
+                <div class="stat-pill">
+                    <span class="stat-label">Wave</span>
+                    <span class="stat-value" id="wave-num">1</span>
+                </div>
+                <div class="stat-pill highlight">
+                    <span class="stat-label">Money</span>
+                    <span class="stat-value" id="money">$500</span>
+                </div>
+                <div class="stat-pill">
+                    <span class="stat-label">Health</span>
+                    <span class="stat-value" id="lives">❤️❤️❤️</span>
+                </div>
+            </div>
+
+            <div class="wave-info">
+                <span class="wave-text" id="wave-name">Wave 1: Minor Incidents</span>
+                <span class="wave-enemies" id="enemies-remaining">5 enemies</span>
+            </div>
+
+            <div class="game-board" id="game-board">
+                <div class="path"></div>
+                <div class="damage-flash" id="damage-flash"></div>
+            </div>
+
+            <div class="tower-selector">
+                <div class="tower-option" data-type="health" onclick="selectTower('health')">
+                    <span class="tower-icon">🏥</span>
+                    <span class="tower-name">Health</span>
+                    <span class="tower-cost">$100</span>
+                </div>
+                <div class="tower-option" data-type="life" onclick="selectTower('life')">
+                    <span class="tower-icon">💜</span>
+                    <span class="tower-name">Life</span>
+                    <span class="tower-cost">$150</span>
+                </div>
+                <div class="tower-option" data-type="home" onclick="selectTower('home')">
+                    <span class="tower-icon">🏠</span>
+                    <span class="tower-name">Home</span>
+                    <span class="tower-cost">$120</span>
+                </div>
+                <div class="tower-option" data-type="auto" onclick="selectTower('auto')">
+                    <span class="tower-icon">🚗</span>
+                    <span class="tower-name">Auto</span>
+                    <span class="tower-cost">$80</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Wave Complete Modal -->
+        <div class="modal-overlay" id="wave-modal">
+            <div class="modal-content">
+                <div class="modal-icon">🎉</div>
+                <h2 class="modal-title">Wave Survived!</h2>
+                <p class="modal-text" id="wave-reward">+$200 for surviving</p>
+                <button class="btn-mega" onclick="nextWave()">NEXT WAVE</button>
+            </div>
+        </div>
+
+        <!-- Game Over Modal -->
+        <div class="modal-overlay" id="gameover-modal">
+            <div class="modal-content">
+                <div class="modal-icon">💀</div>
+                <h2 class="modal-title" id="gameover-title">Financial Ruin!</h2>
+                <p class="modal-text" id="gameover-text">Life's events overwhelmed your defenses.</p>
+                <button class="btn-mega" onclick="location.reload()">TRY AGAIN</button>
+            </div>
+        </div>
+
+        <!-- Victory Modal -->
+        <div class="modal-overlay" id="victory-modal">
+            <div class="modal-content">
+                <div class="modal-icon">🏆</div>
+                <h2 class="modal-title">Fully Protected!</h2>
+                <p class="modal-text">You've mastered insurance defense! Your wealth is secure.</p>
+                <div class="info-grid">
+                    <div class="info-card">
+                        <div class="info-icon">🏥</div>
+                        <div class="info-title">Health</div>
+                        <div class="info-desc">~$500/mo premium</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-icon">💜</div>
+                        <div class="info-title">Life</div>
+                        <div class="info-desc">~$50/mo per $500k</div>
+                    </div>
+                </div>
+                <button class="btn-mega" onclick="location.reload()">PLAY AGAIN</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const TOWER_TYPES = {
+            health: { icon: '🏥', cost: 100, damage: 25, range: 80, color: '#2196f3', targets: ['illness'] },
+            life: { icon: '💜', cost: 150, damage: 40, range: 90, color: '#9c27b0', targets: ['death'] },
+            home: { icon: '🏠', cost: 120, damage: 30, range: 85, color: '#ff9800', targets: ['fire', 'theft'] },
+            auto: { icon: '🚗', cost: 80, damage: 35, range: 75, color: '#4caf50', targets: ['accident'] }
+        };
+
+        const ENEMY_TYPES = {
+            accident: { icon: '💥', health: 60, speed: 1.5, reward: 30, name: 'Car Accident' },
+            illness: { icon: '🤒', health: 80, speed: 1, reward: 40, name: 'Illness' },
+            fire: { icon: '🔥', health: 70, speed: 1.2, reward: 35, name: 'House Fire' },
+            death: { icon: '💀', health: 100, speed: 0.8, reward: 50, name: 'Death' },
+            theft: { icon: '🦹', health: 50, speed: 1.8, reward: 25, name: 'Theft' },
+            lawsuit: { icon: '⚖️', health: 90, speed: 1, reward: 45, name: 'Lawsuit' }
+        };
+
+        const WAVES = [
+            { name: "Wave 1: Minor Incidents", enemies: ['accident', 'accident', 'illness', 'accident', 'theft'], reward: 200 },
+            { name: "Wave 2: Health Scare", enemies: ['illness', 'illness', 'illness', 'accident', 'illness', 'fire'], reward: 250 },
+            { name: "Wave 3: Property Damage", enemies: ['fire', 'fire', 'theft', 'fire', 'accident', 'theft', 'fire'], reward: 300 },
+            { name: "Wave 4: Life Events", enemies: ['death', 'illness', 'death', 'accident', 'death', 'illness'], reward: 350 },
+            { name: "Wave 5: Legal Trouble", enemies: ['lawsuit', 'lawsuit', 'theft', 'lawsuit', 'accident', 'lawsuit', 'fire'], reward: 400 },
+            { name: "Wave 6: The Perfect Storm", enemies: ['death', 'lawsuit', 'fire', 'illness', 'accident', 'theft', 'death', 'lawsuit'], reward: 500 }
+        ];
+
+        let gameState = {
+            money: 500,
+            lives: 3,
+            wave: 0,
+            towers: [],
+            enemies: [],
+            projectiles: [],
+            selectedTower: null,
+            gameLoop: null,
+            waveInProgress: false,
+            enemiesSpawned: 0,
+            enemiesKilled: 0
+        };
+
+        function startGame() {
+            document.getElementById('start-screen').classList.remove('active');
+            document.getElementById('game-screen').classList.add('active');
+            initGameBoard();
+            startWave();
+        }
+
+        function initGameBoard() {
+            const board = document.getElementById('game-board');
+            // Create tower slots
+            const positions = [
+                { x: 15, y: 20 }, { x: 70, y: 20 },
+                { x: 15, y: 45 }, { x: 70, y: 45 },
+                { x: 15, y: 70 }, { x: 70, y: 70 }
+            ];
+            
+            positions.forEach((pos, i) => {
+                const slot = document.createElement('div');
+                slot.className = 'tower-slot';
+                slot.style.left = pos.x + '%';
+                slot.style.top = pos.y + '%';
+                slot.dataset.index = i;
+                slot.onclick = () => placeTower(i);
+                board.appendChild(slot);
+            });
+        }
+
+        function selectTower(type) {
+            if (gameState.money < TOWER_TYPES[type].cost) return;
+            
+            gameState.selectedTower = type;
+            document.querySelectorAll('.tower-option').forEach(el => el.classList.remove('selected'));
+            document.querySelector(`[data-type="${type}"]`).classList.add('selected');
+        }
+
+        function placeTower(slotIndex) {
+            if (!gameState.selectedTower) return;
+            
+            const towerType = TOWER_TYPES[gameState.selectedTower];
+            if (gameState.money < towerType.cost) return;
+            
+            const slots = document.querySelectorAll('.tower-slot');
+            if (slots[slotIndex].classList.contains('occupied')) return;
+            
+            gameState.money -= towerType.cost;
+            updateHUD();
+            
+            const slot = slots[slotIndex];
+            slot.classList.add('occupied', `tower-${gameState.selectedTower}`);
+            slot.textContent = towerType.icon;
+            
+            const rect = slot.getBoundingClientRect();
+            const boardRect = document.getElementById('game-board').getBoundingClientRect();
+            
+            gameState.towers.push({
+                type: gameState.selectedTower,
+                x: rect.left - boardRect.left + rect.width / 2,
+                y: rect.top - boardRect.top + rect.height / 2,
+                lastShot: 0
+            });
+            
+            gameState.selectedTower = null;
+            document.querySelectorAll('.tower-option').forEach(el => el.classList.remove('selected'));
+        }
+
+        function startWave() {
+            const wave = WAVES[gameState.wave];
+            gameState.waveInProgress = true;
+            gameState.enemiesSpawned = 0;
+            gameState.enemiesKilled = 0;
+            
+            document.getElementById('wave-name').textContent = wave.name;
+            document.getElementById('enemies-remaining').textContent = `${wave.enemies.length} enemies`;
+            
+            // Spawn enemies
+            let spawnIndex = 0;
+            const spawnInterval = setInterval(() => {
+                if (spawnIndex >= wave.enemies.length) {
+                    clearInterval(spawnInterval);
+                    return;
+                }
+                spawnEnemy(wave.enemies[spawnIndex]);
+                spawnIndex++;
+                gameState.enemiesSpawned++;
+            }, 1500);
+            
+            // Start game loop
+            gameState.gameLoop = requestAnimationFrame(gameLoop);
+        }
+
+        function spawnEnemy(type) {
+            const enemy = ENEMY_TYPES[type];
+            const board = document.getElementById('game-board');
+            
+            const el = document.createElement('div');
+            el.className = `enemy ${type}`;
+            el.innerHTML = `
+                ${enemy.icon}
+                <div class="enemy-health">
+                    <div class="enemy-health-bar" style="width: 100%"></div>
+                </div>
+            `;
+            el.style.left = 'calc(50% - 18px)';
+            el.style.top = '-40px';
+            board.appendChild(el);
+            
+            gameState.enemies.push({
+                type: type,
+                element: el,
+                health: enemy.health,
+                maxHealth: enemy.health,
+                speed: enemy.speed,
+                y: -40,
+                reward: enemy.reward
+            });
+        }
+
+        function gameLoop() {
+            if (!gameState.waveInProgress) return;
+            
+            const board = document.getElementById('game-board');
+            const boardHeight = board.offsetHeight;
+            
+            // Move enemies
+            gameState.enemies = gameState.enemies.filter(enemy => {
+                enemy.y += enemy.speed;
+                enemy.element.style.top = enemy.y + 'px';
+                
+                // Check if reached bottom
+                if (enemy.y > boardHeight) {
+                    enemy.element.remove();
+                    takeDamage();
+                    return false;
+                }
+                
+                return enemy.health > 0;
+            });
+            
+            // Tower shooting
+            const now = Date.now();
+            gameState.towers.forEach(tower => {
+                const towerData = TOWER_TYPES[tower.type];
+                if (now - tower.lastShot < 800) return;
+                
+                // Find target
+                const target = gameState.enemies.find(enemy => {
+                    const dx = enemy.x - tower.x;
+                    const dy = enemy.y - tower.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    return dist <= towerData.range && towerData.targets.includes(enemy.type);
+                });
+                
+                if (target) {
+                    shoot(tower, target);
+                    tower.lastShot = now;
+                }
+            });
+            
+            // Move projectiles
+            gameState.projectiles = gameState.projectiles.filter(proj => {
+                const dx = proj.target.x - proj.x;
+                const dy = proj.target.y - proj.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                
+                if (dist < 10 || !gameState.enemies.includes(proj.target)) {
+                    // Hit!
+                    if (gameState.enemies.includes(proj.target)) {
+                        proj.target.health -= proj.damage;
+                        updateEnemyHealth(proj.target);
+                        
+                        if (proj.target.health <= 0) {
+                            killEnemy(proj.target);
+                        }
+                    }
+                    proj.element.remove();
+                    return false;
+                }
+                
+                proj.x += (dx / dist) * 8;
+                proj.y += (dy / dist) * 8;
+                proj.element.style.left = proj.x + 'px';
+                proj.element.style.top = proj.y + 'px';
+                
+                return true;
+            });
+            
+            // Check wave complete
+            const wave = WAVES[gameState.wave];
+            if (gameState.enemiesSpawned >= wave.enemies.length && gameState.enemies.length === 0) {
+                if (gameState.lives > 0) {
+                    waveComplete();
+                    return;
+                }
+            }
+            
+            gameState.gameLoop = requestAnimationFrame(gameLoop);
+        }
+
+        function shoot(tower, target) {
+            const towerData = TOWER_TYPES[tower.type];
+            const board = document.getElementById('game-board');
+            
+            const proj = document.createElement('div');
+            proj.className = `projectile ${tower.type}`;
+            proj.style.left = tower.x + 'px';
+            proj.style.top = tower.y + 'px';
+            board.appendChild(proj);
+            
+            gameState.projectiles.push({
+                element: proj,
+                x: tower.x,
+                y: tower.y,
+                target: target,
+                damage: towerData.damage
+            });
+        }
+
+        function updateEnemyHealth(enemy) {
+            const bar = enemy.element.querySelector('.enemy-health-bar');
+            const pct = (enemy.health / enemy.maxHealth) * 100;
+            bar.style.width = pct + '%';
+        }
+
+        function killEnemy(enemy) {
+            enemy.element.remove();
+            gameState.money += enemy.reward;
+            gameState.enemiesKilled++;
+            updateHUD();
+        }
+
+        function takeDamage() {
+            gameState.lives--;
+            updateHUD();
+            
+            const flash = document.getElementById('damage-flash');
+            flash.classList.add('active');
+            setTimeout(() => flash.classList.remove('active'), 200);
+            
+            if (gameState.lives <= 0) {
+                gameOver();
+            }
+        }
+
+        function updateHUD() {
+            document.getElementById('money').textContent = `$${gameState.money}`;
+            document.getElementById('wave-num').textContent = gameState.wave + 1;
+            document.getElementById('lives').textContent = '❤️'.repeat(gameState.lives);
+            
+            // Update tower affordability
+            document.querySelectorAll('.tower-option').forEach(el => {
+                const type = el.dataset.type;
+                const cost = TOWER_TYPES[type].cost;
+                el.classList.toggle('disabled', gameState.money < cost);
+            });
+            
+            const wave = WAVES[gameState.wave];
+            const remaining = wave.enemies.length - gameState.enemiesKilled - (gameState.enemiesSpawned - gameState.enemies.length - gameState.enemiesKilled);
+            document.getElementById('enemies-remaining').textContent = `${Math.max(0, remaining)} enemies`;
+        }
+
+        function waveComplete() {
+            gameState.waveInProgress = false;
+            cancelAnimationFrame(gameState.gameLoop);
+            
+            const wave = WAVES[gameState.wave];
+            gameState.money += wave.reward;
+            updateHUD();
+            
+            document.getElementById('wave-reward').textContent = `+$${wave.reward} for surviving!`;
+            document.getElementById('wave-modal').classList.add('active');
+        }
+
+        function nextWave() {
+            document.getElementById('wave-modal').classList.remove('active');
+            gameState.wave++;
+            
+            if (gameState.wave >= WAVES.length) {
+                victory();
+            } else {
+                startWave();
+            }
+        }
+
+        function gameOver() {
+            gameState.waveInProgress = false;
+            cancelAnimationFrame(gameState.gameLoop);
+            
+            document.getElementById('gameover-title').textContent = gameState.lives <= 0 ? 'Financial Ruin!' : 'Game Over';
+            document.getElementById('gameover-text').textContent = 
+                gameState.lives <= 0 
+                    ? "Life's events overwhelmed your defenses. Consider more coverage!" 
+                    : `You survived ${gameState.wave} waves.`;
+            document.getElementById('gameover-modal').classList.add('active');
+        }
+
+        function victory() {
+            document.getElementById('victory-modal').classList.add('active');
+        }
+    </script>
+</body>
+</html>

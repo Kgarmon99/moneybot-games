@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Charitable Giving Guru - MoneyBot</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #FFFFFF;
+            color: #07111F;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            touch-action: manipulation;
+        }
+        .header { text-align: center; margin-bottom: 15px; }
+        .header h1 { font-size: 24px; color: #00C853; margin-bottom: 5px; }
+        .header p { color: #64748B; font-size: 13px; }
+        .stats {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .stat-box {
+            background: #F8FAFC;
+            padding: 12px 18px;
+            border-radius: 10px;
+            text-align: center;
+            border: 2px solid #E2E8F0;
+        }
+        .stat-box.highlight { border-color: #00C853; background: #E8F5E9; }
+        .stat-box .label { font-size: 10px; color: #64748B; text-transform: uppercase; }
+        .stat-box .value { font-size: 18px; font-weight: 700; color: #00C853; }
+        .scenario {
+            width: 100%;
+            max-width: 400px;
+            background: linear-gradient(135deg, #E8F5E9, #F8FAFC);
+            padding: 20px;
+            border-radius: 16px;
+            margin-bottom: 15px;
+            border: 2px solid #00C853;
+        }
+        .scenario h3 { font-size: 14px; color: #64748B; margin-bottom: 10px; }
+        .scenario .details { font-size: 16px; font-weight: 600; margin-bottom: 10px; }
+        .scenario .tax-bracket { font-size: 13px; color: #00C853; font-weight: 600; }
+        .options {
+            width: 100%;
+            max-width: 400px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .option {
+            background: #F8FAFC;
+            padding: 15px;
+            border-radius: 12px;
+            border: 2px solid #E2E8F0;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .option:hover { border-color: #00C853; }
+        .option.selected { border-color: #00C853; background: #E8F5E9; }
+        .option h4 { font-size: 14px; margin-bottom: 5px; }
+        .option p { font-size: 12px; color: #64748B; }
+        .impact {
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid #E2E8F0;
+            font-size: 12px;
+        }
+        .impact .positive { color: #00C853; }
+        .impact .neutral { color: #64748B; }
+        .btn {
+            width: 100%;
+            max-width: 400px;
+            padding: 16px;
+            background: #00C853;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+        .btn:disabled { background: #CBD5E1; }
+        .progress {
+            width: 100%;
+            max-width: 400px;
+            margin-bottom: 15px;
+        }
+        .progress-bar {
+            height: 8px;
+            background: #E2E8F0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: #00C853;
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+        .progress-text {
+            text-align: center;
+            font-size: 12px;
+            color: #64748B;
+            margin-top: 5px;
+        }
+        .result {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            z-index: 100;
+        }
+        .result.show { display: flex; }
+        .result h2 { font-size: 28px; margin-bottom: 15px; color: #00E676; }
+        .result-stats { background: rgba(255,255,255,0.1); padding: 20px; border-radius: 12px; margin: 15px 0; width: 100%; max-width: 320px; }
+        .result-stat { display: flex; justify-content: space-between; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎁 Charitable Giving Guru</h1>
+        <p>Optimize donations for maximum tax savings & impact</p>
+    </div>
+
+    <div class="progress">
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+        </div>
+        <div class="progress-text">Scenario <span id="currentScenario">1</span> of <span id="totalScenarios">5</span></div>
+    </div>
+
+    <div class="stats">
+        <div class="stat-box">
+            <div class="label">Total Donated</div>
+            <div class="value" id="totalDonated">$0</div>
+        </div>
+        <div class="stat-box highlight">
+            <div class="label">Tax Savings</div>
+            <div class="value" id="taxSavings">$0</div>
+        </div>
+        <div class="stat-box">
+            <div class="label">Impact Score</div>
+            <div class="value" id="impactScore">0</div>
+        </div>
+    </div>
+
+    <div class="scenario" id="scenario">
+        <h3>📋 Scenario</h3>
+        <div class="details" id="scenarioDetails"></div>
+        <div class="tax-bracket" id="taxBracket"></div>
+    </div>
+
+    <div class="options" id="options"></div>
+
+    <button class="btn" id="submitBtn" onclick="submitAnswer()" disabled>Submit Choice</button>
+
+    <div class="result" id="result">
+        <h2>🌟 Giving Complete!</h2>
+        <div class="result-stats">
+            <div class="result-stat"><span>Total Donated:</span><span id="finalDonated"></span></div>
+            <div class="result-stat"><span>Tax Savings:</span><span id="finalTaxSavings"></span></div>
+            <div class="result-stat"><span>Net Cost:</span><span id="finalNetCost"></span></div>
+            <div class="result-stat"><span>Impact Score:</span><span id="finalImpact"></span></div>
+        </div>
+        <p id="resultText"></p>
+        <button class="btn" onclick="restart()" style="margin-top: 20px;">Play Again</button>
+    </div>
+
+    <script>
+        const scenarios = [
+            {
+                details: "You want to donate $5,000 to charity. Your income is $80,000 (22% tax bracket).",
+                bracket: "22% Federal Tax Bracket",
+                options: [
+                    { name: "Cash Donation", desc: "Simple cash gift", type: "cash", savings: 1100, impact: 7 },
+                    { name: "Appreciated Stock", desc: "Donate stock with $3,000 gains", type: "stock", savings: 1760, impact: 10 },
+                    { name: "DAF Contribution", desc: "Donor-Advised Fund for future giving", type: "daf", savings: 1100, impact: 8 }
+                ]
+            },
+            {
+                details: "Year-end bonus of $10,000 puts you in 32% bracket. You planned to donate $3,000 next year.",
+                bracket: "32% Federal Tax Bracket (temporarily)",
+                options: [
+                    { name: "Donate Next Year", desc: "Wait and donate in lower bracket", type: "delay", savings: 660, impact: 5 },
+                    { name: "Bunch Donations", desc: "Donate $6,000 this year (2 years worth)", type: "bunch", savings: 1920, impact: 9 },
+                    { name: "Donate This Year", desc: "Give $3,000 now in higher bracket", type: "now", savings: 960, impact: 7 }
+                ]
+            },
+            {
+                details: "You have $50,000 in a low-cost index fund (0.03% expense ratio) and a friend's fund charges 1.5%.",
+                bracket: "Investment Decision",
+                options: [
+                    { name: "Keep Index Fund", desc: "Stay with 0.03% expense ratio", type: "index", savings: 735, impact: 10 },
+                    { name: "Switch to Friend's Fund", desc: "Support friend but pay 1.5%", type: "friend", savings: -735, impact: 3 },
+                    { name: "Donate Fund to DAF", desc: "Donate index fund, invest DAF wisely", type: "donate", savings: 1100, impact: 9 }
+                ]
+            },
+            {
+                details: "Required Minimum Distribution of $15,000 from IRA. You want to give $5,000 to charity.",
+                bracket: "Retirement Distribution",
+                options: [
+                    { name: "Take RMD, Then Donate Cash", desc: "Pay tax on full RMD, then donate", type: "cash", savings: 1100, impact: 6 },
+                    { name: "Qualified Charitable Distribution", desc: "Send RMD directly to charity", type: "qcd", savings: 1650, impact: 10 },
+                    { name: "Roth Conversion + Donate", desc: "Complex strategy with mixed results", type: "roth", savings: 800, impact: 5 }
+                ]
+            },
+            {
+                details: "Business owner with $200,000 income. Want to maximize charitable impact and tax benefit.",
+                bracket: "32% Federal + State Tax",
+                options: [
+                    { name: "Personal Cash Gift", desc: "$10,000 personal donation", type: "personal", savings: 3200, impact: 7 },
+                    { name: "Corporate Sponsorship", desc: "Business sponsors charity event", type: "corp", savings: 4200, impact: 9 },
+                    { name: "Stock + Volunteer", desc: "Donate appreciated stock + time", type: "mixed", savings: 4800, impact: 10 }
+                ]
+            }
+        ];
+
+        let currentScenario = 0;
+        let totalDonated = 0;
+        let totalTaxSavings = 0;
+        let impactScore = 0;
+        let selectedOption = null;
+
+        function loadScenario() {
+            const s = scenarios[currentScenario];
+            document.getElementById('scenarioDetails').textContent = s.details;
+            document.getElementById('taxBracket').textContent = s.bracket;
+            document.getElementById('currentScenario').textContent = currentScenario + 1;
+            document.getElementById('totalScenarios').textContent = scenarios.length;
+            document.getElementById('progressFill').style.width = ((currentScenario / scenarios.length) * 100) + '%';
+
+            const optionsDiv = document.getElementById('options');
+            optionsDiv.innerHTML = '';
+            s.options.forEach((opt, idx) => {
+                const div = document.createElement('div');
+                div.className = 'option';
+                div.innerHTML = `
+                    <h4>${opt.name}</h4>
+                    <p>${opt.desc}</p>
+                    <div class="impact">
+                        <span class="${opt.savings > 0 ? 'positive' : 'neutral'}">Tax Savings: $${opt.savings.toLocaleString()}</span>
+                    </div>
+                `;
+                div.onclick = () => selectOption(idx, div);
+                optionsDiv.appendChild(div);
+            });
+
+            selectedOption = null;
+            document.getElementById('submitBtn').disabled = true;
+        }
+
+        function selectOption(idx, element) {
+            document.querySelectorAll('.option').forEach(el => el.classList.remove('selected'));
+            element.classList.add('selected');
+            selectedOption = idx;
+            document.getElementById('submitBtn').disabled = false;
+        }
+
+        function submitAnswer() {
+            if (selectedOption === null) return;
+
+            const s = scenarios[currentScenario];
+            const opt = s.options[selectedOption];
+            
+            // Extract donation amount from scenario
+            const match = s.details.match(/\$([\d,]+)/);
+            const donation = match ? parseInt(match[1].replace(',', '')) : 5000;
+            
+            totalDonated += donation;
+            totalTaxSavings += opt.savings;
+            impactScore += opt.impact;
+
+            document.getElementById('totalDonated').textContent = '$' + totalDonated.toLocaleString();
+            document.getElementById('taxSavings').textContent = '$' + totalTaxSavings.toLocaleString();
+            document.getElementById('impactScore').textContent = impactScore;
+
+            currentScenario++;
+            if (currentScenario < scenarios.length) {
+                loadScenario();
+            } else {
+                endGame();
+            }
+        }
+
+        function endGame() {
+            document.getElementById('finalDonated').textContent = '$' + totalDonated.toLocaleString();
+            document.getElementById('finalTaxSavings').textContent = '$' + totalTaxSavings.toLocaleString();
+            document.getElementById('finalNetCost').textContent = '$' + (totalDonated - totalTaxSavings).toLocaleString();
+            document.getElementById('finalImpact').textContent = impactScore + '/50';
+
+            const text = document.getElementById('resultText');
+            if (impactScore >= 45) {
+                text.textContent = '🏆 Master Philanthropist! You maximized both impact and tax efficiency.';
+            } else if (impactScore >= 35) {
+                text.textContent = '👍 Great job! You made smart giving decisions.';
+            } else {
+                text.textContent = '💡 Keep learning! There are more efficient ways to give.';
+            }
+
+            document.getElementById('result').classList.add('show');
+        }
+
+        function restart() {
+            currentScenario = 0;
+            totalDonated = 0;
+            totalTaxSavings = 0;
+            impactScore = 0;
+            selectedOption = null;
+            
+            document.getElementById('totalDonated').textContent = '$0';
+            document.getElementById('taxSavings').textContent = '$0';
+            document.getElementById('impactScore').textContent = '0';
+            document.getElementById('result').classList.remove('show');
+            
+            loadScenario();
+        }
+
+        loadScenario();
+    </script>
+</body>
+</html>
