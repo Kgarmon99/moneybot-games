@@ -206,37 +206,19 @@
             }
         }
         
-        /* Mobile Teaser - Subtle */
-        .mobile-teaser {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: transparent;
-            border: 1px solid rgba(0,255,0,0.3);
-            border-radius: 20px;
-            padding: 8px 16px;
-            margin-bottom: 30px;
-            text-decoration: none;
+        /* Mobile Hint - Ultra Subtle */
+        .mobile-hint {
+            font-size: 11px;
             color: #0f0;
-            font-size: 12px;
-            opacity: 0.7;
-            transition: all 0.2s;
+            opacity: 0.4;
+            text-align: center;
+            margin: -20px 0 30px;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: opacity 0.2s;
         }
-        .mobile-teaser:hover {
-            opacity: 1;
-            border-color: #0f0;
-            background: rgba(0,255,0,0.05);
-        }
-        .mobile-teaser .teaser-icon {
-            font-size: 14px;
-        }
-        .mobile-teaser .teaser-arrow {
-            opacity: 0.5;
-            transition: transform 0.2s;
-        }
-        .mobile-teaser:hover .teaser-arrow {
-            transform: translateX(3px);
-            opacity: 1;
+        .mobile-hint:hover {
+            opacity: 0.8;
         }
     </style>
 </head>
@@ -315,12 +297,8 @@
             <span class="promo-cta">Get Started Free →</span>
         </a>
         
-        <!-- Mobile App Coming Soon - Subtle -->
-        <a href="#" class="mobile-teaser" onclick="joinWaitlist(); return false;">
-            <span class="teaser-icon">📱</span>
-            <span class="teaser-text">MoneyBot Mobile coming soon</span>
-            <span class="teaser-arrow">→</span>
-        </a>
+        <!-- Mobile Teaser - Inline with nav -->
+        <div class="mobile-hint">📱 Mobile app coming soon →</div>
         
         <!-- FEATURED SECTION - Top 12 Most Polished -->
         <section class="section" id="featured">
