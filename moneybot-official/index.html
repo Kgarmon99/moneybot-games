@@ -54,6 +54,10 @@
         .game-count { margin-top: 15px; font-size: 13px; opacity: 0.8; }
         .game-count span { color: #0f0; font-weight: 700; }
         
+        /* Subsection styles */
+        .subsection { margin-bottom: 30px; }
+        .subsection .section-header { margin-bottom: 15px; }
+        
         /* Section Styles */
         .section { margin-bottom: 60px; }
         .section-header { display: flex; align-items: center; justify-content: space-between; gap: 15px; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid #0f0; }
@@ -65,8 +69,8 @@
         .collapse-btn:hover { background: rgba(0,255,0,0.1); }
         
         /* Collapsible sections */
-        .section-content { transition: all 0.3s ease; overflow: hidden; }
-        .section-content.collapsed { max-height: 0; opacity: 0; }
+        .section-content { transition: all 0.3s ease; overflow: hidden; max-height: 20000px; opacity: 1; }
+        .section-content.collapsed { max-height: 0; opacity: 0; margin: 0; padding: 0; }
         
         /* Games Grid */
         .games-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
@@ -124,12 +128,14 @@
             .filter-bar { padding: 12px 15px; top: 50px; }
             .nav-inner { height: 50px; }
             .category-tab { padding: 6px 12px; font-size: 11px; }
-            .container { padding: 15px 15px 40px; }
-            .hero { padding: 30px 15px; }
+            .container { padding: 15px 15px 40px; margin-top: 0; }
+            .hero { padding: 30px 15px; margin-top: 0; }
             .hero h1 { font-size: 28px; }
             .games-grid { grid-template-columns: 1fr; gap: 15px; }
             .section-header { flex-wrap: wrap; }
             .section-title { font-size: 16px; }
+            .search-box { font-size: 16px; } /* Prevent zoom on iOS */
+            .sort-container { flex-wrap: wrap; }
         }
         
         @media (max-width: 480px) {
@@ -256,7 +262,7 @@
                 <span>MoneyBot</span>
             </a>
             <div class="nav-links">
-                <a href="#games" class="active">Games</a>
+                <a href="#featured" class="active">Games</a>
                 <a href="#classics">Classics</a>
                 <a href="#sims">Sims</a>
                 <a href="#calc">Tools</a>
@@ -301,6 +307,13 @@
     </div>
     
     <div class="container">
+        <!-- Hero with game count -->
+        <div class="hero" id="games">
+            <h1>MONEYBOT GAMING</h1>
+            <p>Learn money through play</p>
+            <div class="game-count"><span id="totalGames">104</span> Financial Literacy Games</div>
+        </div>
+        
         <!-- FEATURED SECTION - Top 12 Most Polished -->
         <section class="section" id="featured">
             <div class="section-header">
@@ -835,8 +848,11 @@
             // Web Classics
             document.querySelector('[data-section="classics"]').innerHTML = classicsDB.map(g => createGameCard(g, true)).join('');
             
-            // Update total count
-            document.getElementById('totalGames').textContent = gamesDB.length + '+';
+            // Update total count if element exists
+            const totalGamesEl = document.getElementById('totalGames');
+            if (totalGamesEl) {
+                totalGamesEl.textContent = gamesDB.length + '+';
+            }
         }
         
         // Search functionality
@@ -847,6 +863,7 @@
             const noResults = document.getElementById('no-results');
             const searchCount = document.getElementById('search-count');
             const otherSections = document.querySelectorAll('.section:not(#all-games)');
+            const categoryTabs = document.querySelectorAll('.category-tab');
             
             searchInput.addEventListener('input', (e) => {
                 const query = e.target.value.toLowerCase().trim();
@@ -855,6 +872,9 @@
                     // Show normal sections, hide search results
                     allGamesSection.style.display = 'none';
                     otherSections.forEach(s => s.style.display = 'block');
+                    // Reset category tabs to 'all'
+                    categoryTabs.forEach(t => t.classList.remove('active'));
+                    document.querySelector('[data-category="all"]').classList.add('active');
                     return;
                 }
                 
@@ -873,6 +893,7 @@
                 
                 // Update results
                 searchCount.textContent = `${filtered.length} game${filtered.length !== 1 ? 's' : ''}`;
+                document.querySelector('#all-games .section-title').textContent = `🔍 Search: "${e.target.value}"`;
                 
                 if (filtered.length === 0) {
                     searchResults.innerHTML = '';
@@ -882,8 +903,11 @@
                     searchResults.innerHTML = filtered.map(g => createGameCard(g)).join('');
                 }
                 
-                // Scroll to results
-                allGamesSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                // Scroll to results with offset
+                const headerOffset = 180;
+                const elementPosition = allGamesSection.getBoundingClientRect().top;
+                const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+                window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
             });
         }
         
@@ -912,6 +936,14 @@
                         // Show all sections
                         allGamesSection.style.display = 'none';
                         otherSections.forEach(s => s.style.display = 'block');
+                        // Scroll to games section
+                        const gamesSection = document.getElementById('games');
+                        if (gamesSection) {
+                            const headerOffset = 180;
+                            const elementPosition = gamesSection.getBoundingClientRect().top;
+                            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+                            window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+                        }
                         return;
                     }
                     
@@ -936,7 +968,11 @@
                         searchResults.innerHTML = filtered.map(g => createGameCard(g)).join('');
                     }
                     
-                    allGamesSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    // Scroll to results with offset
+                    const headerOffset = 180;
+                    const elementPosition = allGamesSection.getBoundingClientRect().top;
+                    const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+                    window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
                 });
             });
         }
@@ -944,6 +980,10 @@
         // Sort functionality
         function setupSort() {
             const sortSelect = document.getElementById('sortSelect');
+            const allGamesSection = document.getElementById('all-games');
+            const otherSections = document.querySelectorAll('.section:not(#all-games)');
+            const searchInput = document.getElementById('gameSearch');
+            const categoryTabs = document.querySelectorAll('.category-tab');
             
             sortSelect.addEventListener('change', () => {
                 const sortType = sortSelect.value;
@@ -958,18 +998,25 @@
                         break;
                     case 'difficulty':
                         const diffOrder = { easy: 1, medium: 2, hard: 3 };
-                        sorted.sort((a, b) => diffOrder[a.difficulty] - diffOrder[b.difficulty]);
+                        sorted.sort((a, b) => (diffOrder[a.difficulty] || 99) - (diffOrder[b.difficulty] || 99));
                         break;
                     case 'newest':
                     default:
-                        sorted = gamesDB; // Keep original order (newest first)
+                        // Keep original order (newest first) - games with 'new' flag first
+                        sorted.sort((a, b) => {
+                            if (a.new && !b.new) return -1;
+                            if (!a.new && b.new) return 1;
+                            return 0;
+                        });
                         break;
                 }
                 
-                // Re-render with sorted data
-                const allGamesSection = document.getElementById('all-games');
-                const otherSections = document.querySelectorAll('.section:not(#all-games)');
+                // Clear search and category selection
+                searchInput.value = '';
+                categoryTabs.forEach(t => t.classList.remove('active'));
+                document.querySelector('[data-category="all"]').classList.add('active');
                 
+                // Re-render with sorted data
                 otherSections.forEach(s => s.style.display = 'none');
                 allGamesSection.style.display = 'block';
                 
@@ -978,16 +1025,24 @@
                 document.querySelector('#all-games .section-title').textContent = `🔍 All Games (${sortSelect.options[sortSelect.selectedIndex].text})`;
                 document.getElementById('no-results').style.display = 'none';
                 
-                allGamesSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                // Scroll to results with offset
+                const headerOffset = 180;
+                const elementPosition = allGamesSection.getBoundingClientRect().top;
+                const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+                window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
             });
         }
         
         // Collapsible sections
         function setupCollapsible() {
             document.querySelectorAll('.collapse-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
                     const targetId = btn.dataset.target;
                     const target = document.getElementById(targetId);
+                    
+                    if (!target) return;
                     
                     if (target.classList.contains('collapsed')) {
                         target.classList.remove('collapsed');
@@ -1009,7 +1064,15 @@
                         e.preventDefault();
                         const target = document.querySelector(href);
                         if (target) {
-                            target.scrollIntoView({ behavior: 'smooth' });
+                            // Account for sticky header height (60px nav + ~110px filter bar)
+                            const headerOffset = 180;
+                            const elementPosition = target.getBoundingClientRect().top;
+                            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+                            
+                            window.scrollTo({
+                                top: offsetPosition,
+                                behavior: 'smooth'
+                            });
                         }
                     }
                 });
@@ -1029,6 +1092,19 @@
             setupSort();
             setupCollapsible();
             setupNavLinks();
+            
+            // Handle initial hash in URL
+            if (window.location.hash) {
+                setTimeout(() => {
+                    const target = document.querySelector(window.location.hash);
+                    if (target) {
+                        const headerOffset = 180;
+                        const elementPosition = target.getBoundingClientRect().top;
+                        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+                        window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+                    }
+                }, 100);
+            }
         });
     </script>
 </body>
