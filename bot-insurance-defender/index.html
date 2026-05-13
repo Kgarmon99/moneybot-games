@@ -344,6 +344,16 @@
     </style>
 </head>
 <body>
+    <!-- MoneyBot Loading Screen -->
+    <div id="loadingScreen" style="position:fixed;inset:0;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:1000;transition:opacity 0.5s;">
+        <img src="assets/moneybot-logo-1.jpg" style="width:120px;height:120px;border-radius:50%;border:3px solid #0f0;box-shadow:0 0 40px rgba(0,255,0,0.5);margin-bottom:20px;">
+        <div style="color:#0f0;font-size:24px;font-weight:800;text-transform:uppercase;letter-spacing:4px;margin-bottom:10px;">MoneyBot Games</div>
+        <div style="color:#0f0;font-size:16px;opacity:0.8;">Insurance Defender</div>
+        <div style="margin-top:30px;width:200px;height:4px;background:#111;border-radius:2px;overflow:hidden;">
+            <div id="loadingBar" style="width:0%;height:100%;background:#0f0;transition:width 0.3s;"></div>
+        </div>
+    </div>
+
     <div id="game">
         <div class="top-bar">
             <a href="../moneybot-official/" class="logo-link">
@@ -391,7 +401,17 @@
                 </div>
             </div>
             
+            <!-- MoneyBot Guide -->
+            <div id="moneybotGuide" style="position:absolute;left:10px;bottom:130px;width:180px;background:rgba(0,0,0,0.95);border:1px solid #0f0;border-radius:4px;padding:12px;display:none;z-index:5;">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+                    <img src="assets/moneybot-logo-1.jpg" style="width:32px;height:32px;border-radius:50%;border:1px solid #0f0;">
+                    <span style="color:#0f0;font-weight:700;font-size:12px;">MoneyBot</span>
+                </div>
+                <div id="guideText" style="color:#fff;font-size:11px;line-height:1.4;">Welcome! Place towers to defend against financial threats!</div>
+            </div>
+
             <div class="game-over" id="gameOver">
+                <img src="assets/moneybot-logo-1.jpg" style="width:80px;height:80px;border-radius:50%;border:3px solid #0f0;margin-bottom:20px;box-shadow:0 0 30px rgba(0,255,0,0.5);">
                 <h1>Game Over</h1>
                 <div class="final-stats">
                     <div class="final-stat">Waves: <span id="finalWave">0</span></div>
@@ -1306,7 +1326,38 @@
             document.querySelector('.side-panel').style.display = 'block';
             document.querySelectorAll('.tower-card').forEach(c => c.classList.remove('selected'));
             updateNextWave(); updateUI();
+            showGuide("Let's defend your finances again! Place towers strategically!");
         }
+
+        // MoneyBot Guide System
+        const guideMessages = [
+            { trigger: 'start', text: "Welcome! I'm MoneyBot! Place towers to defend against financial threats!" },
+            { trigger: 'firstTower', text: "Great! Each tower type protects against different threats. Upgrade them to make them stronger!" },
+            { trigger: 'wave1', text: "Medical Bills incoming! Health Insurance towers are great for these!" },
+            { trigger: 'boss', text: "CATASTROPHE ALERT! Use your strongest towers and upgrades!" },
+            { trigger: 'lowLives', text: "Warning! Your finances are at risk! Place more towers quickly!" }
+        ];
+        let shownGuides = new Set();
+        let firstTowerPlaced = false;
+
+        function showGuide(text) {
+            const guide = document.getElementById('moneybotGuide');
+            const guideText = document.getElementById('guideText');
+            guideText.textContent = text;
+            guide.style.display = 'block';
+            setTimeout(() => { guide.style.display = 'none'; }, 6000);
+        }
+
+        // Track first tower placement
+        const originalTowerPush = game.towers.push;
+        game.towers.push = function(...args) {
+            const result = originalTowerPush.apply(this, args);
+            if (!firstTowerPlaced) {
+                firstTowerPlaced = true;
+                setTimeout(() => showGuide(guideMessages[1].text), 1000);
+            }
+            return result;
+        };
         
         function drawPath() {
             ctx.strokeStyle = '#00C85315'; ctx.lineWidth = 50; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
@@ -1367,6 +1418,23 @@
             requestAnimationFrame(loop);
         }
         
+        // Loading screen animation
+        let loadProgress = 0;
+        const loadInterval = setInterval(() => {
+            loadProgress += 8;
+            document.getElementById('loadingBar').style.width = loadProgress + '%';
+            if (loadProgress >= 100) {
+                clearInterval(loadInterval);
+                setTimeout(() => {
+                    document.getElementById('loadingScreen').style.opacity = '0';
+                    setTimeout(() => {
+                        document.getElementById('loadingScreen').style.display = 'none';
+                        showGuide(guideMessages[0].text);
+                    }, 500);
+                }, 400);
+            }
+        }, 80);
+
         resize();
         updateNextWave();
         updateUI();
