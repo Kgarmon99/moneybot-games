@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Insurance Defender | MoneyBot Games</title>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/jpeg" href="assets/moneybot-logo-1.jpg">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
         body {
@@ -42,7 +43,13 @@
             border: 1px solid #0f0;
             border-radius: 4px;
         }
-        .logo-icon { font-size: 18px; }
+        .logo-icon { 
+            width: 24px; 
+            height: 24px; 
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1px solid #0f0;
+        }
         .logo-text {
             font-size: 13px;
             font-weight: 800;
@@ -341,7 +348,7 @@
         <div class="top-bar">
             <a href="../moneybot-official/" class="logo-link">
                 <div class="logo">
-                    <span class="logo-icon">🤖</span>
+                    <img src="assets/moneybot-logo-1.jpg" alt="MoneyBot" class="logo-icon">
                     <span class="logo-text">MoneyBot</span>
                 </div>
             </a>
@@ -630,277 +637,321 @@
             }
 
             drawHealthTower(time, pulse, upgradeLevel) {
-                // Pulsing green glow base
-                const glowRadius = 25 + pulse * 5;
-                const glow = ctx.createRadialGradient(0, 0, 0, 0, 0, glowRadius);
-                glow.addColorStop(0, 'rgba(0,200,83,0.4)');
-                glow.addColorStop(0.5, 'rgba(0,200,83,0.15)');
+                // MoneyBot-style Health Tower
+                const botY = Math.sin(time * 3) * 2;
+
+                // Glow
+                const glow = ctx.createRadialGradient(0, botY, 0, 0, botY, 30);
+                glow.addColorStop(0, 'rgba(0,200,83,0.3)');
                 glow.addColorStop(1, 'transparent');
-                ctx.fillStyle = glow; ctx.beginPath(); ctx.arc(0, 0, glowRadius, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = glow; ctx.beginPath(); ctx.arc(0, botY, 30, 0, Math.PI * 2); ctx.fill();
 
-                // Rotating outer ring
-                ctx.save(); ctx.rotate(time * 0.8);
-                ctx.beginPath(); ctx.arc(0, 0, 22, 0, Math.PI * 2);
-                ctx.strokeStyle = 'rgba(0,200,83,0.6)'; ctx.lineWidth = 2; ctx.setLineDash([8, 4]); ctx.stroke(); ctx.setLineDash([]);
-                ctx.restore();
+                // MoneyBot body (white rounded)
+                ctx.fillStyle = '#e8e8e8';
+                ctx.beginPath(); ctx.ellipse(0, botY + 5, 12, 14, 0, 0, Math.PI * 2); ctx.fill();
+                ctx.strokeStyle = '#ccc'; ctx.lineWidth = 1; ctx.stroke();
 
-                // Inner ring (counter-rotating)
-                ctx.save(); ctx.rotate(-time * 0.5);
-                ctx.beginPath(); ctx.arc(0, 0, 18, 0, Math.PI * 2);
-                ctx.strokeStyle = 'rgba(0,200,83,0.4)'; ctx.lineWidth = 1; ctx.stroke();
-                ctx.restore();
+                // MoneyBot head
+                ctx.fillStyle = '#f0f0f0';
+                ctx.beginPath(); ctx.roundRect(-10, botY - 12, 20, 16, 6); ctx.fill();
+                ctx.strokeStyle = '#ddd'; ctx.lineWidth = 1; ctx.stroke();
 
-                // Base circle
-                ctx.beginPath(); ctx.arc(0, 0, 14, 0, Math.PI * 2);
-                const baseGrad = ctx.createRadialGradient(-5, -5, 0, 0, 0, 14);
-                baseGrad.addColorStop(0, '#00e676'); baseGrad.addColorStop(1, '#00a344');
-                ctx.fillStyle = baseGrad; ctx.fill();
-                ctx.strokeStyle = '#00C853'; ctx.lineWidth = 2; ctx.stroke();
+                // Screen/face
+                ctx.fillStyle = '#000';
+                ctx.beginPath(); ctx.roundRect(-7, botY - 9, 14, 9, 3); ctx.fill();
 
-                // Medical cross with rounded ends
-                ctx.fillStyle = '#fff';
-                const crossSize = 10 + upgradeLevel;
-                const armWidth = 4;
-                ctx.beginPath(); ctx.roundRect(-armWidth/2, -crossSize/2, armWidth, crossSize, 2); ctx.fill();
-                ctx.beginPath(); ctx.roundRect(-crossSize/2, -armWidth/2, crossSize, armWidth, 2); ctx.fill();
+                // Green eyes (MoneyBot style)
+                ctx.fillStyle = '#0f0';
+                ctx.fillRect(-5, botY - 7, 3, 4);
+                ctx.fillRect(2, botY - 7, 3, 4);
+                // Smile
+                ctx.strokeStyle = '#0f0'; ctx.lineWidth = 1;
+                ctx.beginPath(); ctx.arc(0, botY - 3, 3, 0.2, Math.PI - 0.2); ctx.stroke();
 
-                // Pulse effect when idle
-                if (pulse > 0.7) {
-                    ctx.beginPath(); ctx.arc(0, 0, 10 + (pulse - 0.7) * 10, 0, Math.PI * 2);
-                    ctx.strokeStyle = `rgba(255,255,255,${(pulse - 0.7) * 1.5})`; ctx.lineWidth = 1; ctx.stroke();
-                }
+                // Antenna with yellow tip
+                ctx.strokeStyle = '#666'; ctx.lineWidth = 2;
+                ctx.beginPath(); ctx.moveTo(0, botY - 12); ctx.lineTo(0, botY - 18); ctx.stroke();
+                ctx.fillStyle = '#ffd700';
+                ctx.beginPath(); ctx.arc(0, botY - 20, 3, 0, Math.PI * 2); ctx.fill();
 
-                // Firing barrel
+                // Medical cross on chest
+                ctx.fillStyle = '#ff4444';
+                ctx.fillRect(-2, botY + 2, 4, 6);
+                ctx.fillRect(-4, botY + 4, 8, 2);
+
+                // Arms
+                ctx.strokeStyle = '#ccc'; ctx.lineWidth = 3;
+                ctx.beginPath(); ctx.moveTo(-10, botY - 2); ctx.lineTo(-16, botY + 6); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(10, botY - 2); ctx.lineTo(16, botY + 6); ctx.stroke();
+
+                // Firing arm (rotates)
                 ctx.save(); ctx.rotate(this.angle);
-                ctx.fillStyle = '#00C853';
-                ctx.fillRect(8, -3, 10 + upgradeLevel * 2, 6);
-                ctx.fillStyle = '#fff'; ctx.fillRect(10, -1, 4, 2);
+                ctx.fillStyle = '#0f0';
+                ctx.fillRect(8, botY - 2, 12 + upgradeLevel * 2, 4);
                 ctx.restore();
             }
 
             drawLifeTower(time, pulse, upgradeLevel) {
-                // Shield glow
-                const glow = ctx.createRadialGradient(0, 0, 0, 0, 0, 28);
-                glow.addColorStop(0, 'rgba(0,163,68,0.3)');
-                glow.addColorStop(1, 'transparent');
-                ctx.fillStyle = glow; ctx.beginPath(); ctx.arc(0, 0, 28, 0, Math.PI * 2); ctx.fill();
+                // MoneyBot-style Life Tower (Guardian)
+                const botY = Math.sin(time * 2.5) * 1.5;
 
-                // Rotating protective ring
-                ctx.save(); ctx.rotate(time * 0.6);
+                // Protective aura
+                const glow = ctx.createRadialGradient(0, botY, 0, 0, botY, 28);
+                glow.addColorStop(0, 'rgba(0,163,68,0.25)');
+                glow.addColorStop(1, 'transparent');
+                ctx.fillStyle = glow; ctx.beginPath(); ctx.arc(0, botY, 28, 0, Math.PI * 2); ctx.fill();
+
+                // Rotating shield ring
+                ctx.save(); ctx.rotate(time * 0.5);
+                ctx.strokeStyle = 'rgba(0,200,83,0.4)'; ctx.lineWidth = 2;
+                ctx.beginPath(); ctx.arc(0, botY, 24, 0, Math.PI * 2); ctx.stroke();
                 for (let i = 0; i < 4; i++) {
                     ctx.save(); ctx.rotate(i * Math.PI / 2);
-                    ctx.beginPath(); ctx.arc(0, -24, 3, 0, Math.PI * 2);
-                    ctx.fillStyle = 'rgba(0,163,68,0.6)'; ctx.fill();
+                    ctx.fillStyle = '#0f0';
+                    ctx.beginPath(); ctx.arc(0, botY - 24, 3, 0, Math.PI * 2); ctx.fill();
                     ctx.restore();
                 }
                 ctx.restore();
 
-                // Shield shape
-                ctx.save();
-                const shieldGrad = ctx.createLinearGradient(0, -18, 0, 15);
-                shieldGrad.addColorStop(0, '#00e676');
-                shieldGrad.addColorStop(0.5, '#00a344');
-                shieldGrad.addColorStop(1, '#006622');
+                // MoneyBot body (armored)
+                ctx.fillStyle = '#d0d0d0';
+                ctx.beginPath(); ctx.ellipse(0, botY + 5, 13, 15, 0, 0, Math.PI * 2); ctx.fill();
+                ctx.strokeStyle = '#aaa'; ctx.lineWidth = 1; ctx.stroke();
 
-                ctx.beginPath();
-                ctx.moveTo(0, -18);
-                ctx.bezierCurveTo(12, -15, 16, -5, 16, 5);
-                ctx.bezierCurveTo(16, 15, 8, 20, 0, 24);
-                ctx.bezierCurveTo(-8, 20, -16, 15, -16, 5);
-                ctx.bezierCurveTo(-16, -5, -12, -15, 0, -18);
-                ctx.closePath();
-                ctx.fillStyle = shieldGrad; ctx.fill();
-                ctx.strokeStyle = '#00C853'; ctx.lineWidth = 2; ctx.stroke();
+                // Armor plates
+                ctx.fillStyle = '#c0c0c0';
+                ctx.beginPath(); ctx.roundRect(-14, botY - 2, 28, 8, 2); ctx.fill();
 
-                // Inner core
-                ctx.beginPath(); ctx.arc(0, 2, 6 + upgradeLevel, 0, Math.PI * 2);
-                const coreGrad = ctx.createRadialGradient(-2, -2, 0, 0, 2, 8);
-                coreGrad.addColorStop(0, '#69f0ae'); coreGrad.addColorStop(1, '#00a344');
-                ctx.fillStyle = coreGrad; ctx.fill();
-                ctx.strokeStyle = '#fff'; ctx.lineWidth = 1; ctx.stroke();
-                ctx.restore();
+                // MoneyBot head
+                ctx.fillStyle = '#e8e8e8';
+                ctx.beginPath(); ctx.roundRect(-11, botY - 14, 22, 17, 6); ctx.fill();
+                ctx.strokeStyle = '#bbb'; ctx.lineWidth = 1; ctx.stroke();
 
-                // Glow when firing
-                if (Date.now() - this.lastFire < 200) {
-                    ctx.beginPath(); ctx.arc(0, 0, 20, 0, Math.PI * 2);
-                    ctx.fillStyle = `rgba(105,240,174,${0.5 - (Date.now() - this.lastFire) / 400})`; ctx.fill();
-                }
+                // Visor face
+                ctx.fillStyle = '#1a1a2e';
+                ctx.beginPath(); ctx.roundRect(-8, botY - 10, 16, 8, 2); ctx.fill();
 
-                // Firing barrel
+                // Green visor glow
+                ctx.fillStyle = '#0f0';
+                ctx.fillRect(-6, botY - 8, 12, 3);
+
+                // Antenna
+                ctx.strokeStyle = '#666'; ctx.lineWidth = 2;
+                ctx.beginPath(); ctx.moveTo(0, botY - 14); ctx.lineTo(0, botY - 20); ctx.stroke();
+                ctx.fillStyle = '#ffd700';
+                ctx.beginPath(); ctx.arc(0, botY - 22, 3, 0, Math.PI * 2); ctx.fill();
+
+                // Shield emblem on chest
+                ctx.fillStyle = '#0f0';
+                ctx.beginPath(); ctx.moveTo(0, botY + 2); ctx.lineTo(-5, botY + 8); ctx.lineTo(5, botY + 8); ctx.closePath(); ctx.fill();
+
+                // Firing cannon
                 ctx.save(); ctx.rotate(this.angle);
-                ctx.fillStyle = '#00a344';
-                ctx.fillRect(10, -4, 12 + upgradeLevel * 2, 8);
-                ctx.fillStyle = '#69f0ae'; ctx.fillRect(12, -2, 4, 4);
+                ctx.fillStyle = '#0f0';
+                ctx.fillRect(10, botY - 3, 14 + upgradeLevel * 2, 6);
+                ctx.fillStyle = '#fff'; ctx.fillRect(12, botY - 1, 4, 2);
                 ctx.restore();
             }
 
             drawHomeTower(time, pulse, upgradeLevel) {
-                // Area damage aura (pulsing)
+                // MoneyBot-style Home Tower (Pyro)
+                const botY = Math.sin(time * 3.5) * 1.5;
+
+                // Area aura
                 const auraRadius = 35 + pulse * 5;
-                const aura = ctx.createRadialGradient(0, 0, 20, 0, 0, auraRadius);
-                aura.addColorStop(0, 'transparent');
-                aura.addColorStop(0.7, 'rgba(0,230,118,0.1)');
+                const aura = ctx.createRadialGradient(0, botY, 15, 0, botY, auraRadius);
+                aura.addColorStop(0, 'rgba(255,100,0,0.15)');
                 aura.addColorStop(1, 'transparent');
-                ctx.fillStyle = aura; ctx.beginPath(); ctx.arc(0, 0, auraRadius, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = aura; ctx.beginPath(); ctx.arc(0, botY, auraRadius, 0, Math.PI * 2); ctx.fill();
 
-                // House base
-                const houseGrad = ctx.createLinearGradient(0, -20, 0, 20);
-                houseGrad.addColorStop(0, '#00e676'); houseGrad.addColorStop(1, '#00a344');
+                // MoneyBot body (with vents)
+                ctx.fillStyle = '#e0e0e0';
+                ctx.beginPath(); ctx.ellipse(0, botY + 5, 13, 15, 0, 0, Math.PI * 2); ctx.fill();
+                ctx.strokeStyle = '#bbb'; ctx.lineWidth = 1; ctx.stroke();
 
-                // House body
-                ctx.fillStyle = houseGrad;
-                ctx.beginPath(); ctx.roundRect(-14, -5, 28, 20, 2); ctx.fill();
-                ctx.strokeStyle = '#00C853'; ctx.lineWidth = 2; ctx.stroke();
+                // Vents
+                ctx.fillStyle = '#ff6600';
+                for (let i = 0; i < 3; i++) {
+                    ctx.fillRect(-10, botY - 4 + i * 5, 4, 2);
+                    ctx.fillRect(6, botY - 4 + i * 5, 4, 2);
+                }
 
-                // Triangular roof
-                ctx.beginPath(); ctx.moveTo(-18, -5); ctx.lineTo(0, -22 - upgradeLevel); ctx.lineTo(18, -5); ctx.closePath();
-                const roofGrad = ctx.createLinearGradient(0, -22, 0, -5);
-                roofGrad.addColorStop(0, '#69f0ae'); roofGrad.addColorStop(1, '#00C853');
-                ctx.fillStyle = roofGrad; ctx.fill(); ctx.stroke();
+                // MoneyBot head
+                ctx.fillStyle = '#f0f0f0';
+                ctx.beginPath(); ctx.roundRect(-11, botY - 14, 22, 17, 6); ctx.fill();
+                ctx.strokeStyle = '#ccc'; ctx.lineWidth = 1; ctx.stroke();
 
-                // Chimney
-                ctx.fillStyle = '#00a344';
-                ctx.fillRect(8, -18, 5, 8);
-                // Smoke puff
-                const smokeY = -22 + Math.sin(time * 2) * 2;
-                ctx.beginPath(); ctx.arc(10.5, smokeY, 2 + pulse, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(255,255,255,${0.4 + pulse * 0.3})`; ctx.fill();
+                // Angry face
+                ctx.fillStyle = '#1a1a2e';
+                ctx.beginPath(); ctx.roundRect(-8, botY - 11, 16, 10, 3); ctx.fill();
 
-                // Windows (glow when active/pulse)
-                const windowGlow = pulse > 0.5 ? '#ffff00' : '#69f0ae';
-                ctx.fillStyle = windowGlow;
-                ctx.shadowColor = windowGlow; ctx.shadowBlur = pulse * 8;
-                ctx.fillRect(-9, 0, 6, 8);
-                ctx.fillRect(3, 0, 6, 8);
-                ctx.shadowBlur = 0;
+                // Orange angry eyes
+                ctx.fillStyle = '#ff6600';
+                ctx.beginPath(); ctx.moveTo(-6, botY - 8); ctx.lineTo(-2, botY - 6); ctx.lineTo(-6, botY - 4); ctx.fill();
+                ctx.beginPath(); ctx.moveTo(6, botY - 8); ctx.lineTo(2, botY - 6); ctx.lineTo(6, botY - 4); ctx.fill();
 
-                // Door
-                ctx.fillStyle = '#006622';
-                ctx.beginPath(); ctx.roundRect(-4, 5, 8, 10, 1); ctx.fill();
+                // Antenna with flame tip
+                ctx.strokeStyle = '#666'; ctx.lineWidth = 2;
+                ctx.beginPath(); ctx.moveTo(0, botY - 14); ctx.lineTo(0, botY - 20); ctx.stroke();
+                ctx.fillStyle = `rgba(255,100,0,${0.5 + pulse * 0.5})`;
+                ctx.beginPath(); ctx.arc(0, botY - 22, 3 + pulse, 0, Math.PI * 2); ctx.fill();
 
-                // Firing barrel (chimney extension)
+                // Flamethrower pack
+                ctx.fillStyle = '#ff4400';
+                ctx.beginPath(); ctx.roundRect(-4, botY - 20, 8, 8, 2); ctx.fill();
+
+                // Firing flamethrower
                 ctx.save(); ctx.rotate(this.angle);
-                ctx.fillStyle = '#00C853';
-                ctx.fillRect(0, -3, 10 + upgradeLevel, 6);
+                ctx.fillStyle = '#ff6600';
+                ctx.fillRect(8, botY - 3, 14 + upgradeLevel * 2, 6);
+                ctx.fillStyle = '#ffaa00';
+                ctx.fillRect(10, botY - 1, 4, 2);
                 ctx.restore();
             }
 
             drawAutoTower(time, pulse, upgradeLevel) {
-                // Speed aura
-                ctx.save(); ctx.rotate(time * 2);
-                for (let i = 0; i < 3; i++) {
-                    ctx.save(); ctx.rotate(i * Math.PI * 2 / 3);
-                    ctx.beginPath(); ctx.moveTo(20, -3); ctx.lineTo(26, 0); ctx.lineTo(20, 3);
-                    ctx.fillStyle = 'rgba(105,240,174,0.5)'; ctx.fill();
+                // MoneyBot-style Auto Tower (Speedster)
+                const botY = Math.sin(time * 5) * 2;
+
+                // Speed lines
+                ctx.save(); ctx.rotate(time * 3);
+                for (let i = 0; i < 4; i++) {
+                    ctx.save(); ctx.rotate(i * Math.PI / 2);
+                    ctx.strokeStyle = `rgba(0,255,255,${0.3 + pulse * 0.3})`; ctx.lineWidth = 2;
+                    ctx.beginPath(); ctx.moveTo(0, botY - 26); ctx.lineTo(0, botY - 32); ctx.stroke();
                     ctx.restore();
                 }
                 ctx.restore();
 
-                // Car body (sleek shape)
+                // MoneyBot body (sleek, aerodynamic)
+                ctx.fillStyle = '#e8e8e8';
                 ctx.beginPath();
-                ctx.moveTo(-18, 5); ctx.lineTo(18, 5); ctx.lineTo(20, 0);
-                ctx.lineTo(15, -8); ctx.lineTo(-5, -10); ctx.lineTo(-15, -8);
-                ctx.lineTo(-20, 0); ctx.closePath();
-                const carGrad = ctx.createLinearGradient(0, -10, 0, 5);
-                carGrad.addColorStop(0, '#69f0ae'); carGrad.addColorStop(0.5, '#00C853'); carGrad.addColorStop(1, '#00a344');
-                ctx.fillStyle = carGrad; ctx.fill();
-                ctx.strokeStyle = '#00e676'; ctx.lineWidth = 2; ctx.stroke();
+                ctx.moveTo(-8, botY + 8); ctx.lineTo(8, botY + 8);
+                ctx.lineTo(12, botY); ctx.lineTo(8, botY - 10);
+                ctx.lineTo(-8, botY - 10); ctx.lineTo(-12, botY);
+                ctx.closePath(); ctx.fill();
+                ctx.strokeStyle = '#aaa'; ctx.lineWidth = 1; ctx.stroke();
 
-                // Windshield
-                ctx.beginPath(); ctx.moveTo(-4, -8); ctx.lineTo(12, -6); ctx.lineTo(15, -1); ctx.lineTo(-4, -1); ctx.closePath();
-                ctx.fillStyle = '#1a1a3e'; ctx.fill(); ctx.strokeStyle = '#69f0ae'; ctx.lineWidth = 1; ctx.stroke();
+                // MoneyBot head (visor style)
+                ctx.fillStyle = '#f5f5f5';
+                ctx.beginPath(); ctx.roundRect(-9, botY - 12, 18, 10, 3); ctx.fill();
 
-                // Wheels with tread patterns
-                [-12, 12].forEach(wx => {
-                    ctx.beginPath(); ctx.arc(wx, 6, 5, 0, Math.PI * 2);
-                    ctx.fillStyle = '#111'; ctx.fill(); ctx.strokeStyle = '#333'; ctx.lineWidth = 2; ctx.stroke();
-                    ctx.beginPath(); ctx.arc(wx, 6, 3, 0, Math.PI * 2);
-                    ctx.strokeStyle = '#555'; ctx.lineWidth = 1; ctx.setLineDash([2, 2]); ctx.stroke(); ctx.setLineDash([]);
-                });
+                // Cyan visor
+                ctx.fillStyle = '#00ffff';
+                ctx.shadowColor = '#00ffff'; ctx.shadowBlur = 5;
+                ctx.fillRect(-7, botY - 10, 14, 4);
+                ctx.shadowBlur = 0;
 
-                // Stun effect visual (lightning bolts around)
+                // Antenna with lightning
+                ctx.strokeStyle = '#666'; ctx.lineWidth = 2;
+                ctx.beginPath(); ctx.moveTo(0, botY - 12); ctx.lineTo(0, botY - 18); ctx.stroke();
+                ctx.fillStyle = '#00ffff';
+                ctx.beginPath(); ctx.moveTo(-2, botY - 20); ctx.lineTo(0, botY - 24); ctx.lineTo(2, botY - 20); ctx.lineTo(0, botY - 16); ctx.closePath(); ctx.fill();
+
+                // Lightning pack
+                ctx.fillStyle = '#ffff00';
+                ctx.beginPath(); ctx.moveTo(-3, botY - 16); ctx.lineTo(0, botY - 20); ctx.lineTo(3, botY - 16); ctx.lineTo(0, botY - 12); ctx.closePath(); ctx.fill();
+
+                // Stun lightning effect
                 if (upgradeLevel > 0 && pulse > 0.7) {
-                    ctx.strokeStyle = '#ffff00'; ctx.lineWidth = 1;
-                    for (let i = 0; i < 4; i++) {
-                        const angle = time * 3 + i * Math.PI / 2;
-                        const r1 = 22, r2 = 28;
-                        ctx.beginPath();
-                        ctx.moveTo(Math.cos(angle) * r1, Math.sin(angle) * r1);
-                        ctx.lineTo(Math.cos(angle + 0.3) * r2, Math.sin(angle + 0.3) * r2);
-                        ctx.stroke();
-                    }
+                    ctx.strokeStyle = '#ffff00'; ctx.lineWidth = 2;
+                    ctx.beginPath(); ctx.moveTo(-15, botY); ctx.lineTo(-18, botY - 5); ctx.lineTo(-16, botY - 3); ctx.lineTo(-20, botY - 8); ctx.stroke();
+                    ctx.beginPath(); ctx.moveTo(15, botY); ctx.lineTo(18, botY - 5); ctx.lineTo(16, botY - 3); ctx.lineTo(20, botY - 8); ctx.stroke();
                 }
 
-                // Firing barrel
+                // Firing taser
                 ctx.save(); ctx.rotate(this.angle);
-                ctx.fillStyle = '#00a344';
-                ctx.fillRect(15, -2, 10 + upgradeLevel * 2, 4);
+                ctx.fillStyle = '#ffff00';
+                ctx.fillRect(8, botY - 2, 14 + upgradeLevel * 2, 4);
+                ctx.fillStyle = '#fff';
+                ctx.fillRect(10, botY - 1, 3, 2);
                 ctx.restore();
             }
 
             drawUmbrellaTower(time, pulse, upgradeLevel) {
-                // Golden aura
-                const goldGlow = ctx.createRadialGradient(0, 0, 0, 0, 0, 35);
-                goldGlow.addColorStop(0, 'rgba(255,215,0,0.4)');
-                goldGlow.addColorStop(0.5, 'rgba(255,215,0,0.15)');
-                goldGlow.addColorStop(1, 'transparent');
-                ctx.fillStyle = goldGlow; ctx.beginPath(); ctx.arc(0, 0, 35, 0, Math.PI * 2); ctx.fill();
+                // MoneyBot-style Umbrella Tower (Elite Titan)
+                const botY = Math.sin(time * 2) * 1;
 
-                // Rotating golden ring
+                // Golden aura
+                const goldGlow = ctx.createRadialGradient(0, botY, 0, 0, botY, 40);
+                goldGlow.addColorStop(0, 'rgba(255,215,0,0.3)');
+                goldGlow.addColorStop(0.5, 'rgba(255,215,0,0.1)');
+                goldGlow.addColorStop(1, 'transparent');
+                ctx.fillStyle = goldGlow; ctx.beginPath(); ctx.arc(0, botY, 40, 0, Math.PI * 2); ctx.fill();
+
+                // Rotating golden ring with gems
                 ctx.save(); ctx.rotate(time * 0.4);
-                ctx.beginPath(); ctx.arc(0, 0, 28, 0, Math.PI * 2);
-                ctx.strokeStyle = 'rgba(255,215,0,0.6)'; ctx.lineWidth = 2; ctx.setLineDash([6, 3]); ctx.stroke(); ctx.setLineDash([]);
-                // Decorative gems on ring
+                ctx.strokeStyle = 'rgba(255,215,0,0.5)'; ctx.lineWidth = 2;
+                ctx.beginPath(); ctx.arc(0, botY, 32, 0, Math.PI * 2); ctx.stroke();
                 for (let i = 0; i < 6; i++) {
                     ctx.save(); ctx.rotate(i * Math.PI / 3);
-                    ctx.beginPath(); ctx.arc(0, -28, 3, 0, Math.PI * 2);
-                    ctx.fillStyle = '#ffd700'; ctx.fill();
+                    ctx.fillStyle = '#ffd700';
+                    ctx.beginPath(); ctx.arc(0, botY - 32, 4, 0, Math.PI * 2); ctx.fill();
+                    ctx.fillStyle = '#fff';
+                    ctx.beginPath(); ctx.arc(0, botY - 32, 2, 0, Math.PI * 2); ctx.fill();
                     ctx.restore();
                 }
                 ctx.restore();
 
-                // Umbrella canopy
+                // MoneyBot body (regal, armored)
+                ctx.fillStyle = '#f0f0f0';
+                ctx.beginPath(); ctx.ellipse(0, botY + 5, 14, 16, 0, 0, Math.PI * 2); ctx.fill();
+                ctx.strokeStyle = '#ffd700'; ctx.lineWidth = 2; ctx.stroke();
+
+                // Crown
+                ctx.fillStyle = '#ffd700';
                 ctx.beginPath();
-                ctx.arc(0, -5, 20, Math.PI, 0);
-                const canopyGrad = ctx.createLinearGradient(-20, -15, 20, -5);
-                canopyGrad.addColorStop(0, '#ffab00');
-                canopyGrad.addColorStop(0.5, '#ffd700');
-                canopyGrad.addColorStop(1, '#ffab00');
-                ctx.fillStyle = canopyGrad; ctx.fill();
-                ctx.strokeStyle = '#ff8f00'; ctx.lineWidth = 2; ctx.stroke();
+                ctx.moveTo(-10, botY - 10); ctx.lineTo(-8, botY - 18); ctx.lineTo(-4, botY - 13);
+                ctx.lineTo(0, botY - 20); ctx.lineTo(4, botY - 13); ctx.lineTo(8, botY - 18); ctx.lineTo(10, botY - 10);
+                ctx.closePath(); ctx.fill();
 
-                // Canopy segments
-                ctx.strokeStyle = '#ff8f00'; ctx.lineWidth = 1;
-                for (let i = -2; i <= 2; i++) {
-                    ctx.beginPath(); ctx.moveTo(i * 6, -5); ctx.lineTo(0, -20); ctx.stroke();
-                }
+                // MoneyBot head
+                ctx.fillStyle = '#fff';
+                ctx.beginPath(); ctx.roundRect(-12, botY - 14, 24, 18, 6); ctx.fill();
+                ctx.strokeStyle = '#ffd700'; ctx.lineWidth = 2; ctx.stroke();
 
-                // Shine effect on canopy
-                ctx.beginPath(); ctx.arc(-8, -12, 4, 0, Math.PI * 2);
-                ctx.fillStyle = 'rgba(255,255,255,0.4)'; ctx.fill();
+                // Noble face
+                ctx.fillStyle = '#1a1a2e';
+                ctx.beginPath(); ctx.roundRect(-9, botY - 11, 18, 10, 3); ctx.fill();
 
-                // Lightning rod on top
-                ctx.beginPath(); ctx.moveTo(0, -20); ctx.lineTo(0, -28 - upgradeLevel * 2);
-                ctx.strokeStyle = '#silver'; ctx.lineWidth = 3; ctx.stroke();
-                ctx.beginPath(); ctx.arc(0, -28 - upgradeLevel * 2, 2, 0, Math.PI * 2);
-                ctx.fillStyle = '#fff'; ctx.fill();
+                // Golden eyes
+                ctx.fillStyle = '#ffd700';
+                ctx.shadowColor = '#ffd700'; ctx.shadowBlur = 8;
+                ctx.beginPath(); ctx.arc(-4, botY - 7, 2, 0, Math.PI * 2); ctx.fill();
+                ctx.beginPath(); ctx.arc(4, botY - 7, 2, 0, Math.PI * 2); ctx.fill();
+                ctx.shadowBlur = 0;
 
-                // Handle shaft
-                ctx.beginPath(); ctx.moveTo(0, -5); ctx.lineTo(0, 18);
-                ctx.strokeStyle = '#8B4513'; ctx.lineWidth = 3; ctx.stroke();
+                // Antenna with golden orb
+                ctx.strokeStyle = '#666'; ctx.lineWidth = 2;
+                ctx.beginPath(); ctx.moveTo(0, botY - 14); ctx.lineTo(0, botY - 22); ctx.stroke();
+                ctx.fillStyle = '#ffd700';
+                ctx.beginPath(); ctx.arc(0, botY - 24, 4, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = '#fff';
+                ctx.beginPath(); ctx.arc(0, botY - 24, 2, 0, Math.PI * 2); ctx.fill();
 
-                // Handle hook
-                ctx.beginPath(); ctx.arc(4, 18, 5, Math.PI, 0);
-                ctx.strokeStyle = '#8B4513'; ctx.lineWidth = 3; ctx.stroke();
+                // Shoulder pads
+                ctx.fillStyle = '#ffd700';
+                ctx.beginPath(); ctx.arc(-16, botY - 3, 6, 0, Math.PI * 2); ctx.fill();
+                ctx.beginPath(); ctx.arc(16, botY - 3, 6, 0, Math.PI * 2); ctx.fill();
 
-                // Chain lightning visual connections (when firing recently)
+                // Lightning staff
+                ctx.save(); ctx.rotate(this.angle);
+                ctx.strokeStyle = '#8B4513'; ctx.lineWidth = 3;
+                ctx.beginPath(); ctx.moveTo(8, botY); ctx.lineTo(28 + upgradeLevel * 3, botY); ctx.stroke();
+                ctx.fillStyle = '#ffd700';
+                ctx.beginPath(); ctx.moveTo(28 + upgradeLevel * 3, botY - 6); ctx.lineTo(33 + upgradeLevel * 3, botY); ctx.lineTo(28 + upgradeLevel * 3, botY + 6); ctx.lineTo(23 + upgradeLevel * 3, botY); ctx.closePath(); ctx.fill();
+                ctx.fillStyle = '#fff';
+                ctx.beginPath(); ctx.arc(28 + upgradeLevel * 3, botY, 3, 0, Math.PI * 2); ctx.fill();
+                ctx.restore();
+
+                // Chain lightning when firing
                 if (Date.now() - this.lastFire < 300) {
                     const alpha = 1 - (Date.now() - this.lastFire) / 300;
                     ctx.strokeStyle = `rgba(255,215,0,${alpha})`; ctx.lineWidth = 2;
                     for (let i = 0; i < 4; i++) {
                         const angle = time * 5 + i * Math.PI / 2;
                         ctx.beginPath();
-                        let lx = 0, ly = -20;
+                        let lx = 0, ly = botY;
                         for (let j = 0; j < 5; j++) {
                             const nx = lx + Math.cos(angle + j * 0.5) * 8;
                             const ny = ly + Math.sin(angle + j * 0.5) * 8 + j * 3;
@@ -909,12 +960,6 @@
                         ctx.stroke();
                     }
                 }
-
-                // Firing barrel (rod extension)
-                ctx.save(); ctx.rotate(this.angle);
-                ctx.fillStyle = '#ffd700';
-                ctx.fillRect(10, -2, 10 + upgradeLevel * 2, 4);
-                ctx.restore();
             }
         }
         
