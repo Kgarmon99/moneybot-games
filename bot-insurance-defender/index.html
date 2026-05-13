@@ -983,12 +983,12 @@
 
         // Enemy Types
         const enemyTypes = {
-            medical: { name: 'Medical Bill', health: 30, speed: 1.8, reward: 15, color: '#ff5252', icon: '+' },
-            car: { name: 'Car Accident', health: 55, speed: 2.2, reward: 25, color: '#448aff', icon: '🚗' },
-            home: { name: 'Home Damage', health: 90, speed: 1.2, reward: 40, color: '#ffab40', icon: '🏠' },
-            lawsuit: { name: 'Lawsuit', health: 180, speed: 0.9, reward: 80, color: '#e040fb', icon: '⚖️' },
-            catastrophe: { name: 'Catastrophe', health: 600, speed: 0.6, reward: 250, color: '#ff1744', icon: '💀', boss: true },
-            fraud: { name: 'Fraud', health: 100, speed: 3, reward: 100, color: '#ff00ff', icon: '🎭', stealth: true }
+            medical: { name: 'Medical Bill', health: 30, speed: 1.8, reward: 15, color: '#ff5252', icon: '+', type: 'medical' },
+            car: { name: 'Car Accident', health: 55, speed: 2.2, reward: 25, color: '#448aff', icon: 'CAR', type: 'car' },
+            home: { name: 'Home Damage', health: 90, speed: 1.2, reward: 40, color: '#ffab40', icon: 'HOME', type: 'home' },
+            lawsuit: { name: 'Lawsuit', health: 180, speed: 0.9, reward: 80, color: '#e040fb', icon: 'LAW', type: 'lawsuit' },
+            catastrophe: { name: 'Catastrophe', health: 600, speed: 0.6, reward: 250, color: '#ff1744', icon: 'BOSS', boss: true, type: 'catastrophe' },
+            fraud: { name: 'Fraud', health: 100, speed: 3, reward: 100, color: '#ff00ff', icon: '???', stealth: true, type: 'fraud' }
         };
 
         // Waves
@@ -1521,12 +1521,64 @@
                 ctx.fillStyle = pct > 0.6 ? '#00C853' : pct > 0.3 ? '#ffaa00' : '#ff4444';
                 ctx.fillRect(this.x - w/2, this.y - 24, w * pct, h);
 
+                // Draw enemy body
                 ctx.beginPath(); ctx.arc(this.x, this.y, this.boss ? 18 : 12, 0, Math.PI * 2);
                 ctx.fillStyle = this.color; ctx.fill();
                 ctx.strokeStyle = this.boss ? '#ffd700' : '#fff'; ctx.lineWidth = this.boss ? 3 : 2; ctx.stroke();
 
-                ctx.fillStyle = '#fff'; ctx.font = `bold ${this.boss ? 16 : 12}px Arial`;
-                ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(this.icon, this.x, this.y);
+                // Draw enemy symbol based on type
+                ctx.fillStyle = '#fff';
+                ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                const r = this.boss ? 18 : 12;
+                
+                switch(this.type) {
+                    case 'medical':
+                        // Plus sign
+                        ctx.fillRect(this.x - 2, this.y - 6, 4, 12);
+                        ctx.fillRect(this.x - 6, this.y - 2, 12, 4);
+                        break;
+                    case 'car':
+                        // Simple car shape
+                        ctx.fillStyle = '#fff';
+                        ctx.beginPath(); ctx.moveTo(this.x - 6, this.y + 3); ctx.lineTo(this.x + 6, this.y + 3); ctx.lineTo(this.x + 5, this.y - 3); ctx.lineTo(this.x - 5, this.y - 3); ctx.closePath(); ctx.fill();
+                        ctx.fillStyle = '#111';
+                        ctx.beginPath(); ctx.arc(this.x - 4, this.y + 4, 2, 0, Math.PI*2); ctx.fill();
+                        ctx.beginPath(); ctx.arc(this.x + 4, this.y + 4, 2, 0, Math.PI*2); ctx.fill();
+                        break;
+                    case 'home':
+                        // House shape
+                        ctx.fillStyle = '#fff';
+                        ctx.beginPath(); ctx.moveTo(this.x, this.y - 7); ctx.lineTo(this.x + 7, this.y); ctx.lineTo(this.x + 5, this.y); ctx.lineTo(this.x + 5, this.y + 6); ctx.lineTo(this.x - 5, this.y + 6); ctx.lineTo(this.x - 5, this.y); ctx.lineTo(this.x - 7, this.y); ctx.closePath(); ctx.fill();
+                        break;
+                    case 'lawsuit':
+                        // Scales
+                        ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
+                        ctx.beginPath(); ctx.moveTo(this.x, this.y - 6); ctx.lineTo(this.x, this.y + 4); ctx.stroke();
+                        ctx.beginPath(); ctx.moveTo(this.x - 5, this.y + 2); ctx.lineTo(this.x + 5, this.y + 2); ctx.stroke();
+                        ctx.fillStyle = '#fff';
+                        ctx.beginPath(); ctx.arc(this.x - 4, this.y + 5, 2, 0, Math.PI*2); ctx.fill();
+                        ctx.beginPath(); ctx.arc(this.x + 4, this.y + 5, 2, 0, Math.PI*2); ctx.fill();
+                        break;
+                    case 'catastrophe':
+                        // Skull-like
+                        ctx.fillStyle = '#fff';
+                        ctx.fillRect(this.x - 4, this.y - 5, 3, 3);
+                        ctx.fillRect(this.x + 1, this.y - 5, 3, 3);
+                        ctx.fillRect(this.x - 2, this.y + 1, 4, 2);
+                        break;
+                    case 'fraud':
+                        // Mask
+                        ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
+                        ctx.beginPath(); ctx.arc(this.x, this.y, 6, 0, Math.PI*2); ctx.stroke();
+                        ctx.fillStyle = '#fff';
+                        ctx.beginPath(); ctx.arc(this.x - 2, this.y - 1, 1.5, 0, Math.PI*2); ctx.fill();
+                        ctx.beginPath(); ctx.arc(this.x + 2, this.y - 1, 1.5, 0, Math.PI*2); ctx.fill();
+                        ctx.beginPath(); ctx.moveTo(this.x - 3, this.y + 3); ctx.quadraticCurveTo(this.x, this.y + 1, this.x + 3, this.y + 3); ctx.stroke();
+                        break;
+                    default:
+                        ctx.font = `bold ${this.boss ? 16 : 12}px Arial`;
+                        ctx.fillText(this.icon, this.x, this.y);
+                }
                 ctx.globalAlpha = 1;
             }
         }
@@ -1652,11 +1704,50 @@
             const wave = waves[game.wave - 1];
             for (const group of wave.enemies) {
                 for (let i = 0; i < Math.min(group.count, 6); i++) {
-                    const div = document.createElement('div');
-                    div.className = 'enemy-preview';
-                    div.style.background = enemyTypes[group.type].color;
-                    div.textContent = enemyTypes[group.type].icon;
-                    container.appendChild(div);
+                    const canvas = document.createElement('canvas');
+                    canvas.width = 28;
+                    canvas.height = 28;
+                    canvas.className = 'enemy-preview';
+                    const ctx = canvas.getContext('2d');
+                    
+                    // Draw enemy icon
+                    ctx.fillStyle = enemyTypes[group.type].color;
+                    ctx.beginPath(); ctx.arc(14, 14, 12, 0, Math.PI*2); ctx.fill();
+                    ctx.strokeStyle = '#fff'; ctx.lineWidth = 1; ctx.stroke();
+                    
+                    ctx.fillStyle = '#fff';
+                    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                    switch(group.type) {
+                        case 'medical':
+                            ctx.fillRect(12, 8, 4, 12);
+                            ctx.fillRect(8, 12, 12, 4);
+                            break;
+                        case 'car':
+                            ctx.fillRect(6, 12, 16, 6);
+                            ctx.fillRect(8, 8, 12, 6);
+                            break;
+                        case 'home':
+                            ctx.beginPath(); ctx.moveTo(14, 6); ctx.lineTo(22, 14); ctx.lineTo(20, 14); ctx.lineTo(20, 22); ctx.lineTo(8, 22); ctx.lineTo(8, 14); ctx.lineTo(6, 14); ctx.closePath(); ctx.fill();
+                            break;
+                        case 'lawsuit':
+                            ctx.fillRect(13, 6, 2, 10);
+                            ctx.fillRect(6, 14, 16, 2);
+                            ctx.beginPath(); ctx.arc(9, 18, 2, 0, Math.PI*2); ctx.fill();
+                            ctx.beginPath(); ctx.arc(19, 18, 2, 0, Math.PI*2); ctx.fill();
+                            break;
+                        case 'catastrophe':
+                            ctx.fillRect(10, 10, 3, 3);
+                            ctx.fillRect(15, 10, 3, 3);
+                            ctx.fillRect(12, 16, 4, 2);
+                            break;
+                        case 'fraud':
+                            ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5;
+                            ctx.beginPath(); ctx.arc(14, 14, 8, 0, Math.PI*2); ctx.stroke();
+                            ctx.fillRect(11, 12, 2, 2);
+                            ctx.fillRect(15, 12, 2, 2);
+                            break;
+                    }
+                    container.appendChild(canvas);
                 }
             }
         }
@@ -1874,27 +1965,140 @@
         function drawTowerIcons() {
             const icons = {
                 'health': (ctx) => {
-                    ctx.fillStyle = '#00C853'; ctx.beginPath(); ctx.arc(22.5, 22.5, 18, 0, Math.PI*2); ctx.fill();
-                    ctx.fillStyle = '#fff'; ctx.fillRect(19.5, 10, 6, 25); ctx.fillRect(10, 19.5, 25, 6);
+                    // MoneyBot body
+                    ctx.fillStyle = '#e8e8e8';
+                    ctx.beginPath(); ctx.ellipse(22.5, 28, 10, 12, 0, 0, Math.PI*2); ctx.fill();
+                    // Head
+                    ctx.fillStyle = '#f0f0f0';
+                    ctx.beginPath(); ctx.roundRect(14, 8, 17, 14, 5); ctx.fill();
+                    // Screen
+                    ctx.fillStyle = '#000';
+                    ctx.beginPath(); ctx.roundRect(16, 10, 13, 10, 3); ctx.fill();
+                    // Green eyes
+                    ctx.fillStyle = '#0f0';
+                    ctx.fillRect(18, 13, 3, 4);
+                    ctx.fillRect(24, 13, 3, 4);
+                    // Red cross
+                    ctx.fillStyle = '#ff4444';
+                    ctx.fillRect(20.5, 22, 4, 8);
+                    ctx.fillRect(17, 25, 11, 2);
+                    // Antenna
+                    ctx.strokeStyle = '#666'; ctx.lineWidth = 2;
+                    ctx.beginPath(); ctx.moveTo(22.5, 8); ctx.lineTo(22.5, 3); ctx.stroke();
+                    ctx.fillStyle = '#ffd700';
+                    ctx.beginPath(); ctx.arc(22.5, 2, 3, 0, Math.PI*2); ctx.fill();
                 },
                 'life': (ctx) => {
-                    ctx.fillStyle = '#00a344'; ctx.beginPath(); ctx.moveTo(22.5, 5); ctx.lineTo(35, 15); ctx.lineTo(35, 30); ctx.lineTo(22.5, 40); ctx.lineTo(10, 30); ctx.lineTo(10, 15); ctx.closePath(); ctx.fill();
-                    ctx.fillStyle = '#69f0ae'; ctx.beginPath(); ctx.arc(22.5, 22.5, 8, 0, Math.PI*2); ctx.fill();
+                    // MoneyBot with shield
+                    ctx.fillStyle = '#e8e8e8';
+                    ctx.beginPath(); ctx.ellipse(22.5, 28, 10, 12, 0, 0, Math.PI*2); ctx.fill();
+                    // Shield on back
+                    ctx.fillStyle = '#00a344';
+                    ctx.beginPath(); ctx.moveTo(22.5, 8); ctx.lineTo(32, 15); ctx.lineTo(32, 28); ctx.lineTo(22.5, 35); ctx.lineTo(13, 28); ctx.lineTo(13, 15); ctx.closePath(); ctx.fill();
+                    // Head
+                    ctx.fillStyle = '#f0f0f0';
+                    ctx.beginPath(); ctx.roundRect(14, 10, 17, 14, 5); ctx.fill();
+                    // Visor
+                    ctx.fillStyle = '#000';
+                    ctx.beginPath(); ctx.roundRect(16, 12, 13, 8, 2); ctx.fill();
+                    ctx.fillStyle = '#0f0';
+                    ctx.fillRect(17, 14, 11, 3);
+                    // Antenna
+                    ctx.strokeStyle = '#666'; ctx.lineWidth = 2;
+                    ctx.beginPath(); ctx.moveTo(22.5, 10); ctx.lineTo(22.5, 5); ctx.stroke();
+                    ctx.fillStyle = '#ffd700';
+                    ctx.beginPath(); ctx.arc(22.5, 4, 3, 0, Math.PI*2); ctx.fill();
                 },
                 'home': (ctx) => {
-                    ctx.fillStyle = '#ff6600'; ctx.beginPath(); ctx.moveTo(22.5, 5); ctx.lineTo(40, 20); ctx.lineTo(35, 20); ctx.lineTo(35, 38); ctx.lineTo(10, 38); ctx.lineTo(10, 20); ctx.lineTo(5, 20); ctx.closePath(); ctx.fill();
-                    ctx.fillStyle = '#ffaa00'; ctx.fillRect(17, 25, 11, 13);
+                    // PyroBot with flames
+                    ctx.fillStyle = '#e0e0e0';
+                    ctx.beginPath(); ctx.ellipse(22.5, 28, 10, 12, 0, 0, Math.PI*2); ctx.fill();
+                    // Vents
+                    ctx.fillStyle = '#ff6600';
+                    for(let i=0; i<3; i++) {
+                        ctx.fillRect(12, 20+i*5, 4, 2);
+                        ctx.fillRect(29, 20+i*5, 4, 2);
+                    }
+                    // Head
+                    ctx.fillStyle = '#f0f0f0';
+                    ctx.beginPath(); ctx.roundRect(14, 10, 17, 14, 5); ctx.fill();
+                    // Angry eyes
+                    ctx.fillStyle = '#000';
+                    ctx.beginPath(); ctx.roundRect(16, 12, 13, 10, 3); ctx.fill();
+                    ctx.fillStyle = '#ff6600';
+                    ctx.beginPath(); ctx.moveTo(18, 15); ctx.lineTo(21, 17); ctx.lineTo(18, 19); ctx.fill();
+                    ctx.beginPath(); ctx.moveTo(27, 15); ctx.lineTo(24, 17); ctx.lineTo(27, 19); ctx.fill();
+                    // Flame pack
+                    ctx.fillStyle = '#ff4400';
+                    ctx.beginPath(); ctx.roundRect(19, 3, 7, 8, 2); ctx.fill();
+                    // Antenna with flame
+                    ctx.strokeStyle = '#666'; ctx.lineWidth = 2;
+                    ctx.beginPath(); ctx.moveTo(22.5, 10); ctx.lineTo(22.5, 5); ctx.stroke();
+                    ctx.fillStyle = '#ff6600';
+                    ctx.beginPath(); ctx.arc(22.5, 3, 3, 0, Math.PI*2); ctx.fill();
                 },
                 'auto': (ctx) => {
-                    ctx.fillStyle = '#00ffff'; ctx.beginPath(); ctx.moveTo(5, 30); ctx.lineTo(40, 30); ctx.lineTo(37, 18); ctx.lineTo(28, 15); ctx.lineTo(17, 15); ctx.lineTo(8, 18); ctx.closePath(); ctx.fill();
-                    ctx.fillStyle = '#111'; ctx.beginPath(); ctx.arc(12, 32, 5, 0, Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(33, 32, 5, 0, Math.PI*2); ctx.fill();
-                    ctx.fillStyle = '#ffff00'; ctx.beginPath(); ctx.moveTo(22.5, 8); ctx.lineTo(25, 15); ctx.lineTo(20, 15); ctx.closePath(); ctx.fill();
+                    // SpeedBot
+                    ctx.fillStyle = '#e8e8e8';
+                    ctx.beginPath(); ctx.ellipse(22.5, 28, 10, 12, 0, 0, Math.PI*2); ctx.fill();
+                    // Head
+                    ctx.fillStyle = '#f5f5f5';
+                    ctx.beginPath(); ctx.roundRect(14, 10, 17, 14, 5); ctx.fill();
+                    // Cyan visor
+                    ctx.fillStyle = '#000';
+                    ctx.beginPath(); ctx.roundRect(16, 12, 13, 8, 2); ctx.fill();
+                    ctx.fillStyle = '#00ffff';
+                    ctx.fillRect(17, 14, 11, 3);
+                    // Lightning pack
+                    ctx.fillStyle = '#ffff00';
+                    ctx.beginPath(); ctx.moveTo(22.5, 5); ctx.lineTo(25, 10); ctx.lineTo(20, 10); ctx.closePath(); ctx.fill();
+                    // Speed lines
+                    ctx.strokeStyle = '#00ffff'; ctx.lineWidth = 2;
+                    ctx.beginPath(); ctx.moveTo(8, 15); ctx.lineTo(4, 15); ctx.stroke();
+                    ctx.beginPath(); ctx.moveTo(8, 22); ctx.lineTo(4, 22); ctx.stroke();
+                    ctx.beginPath(); ctx.moveTo(37, 15); ctx.lineTo(41, 15); ctx.stroke();
+                    ctx.beginPath(); ctx.moveTo(37, 22); ctx.lineTo(41, 22); ctx.stroke();
+                    // Antenna
+                    ctx.strokeStyle = '#666'; ctx.lineWidth = 2;
+                    ctx.beginPath(); ctx.moveTo(22.5, 10); ctx.lineTo(22.5, 5); ctx.stroke();
+                    ctx.fillStyle = '#00ffff';
+                    ctx.beginPath(); ctx.arc(22.5, 4, 3, 0, Math.PI*2); ctx.fill();
                 },
                 'umbrella': (ctx) => {
-                    ctx.fillStyle = '#ffd700'; ctx.beginPath(); ctx.arc(22.5, 20, 18, Math.PI, 0); ctx.fill();
-                    ctx.strokeStyle = '#ff8f00'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(22.5, 20); ctx.lineTo(22.5, 5); ctx.stroke();
-                    ctx.strokeStyle = '#8B4513'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(22.5, 20); ctx.lineTo(22.5, 38); ctx.stroke();
-                    ctx.beginPath(); ctx.arc(27, 38, 6, Math.PI, 0); ctx.stroke();
+                    // TitanBot
+                    ctx.fillStyle = '#f0f0f0';
+                    ctx.beginPath(); ctx.ellipse(22.5, 28, 11, 13, 0, 0, Math.PI*2); ctx.fill();
+                    ctx.strokeStyle = '#ffd700'; ctx.lineWidth = 2;
+                    ctx.stroke();
+                    // Crown
+                    ctx.fillStyle = '#ffd700';
+                    ctx.beginPath(); ctx.moveTo(14, 12); ctx.lineTo(16, 6); ctx.lineTo(19, 10); ctx.lineTo(22.5, 5); ctx.lineTo(26, 10); ctx.lineTo(29, 6); ctx.lineTo(31, 12); ctx.closePath(); ctx.fill();
+                    // Head
+                    ctx.fillStyle = '#fff';
+                    ctx.beginPath(); ctx.roundRect(13, 12, 19, 15, 5); ctx.fill();
+                    ctx.strokeStyle = '#ffd700'; ctx.lineWidth = 2; ctx.stroke();
+                    // Golden eyes
+                    ctx.fillStyle = '#000';
+                    ctx.beginPath(); ctx.roundRect(15, 14, 15, 10, 3); ctx.fill();
+                    ctx.fillStyle = '#ffd700';
+                    ctx.beginPath(); ctx.arc(19, 19, 2, 0, Math.PI*2); ctx.fill();
+                    ctx.beginPath(); ctx.arc(26, 19, 2, 0, Math.PI*2); ctx.fill();
+                    // Shoulder pads
+                    ctx.fillStyle = '#ffd700';
+                    ctx.beginPath(); ctx.arc(10, 25, 5, 0, Math.PI*2); ctx.fill();
+                    ctx.beginPath(); ctx.arc(35, 25, 5, 0, Math.PI*2); ctx.fill();
+                    // Staff
+                    ctx.strokeStyle = '#8B4513'; ctx.lineWidth = 3;
+                    ctx.beginPath(); ctx.moveTo(32, 20); ctx.lineTo(40, 20); ctx.stroke();
+                    ctx.fillStyle = '#ffd700';
+                    ctx.beginPath(); ctx.moveTo(38, 16); ctx.lineTo(42, 20); ctx.lineTo(38, 24); ctx.lineTo(34, 20); ctx.closePath(); ctx.fill();
+                    // Antenna
+                    ctx.strokeStyle = '#666'; ctx.lineWidth = 2;
+                    ctx.beginPath(); ctx.moveTo(22.5, 12); ctx.lineTo(22.5, 7); ctx.stroke();
+                    ctx.fillStyle = '#ffd700';
+                    ctx.beginPath(); ctx.arc(22.5, 5, 4, 0, Math.PI*2); ctx.fill();
+                    ctx.fillStyle = '#fff';
+                    ctx.beginPath(); ctx.arc(22.5, 5, 2, 0, Math.PI*2); ctx.fill();
                 }
             };
             
