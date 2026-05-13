@@ -431,22 +431,21 @@
         .tower-card.disabled .tower-cost {
             color: #ff4444;
         }
-        .tower-icon-wrap {
+        .tower-icon-canvas {
             width: 45px;
             height: 45px;
             border-radius: 50%;
             margin: 0 auto 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
+            display: block;
+            background: linear-gradient(135deg, #1a1a2e, #0f0f1a);
+            border: 2px solid #333;
             box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
-        .tower-card.health .tower-icon-wrap { background: linear-gradient(135deg, #00C853, #00a344); }
-        .tower-card.life .tower-icon-wrap { background: linear-gradient(135deg, #00a344, #00802b); }
-        .tower-card.home .tower-icon-wrap { background: linear-gradient(135deg, #00e676, #00c853); }
-        .tower-card.auto .tower-icon-wrap { background: linear-gradient(135deg, #69f0ae, #00c853); }
-        .tower-card.umbrella .tower-icon-wrap { background: linear-gradient(135deg, #ffd700, #ffab00); box-shadow: 0 0 15px rgba(255,215,0,0.4); }
+        .tower-card.health .tower-icon-canvas { border-color: #00C853; box-shadow: 0 0 10px rgba(0,200,83,0.4); }
+        .tower-card.life .tower-icon-canvas { border-color: #00a344; box-shadow: 0 0 10px rgba(0,163,68,0.4); }
+        .tower-card.home .tower-icon-canvas { border-color: #ff6600; box-shadow: 0 0 10px rgba(255,102,0,0.4); }
+        .tower-card.auto .tower-icon-canvas { border-color: #00ffff; box-shadow: 0 0 10px rgba(0,255,255,0.4); }
+        .tower-card.umbrella .tower-icon-canvas { border-color: #ffd700; box-shadow: 0 0 15px rgba(255,215,0,0.6); }
         .tower-name {
             font-family: 'Orbitron', sans-serif;
             font-size: 10px;
@@ -863,27 +862,27 @@
         
         <div class="tower-bar" id="towerBar">
             <div class="tower-card health" data-type="health" data-cost="150">
-                <div class="tower-icon-wrap">🏥</div>
+                <canvas class="tower-icon-canvas" id="icon-health" width="45" height="45"></canvas>
                 <div class="tower-name">Health</div>
                 <div class="tower-cost">$150</div>
             </div>
             <div class="tower-card life" data-type="life" data-cost="250">
-                <div class="tower-icon-wrap">🛡️</div>
+                <canvas class="tower-icon-canvas" id="icon-life" width="45" height="45"></canvas>
                 <div class="tower-name">Life</div>
                 <div class="tower-cost">$250</div>
             </div>
             <div class="tower-card home" data-type="home" data-cost="350">
-                <div class="tower-icon-wrap">🏠</div>
+                <canvas class="tower-icon-canvas" id="icon-home" width="45" height="45"></canvas>
                 <div class="tower-name">Home</div>
                 <div class="tower-cost">$350</div>
             </div>
             <div class="tower-card auto" data-type="auto" data-cost="200">
-                <div class="tower-icon-wrap">🚗</div>
+                <canvas class="tower-icon-canvas" id="icon-auto" width="45" height="45"></canvas>
                 <div class="tower-name">Auto</div>
                 <div class="tower-cost">$200</div>
             </div>
             <div class="tower-card umbrella" data-type="umbrella" data-cost="1200">
-                <div class="tower-icon-wrap">☂️</div>
+                <canvas class="tower-icon-canvas" id="icon-umbrella" width="45" height="45"></canvas>
                 <div class="tower-name">Umbrella</div>
                 <div class="tower-cost">$1200</div>
             </div>
@@ -1871,8 +1870,47 @@
             requestAnimationFrame(loop);
         }
 
+        // Draw tower icons
+        function drawTowerIcons() {
+            const icons = {
+                'health': (ctx) => {
+                    ctx.fillStyle = '#00C853'; ctx.beginPath(); ctx.arc(22.5, 22.5, 18, 0, Math.PI*2); ctx.fill();
+                    ctx.fillStyle = '#fff'; ctx.fillRect(19.5, 10, 6, 25); ctx.fillRect(10, 19.5, 25, 6);
+                },
+                'life': (ctx) => {
+                    ctx.fillStyle = '#00a344'; ctx.beginPath(); ctx.moveTo(22.5, 5); ctx.lineTo(35, 15); ctx.lineTo(35, 30); ctx.lineTo(22.5, 40); ctx.lineTo(10, 30); ctx.lineTo(10, 15); ctx.closePath(); ctx.fill();
+                    ctx.fillStyle = '#69f0ae'; ctx.beginPath(); ctx.arc(22.5, 22.5, 8, 0, Math.PI*2); ctx.fill();
+                },
+                'home': (ctx) => {
+                    ctx.fillStyle = '#ff6600'; ctx.beginPath(); ctx.moveTo(22.5, 5); ctx.lineTo(40, 20); ctx.lineTo(35, 20); ctx.lineTo(35, 38); ctx.lineTo(10, 38); ctx.lineTo(10, 20); ctx.lineTo(5, 20); ctx.closePath(); ctx.fill();
+                    ctx.fillStyle = '#ffaa00'; ctx.fillRect(17, 25, 11, 13);
+                },
+                'auto': (ctx) => {
+                    ctx.fillStyle = '#00ffff'; ctx.beginPath(); ctx.moveTo(5, 30); ctx.lineTo(40, 30); ctx.lineTo(37, 18); ctx.lineTo(28, 15); ctx.lineTo(17, 15); ctx.lineTo(8, 18); ctx.closePath(); ctx.fill();
+                    ctx.fillStyle = '#111'; ctx.beginPath(); ctx.arc(12, 32, 5, 0, Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(33, 32, 5, 0, Math.PI*2); ctx.fill();
+                    ctx.fillStyle = '#ffff00'; ctx.beginPath(); ctx.moveTo(22.5, 8); ctx.lineTo(25, 15); ctx.lineTo(20, 15); ctx.closePath(); ctx.fill();
+                },
+                'umbrella': (ctx) => {
+                    ctx.fillStyle = '#ffd700'; ctx.beginPath(); ctx.arc(22.5, 20, 18, Math.PI, 0); ctx.fill();
+                    ctx.strokeStyle = '#ff8f00'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(22.5, 20); ctx.lineTo(22.5, 5); ctx.stroke();
+                    ctx.strokeStyle = '#8B4513'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(22.5, 20); ctx.lineTo(22.5, 38); ctx.stroke();
+                    ctx.beginPath(); ctx.arc(27, 38, 6, Math.PI, 0); ctx.stroke();
+                }
+            };
+            
+            Object.keys(icons).forEach(type => {
+                const canvas = document.getElementById('icon-' + type);
+                if (canvas) {
+                    const ctx = canvas.getContext('2d');
+                    ctx.clearRect(0, 0, 45, 45);
+                    icons[type](ctx);
+                }
+            });
+        }
+
         // Start
         showLoading();
+        drawTowerIcons();
     </script>
 </body>
 </html>
