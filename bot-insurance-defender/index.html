@@ -21,7 +21,6 @@
             flex-direction: column;
         }
         
-        /* Top Bar */
         .top-bar {
             background: linear-gradient(180deg, #0f0f1a 0%, #1a1a2e 100%);
             border-bottom: 3px solid #00C853;
@@ -78,7 +77,6 @@
             color: #000;
         }
         
-        /* Game Area */
         .game-area {
             flex: 1;
             position: relative;
@@ -90,7 +88,6 @@
             height: 100%;
         }
         
-        /* Start Wave Button - Floating */
         .wave-btn-container {
             position: absolute;
             top: 10px;
@@ -111,92 +108,9 @@
             text-transform: uppercase;
             letter-spacing: 1px;
         }
-        .start-wave-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 6px 20px rgba(255,107,53,0.7);
-        }
-        .start-wave-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
+        .start-wave-btn:hover { transform: scale(1.05); }
+        .start-wave-btn:disabled { opacity: 0.6; cursor: not-allowed; }
         
-        /* Bottom Tower Bar */
-        .tower-bar {
-            background: linear-gradient(0deg, #0f0f1a 0%, #1a1a2e 100%);
-            border-top: 3px solid #00C853;
-            padding: 10px;
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            flex-wrap: wrap;
-            flex-shrink: 0;
-        }
-        .tower-card {
-            background: linear-gradient(135deg, #2a2a4a, #1a1a2e);
-            border: 2px solid #444;
-            border-radius: 12px;
-            padding: 8px;
-            min-width: 65px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.15s;
-        }
-        .tower-card:hover { 
-            border-color: #00C853; 
-            transform: translateY(-3px);
-        }
-        .tower-card.selected {
-            border-color: #00C853;
-            background: linear-gradient(135deg, rgba(0,200,83,0.2), rgba(0,200,83,0.1));
-            box-shadow: 0 0 15px rgba(0,200,83,0.4);
-        }
-        .tower-card.disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-        }
-        .tower-card.disabled .tower-cost { color: #ff4444; }
-        
-        .tower-icon-wrap {
-            width: 42px;
-            height: 42px;
-            border-radius: 50%;
-            margin: 0 auto 6px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 22px;
-            position: relative;
-        }
-        .tower-icon-wrap::after {
-            content: '';
-            position: absolute;
-            inset: -3px;
-            border-radius: 50%;
-            border: 2px solid transparent;
-        }
-        .tower-card.selected .tower-icon-wrap::after {
-            border-color: #00C853;
-            animation: pulse 1s infinite;
-        }
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.1); opacity: 0.5; }
-        }
-        
-        .tower-card.health .tower-icon-wrap { background: linear-gradient(135deg, #ff6b6b, #ee5a5a); }
-        .tower-card.life .tower-icon-wrap { background: linear-gradient(135deg, #4ecdc4, #44a08d); }
-        .tower-card.home .tower-icon-wrap { background: linear-gradient(135deg, #ffe66d, #f4d03f); }
-        .tower-card.auto .tower-icon-wrap { background: linear-gradient(135deg, #a29bfe, #6c5ce7); }
-        .tower-card.umbrella .tower-icon-wrap { 
-            background: linear-gradient(135deg, #ffd700, #ffb347);
-            box-shadow: 0 0 10px rgba(255,215,0,0.5);
-        }
-        
-        .tower-name { font-size: 10px; font-weight: 700; margin-bottom: 2px; }
-        .tower-cost { font-size: 12px; color: #00C853; font-weight: 800; }
-        
-        /* Side Panel */
         .side-panel {
             position: absolute;
             right: 10px;
@@ -232,36 +146,54 @@
             font-size: 12px;
         }
         
-        /* Tower Info Popup */
-        .tower-info {
-            position: absolute;
-            left: 10px;
-            top: 60px;
-            width: 160px;
-            background: rgba(15,15,26,0.95);
-            border: 2px solid #00C853;
-            border-radius: 12px;
-            padding: 12px;
-            z-index: 10;
-            display: none;
-        }
-        .tower-info.active { display: block; }
-        .tower-info-title {
-            font-size: 14px;
-            font-weight: 800;
-            margin-bottom: 8px;
-            color: #00C853;
-        }
-        .tower-info-stat {
+        .tower-bar {
+            background: linear-gradient(0deg, #0f0f1a 0%, #1a1a2e 100%);
+            border-top: 3px solid #00C853;
+            padding: 10px;
             display: flex;
-            justify-content: space-between;
-            font-size: 12px;
-            padding: 4px 0;
-            border-bottom: 1px solid #333;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            flex-shrink: 0;
         }
-        .tower-info-stat:last-child { border-bottom: none; }
+        .tower-card {
+            background: linear-gradient(135deg, #2a2a4a, #1a1a2e);
+            border: 2px solid #444;
+            border-radius: 12px;
+            padding: 8px;
+            min-width: 65px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .tower-card:hover { border-color: #00C853; transform: translateY(-3px); }
+        .tower-card.selected {
+            border-color: #00C853;
+            background: linear-gradient(135deg, rgba(0,200,83,0.2), rgba(0,200,83,0.1));
+            box-shadow: 0 0 15px rgba(0,200,83,0.4);
+        }
+        .tower-card.disabled { opacity: 0.4; cursor: not-allowed; }
+        .tower-card.disabled .tower-cost { color: #ff4444; }
         
-        /* Upgrade Modal */
+        .tower-icon-wrap {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            margin: 0 auto 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+        }
+        .tower-card.health .tower-icon-wrap { background: linear-gradient(135deg, #ff6b6b, #ee5a5a); }
+        .tower-card.life .tower-icon-wrap { background: linear-gradient(135deg, #4ecdc4, #44a08d); }
+        .tower-card.home .tower-icon-wrap { background: linear-gradient(135deg, #ffe66d, #f4d03f); }
+        .tower-card.auto .tower-icon-wrap { background: linear-gradient(135deg, #a29bfe, #6c5ce7); }
+        .tower-card.umbrella .tower-icon-wrap { background: linear-gradient(135deg, #ffd700, #ffb347); box-shadow: 0 0 10px rgba(255,215,0,0.5); }
+        
+        .tower-name { font-size: 10px; font-weight: 700; margin-bottom: 2px; }
+        .tower-cost { font-size: 12px; color: #00C853; font-weight: 800; }
+        
         .modal-overlay {
             position: absolute;
             inset: 0;
@@ -302,49 +234,17 @@
             padding: 12px;
             text-align: center;
             cursor: pointer;
-            transition: all 0.2s;
         }
         .upgrade-path:hover { border-color: #00C853; }
-        .upgrade-path.maxed {
-            border-color: #ffd700;
-            background: rgba(255,215,0,0.1);
-        }
-        .upgrade-path-name {
-            font-size: 12px;
-            font-weight: 800;
-            margin-bottom: 8px;
-        }
-        .upgrade-levels {
-            display: flex;
-            justify-content: center;
-            gap: 4px;
-            margin-bottom: 8px;
-        }
-        .upgrade-level {
-            width: 16px;
-            height: 16px;
-            border-radius: 50%;
-            background: #333;
-            border: 2px solid transparent;
-        }
-        .upgrade-level.active {
-            background: #00C853;
-            box-shadow: 0 0 8px rgba(0,200,83,0.5);
-        }
-        .upgrade-level.max {
-            background: #ffd700;
-            box-shadow: 0 0 8px rgba(255,215,0,0.5);
-        }
-        .upgrade-cost {
-            font-size: 14px;
-            font-weight: 800;
-            color: #00C853;
-        }
+        .upgrade-path.maxed { border-color: #ffd700; background: rgba(255,215,0,0.1); }
+        .upgrade-path-name { font-size: 12px; font-weight: 800; margin-bottom: 8px; }
+        .upgrade-levels { display: flex; justify-content: center; gap: 4px; margin-bottom: 8px; }
+        .upgrade-level { width: 16px; height: 16px; border-radius: 50%; background: #333; }
+        .upgrade-level.active { background: #00C853; box-shadow: 0 0 8px rgba(0,200,83,0.5); }
+        .upgrade-level.max { background: #ffd700; box-shadow: 0 0 8px rgba(255,215,0,0.5); }
+        .upgrade-cost { font-size: 14px; font-weight: 800; color: #00C853; }
         
-        .sell-section {
-            display: flex;
-            gap: 10px;
-        }
+        .sell-section { display: flex; gap: 10px; }
         .sell-btn, .close-modal {
             flex: 1;
             padding: 12px;
@@ -354,16 +254,9 @@
             font-size: 14px;
             cursor: pointer;
         }
-        .sell-btn {
-            background: linear-gradient(135deg, #ff6b6b, #ee5a5a);
-            color: #fff;
-        }
-        .close-modal {
-            background: #333;
-            color: #fff;
-        }
+        .sell-btn { background: linear-gradient(135deg, #ff6b6b, #ee5a5a); color: #fff; }
+        .close-modal { background: #333; color: #fff; }
         
-        /* Game Over */
         .game-over {
             position: absolute;
             inset: 0;
@@ -375,11 +268,7 @@
             z-index: 200;
         }
         .game-over.active { display: flex; }
-        .game-over h1 {
-            font-size: 48px;
-            font-weight: 900;
-            margin-bottom: 20px;
-        }
+        .game-over h1 { font-size: 48px; font-weight: 900; margin-bottom: 20px; }
         .game-over.victory h1 { color: #00C853; }
         .game-over.defeat h1 { color: #ff4444; }
         .final-stats {
@@ -389,10 +278,7 @@
             margin-bottom: 24px;
             text-align: center;
         }
-        .final-stat {
-            font-size: 18px;
-            margin: 10px 0;
-        }
+        .final-stat { font-size: 18px; margin: 10px 0; }
         .final-stat span { color: #00C853; font-weight: 800; }
         .restart-btn {
             background: linear-gradient(135deg, #00C853, #00a344);
@@ -408,7 +294,6 @@
 </head>
 <body>
     <div id="game">
-        <!-- Top Bar -->
         <div class="top-bar">
             <div class="stat-box lives">
                 <span class="icon">❤️</span>
@@ -421,11 +306,9 @@
             </div>
             <div class="control-btns">
                 <button class="control-btn" id="speedBtn">1x</button>
-                <button class="control-btn" id="muteBtn">🔊</button>
             </div>
         </div>
         
-        <!-- Game Area -->
         <div class="game-area">
             <canvas id="canvas"></canvas>
             
@@ -438,22 +321,14 @@
                 <div class="next-enemies" id="nextEnemies"></div>
             </div>
             
-            <div class="tower-info" id="towerInfo">
-                <div class="tower-info-title" id="infoTitle">Health Insurance</div>
-                <div class="tower-info-stat"><span>Damage:</span><span id="infoDamage">15</span></div>
-                <div class="tower-info-stat"><span>Range:</span><span id="infoRange">100</span></div>
-                <div class="tower-info-stat"><span>Speed:</span><span id="infoSpeed">Fast</span></div>
-                <div class="tower-info-stat"><span>Special:</span><span id="infoSpecial">-</span></div>
-            </div>
-            
             <div class="modal-overlay" id="upgradeModal">
                 <div class="upgrade-modal">
                     <div class="upgrade-header">
-                        <h2 id="modalTitle">Health Insurance</h2>
+                        <h2 id="modalTitle">Tower</h2>
                     </div>
                     <div class="upgrade-paths" id="upgradePaths"></div>
                     <div class="sell-section">
-                        <button class="sell-btn" id="sellBtn">Sell ($100)</button>
+                        <button class="sell-btn" id="sellBtn">Sell</button>
                         <button class="close-modal" onclick="closeUpgrade()">Close</button>
                     </div>
                 </div>
@@ -463,14 +338,13 @@
                 <h1>Game Over</h1>
                 <div class="final-stats">
                     <div class="final-stat">Waves: <span id="finalWave">0</span></div>
-                    <div class="final-stat">Money Earned: <span id="finalMoney">0</span></div>
-                    <div class="final-stat">Enemies Defeated: <span id="finalKills">0</span></div>
+                    <div class="final-stat">Money: <span id="finalMoney">0</span></div>
+                    <div class="final-stat">Kills: <span id="finalKills">0</span></div>
                 </div>
                 <button class="restart-btn" onclick="restartGame()">Play Again</button>
             </div>
         </div>
         
-        <!-- Tower Bar -->
         <div class="tower-bar">
             <div class="tower-card health" data-type="health" data-cost="150">
                 <div class="tower-icon-wrap">🏥</div>
@@ -515,11 +389,31 @@
         };
         
         const towerTypes = {
-            health: { name: 'Health Insurance', cost: 150, damage: 15, range: 100, fireRate: 350, color: '#ff6b6b', speed: 10, desc: 'Fast firing medical coverage' },
-            life: { name: 'Life Insurance', cost: 250, damage: 60, range: 160, fireRate: 1000, color: '#4ecdc4', speed: 7, desc: 'High damage long-term protection' },
-            home: { name: 'Home Insurance', cost: 350, damage: 35, range: 120, fireRate: 700, color: '#ffe66d', speed: 6, area: true, desc: 'Area damage for property threats' },
-            auto: { name: 'Auto Insurance', cost: 200, damage: 25, range: 110, fireRate: 450, color: '#a29bfe', speed: 12, stun: true, desc: 'Stuns enemies on impact' },
-            umbrella: { name: 'Umbrella Policy', cost: 1200, damage: 120, range: 200, fireRate: 500, color: '#ffd700', speed: 15, chain: 3, desc: 'Chains between multiple enemies' }
+            health: { 
+                name: 'Health Insurance', cost: 150, damage: 15, range: 100, fireRate: 350, 
+                color: '#ff6b6b', speed: 10,
+                paths: { a: { name: 'Rapid' }, b: { name: 'Strong' } }
+            },
+            life: { 
+                name: 'Life Insurance', cost: 250, damage: 60, range: 160, fireRate: 1000, 
+                color: '#4ecdc4', speed: 7,
+                paths: { a: { name: 'Range' }, b: { name: 'Power' } }
+            },
+            home: { 
+                name: 'Home Insurance', cost: 350, damage: 35, range: 120, fireRate: 700, 
+                color: '#ffe66d', speed: 6, area: true,
+                paths: { a: { name: 'Splash' }, b: { name: 'Burn' } }
+            },
+            auto: { 
+                name: 'Auto Insurance', cost: 200, damage: 25, range: 110, fireRate: 450, 
+                color: '#a29bfe', speed: 12, stun: true,
+                paths: { a: { name: 'Fast' }, b: { name: 'Stun' } }
+            },
+            umbrella: { 
+                name: 'Umbrella Policy', cost: 1200, damage: 120, range: 200, fireRate: 500, 
+                color: '#ffd700', speed: 15, chain: 3,
+                paths: { a: { name: 'Chain' }, b: { name: 'Blast' } }
+            }
         };
         
         const enemyTypes = {
@@ -564,7 +458,6 @@
             path = [];
             const w = canvas.width, h = canvas.height;
             const pad = 60;
-            
             path.push({ x: -20, y: pad + 40 });
             path.push({ x: w * 0.2, y: pad + 40 });
             path.push({ x: w * 0.2, y: h * 0.4 });
@@ -598,17 +491,14 @@
             
             upgrade(path) {
                 const lvl = path === 'a' ? this.pathA : this.pathB;
-                if (lvl >= 3 || game.money < this.getUpgradeCost(path)) return false;
-                game.money -= this.getUpgradeCost(path);
-                this.totalSpent += this.getUpgradeCost(path);
+                if (lvl >= 3) return false;
+                const cost = Math.floor(towerTypes[this.type].cost * 0.6 * (lvl + 1));
+                if (game.money < cost) return false;
+                game.money -= cost;
+                this.totalSpent += cost;
                 if (path === 'a') this.pathA++; else this.pathB++;
                 this.recalcStats();
                 return true;
-            }
-            
-            getUpgradeCost(path) {
-                const lvl = path === 'a' ? this.pathA : this.pathB;
-                return Math.floor(towerTypes[this.type].cost * 0.6 * (lvl + 1));
             }
             
             getSellValue() { return Math.floor(this.totalSpent * 0.7); }
@@ -646,25 +536,20 @@
                     ctx.fillStyle = 'rgba(0,200,83,0.1)'; ctx.fill();
                     ctx.strokeStyle = 'rgba(0,200,83,0.3)'; ctx.lineWidth = 2; ctx.stroke();
                 }
-                
-                // Glow
                 const g = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, 35);
                 g.addColorStop(0, this.color + '40'); g.addColorStop(1, 'transparent');
                 ctx.fillStyle = g; ctx.beginPath(); ctx.arc(this.x, this.y, 35, 0, Math.PI * 2); ctx.fill();
                 
-                // Base
                 ctx.beginPath(); ctx.arc(this.x, this.y, 22, 0, Math.PI * 2);
                 ctx.fillStyle = '#1a1a2e'; ctx.fill();
                 ctx.strokeStyle = this.color; ctx.lineWidth = 3; ctx.stroke();
                 
-                // Upgrade dots
                 for (let i = 0; i < this.pathA + this.pathB; i++) {
                     const a = (i / 6) * Math.PI * 2 - Math.PI / 2;
                     ctx.beginPath(); ctx.arc(this.x + Math.cos(a) * 28, this.y + Math.sin(a) * 28, 4, 0, Math.PI * 2);
                     ctx.fillStyle = i < this.pathA ? '#00C853' : '#ffd700'; ctx.fill();
                 }
                 
-                // Barrel
                 ctx.save(); ctx.translate(this.x, this.y); ctx.rotate(this.angle);
                 ctx.fillStyle = this.color; ctx.fillRect(0, -5, 28, 10);
                 ctx.beginPath(); ctx.arc(0, 0, 14, 0, Math.PI * 2); ctx.fill();
@@ -725,30 +610,23 @@
             
             draw() {
                 if (this.stealth) ctx.globalAlpha = 0.5 + Math.sin(this.pulse) * 0.2;
-                
-                // Boss glow
                 if (this.boss) {
                     const g = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, 30);
                     g.addColorStop(0, this.color + '60'); g.addColorStop(1, 'transparent');
                     ctx.fillStyle = g; ctx.beginPath(); ctx.arc(this.x, this.y, 30, 0, Math.PI * 2); ctx.fill();
                 }
-                
-                // Health bar
                 const w = this.boss ? 50 : 30, h = 5;
                 ctx.fillStyle = '#000'; ctx.fillRect(this.x - w/2 - 1, this.y - 25, w + 2, h + 2);
                 const pct = this.health / this.maxHealth;
                 ctx.fillStyle = pct > 0.6 ? '#00C853' : pct > 0.3 ? '#ffaa00' : '#ff4444';
                 ctx.fillRect(this.x - w/2, this.y - 24, w * pct, h);
                 
-                // Body
                 ctx.beginPath(); ctx.arc(this.x, this.y, this.boss ? 18 : 12, 0, Math.PI * 2);
                 ctx.fillStyle = this.color; ctx.fill();
                 ctx.strokeStyle = this.boss ? '#ffd700' : '#fff'; ctx.lineWidth = this.boss ? 3 : 2; ctx.stroke();
                 
-                // Icon
                 ctx.fillStyle = '#fff'; ctx.font = `bold ${this.boss ? 16 : 12}px Arial`;
                 ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(this.icon, this.x, this.y);
-                
                 ctx.globalAlpha = 1;
             }
         }
@@ -882,7 +760,6 @@
             }
         }
         
-        // Input
         canvas.addEventListener('click', (e) => {
             const rect = canvas.getBoundingClientRect();
             const x = e.clientX - rect.left, y = e.clientY - rect.top;
@@ -929,7 +806,6 @@
             return Math.hypot(px - xx, py - yy);
         }
         
-        // Tower selection
         document.querySelectorAll('.tower-card').forEach(card => {
             card.addEventListener('click', () => {
                 const type = card.dataset.type, cost = parseInt(card.dataset.cost);
@@ -937,30 +813,13 @@
                 document.querySelectorAll('.tower-card').forEach(c => c.classList.remove('selected'));
                 if (game.selectedTowerType === type) {
                     game.selectedTowerType = null;
-                    document.getElementById('towerInfo').classList.remove('active');
                 } else {
                     game.selectedTowerType = type;
                     card.classList.add('selected');
-                    showTowerInfo(type);
                 }
-            });
-            
-            card.addEventListener('mouseenter', () => {
-                if (!game.selectedTowerType) showTowerInfo(card.dataset.type);
             });
         });
         
-        function showTowerInfo(type) {
-            const def = towerTypes[type];
-            document.getElementById('infoTitle').textContent = def.name;
-            document.getElementById('infoDamage').textContent = def.damage;
-            document.getElementById('infoRange').textContent = def.range;
-            document.getElementById('infoSpeed').textContent = def.fireRate < 500 ? 'Very Fast' : def.fireRate < 700 ? 'Fast' : def.fireRate < 900 ? 'Medium' : 'Slow';
-            document.getElementById('infoSpecial').textContent = def.area ? 'Area Damage' : def.stun ? 'Stuns enemies' : def.chain ? 'Chain ' + def.chain : '-';
-            document.getElementById('towerInfo').classList.add('active');
-        }
-        
-        // Controls
         document.getElementById('speedBtn').addEventListener('click', () => {
             game.gameSpeed = game.gameSpeed === 1 ? 2 : 1;
             document.getElementById('speedBtn').textContent = game.gameSpeed + 'x';
@@ -969,7 +828,6 @@
         
         document.getElementById('startWave').addEventListener('click', startWave);
         
-        // Upgrade modal
         function showUpgrade(tower) {
             game.selectedTower = tower;
             document.getElementById('modalTitle').textContent = towerTypes[tower.type].name;
@@ -979,7 +837,7 @@
             ['a', 'b'].forEach(path => {
                 const lvl = path === 'a' ? tower.pathA : tower.pathB;
                 const maxed = lvl >= 3;
-                const cost = tower.getUpgradeCost(path);
+                const cost = Math.floor(towerTypes[tower.type].cost * 0.6 * (lvl + 1));
                 const pathDef = towerTypes[tower.type].paths[path];
                 
                 const div = document.createElement('div');
@@ -1012,7 +870,6 @@
             }
         });
         
-        // UI
         function updateUI() {
             document.getElementById('money').textContent = game.money;
             document.getElementById('lives').textContent = game.lives;
@@ -1046,7 +903,6 @@
             updateNextWave(); updateUI();
         }
         
-        // Drawing
         function drawPath() {
             ctx.strokeStyle = '#00C85315'; ctx.lineWidth = 50; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
             ctx.beginPath();
@@ -1066,7 +922,7 @@
         function drawPlacementPreview() {
             if (!game.selectedTowerType) return;
             const def = towerTypes[game.selectedTowerType];
-            const canPlace = canPlace(game.mouseX, game.mouseY);
+            const canPlace = canPlaceTower(game.mouseX, game.mouseY);
             
             ctx.beginPath(); ctx.arc(game.mouseX, game.mouseY, def.range, 0, Math.PI * 2);
             ctx.fillStyle = canPlace ? 'rgba(0,200,83,0.1)' : 'rgba(255,68,68,0.1)'; ctx.fill();
@@ -1077,7 +933,16 @@
             ctx.strokeStyle = canPlace ? def.color : '#ff4444'; ctx.lineWidth = 3; ctx.stroke();
         }
         
-        // Loop
+        function canPlaceTower(x, y) {
+            if (y > canvas.height - 20) return false;
+            for (let i = 0; i < path.length - 1; i++) {
+                const d = pointToLine(x, y, path[i].x, path[i].y, path[i+1].x, path[i+1].y);
+                if (d < 35) return false;
+            }
+            for (const t of game.towers) if (Math.hypot(x - t.x, y - t.y) < 50) return false;
+            return true;
+        }
+        
         function loop() {
             ctx.fillStyle = '#1a1a2e'; ctx.fillRect(0, 0, canvas.width, canvas.height);
             
@@ -1097,7 +962,6 @@
             requestAnimationFrame(loop);
         }
         
-        // Init
         resize();
         updateNextWave();
         updateUI();
