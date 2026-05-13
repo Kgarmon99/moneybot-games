@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Insurance Defender TD</title>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <title>Insurance Defender | MoneyBot Games</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
         body {
-            font-family: 'Nunito', sans-serif;
-            background: #1a1a2e;
-            color: #fff;
+            font-family: 'JetBrains Mono', monospace;
+            background: #000;
+            color: #0f0;
             overflow: hidden;
             touch-action: none;
         }
@@ -22,8 +22,9 @@
         }
         
         .top-bar {
-            background: linear-gradient(180deg, #0f0f1a 0%, #1a1a2e 100%);
-            border-bottom: 3px solid #00C853;
+            background: #000;
+            border-bottom: 2px solid #0f0;
+            box-shadow: 0 0 20px rgba(0,255,0,0.2);
             padding: 8px 12px;
             display: flex;
             justify-content: space-between;
@@ -31,29 +32,53 @@
             gap: 8px;
             flex-shrink: 0;
         }
+        .logo-link { text-decoration: none; }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 10px;
+            background: rgba(0,255,0,0.1);
+            border: 1px solid #0f0;
+            border-radius: 4px;
+        }
+        .logo-icon { font-size: 18px; }
+        .logo-text {
+            font-size: 13px;
+            font-weight: 800;
+            color: #0f0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
         .stat-box {
-            background: rgba(0,0,0,0.4);
-            border-radius: 8px;
+            background: rgba(0,255,0,0.1);
+            border: 1px solid #0f0;
+            border-radius: 4px;
             padding: 6px 12px;
             display: flex;
             align-items: center;
             gap: 6px;
-            font-weight: 800;
-            font-size: 14px;
+            font-weight: 700;
+            font-size: 13px;
             min-width: 80px;
             justify-content: center;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
-        .stat-box .icon { font-size: 16px; }
-        .stat-box .value { color: #00C853; }
-        .stat-box.lives .value { color: #ff4444; }
+        .stat-box .icon { font-size: 14px; }
+        .stat-box .value { color: #0f0; text-shadow: 0 0 10px #0f0; }
+        .stat-box.lives { border-color: #ff4444; }
+        .stat-box.lives .value { color: #ff4444; text-shadow: 0 0 10px #ff4444; }
         
         .wave-box {
-            background: linear-gradient(135deg, rgba(0,200,83,0.2), rgba(0,200,83,0.1));
-            border: 2px solid #00C853;
-            border-radius: 8px;
+            background: #0f0;
+            color: #000;
+            border-radius: 4px;
             padding: 6px 16px;
-            font-weight: 900;
-            font-size: 15px;
+            font-weight: 800;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
         
         .control-btns {
@@ -61,19 +86,19 @@
             gap: 6px;
         }
         .control-btn {
-            background: linear-gradient(135deg, #2a2a4a, #1a1a2e);
-            border: 2px solid #444;
-            border-radius: 8px;
+            background: #000;
+            border: 1px solid #0f0;
+            border-radius: 4px;
             padding: 6px 12px;
-            color: #fff;
+            color: #0f0;
             font-weight: 700;
             font-size: 12px;
             cursor: pointer;
+            text-transform: uppercase;
         }
-        .control-btn:hover { border-color: #00C853; }
+        .control-btn:hover { background: rgba(0,255,0,0.1); box-shadow: 0 0 10px rgba(0,255,0,0.3); }
         .control-btn.active {
-            background: linear-gradient(135deg, #00C853, #00a344);
-            border-color: #00C853;
+            background: #0f0;
             color: #000;
         }
         
@@ -96,39 +121,43 @@
             z-index: 10;
         }
         .start-wave-btn {
-            background: linear-gradient(135deg, #ff6b35, #ff8c42);
+            background: #0f0;
             border: none;
-            border-radius: 25px;
+            border-radius: 4px;
             padding: 12px 28px;
-            color: #fff;
-            font-weight: 900;
-            font-size: 15px;
+            color: #000;
+            font-weight: 800;
+            font-size: 14px;
             cursor: pointer;
-            box-shadow: 0 4px 15px rgba(255,107,53,0.5);
+            box-shadow: 0 0 20px rgba(0,255,0,0.4);
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 2px;
+            font-family: 'JetBrains Mono', monospace;
         }
-        .start-wave-btn:hover { transform: scale(1.05); }
-        .start-wave-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        .start-wave-btn:hover { box-shadow: 0 0 30px rgba(0,255,0,0.6); transform: scale(1.02); }
+        .start-wave-btn:disabled { opacity: 0.5; cursor: not-allowed; background: #333; color: #666; box-shadow: none; }
         
         .side-panel {
             position: absolute;
             right: 10px;
             top: 60px;
             width: 140px;
-            background: rgba(15,15,26,0.95);
-            border: 2px solid #333;
-            border-radius: 12px;
+            background: rgba(0,0,0,0.95);
+            border: 1px solid #0f0;
+            border-radius: 4px;
             padding: 12px;
             z-index: 10;
+            box-shadow: 0 0 20px rgba(0,255,0,0.2);
         }
         .side-title {
-            font-size: 11px;
-            font-weight: 800;
+            font-size: 10px;
+            font-weight: 700;
             text-transform: uppercase;
-            color: #888;
+            color: #0f0;
             margin-bottom: 8px;
             text-align: center;
+            letter-spacing: 1px;
+            opacity: 0.8;
         }
         .next-enemies {
             display: flex;
@@ -147,32 +176,33 @@
         }
         
         .tower-bar {
-            background: linear-gradient(0deg, #0f0f1a 0%, #1a1a2e 100%);
-            border-top: 3px solid #00C853;
+            background: #000;
+            border-top: 2px solid #0f0;
             padding: 10px;
             display: flex;
             justify-content: center;
             gap: 10px;
             flex-wrap: wrap;
             flex-shrink: 0;
+            box-shadow: 0 -5px 20px rgba(0,255,0,0.1);
         }
         .tower-card {
-            background: linear-gradient(135deg, #2a2a4a, #1a1a2e);
-            border: 2px solid #444;
-            border-radius: 12px;
+            background: #000;
+            border: 1px solid #333;
+            border-radius: 4px;
             padding: 8px;
             min-width: 65px;
             text-align: center;
             cursor: pointer;
             transition: all 0.15s;
         }
-        .tower-card:hover { border-color: #00C853; transform: translateY(-3px); }
+        .tower-card:hover { border-color: #0f0; transform: translateY(-2px); box-shadow: 0 0 15px rgba(0,255,0,0.2); }
         .tower-card.selected {
-            border-color: #00C853;
-            background: linear-gradient(135deg, rgba(0,200,83,0.2), rgba(0,200,83,0.1));
-            box-shadow: 0 0 15px rgba(0,200,83,0.4);
+            border-color: #0f0;
+            background: rgba(0,255,0,0.1);
+            box-shadow: 0 0 20px rgba(0,255,0,0.3);
         }
-        .tower-card.disabled { opacity: 0.4; cursor: not-allowed; }
+        .tower-card.disabled { opacity: 0.3; cursor: not-allowed; }
         .tower-card.disabled .tower-cost { color: #ff4444; }
         
         .tower-icon-wrap {
@@ -185,19 +215,19 @@
             justify-content: center;
             font-size: 22px;
         }
-        .tower-card.health .tower-icon-wrap { background: linear-gradient(135deg, #ff6b6b, #ee5a5a); }
-        .tower-card.life .tower-icon-wrap { background: linear-gradient(135deg, #4ecdc4, #44a08d); }
-        .tower-card.home .tower-icon-wrap { background: linear-gradient(135deg, #ffe66d, #f4d03f); }
-        .tower-card.auto .tower-icon-wrap { background: linear-gradient(135deg, #a29bfe, #6c5ce7); }
-        .tower-card.umbrella .tower-icon-wrap { background: linear-gradient(135deg, #ffd700, #ffb347); box-shadow: 0 0 10px rgba(255,215,0,0.5); }
+        .tower-card.health .tower-icon-wrap { background: linear-gradient(135deg, #00C853, #00a344); box-shadow: 0 0 10px rgba(0,200,83,0.4); }
+        .tower-card.life .tower-icon-wrap { background: linear-gradient(135deg, #00a344, #00802b); box-shadow: 0 0 10px rgba(0,163,68,0.4); }
+        .tower-card.home .tower-icon-wrap { background: linear-gradient(135deg, #00e676, #00c853); box-shadow: 0 0 10px rgba(0,230,118,0.4); }
+        .tower-card.auto .tower-icon-wrap { background: linear-gradient(135deg, #69f0ae, #00c853); box-shadow: 0 0 10px rgba(105,240,174,0.4); }
+        .tower-card.umbrella .tower-icon-wrap { background: linear-gradient(135deg, #ffd700, #ffab00); box-shadow: 0 0 15px rgba(255,215,0,0.6); }
         
-        .tower-name { font-size: 10px; font-weight: 700; margin-bottom: 2px; }
-        .tower-cost { font-size: 12px; color: #00C853; font-weight: 800; }
+        .tower-name { font-size: 9px; font-weight: 700; margin-bottom: 2px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .tower-cost { font-size: 11px; color: #0f0; font-weight: 800; }
         
         .modal-overlay {
             position: absolute;
             inset: 0;
-            background: rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.9);
             display: none;
             align-items: center;
             justify-content: center;
@@ -205,21 +235,24 @@
         }
         .modal-overlay.active { display: flex; }
         .upgrade-modal {
-            background: linear-gradient(135deg, #1a1a2e, #0f0f1a);
-            border: 3px solid #00C853;
-            border-radius: 16px;
+            background: #000;
+            border: 2px solid #0f0;
+            border-radius: 4px;
             padding: 20px;
             width: 90%;
             max-width: 400px;
+            box-shadow: 0 0 40px rgba(0,255,0,0.3);
         }
         .upgrade-header {
             text-align: center;
             margin-bottom: 16px;
         }
         .upgrade-header h2 {
-            font-size: 20px;
-            font-weight: 900;
-            color: #00C853;
+            font-size: 18px;
+            font-weight: 800;
+            color: #0f0;
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
         .upgrade-paths {
             display: grid;
@@ -228,39 +261,44 @@
             margin-bottom: 16px;
         }
         .upgrade-path {
-            background: rgba(255,255,255,0.05);
-            border: 2px solid #444;
-            border-radius: 12px;
+            background: rgba(0,255,0,0.05);
+            border: 1px solid #333;
+            border-radius: 4px;
             padding: 12px;
             text-align: center;
             cursor: pointer;
         }
-        .upgrade-path:hover { border-color: #00C853; }
+        .upgrade-path:hover { border-color: #0f0; background: rgba(0,255,0,0.1); }
         .upgrade-path.maxed { border-color: #ffd700; background: rgba(255,215,0,0.1); }
-        .upgrade-path-name { font-size: 12px; font-weight: 800; margin-bottom: 8px; }
+        .upgrade-path-name { font-size: 11px; font-weight: 700; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
         .upgrade-levels { display: flex; justify-content: center; gap: 4px; margin-bottom: 8px; }
-        .upgrade-level { width: 16px; height: 16px; border-radius: 50%; background: #333; }
-        .upgrade-level.active { background: #00C853; box-shadow: 0 0 8px rgba(0,200,83,0.5); }
-        .upgrade-level.max { background: #ffd700; box-shadow: 0 0 8px rgba(255,215,0,0.5); }
-        .upgrade-cost { font-size: 14px; font-weight: 800; color: #00C853; }
+        .upgrade-level { width: 14px; height: 14px; border-radius: 50%; background: #111; border: 1px solid #333; }
+        .upgrade-level.active { background: #0f0; box-shadow: 0 0 10px rgba(0,255,0,0.5); border-color: #0f0; }
+        .upgrade-level.max { background: #ffd700; box-shadow: 0 0 10px rgba(255,215,0,0.5); border-color: #ffd700; }
+        .upgrade-cost { font-size: 13px; font-weight: 800; color: #0f0; }
         
         .sell-section { display: flex; gap: 10px; }
         .sell-btn, .close-modal {
             flex: 1;
             padding: 12px;
-            border: none;
-            border-radius: 10px;
-            font-weight: 800;
-            font-size: 14px;
+            border: 1px solid;
+            border-radius: 4px;
+            font-weight: 700;
+            font-size: 13px;
             cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-family: 'JetBrains Mono', monospace;
         }
-        .sell-btn { background: linear-gradient(135deg, #ff6b6b, #ee5a5a); color: #fff; }
-        .close-modal { background: #333; color: #fff; }
+        .sell-btn { background: transparent; border-color: #ff4444; color: #ff4444; }
+        .sell-btn:hover { background: rgba(255,68,68,0.1); box-shadow: 0 0 10px rgba(255,68,68,0.3); }
+        .close-modal { background: transparent; border-color: #0f0; color: #0f0; }
+        .close-modal:hover { background: rgba(0,255,0,0.1); box-shadow: 0 0 10px rgba(0,255,0,0.3); }
         
         .game-over {
             position: absolute;
             inset: 0;
-            background: rgba(0,0,0,0.9);
+            background: rgba(0,0,0,0.95);
             display: none;
             flex-direction: column;
             align-items: center;
@@ -268,33 +306,45 @@
             z-index: 200;
         }
         .game-over.active { display: flex; }
-        .game-over h1 { font-size: 48px; font-weight: 900; margin-bottom: 20px; }
-        .game-over.victory h1 { color: #00C853; }
-        .game-over.defeat h1 { color: #ff4444; }
+        .game-over h1 { font-size: 42px; font-weight: 800; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 4px; }
+        .game-over.victory h1 { color: #0f0; text-shadow: 0 0 20px #0f0; }
+        .game-over.defeat h1 { color: #ff4444; text-shadow: 0 0 20px #ff4444; }
         .final-stats {
-            background: rgba(255,255,255,0.1);
-            border-radius: 16px;
+            background: rgba(0,255,0,0.05);
+            border: 1px solid #0f0;
+            border-radius: 4px;
             padding: 24px 40px;
             margin-bottom: 24px;
             text-align: center;
         }
-        .final-stat { font-size: 18px; margin: 10px 0; }
-        .final-stat span { color: #00C853; font-weight: 800; }
+        .final-stat { font-size: 16px; margin: 10px 0; text-transform: uppercase; letter-spacing: 1px; }
+        .final-stat span { color: #0f0; font-weight: 800; text-shadow: 0 0 10px #0f0; }
         .restart-btn {
-            background: linear-gradient(135deg, #00C853, #00a344);
+            background: #0f0;
             border: none;
-            border-radius: 12px;
+            border-radius: 4px;
             padding: 16px 40px;
             color: #000;
-            font-weight: 900;
-            font-size: 18px;
+            font-weight: 800;
+            font-size: 16px;
             cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-family: 'JetBrains Mono', monospace;
+            box-shadow: 0 0 20px rgba(0,255,0,0.4);
         }
+        .restart-btn:hover { box-shadow: 0 0 30px rgba(0,255,0,0.6); }
     </style>
 </head>
 <body>
     <div id="game">
         <div class="top-bar">
+            <a href="../moneybot-official/" class="logo-link">
+                <div class="logo">
+                    <span class="logo-icon">🤖</span>
+                    <span class="logo-text">MoneyBot</span>
+                </div>
+            </a>
             <div class="stat-box lives">
                 <span class="icon">❤️</span>
                 <span class="value" id="lives">20</span>
@@ -391,22 +441,22 @@
         const towerTypes = {
             health: { 
                 name: 'Health Insurance', cost: 150, damage: 15, range: 100, fireRate: 350, 
-                color: '#ff6b6b', speed: 10,
+                color: '#00C853', speed: 10,
                 paths: { a: { name: 'Rapid' }, b: { name: 'Strong' } }
             },
             life: { 
                 name: 'Life Insurance', cost: 250, damage: 60, range: 160, fireRate: 1000, 
-                color: '#4ecdc4', speed: 7,
+                color: '#00a344', speed: 7,
                 paths: { a: { name: 'Range' }, b: { name: 'Power' } }
             },
             home: { 
                 name: 'Home Insurance', cost: 350, damage: 35, range: 120, fireRate: 700, 
-                color: '#ffe66d', speed: 6, area: true,
+                color: '#00e676', speed: 6, area: true,
                 paths: { a: { name: 'Splash' }, b: { name: 'Burn' } }
             },
             auto: { 
                 name: 'Auto Insurance', cost: 200, damage: 25, range: 110, fireRate: 450, 
-                color: '#a29bfe', speed: 12, stun: true,
+                color: '#69f0ae', speed: 12, stun: true,
                 paths: { a: { name: 'Fast' }, b: { name: 'Stun' } }
             },
             umbrella: { 
@@ -417,10 +467,10 @@
         };
         
         const enemyTypes = {
-            medical: { name: 'Medical Bill', health: 30, speed: 1.8, reward: 15, color: '#ff6b6b', icon: '+' },
-            car: { name: 'Car Accident', health: 55, speed: 2.2, reward: 25, color: '#4ecdc4', icon: '🚗' },
-            home: { name: 'Home Damage', health: 90, speed: 1.2, reward: 40, color: '#ffe66d', icon: '🏠' },
-            lawsuit: { name: 'Lawsuit', health: 180, speed: 0.9, reward: 80, color: '#a29bfe', icon: '⚖️' },
+            medical: { name: 'Medical Bill', health: 30, speed: 1.8, reward: 15, color: '#ff5252', icon: '+' },
+            car: { name: 'Car Accident', health: 55, speed: 2.2, reward: 25, color: '#448aff', icon: '🚗' },
+            home: { name: 'Home Damage', health: 90, speed: 1.2, reward: 40, color: '#ffab40', icon: '🏠' },
+            lawsuit: { name: 'Lawsuit', health: 180, speed: 0.9, reward: 80, color: '#e040fb', icon: '⚖️' },
             catastrophe: { name: 'Catastrophe', health: 600, speed: 0.6, reward: 250, color: '#ff1744', icon: '💀', boss: true },
             fraud: { name: 'Fraud', health: 100, speed: 3, reward: 100, color: '#ff00ff', icon: '🎭', stealth: true }
         };
