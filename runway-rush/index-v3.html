@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Burn Rate — YC Startup School</title>
+  <link rel="stylesheet" href="style.css?cb=20260518">
+</head>
+<body>
+  <div id="game">
+    <!-- HUD -->
+    <header class="hud">
+      <div class="hud-brand">
+        <div class="yc-mark">Y</div>
+        <span class="hud-title">Burn Rate</span>
+      </div>
+      <div class="hud-stats">
+        <div class="stat" id="runway-stat">
+          <span class="stat-label">Runway</span>
+          <span class="stat-value" id="runway">6</span>
+          <span class="stat-unit">mo</span>
+        </div>
+        <div class="stat" id="cash-stat">
+          <span class="stat-label">Cash</span>
+          <span class="stat-value" id="cash">$50K</span>
+        </div>
+        <div class="stat" id="burn-stat">
+          <span class="stat-label">Burn</span>
+          <span class="stat-value" id="burn">$8K</span>
+          <span class="stat-unit">/mo</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Game Canvas -->
+    <canvas id="gameCanvas"></canvas>
+
+    <!-- Tower Selection -->
+    <div class="tower-bar">
+      <div class="tower-card" data-tower="saas">
+        <div class="tower-icon">💻</div>
+        <div class="tower-name">SaaS</div>
+        <div class="tower-cost">$5K</div>
+        <div class="tower-desc">Recurring</div>
+      </div>
+      <div class="tower-card" data-tower="consulting">
+        <div class="tower-icon">💼</div>
+        <div class="tower-name">Consult</div>
+        <div class="tower-cost">$3K</div>
+        <div class="tower-desc">High dmg</div>
+      </div>
+      <div class="tower-card" data-tower="content">
+        <div class="tower-icon">📝</div>
+        <div class="tower-name">Content</div>
+        <div class="tower-cost">$2K</div>
+        <div class="tower-desc">Slow, cheap</div>
+      </div>
+      <div class="tower-card" data-tower="enterprise">
+        <div class="tower-icon">🏢</div>
+        <div class="tower-name">Enterprise</div>
+        <div class="tower-cost">$10K</div>
+        <div class="tower-desc">Slow, big</div>
+      </div>
+      <div class="tower-card" data-tower="cut">
+        <div class="tower-icon">✂️</div>
+        <div class="tower-name">Cost Cut</div>
+        <div class="tower-cost">$0</div>
+        <div class="tower-desc">Reduce burn</div>
+      </div>
+    </div>
+
+    <!-- Start Screen -->
+    <div class="screen" id="start-screen">
+      <div class="screen-card">
+        <div class="yc-logo">Y</div>
+        <h1>Burn Rate</h1>
+        <p class="screen-sub">Defend your runway. Destroy expenses before they burn your cash.</p>
+        <div class="screen-lesson">
+          <span class="lesson-tag">YC Lesson</span>
+          <span class="lesson-name">Don't die</span>
+        </div>
+        <button class="btn-primary" id="start-btn">Start</button>
+        <button class="btn-secondary" id="how-btn">How to Play</button>
+      </div>
+    </div>
+
+    <!-- How to Play -->
+    <div class="screen hidden" id="how-screen">
+      <div class="screen-card scroll">
+        <h2>How to Play</h2>
+        <div class="how-section">
+          <h3>🎯 Goal</h3>
+          <p>Survive 12 months. Place revenue towers to destroy expenses before they reach your cash pile.</p>
+        </div>
+        <div class="how-section">
+          <h3>🎮 Controls</h3>
+          <ul>
+            <li><strong>Tap tower</strong> → Select tower type</li>
+            <li><strong>Tap map</strong> → Place tower</li>
+            <li><strong>Green path</strong> → Expense route</li>
+            <li><strong>Red dot</strong> → Your cash pile (don't let expenses reach it!)</li>
+          </ul>
+        </div>
+        <div class="how-section">
+          <h3>💡 Strategy</h3>
+          <ul>
+            <li><strong>SaaS</strong> — Best ROI, recurring revenue</li>
+            <li><strong>Consulting</strong> — High damage, one-time</li>
+            <li><strong>Content</strong> — Cheap, slow but steady</li>
+            <li><strong>Enterprise</strong> — Expensive, massive deals</li>
+            <li><strong>Cost Cut</strong> — Free! Reduces enemy speed</li>
+          </ul>
+        </div>
+        <button class="btn-primary" id="how-back">Got it</button>
+      </div>
+    </div>
+
+    <!-- Wave Screen -->
+    <div class="screen hidden" id="wave-screen">
+      <div class="screen-card">
+        <div class="wave-number" id="wave-number">Month 1</div>
+        <div class="wave-title" id="wave-title">The Beginning</div>
+        <div class="wave-enemies" id="wave-enemies">Rent: $2K, Servers: $500</div>
+        <button class="btn-primary" id="wave-start">Start Month</button>
+      </div>
+    </div>
+
+    <!-- Win Screen -->
+    <div class="screen hidden" id="win-screen">
+      <div class="screen-card">
+        <div class="screen-emoji">🎉</div>
+        <h1>Survived!</h1>
+        <p class="screen-sub">You made it 12 months. Your startup lives!</p>
+        <div class="final-stats">
+          <div class="final-stat">
+            <span class="final-value" id="final-cash">$12K</span>
+            <span class="final-label">Cash Left</span>
+          </div>
+          <div class="final-stat">
+            <span class="final-value" id="final-towers">8</span>
+            <span class="final-label">Revenue Streams</span>
+          </div>
+        </div>
+        <button class="btn-primary" id="replay-btn">Play Again</button>
+      </div>
+    </div>
+
+    <!-- Loss Screen -->
+    <div class="screen hidden" id="loss-screen">
+      <div class="screen-card">
+        <div class="screen-emoji">💸</div>
+        <h1>Bankrupt</h1>
+        <p class="screen-sub" id="loss-reason">Your runway ran out in month 7.</p>
+        <div class="tip-box">
+          <strong>💡 YC Lesson:</strong>
+          <p id="loss-tip">Build recurring revenue early. SaaS towers compound over time.</p>
+        </div>
+        <button class="btn-primary" id="try-btn">Try Again</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="game.js?cb=20260518"></script>
+</body>
+</html>
