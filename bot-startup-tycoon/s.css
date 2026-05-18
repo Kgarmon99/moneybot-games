@@ -48,7 +48,7 @@ body, html {
   background: var(--mb-ink);
   overflow-y: auto;
 }
-.screen.active { display: flex !important; }
+/* .screen.active moved to end of file */
 
 /* ===== START SCREEN ===== */
 .logo-area { text-align: center; margin: 20px 0 30px; }
@@ -354,3 +354,5 @@ h1.danger { color: var(--mb-red); }
 }
 /* Card animation removed for reliability - cards show immediately */
 .card { opacity: 1; transform: none; }
+
+.screen.active { display: flex !important; }

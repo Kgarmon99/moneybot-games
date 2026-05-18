@@ -12,6 +12,7 @@ const Game = {
   reputation: 0,
   automation: 0,
   tasksCompleted: 0,
+  secondsElapsed: 0,
   activeTasks: [],
   history: [],
   gameOver: false,
@@ -46,7 +47,7 @@ function init() {
 function startGame() {
   Object.assign(Game, {
     users: 0, target: 100, week: 1, maxWeeks: 20,
-    reputation: 0, automation: 0, tasksCompleted: 0,
+    reputation: 0, automation: 0, tasksCompleted: 0, secondsElapsed: 0,
     activeTasks: [], history: [], gameOver: false, won: false
   });
   
@@ -69,6 +70,9 @@ function startGameLoop() {
 }
 
 function tick() {
+  Game.secondsElapsed++;
+  Game.week = Math.min(Game.maxWeeks, 1 + Math.floor(Game.secondsElapsed / 6));
+
   // Progress active tasks
   Game.activeTasks = Game.activeTasks.filter(task => {
     task.progress += 1;
@@ -143,6 +147,8 @@ function showMilestone(n) {
 function updateHUD() {
   $('score').textContent = Game.users;
   $('round').textContent = `Week ${Game.week}/${Game.maxWeeks}`;
+  const viralEl = $('viral-display');
+  if (viralEl) viralEl.textContent = Game.automation ? `${Game.automation.toFixed(1)}x` : 'Manual';
   
   const userPct = Math.min((Game.users / Game.target) * 100, 100);
   const userBar = $('user-bar');

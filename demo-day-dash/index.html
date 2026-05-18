@@ -22,7 +22,11 @@
         </div>
         <div class="stat-pill" id="time-pill">
           <span class="stat-label">Time</span>
-          <span class="stat-value" id="time">60</span>
+          <span class="stat-value" id="time-display">3:00</span>
+        </div>
+        <div class="stat-pill">
+          <span class="stat-label">Slide</span>
+          <span class="stat-value" id="round">1/10</span>
         </div>
       </div>
     </header>
@@ -30,6 +34,7 @@
     <!-- Timer Bar -->
     <div class="timer-bar">
       <div class="timer-fill" id="timer-fill"></div>
+      <div class="progress-fill" id="hype-bar"></div>
     </div>
 
     <!-- Main Play Area -->
@@ -127,7 +132,7 @@
       <div class="modal-card">
         <div class="modal-mascot">🎉</div>
         <h1>Funded!</h1>
-        <p class="modal-subtitle">The partners want to invest.</p>
+        <p class="modal-subtitle" id="win-reason">The partners want to invest.</p>
         
         <div class="valuation-display">
           <span class="valuation-label">Pre-money valuation</span>
