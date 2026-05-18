@@ -141,8 +141,8 @@
     };
     updateHUD();
     hud.classList.remove('hidden');
-    renderCards();
     showScreen('game');
+    renderCards();
   }
 
   function renderCards() {
