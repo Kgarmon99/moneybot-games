@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Restaurant Tycoon</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="s.css">
+</head>
+<body>
+    <div id="app">
+        <header id="hud" class="hidden">
+            <div class="hud-row">
+                <div class="hud-pill">
+                    <span class="hud-label">DAY</span>
+                    <span id="day-val" class="hud-value">1</span>
+                </div>
+                <div class="hud-pill cash">
+                    <span class="hud-label">CASH</span>
+                    <span id="cash-val" class="hud-value">$10K</span>
+                </div>
+                <div class="hud-pill">
+                    <span class="hud-label">RATING</span>
+                    <span id="rating-val" class="hud-value">3.0</span>
+                </div>
+            </div>
+            <div class="hud-row metrics">
+                <div class="metric">
+                    <span class="metric-label">CUSTOMERS</span>
+                    <span id="customers-val" class="metric-value">0</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">REVENUE</span>
+                    <span id="revenue-val" class="metric-value good">$0</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">COSTS</span>
+                    <span id="costs-val" class="metric-value danger">$0</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">PROFIT</span>
+                    <span id="profit-val" class="metric-value">$0</span>
+                </div>
+            </div>
+        </header>
+
+        <div id="start-screen" class="screen active">
+            <div class="logo-area">
+                <div class="mascot">🍽️</div>
+                <h1>RESTAURANT<br><span class="highlight">TYCOON</span></h1>
+                <p class="tagline">Feed the city. Run the numbers. Build an empire.</p>
+            </div>
+            <div class="instructions">
+                <div class="inst-item"><span class="inst-icon">📋</span> Set menu prices and control portion costs</div>
+                <div class="inst-item"><span class="inst-icon">👨‍🍳</span> Hire cooks and servers to handle rushes</div>
+                <div class="inst-item"><span class="inst-icon">📢</span> Market to bring in more customers</div>
+                <div class="inst-item"><span class="inst-icon">⭐</span> Keep ratings high or reviews kill you</div>
+            </div>
+            <button id="start-btn" class="btn-primary">OPEN KITCHEN</button>
+        </div>
+
+        <div id="game-screen" class="screen hidden">
+            <div id="event-banner" class="event-banner hidden"></div>
+            <div id="day-summary" class="day-summary hidden">
+                <h3>Yesterday's Results</h3>
+                <div class="summary-grid">
+                    <div class="summary-row"><span>Customers</span><span id="sum-customers">0</span></div>
+                    <div class="summary-row"><span>Revenue</span><span id="sum-revenue" class="good">$0</span></div>
+                    <div class="summary-row"><span>Food Cost</span><span id="sum-food" class="danger">$0</span></div>
+                    <div class="summary-row"><span>Labor</span><span id="sum-labor" class="danger">$0</span></div>
+                    <div class="summary-row"><span>Rent & Utils</span><span id="sum-rent" class="danger">$0</span></div>
+                    <div class="summary-row highlight"><span>Net Profit</span><span id="sum-profit">$0</span></div>
+                </div>
+                <div id="sum-tip" class="tip-box"></div>
+                <button id="close-summary-btn" class="btn-primary">NEXT DAY</button>
+            </div>
+            <div id="action-panel" class="action-panel">
+                <div class="panel-header">
+                    <span class="panel-title">ACTIONS</span>
+                </div>
+                <div id="actions-list" class="actions-list"></div>
+            </div>
+            <div class="upgrades-panel">
+                <div class="panel-header">
+                    <span class="panel-title">UPGRADES</span>
+                </div>
+                <div id="upgrades-list" class="upgrades-list"></div>
+            </div>
+        </div>
+
+        <div id="gameover-screen" class="screen hidden">
+            <div class="mascot big">🚫</div>
+            <h1 class="danger">CLOSED</h1>
+            <p class="subtitle">Your restaurant couldn't survive.</p>
+            <div class="final-stats">
+                <div class="final-row"><span>Days Open</span><span id="final-days">0</span></div>
+                <div class="final-row"><span>Peak Rating</span><span id="final-peak-rating">0</span></div>
+                <div class="final-row"><span>Total Profit</span><span id="final-profit">$0</span></div>
+                <div class="final-row"><span>Best Day</span><span id="final-best">$0</span></div>
+            </div>
+            <div id="go-tip" class="tip-box"></div>
+            <button id="restart-btn" class="btn-primary">TRY AGAIN</button>
+        </div>
+
+        <div id="win-screen" class="screen hidden">
+            <div class="mascot big">🏆</div>
+            <h1 class="highlight">EMPIRE BUILT!</h1>
+            <p class="subtitle">Your restaurant is a city landmark.</p>
+            <div class="final-stats">
+                <div class="final-row"><span>Days to Success</span><span id="win-days">0</span></div>
+                <div class="final-row"><span>Final Rating</span><span id="win-rating">0</span></div>
+                <div class="final-row"><span>Total Profit</span><span id="win-profit">$0</span></div>
+                <div class="final-row"><span>Cash</span><span id="win-cash">$0</span></div>
+            </div>
+            <button id="win-restart-btn" class="btn-primary">OPEN NEW LOCATION</button>
+        </div>
+    </div>
+    <script src="g.js"></script>
+</body>
+</html>
