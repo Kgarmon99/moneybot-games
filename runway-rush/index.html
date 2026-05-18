@@ -32,44 +32,40 @@
       </div>
     </header>
 
-    <!-- Month Banner -->
-    <div class="month-bar">
-      <span id="month-text">Month 1 of 12</span>
-      <div class="month-track">
-        <div class="month-fill" id="month-fill"></div>
-      </div>
-    </div>
+    <!-- Game Canvas -->
+    <canvas id="gameCanvas"></canvas>
 
-    <!-- Main Play Area -->
-    <main class="play">
-      <!-- Event Card -->
-      <div class="event-card" id="event-card">
-        <div class="event-icon" id="event-icon">📅</div>
-        <h2 class="event-title" id="event-title">Monthly Decision</h2>
-        <p class="event-desc" id="event-desc">A new month begins. Your burn rate is $8,000. What do you prioritize?</p>
+    <!-- Tower Selection -->
+    <div class="tower-bar">
+      <div class="tower-card" data-tower="saas">
+        <div class="tower-icon">💻</div>
+        <div class="tower-name">SaaS</div>
+        <div class="tower-cost">$5K</div>
+        <div class="tower-desc">Recurring</div>
       </div>
-
-      <!-- Decision Cards -->
-      <div class="choices" id="choices">
-        <!-- Injected by JS -->
+      <div class="tower-card" data-tower="consulting">
+        <div class="tower-icon">💼</div>
+        <div class="tower-name">Consult</div>
+        <div class="tower-cost">$3K</div>
+        <div class="tower-desc">High dmg</div>
       </div>
-
-      <!-- Feedback Overlay -->
-      <div class="feedback hidden" id="feedback">
-        <div class="feedback-content">
-          <div class="feedback-icon" id="feedback-icon">✅</div>
-          <div class="feedback-text" id="feedback-text">Smart move!</div>
-          <div class="feedback-detail" id="feedback-detail">Recurring revenue compounds.</div>
-        </div>
+      <div class="tower-card" data-tower="content">
+        <div class="tower-icon">📝</div>
+        <div class="tower-name">Content</div>
+        <div class="tower-cost">$2K</div>
+        <div class="tower-desc">Slow, cheap</div>
       </div>
-    </main>
-
-    <!-- Runway Visual -->
-    <div class="runway-viz">
-      <div class="runway-label">Runway</div>
-      <div class="runway-track">
-        <div class="runway-fill" id="runway-fill"></div>
-        <div class="runway-plane" id="runway-plane">✈️</div>
+      <div class="tower-card" data-tower="enterprise">
+        <div class="tower-icon">🏢</div>
+        <div class="tower-name">Enterprise</div>
+        <div class="tower-cost">$10K</div>
+        <div class="tower-desc">Slow, big</div>
+      </div>
+      <div class="tower-card" data-tower="cut">
+        <div class="tower-icon">✂️</div>
+        <div class="tower-name">Cost Cut</div>
+        <div class="tower-cost">$0</div>
+        <div class="tower-desc">Reduce burn</div>
       </div>
     </div>
 
@@ -78,7 +74,7 @@
       <div class="screen-card">
         <div class="yc-logo">Y</div>
         <h1>Burn Rate</h1>
-        <p class="screen-sub">Don't die. Manage cashflow. Survive the year.</p>
+        <p class="screen-sub">Defend your runway. Destroy expenses before they burn your cash.</p>
         <div class="screen-lesson">
           <span class="lesson-tag">YC Lesson</span>
           <span class="lesson-name">Don't die</span>
@@ -94,25 +90,38 @@
         <h2>How to Play</h2>
         <div class="how-section">
           <h3>🎯 Goal</h3>
-          <p>Survive 12 months. Don't let your runway hit zero.</p>
+          <p>Survive 12 months. Place revenue towers to destroy expenses before they reach your cash pile.</p>
         </div>
         <div class="how-section">
-          <h3>📊 Key Numbers</h3>
+          <h3>🎮 Controls</h3>
           <ul>
-            <li><strong>Runway:</strong> Months until bankruptcy</li>
-            <li><strong>Cash:</strong> Money in the bank</li>
-            <li><strong>Burn:</strong> Monthly expenses</li>
+            <li><strong>Tap tower</strong> → Select tower type</li>
+            <li><strong>Tap map</strong> → Place tower</li>
+            <li><strong>Green path</strong> → Expense route</li>
+            <li><strong>Red dot</strong> → Your cash pile (don't let expenses reach it!)</li>
           </ul>
         </div>
         <div class="how-section">
-          <h3>💡 Tips</h3>
+          <h3>💡 Strategy</h3>
           <ul>
-            <li>Recurring revenue > one-time sales</li>
-            <li>Cut costs early — they compound</li>
-            <li>Build an emergency fund</li>
+            <li><strong>SaaS</strong> — Best ROI, recurring revenue</li>
+            <li><strong>Consulting</strong> — High damage, one-time</li>
+            <li><strong>Content</strong> — Cheap, slow but steady</li>
+            <li><strong>Enterprise</strong> — Expensive, massive deals</li>
+            <li><strong>Cost Cut</strong> — Free! Reduces enemy speed</li>
           </ul>
         </div>
         <button class="btn-primary" id="how-back">Got it</button>
+      </div>
+    </div>
+
+    <!-- Wave Screen -->
+    <div class="screen hidden" id="wave-screen">
+      <div class="screen-card">
+        <div class="wave-number" id="wave-number">Month 1</div>
+        <div class="wave-title" id="wave-title">The Beginning</div>
+        <div class="wave-enemies" id="wave-enemies">Rent: $2K, Servers: $500</div>
+        <button class="btn-primary" id="wave-start">Start Month</button>
       </div>
     </div>
 
@@ -121,15 +130,15 @@
       <div class="screen-card">
         <div class="screen-emoji">🎉</div>
         <h1>Survived!</h1>
-        <p class="screen-sub">You made it 12 months.</p>
+        <p class="screen-sub">You made it 12 months. Your startup lives!</p>
         <div class="final-stats">
-          <div class="final-stat">
-            <span class="final-value" id="final-runway">8</span>
-            <span class="final-label">Months Runway</span>
-          </div>
           <div class="final-stat">
             <span class="final-value" id="final-cash">$12K</span>
             <span class="final-label">Cash Left</span>
+          </div>
+          <div class="final-stat">
+            <span class="final-value" id="final-towers">8</span>
+            <span class="final-label">Revenue Streams</span>
           </div>
         </div>
         <button class="btn-primary" id="replay-btn">Play Again</button>
@@ -144,7 +153,7 @@
         <p class="screen-sub" id="loss-reason">Your runway ran out in month 7.</p>
         <div class="tip-box">
           <strong>💡 YC Lesson:</strong>
-          <p id="loss-tip">Build recurring revenue early. One-time sales don't extend runway.</p>
+          <p id="loss-tip">Build recurring revenue early. SaaS towers compound over time.</p>
         </div>
         <button class="btn-primary" id="try-btn">Try Again</button>
       </div>
