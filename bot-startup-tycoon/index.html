@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Startup Tycoon</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app">
+        <!-- HUD -->
+        <header id="hud" class="hidden">
+            <div class="hud-row">
+                <div class="hud-pill">
+                    <span class="hud-label">MONTH</span>
+                    <span id="month-val" class="hud-value">1</span>
+                </div>
+                <div class="hud-pill">
+                    <span class="hud-label">RUNWAY</span>
+                    <span id="runway-val" class="hud-value">18 mo</span>
+                </div>
+                <div class="hud-pill cash">
+                    <span class="hud-label">CASH</span>
+                    <span id="cash-val" class="hud-value">$500K</span>
+                </div>
+            </div>
+            <div class="hud-row metrics">
+                <div class="metric">
+                    <span class="metric-label">MRR</span>
+                    <span id="mrr-val" class="metric-value">$0</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">BURN</span>
+                    <span id="burn-val" class="metric-value danger">-$25K</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">TEAM</span>
+                    <span id="team-val" class="metric-value">2</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">PRODUCT</span>
+                    <span id="product-val" class="metric-value">MVP</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Start Screen -->
+        <div id="start-screen" class="screen active">
+            <div class="logo-area">
+                <div class="mascot">🤖</div>
+                <h1>STARTUP<br><span class="highlight">TYCOON</span></h1>
+                <p class="tagline">Build a company. Don't run out of cash.</p>
+            </div>
+            <div class="instructions">
+                <div class="inst-item"><span class="inst-icon">📅</span> Each month, pick one action</div>
+                <div class="inst-item"><span class="inst-icon">💰</span> Grow MRR to become profitable</div>
+                <div class="inst-item"><span class="inst-icon">👥</span> Hire to build faster, but burn more</div>
+                <div class="inst-item"><span class="inst-icon">🚀</span> Raise money when runway gets low</div>
+            </div>
+            <button id="start-btn" class="btn-primary">START COMPANY</button>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="game-screen" class="screen hidden">
+            <div id="event-banner" class="event-banner hidden"></div>
+            <div id="cards-container" class="cards-container"></div>
+            <div class="phase-label" id="phase-label">Choose your action for Month 1</div>
+        </div>
+
+        <!-- Month Summary -->
+        <div id="summary-screen" class="screen hidden">
+            <h2>MONTH <span id="summary-month">1</span> REPORT</h2>
+            <div class="summary-grid">
+                <div class="summary-row">
+                    <span>Starting Cash</span>
+                    <span id="sum-start-cash">$500K</span>
+                </div>
+                <div class="summary-row">
+                    <span>Revenue Added</span>
+                    <span id="sum-revenue" class="good">+$0</span>
+                </div>
+                <div class="summary-row">
+                    <span>Burn Rate</span>
+                    <span id="sum-burn" class="danger">-$25K</span>
+                </div>
+                <div class="summary-row highlight">
+                    <span>Ending Cash</span>
+                    <span id="sum-end-cash">$475K</span>
+                </div>
+                <div class="summary-row">
+                    <span>Runway</span>
+                    <span id="sum-runway">19 months</span>
+                </div>
+            </div>
+            <div id="sum-tip" class="tip-box"></div>
+            <button id="next-month-btn" class="btn-primary">NEXT MONTH</button>
+        </div>
+
+        <!-- Game Over -->
+        <div id="gameover-screen" class="screen hidden">
+            <div class="mascot big">💀</div>
+            <h1 class="danger">OUT OF CASH</h1>
+            <p class="subtitle">Your startup didn't make it.</p>
+            <div class="final-stats">
+                <div class="final-row">
+                    <span>Months Survived</span>
+                    <span id="final-months" class="highlight">12</span>
+                </div>
+                <div class="final-row">
+                    <span>Peak MRR</span>
+                    <span id="final-mrr">$12K</span>
+                </div>
+                <div class="final-row">
+                    <span>Team Size</span>
+                    <span id="final-team">5</span>
+                </div>
+                <div class="final-row">
+                    <span>Final Product</span>
+                    <span id="final-product">Beta</span>
+                </div>
+            </div>
+            <div id="final-tip" class="tip-box"></div>
+            <button id="restart-btn" class="btn-primary">TRY AGAIN</button>
+        </div>
+
+        <!-- Win Screen -->
+        <div id="win-screen" class="screen hidden">
+            <div class="mascot big">🦄</div>
+            <h1 class="highlight">PROFITABLE!</h1>
+            <p class="subtitle">Your startup is default alive.</p>
+            <div class="final-stats">
+                <div class="final-row">
+                    <span>Months to Profit</span>
+                    <span id="win-months" class="highlight">24</span>
+                </div>
+                <div class="final-row">
+                    <span>MRR</span>
+                    <span id="win-mrr">$85K</span>
+                </div>
+                <div class="final-row">
+                    <span>Team</span>
+                    <span id="win-team">8</span>
+                </div>
+                <div class="final-row">
+                    <span>Cash Remaining</span>
+                    <span id="win-cash">$420K</span>
+                </div>
+            </div>
+            <button id="win-restart-btn" class="btn-primary">PLAY AGAIN</button>
+        </div>
+    </div>
+    <script src="game.js"></script>
+</body>
+</html>

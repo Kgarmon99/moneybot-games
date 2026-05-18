@@ -471,6 +471,51 @@
             display: none;
         }
         
+        /* YC Startup School Branding */
+        .yc-section {
+            background: linear-gradient(180deg, rgba(255,102,0,0.05) 0%, transparent 100%);
+            border: 1px solid rgba(255,102,0,0.2);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 60px;
+        }
+        .yc-section .section-header {
+            border-bottom-color: rgba(255,102,0,0.3);
+        }
+        .yc-section .section-icon {
+            background: linear-gradient(135deg, #FF6600, #FF8533);
+            border-color: #FF6600;
+            color: white;
+            font-weight: 900;
+            font-size: 24px;
+        }
+        .yc-section .section-title {
+            color: #FF6600;
+            text-shadow: 0 0 20px rgba(255,102,0,0.3);
+        }
+        .yc-card {
+            border-color: rgba(255,102,0,0.3) !important;
+        }
+        .yc-card:hover {
+            border-color: #FF6600 !important;
+            box-shadow: 0 0 30px rgba(255,102,0,0.2), 0 10px 40px rgba(0,0,0,0.5) !important;
+        }
+        .yc-card .game-tag {
+            background: rgba(255,102,0,0.15) !important;
+            color: #FF8533 !important;
+            border-color: rgba(255,102,0,0.3) !important;
+        }
+        .yc-card .game-play-btn {
+            background: #FF6600 !important;
+            color: white !important;
+        }
+        .yc-card .game-play-btn:hover {
+            box-shadow: 0 0 20px rgba(255,102,0,0.4) !important;
+        }
+        .yc-card .game-title {
+            color: #FF8533 !important;
+        }
+        
         .game-image {
             aspect-ratio: 16/10;
             background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
@@ -908,6 +953,7 @@
                 <button class="filter-tag" data-filter="tax">Tax</button>
                 <button class="filter-tag" data-filter="insurance">Insurance</button>
                 <button class="filter-tag" data-filter="career">Career</button>
+                <button class="filter-tag" data-filter="yc">YC School</button>
                 <select class="sort-select" id="sortSelect">
                     <option value="featured">Featured</option>
                     <option value="newest">Newest</option>
@@ -920,6 +966,20 @@
     
     <!-- Main Content -->
     <main class="main-content">
+        <!-- YC Startup School Section -->
+        <section class="section yc-section" id="yc">
+            <div class="section-header">
+                <div class="section-title-group">
+                    <div class="section-icon">Y</div>
+                    <h2 class="section-title">YC Startup School</h2>
+                </div>
+                <span class="section-count">9 games</span>
+            </div>
+            <div class="games-grid" id="ycGrid">
+                <!-- YC games will be populated by JS -->
+            </div>
+        </section>
+
         <!-- Featured Section -->
         <section class="section" id="featured">
             <div class="section-header">
@@ -1203,23 +1263,25 @@
                 .join(' ');
         }
 
-        function renderGameCard(game, featured = false) {
+        function renderGameCard(game, featured = false, isYC = false) {
             const difficultyClass = game.difficulty === 'classic' ? 'badge-difficulty-easy' : 'badge-difficulty-' + game.difficulty;
             const featuredClass = featured ? 'featured-game' : '';
+            const ycClass = isYC ? 'yc-card' : '';
             const newBadge = game.new ? '<span class="game-badge badge-new">New</span>' : '';
             const featuredBadge = game.featured ? '<span class="game-badge badge-featured">Featured</span>' : '';
             const externalBadge = game.external ? '<span class="game-badge badge-featured">Classic</span>' : '';
+            const ycBadge = isYC ? '<span class="game-badge yc-badge">YC</span>' : '';
             const targetAttr = game.external ? ' target="_blank" rel="noopener noreferrer"' : '';
             const imageHtml = game.image
                 ? '<img src="' + escapeHtml(game.image) + '" alt="' + escapeHtml(game.title) + '" loading="lazy">'
                 : '<div class="game-emoji" aria-hidden="true">' + escapeHtml(game.emoji) + '</div>';
 
             return [
-                '<a href="' + escapeHtml(game.url) + '" class="game-card ' + featuredClass + '" data-category="' + escapeHtml(game.category) + '" data-type="' + escapeHtml(game.type) + '" data-name="' + escapeHtml(game.title.toLowerCase()) + '" data-search="' + escapeHtml(game.searchText) + '"' + targetAttr + '>',
+                '<a href="' + escapeHtml(game.url) + '" class="game-card ' + featuredClass + ' ' + ycClass + '" data-category="' + escapeHtml(game.category) + '" data-type="' + escapeHtml(game.type) + '" data-name="' + escapeHtml(game.title.toLowerCase()) + '" data-search="' + escapeHtml(game.searchText) + '"' + targetAttr + '>',
                 '<div class="game-image">',
                 imageHtml,
                 '<div class="game-image-overlay">',
-                newBadge, featuredBadge, externalBadge,
+                newBadge, featuredBadge, externalBadge, ycBadge,
                 '<span class="game-badge ' + difficultyClass + '">' + escapeHtml(formatTitle(game.difficulty)) + '</span>',
                 '</div></div>',
                 '<div class="game-info">',
@@ -1253,8 +1315,17 @@
         function renderCatalog() {
             const featuredGrid = document.getElementById('featuredGrid');
             const allGamesGrid = document.getElementById('allGamesGrid');
-            const featuredGames = catalogGames.filter(g => g.featured).slice(0, 5);
+            const ycGrid = document.getElementById('ycGrid');
+            const featuredGames = catalogGames.filter(g => g.featured && !g.id.startsWith('burn-rate') && !g.id.startsWith('the-pivot') && !g.id.startsWith('do-things') && !g.id.startsWith('demo-day') && !g.id.startsWith('first-hire') && !g.id.startsWith('ramen') && !g.id.startsWith('100-fans') && !g.id.startsWith('term-sheet') && !g.id.startsWith('growth-loops')).slice(0, 5);
+            
+            // YC games - grouped together
+            const ycGames = catalogGames.filter(g => 
+                g.id === 'burn-rate' || g.id === 'the-pivot' || g.id === 'do-things' || 
+                g.id === 'demo-day' || g.id === 'first-hire' || g.id === 'ramen' || 
+                g.id === '100-fans' || g.id === 'term-sheet' || g.id === 'growth-loops'
+            );
 
+            if (ycGrid) ycGrid.innerHTML = ycGames.map(g => renderGameCard(g, false, true)).join('');
             featuredGrid.innerHTML = featuredGames.map(g => renderGameCard(g, true)).join('');
             allGamesGrid.innerHTML = visibleGames.map(g => renderGameCard(g)).join('') || renderNoResults();
 
