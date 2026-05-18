@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://moneybot.local/schemas/telemetry-event.json",
+  "title": "MoneyBot TelemetryEvent",
+  "type": "object",
+  "required": ["eventId", "type", "occurredAt", "contentId"],
+  "properties": {
+    "eventId": { "type": "string", "format": "uuid" },
+    "type": {
+      "type": "string",
+      "enum": [
+        "impression",
+        "open",
+        "complete",
+        "skip",
+        "quiz_start",
+        "quiz_complete",
+        "streak_tick",
+        "opt_out",
+        "share"
+      ]
+    },
+    "occurredAt": { "type": "string", "format": "date-time" },
+    "contentId": { "type": "string" },
+    "cohortId": { "type": "string" },
+    "channel": { "type": "string" },
+    "dwellMs": { "type": "integer", "minimum": 0 },
+    "quizScoreBand": {
+      "type": "string",
+      "enum": ["low", "mid", "high", "unknown"]
+    },
+    "piiClass": {
+      "type": "string",
+      "enum": ["aggregate_only", "pseudonymous", "none"]
+    }
+  },
+  "additionalProperties": false
+}

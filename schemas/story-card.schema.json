@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://moneybot.local/schemas/story-card.json",
+  "title": "MoneyBot StoryCard",
+  "type": "object",
+  "required": ["id", "headline", "bullets", "sources", "learnerRelevance", "disclaimer", "status"],
+  "properties": {
+    "id": { "type": "string", "format": "uuid" },
+    "headline": { "type": "string", "maxLength": 200 },
+    "bullets": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 3,
+      "items": { "type": "string", "maxLength": 300 }
+    },
+    "sources": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["title", "url"],
+        "properties": {
+          "title": { "type": "string" },
+          "url": { "type": "string", "format": "uri" },
+          "publisher": { "type": "string" },
+          "retrievedAt": { "type": "string", "format": "date-time" }
+        }
+      }
+    },
+    "learnerRelevance": { "type": "string", "maxLength": 500 },
+    "curriculumTags": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "ageBand": {
+      "type": "string",
+      "enum": ["8-10", "11-13", "14-16", "17+", "mixed"]
+    },
+    "disclaimer": {
+      "type": "string",
+      "const": "Educational content only. Not investment advice."
+    },
+    "status": {
+      "type": "string",
+      "enum": ["ok", "needs_more_sources", "human_review", "degraded_card"]
+    },
+    "statusNote": { "type": "string" }
+  },
+  "additionalProperties": false
+}

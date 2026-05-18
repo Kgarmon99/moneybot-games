@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://moneybot.local/schemas/personalization-context.json",
+  "title": "MoneyBot PersonalizationContext",
+  "type": "object",
+  "required": [
+    "cohortId",
+    "difficultyHint",
+    "toneNotes",
+    "confidence",
+    "adaptationRevision",
+    "noIndividualAdviceAck"
+  ],
+  "properties": {
+    "cohortId": { "type": "string" },
+    "curriculumTier": { "type": "string" },
+    "ageBand": {
+      "type": "string",
+      "enum": ["8-10", "11-13", "14-16", "17+", "mixed"]
+    },
+    "difficultyHint": {
+      "type": "string",
+      "enum": ["foundational", "intermediate", "stretch"]
+    },
+    "toneNotes": {
+      "type": "array",
+      "items": { "type": "string", "maxLength": 200 }
+    },
+    "gamificationPriors": {
+      "type": "object",
+      "properties": {
+        "challengeType": {
+          "type": "string",
+          "enum": ["streak", "quiz_heavy", "scenario", "badge_push", "balanced"]
+        },
+        "quizDensity": { "type": "string", "enum": ["low", "medium", "high"] }
+      }
+    },
+    "confidence": {
+      "type": "string",
+      "enum": ["high", "medium", "low"]
+    },
+    "adaptationRevision": { "type": "string", "description": "Id of active AdaptationDirectives batch" },
+    "noIndividualAdviceAck": { "type": "boolean", "const": true }
+  },
+  "additionalProperties": false
+}

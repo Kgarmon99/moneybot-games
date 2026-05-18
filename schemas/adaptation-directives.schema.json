@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://moneybot.local/schemas/adaptation-directives.json",
+  "title": "MoneyBot AdaptationDirectives",
+  "type": "object",
+  "required": ["id", "generatedAt", "curator", "content", "scheduler", "personalization", "holdChange"],
+  "properties": {
+    "id": { "type": "string", "format": "uuid" },
+    "generatedAt": { "type": "string", "format": "date-time" },
+    "telemetryWindow": {
+      "type": "object",
+      "properties": {
+        "from": { "type": "string", "format": "date-time" },
+        "to": { "type": "string", "format": "date-time" },
+        "freshness": { "type": "string", "enum": ["live", "stale", "partial"] }
+      }
+    },
+    "curator": {
+      "type": "object",
+      "properties": {
+        "topicWeights": {
+          "type": "object",
+          "additionalProperties": { "type": "number", "minimum": 0, "maximum": 2 }
+        },
+        "deprioritizeTags": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "content": {
+      "type": "object",
+      "properties": {
+        "targetLength": { "type": "string", "enum": ["short", "medium", "long"] },
+        "gamificationIntensity": { "type": "integer", "minimum": 1, "maximum": 5 },
+        "quizDensity": { "type": "string", "enum": ["low", "medium", "high"] }
+      }
+    },
+    "scheduler": {
+      "type": "object",
+      "properties": {
+        "preferredLocalHoursUtc": {
+          "type": "array",
+          "items": { "type": "integer", "minimum": 0, "maximum": 23 }
+        },
+        "maxPostsPerDayPerChannel": { "type": "integer", "minimum": 1, "maximum": 20 },
+        "pauseFormats": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "personalization": {
+      "type": "object",
+      "properties": {
+        "defaultDifficulty": {
+          "type": "string",
+          "enum": ["foundational", "intermediate", "stretch"]
+        },
+        "cohortOverrides": { "type": "object" }
+      }
+    },
+    "holdChange": { "type": "boolean", "description": "If true, other agents apply no new weights" },
+    "holdReason": { "type": "string" },
+    "policyCaps": {
+      "type": "object",
+      "properties": {
+        "maxGamificationIntensity": { "type": "integer", "minimum": 1, "maximum": 5 }
+      }
+    }
+  },
+  "additionalProperties": false
+}

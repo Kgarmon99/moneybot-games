@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://moneybot.local/schemas/content-draft.json",
+  "title": "MoneyBot ContentDraft",
+  "type": "object",
+  "required": ["id", "trendBriefId", "title", "bodyMarkdown", "gamificationHooks", "cta", "voiceLintStatus"],
+  "properties": {
+    "id": { "type": "string", "format": "uuid" },
+    "trendBriefId": { "type": "string" },
+    "title": { "type": "string", "maxLength": 120 },
+    "subtitle": { "type": "string" },
+    "bodyMarkdown": { "type": "string", "maxLength": 8000 },
+    "gamificationHooks": {
+      "type": "object",
+      "properties": {
+        "challengeCopy": { "type": "string" },
+        "streakHint": { "type": "string" },
+        "quizSeeds": { "type": "array", "items": { "type": "string" } },
+        "levelUpFraming": { "type": "string" },
+        "badgeTease": { "type": "string" }
+      }
+    },
+    "cta": { "type": "string", "maxLength": 200 },
+    "disclaimerBlock": { "type": "string" },
+    "reviewFlags": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "voiceLintStatus": {
+      "type": "string",
+      "enum": ["pass", "needs_edit"]
+    }
+  },
+  "additionalProperties": false
+}

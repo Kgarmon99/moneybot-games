@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://moneybot.local/schemas/trend-brief.json",
+  "title": "MoneyBot TrendBrief",
+  "type": "object",
+  "required": ["storyCardId", "plainLanguageSummary", "whatChanged", "flags", "status"],
+  "properties": {
+    "storyCardId": { "type": "string" },
+    "plainLanguageSummary": { "type": "string", "maxLength": 1200 },
+    "whatChanged": { "type": "string", "maxLength": 800 },
+    "analogyOrExample": { "type": "string", "maxLength": 400 },
+    "glossaryTerms": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["term", "studentDefinition"],
+        "properties": {
+          "term": { "type": "string" },
+          "studentDefinition": { "type": "string", "maxLength": 200 }
+        }
+      }
+    },
+    "flags": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "glossary_term",
+          "trusted_adult",
+          "sensitive_topic",
+          "uncertain_nuance",
+          "human_review"
+        ]
+      }
+    },
+    "status": {
+      "type": "string",
+      "enum": ["ok", "uncertain_nuance", "human_review"]
+    },
+    "statusNote": { "type": "string" }
+  },
+  "additionalProperties": false
+}

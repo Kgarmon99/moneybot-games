@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://moneybot.local/schemas/schedule-row.json",
+  "title": "MoneyBot ScheduleRow",
+  "type": "object",
+  "required": ["id", "contentDraftId", "publishAt", "channel", "format", "checklist", "status"],
+  "properties": {
+    "id": { "type": "string", "format": "uuid" },
+    "contentDraftId": { "type": "string" },
+    "publishAt": { "type": "string", "format": "date-time" },
+    "timezone": { "type": "string" },
+    "channel": {
+      "type": "string",
+      "enum": [
+        "moneybot_app_feed",
+        "instagram",
+        "tiktok",
+        "youtube_shorts",
+        "email_digest",
+        "other"
+      ]
+    },
+    "format": {
+      "type": "string",
+      "enum": ["carousel", "short_video_script", "single_card", "thread", "in_app_module"]
+    },
+    "checklist": {
+      "type": "object",
+      "properties": {
+        "disclaimerAttached": { "type": "boolean" },
+        "ageAppropriateReviewed": { "type": "boolean" },
+        "assetsReady": { "type": "boolean" },
+        "reviewFlagCleared": { "type": "boolean" }
+      }
+    },
+    "status": {
+      "type": "string",
+      "enum": ["scheduled", "blocked", "needs_config", "published", "cancelled"]
+    },
+    "statusNote": { "type": "string" },
+    "publishJobId": { "type": "string" }
+  },
+  "additionalProperties": false
+}
