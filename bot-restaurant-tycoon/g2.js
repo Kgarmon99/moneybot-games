@@ -315,12 +315,17 @@
     renderUpgrades();
   }
 
-  const startBtn = $('start-btn');
-  console.log('start-btn found:', !!startBtn);
-  if (startBtn) startBtn.addEventListener('click', initGame);
-  $('close-summary-btn').addEventListener('click', nextDay);
-  $('restart-btn').addEventListener('click', initGame);
-  $('win-restart-btn').addEventListener('click', initGame);
+  try {
+    const startBtn = $('start-btn');
+    console.log('start-btn found:', !!startBtn);
+    if (startBtn) startBtn.addEventListener('click', initGame);
+    $('close-summary-btn').addEventListener('click', nextDay);
+    $('restart-btn').addEventListener('click', initGame);
+    $('win-restart-btn').addEventListener('click', initGame);
+    console.log('Event listeners attached');
+  } catch(e) {
+    console.error('Error attaching listeners:', e.message);
+  }
 
   showScreen('start-screen');
   console.log('Restaurant Tycoon JS initialized');
