@@ -692,6 +692,99 @@
             margin-bottom: 24px;
         }
         
+
+        .discovery-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 18px;
+            margin-bottom: 44px;
+        }
+
+        .discovery-card {
+            position: relative;
+            display: block;
+            min-height: 154px;
+            padding: 22px;
+            border: 1px solid var(--neon-faint);
+            border-radius: 14px;
+            background: linear-gradient(135deg, rgba(0,255,0,0.08), rgba(255,255,255,0.02));
+            color: inherit;
+            text-decoration: none;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+
+        .discovery-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--neon-green);
+            box-shadow: 0 0 24px rgba(0,255,0,0.18);
+        }
+
+        .discovery-card strong {
+            display: block;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 18px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+
+        .discovery-card span {
+            display: block;
+            color: var(--text-secondary);
+            font-size: 14px;
+            line-height: 1.5;
+            max-width: 230px;
+        }
+
+        .discovery-card em {
+            position: absolute;
+            right: 18px;
+            bottom: 14px;
+            font-style: normal;
+            color: var(--neon-green);
+            font-weight: 800;
+            font-size: 13px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .section-subtitle {
+            margin-top: 8px;
+            color: var(--text-muted);
+            font-size: 15px;
+            max-width: 720px;
+            line-height: 1.5;
+        }
+
+        .section-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-link {
+            color: var(--neon-green);
+            border: 1px solid var(--neon-faint);
+            border-radius: 8px;
+            padding: 8px 14px;
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 12px;
+            font-weight: 800;
+            transition: all 0.3s;
+        }
+
+        .section-link:hover {
+            border-color: var(--neon-green);
+            background: var(--neon-faint);
+        }
+
+        .compact-grid {
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        }
+
         /* No Results */
         .no-results {
             text-align: center;
@@ -830,6 +923,9 @@
         
         /* Mobile Responsive */
         @media (max-width: 1200px) {
+            .discovery-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
             .featured-game {
                 grid-column: span 1;
                 grid-template-columns: 1fr;
@@ -850,6 +946,7 @@
             .filter-bar { padding: 16px 20px; top: 60px; }
             .main-content { padding: 20px; }
             .games-grid { grid-template-columns: 1fr; }
+            .discovery-grid { grid-template-columns: 1fr; }
             .footer-inner { grid-template-columns: 1fr; gap: 40px; }
             .footer-bottom { flex-direction: column; gap: 10px; text-align: center; }
         }
@@ -903,10 +1000,11 @@
                 </div>
             </a>
             <div class="nav-links">
-                <a href="#featured" class="nav-link active">Games</a>
-                <a href="https://getmoneybot.com" class="nav-link">Platform</a>
+                <a href="#featured" class="nav-link active">Featured</a>
+                <a href="#simulators" class="nav-link">Simulators</a>
+                <a href="#yc" class="nav-link">YC Games</a>
+                <a href="#classics" class="nav-link">Web Classics</a>
                 <a href="#allGames" class="nav-link">All Games</a>
-                <a href="#featured" class="nav-link">Featured</a>
             </div>
             <a href="https://getmoneybot.com" class="nav-cta">Start Learning</a>
         </div>
@@ -942,18 +1040,17 @@
         <div class="filter-inner">
             <input type="text" class="search-box" placeholder="Search games..." id="searchBox">
             <div class="filter-tags">
-                <span class="filter-label">Filter:</span>
-                <button class="filter-tag active" data-filter="all">All Games</button>
+                <span class="filter-label">Find:</span>
+                <button class="filter-tag active" data-filter="all">All</button>
+                <button class="filter-tag" data-filter="simulation">Simulators</button>
+                <button class="filter-tag" data-filter="yc">YC Games</button>
+                <button class="filter-tag" data-filter="classic">Web Classics</button>
                 <button class="filter-tag" data-filter="budget">Budget</button>
                 <button class="filter-tag" data-filter="save">Save</button>
                 <button class="filter-tag" data-filter="invest">Invest</button>
-                <button class="filter-tag" data-filter="credit">Credit</button>
-                <button class="filter-tag" data-filter="career">Career</button>
                 <button class="filter-tag" data-filter="debt">Debt</button>
                 <button class="filter-tag" data-filter="tax">Tax</button>
-                <button class="filter-tag" data-filter="insurance">Insurance</button>
-                <button class="filter-tag" data-filter="career">Career</button>
-                <button class="filter-tag" data-filter="yc">YC School</button>
+                <button class="filter-tag" data-filter="arcade">Arcade</button>
                 <select class="sort-select" id="sortSelect">
                     <option value="featured">Featured</option>
                     <option value="newest">Newest</option>
@@ -966,46 +1063,66 @@
     
     <!-- Main Content -->
     <main class="main-content">
-        <!-- YC Startup School Section -->
-        <section class="section yc-section" id="yc">
-            <div class="section-header">
-                <div class="section-title-group">
-                    <div class="section-icon">Y</div>
-                    <h2 class="section-title">YC Startup School</h2>
-                </div>
-                <span class="section-count">9 games</span>
-            </div>
-            <div class="games-grid" id="ycGrid">
-                <!-- YC games will be populated by JS -->
-            </div>
+        <section class="discovery-grid" aria-label="Quick game paths">
+            <a class="discovery-card" href="#classics"><strong>Web Classics</strong><span>Trusted outside games and legacy finance sims, grouped in one lane.</span><em id="classicLaneCount">0 games</em></a>
+            <a class="discovery-card" href="#simulators"><strong>Simulators</strong><span>Longer decision games for life, investing, business, and planning.</span><em id="simLaneCount">0 games</em></a>
+            <a class="discovery-card" href="#yc"><strong>YC Games</strong><span>Startup-school lessons: runway, pivots, hiring, growth, and fundraising.</span><em id="ycLaneCount">0 games</em></a>
+            <a class="discovery-card" href="#allGames"><strong>Browse All</strong><span>Search and filter the full MoneyBot arcade catalog from one place.</span><em id="allLaneCount">0 games</em></a>
         </section>
 
-        <!-- Featured Section -->
         <section class="section" id="featured">
             <div class="section-header">
-                <div class="section-title-group">
-                    <div class="section-icon">⭐</div>
-                    <h2 class="section-title">Featured</h2>
+                <div>
+                    <div class="section-title-group"><div class="section-icon">⭐</div><h2 class="section-title">Featured</h2></div>
+                    <p class="section-subtitle">A tight launch row of the strongest MoneyBot games.</p>
                 </div>
-                <span class="section-count">6 games</span>
+                <div class="section-actions"><a class="section-link" href="#allGames">Browse all</a><span class="section-count">0 games</span></div>
             </div>
-            <div class="games-grid" id="featuredGrid">
-                <!-- Featured games will be populated by JS -->
+            <div class="games-grid" id="featuredGrid"></div>
+        </section>
+
+        <section class="section" id="simulators">
+            <div class="section-header">
+                <div>
+                    <div class="section-title-group"><div class="section-icon">🧠</div><h2 class="section-title">Simulators</h2></div>
+                    <p class="section-subtitle">Decision-heavy games for running scenarios, making tradeoffs, and seeing money systems play out.</p>
+                </div>
+                <div class="section-actions"><button class="filter-tag" data-filter="simulation">Filter simulators</button><span class="section-count" id="simulatorCount">0 games</span></div>
             </div>
+            <div class="games-grid compact-grid" id="simulatorGrid"></div>
+        </section>
+
+        <section class="section" id="yc">
+            <div class="section-header">
+                <div>
+                    <div class="section-title-group"><div class="section-icon" style="background: linear-gradient(135deg, #FF6600, #FF8533); border-color: #FF6600;">Y</div><h2 class="section-title" style="color: #FF6600;">YC Startup School</h2></div>
+                    <p class="section-subtitle">Startup games for founder skills: runway, customers, pitch, hiring, fundraising, and growth loops.</p>
+                </div>
+                <div class="section-actions"><button class="filter-tag" data-filter="yc">Filter YC</button><span class="section-count" id="ycCount">0 games</span></div>
+            </div>
+            <div class="games-grid compact-grid" id="ycGrid"></div>
+        </section>
+
+        <section class="section" id="classics">
+            <div class="section-header">
+                <div>
+                    <div class="section-title-group"><div class="section-icon">🌐</div><h2 class="section-title">Web Classics</h2></div>
+                    <p class="section-subtitle">External classics and finance-adjacent games with local thumbnails, easy to scan and open.</p>
+                </div>
+                <div class="section-actions"><button class="filter-tag" data-filter="classic">Filter classics</button><span class="section-count" id="classicCount">0 games</span></div>
+            </div>
+            <div class="games-grid compact-grid" id="classicGrid"></div>
         </section>
         
-        <!-- All Games Section -->
         <section class="section" id="allGames">
             <div class="section-header">
-                <div class="section-title-group">
-                    <div class="section-icon">🎮</div>
-                    <h2 class="section-title">All Games</h2>
+                <div>
+                    <div class="section-title-group"><div class="section-icon">🎮</div><h2 class="section-title">Browse All</h2></div>
+                    <p class="section-subtitle">Use search, filters, and sorting when you know what skill or game style you need.</p>
                 </div>
-                <span class="section-count" id="allGamesCount">110+ games</span>
+                <span class="section-count" id="allGamesCount">0 games</span>
             </div>
-            <div class="games-grid" id="allGamesGrid">
-                <!-- All games will be populated by JS -->
-            </div>
+            <div class="games-grid" id="allGamesGrid"></div>
         </section>
     </main>
     
@@ -1085,15 +1202,15 @@
             { id: 'appreciating-depreciating', title: 'Appreciating vs Depreciating', img: '../bot-appreciating-depreciating/assets/thumb.png', tag: 'Puzzle', desc: 'Identify assets that grow vs lose value. Smart buying decisions!', href: '../bot-appreciating-depreciating/', topic: 'invest', type: 'puzzle', difficulty: 'easy', playTime: '5-10 min', plays: 8650, new: true },
             
             // YC STARTUP SCHOOL GAMES
-            { id: 'burn-rate', title: 'Burn Rate', emoji: '🔥', tag: 'YC Lesson', desc: 'Manage monthly cashflow to extend your startup runway. Survive 12 months.', href: '../runway-rush/', topic: 'career', type: 'simulation', difficulty: 'medium', playTime: '10-15 min', plays: 0, new: true, featured: true },
-            { id: 'the-pivot', title: 'The Pivot', emoji: '🎯', tag: 'YC Lesson', desc: 'Interview customers, gather signals, decide: kill, pivot, or persevere.', href: '../the-pivot/', topic: 'career', type: 'simulation', difficulty: 'medium', playTime: '10-15 min', plays: 0, new: true },
-            { id: 'do-things', title: 'Do Things That Don\'t Scale', emoji: '🚀', tag: 'YC Lesson', desc: 'Handle tasks manually, automate only when it hurts. Grow to 100 users.', href: '../do-things-that-dont-scale/', topic: 'career', type: 'simulation', difficulty: 'easy', playTime: '10-15 min', plays: 0, new: true },
-            { id: 'demo-day', title: 'Demo Day Dash', emoji: '🎤', tag: 'YC Lesson', desc: '60-second pitch simulation. Hook, problem, solution, traction, ask.', href: '../demo-day-dash/', topic: 'career', type: 'simulation', difficulty: 'medium', playTime: '5-10 min', plays: 0, new: true },
-            { id: 'first-hire', title: 'The First Hire', emoji: '👥', tag: 'YC Lesson', desc: 'Interview candidates, evaluate culture fit vs skill. Build your team.', href: '../the-first-hire/', topic: 'career', type: 'simulation', difficulty: 'medium', playTime: '10-15 min', plays: 0, new: true },
-            { id: 'ramen', title: 'Ramen Profitability', emoji: '🍜', tag: 'YC Lesson', desc: 'Minimize burn, maximize revenue. Reach ramen profitability before runway ends.', href: '../ramen-profitability/', topic: 'career', type: 'simulation', difficulty: 'hard', playTime: '15-20 min', plays: 0, new: true },
-            { id: '100-fans', title: '100 Fans', emoji: '💯', tag: 'YC Lesson', desc: 'Acquire users, measure retention, iterate. Find 100 true fans.', href: '../100-fans/', topic: 'career', type: 'simulation', difficulty: 'medium', playTime: '10-15 min', plays: 0, new: true },
-            { id: 'term-sheet', title: 'The Term Sheet', emoji: '📊', tag: 'YC Lesson', desc: 'Negotiate valuation, dilution, control. Keep your company.', href: '../the-term-sheet/', topic: 'career', type: 'simulation', difficulty: 'hard', playTime: '15-20 min', plays: 0, new: true },
-            { id: 'growth-loops', title: 'Growth Loops', emoji: '📈', tag: 'YC Lesson', desc: 'Design viral loops, retention mechanics, referral systems. Compound users.', href: '../growth-loops/', topic: 'career', type: 'simulation', difficulty: 'hard', playTime: '15-20 min', plays: 0, new: true },
+            { id: 'burn-rate', title: 'Burn Rate', img: './assets/yc-thumbnails/runway-rush.png', emoji: '🔥', tag: 'YC Lesson', desc: 'Manage monthly cashflow to extend your startup runway. Survive 12 months.', href: '../runway-rush/', topic: 'career', type: 'simulation', difficulty: 'medium', playTime: '10-15 min', plays: 0, new: true, featured: true },
+            { id: 'the-pivot', title: 'The Pivot', img: './assets/yc-thumbnails/the-pivot.png', emoji: '🎯', tag: 'YC Lesson', desc: 'Interview customers, gather signals, decide: kill, pivot, or persevere.', href: '../the-pivot/', topic: 'career', type: 'simulation', difficulty: 'medium', playTime: '10-15 min', plays: 0, new: true },
+            { id: 'do-things', title: 'Do Things That Don\'t Scale', img: './assets/yc-thumbnails/do-things-that-dont-scale.png', emoji: '🚀', tag: 'YC Lesson', desc: 'Handle tasks manually, automate only when it hurts. Grow to 100 users.', href: '../do-things-that-dont-scale/', topic: 'career', type: 'simulation', difficulty: 'easy', playTime: '10-15 min', plays: 0, new: true },
+            { id: 'demo-day', title: 'Demo Day Dash', img: './assets/yc-thumbnails/demo-day-dash.png', emoji: '🎤', tag: 'YC Lesson', desc: '60-second pitch simulation. Hook, problem, solution, traction, ask.', href: '../demo-day-dash/', topic: 'career', type: 'simulation', difficulty: 'medium', playTime: '5-10 min', plays: 0, new: true },
+            { id: 'first-hire', title: 'The First Hire', img: './assets/yc-thumbnails/the-first-hire.png', emoji: '👥', tag: 'YC Lesson', desc: 'Interview candidates, evaluate culture fit vs skill. Build your team.', href: '../the-first-hire/', topic: 'career', type: 'simulation', difficulty: 'medium', playTime: '10-15 min', plays: 0, new: true },
+            { id: 'ramen', title: 'Ramen Profitability', img: './assets/yc-thumbnails/ramen-profitability.png', emoji: '🍜', tag: 'YC Lesson', desc: 'Minimize burn, maximize revenue. Reach ramen profitability before runway ends.', href: '../ramen-profitability/', topic: 'career', type: 'simulation', difficulty: 'hard', playTime: '15-20 min', plays: 0, new: true },
+            { id: '100-fans', title: '100 Fans', img: './assets/yc-thumbnails/100-fans.png', emoji: '💯', tag: 'YC Lesson', desc: 'Acquire users, measure retention, iterate. Find 100 true fans.', href: '../100-fans/', topic: 'career', type: 'simulation', difficulty: 'medium', playTime: '10-15 min', plays: 0, new: true },
+            { id: 'term-sheet', title: 'The Term Sheet', img: './assets/yc-thumbnails/the-term-sheet.png', emoji: '📊', tag: 'YC Lesson', desc: 'Negotiate valuation, dilution, control. Keep your company.', href: '../the-term-sheet/', topic: 'career', type: 'simulation', difficulty: 'hard', playTime: '15-20 min', plays: 0, new: true },
+            { id: 'growth-loops', title: 'Growth Loops', img: './assets/yc-thumbnails/growth-loops.png', emoji: '📈', tag: 'YC Lesson', desc: 'Design viral loops, retention mechanics, referral systems. Compound users.', href: '../growth-loops/', topic: 'career', type: 'simulation', difficulty: 'hard', playTime: '15-20 min', plays: 0, new: true },
             
             // JUST ADDED (Next 8 to complete 20 newest)
             { id: 'side-hustle', title: 'Side Hustle Sprint', img: '../bot-side-hustle-sprint/assets/thumb.png', tag: 'Time Management', desc: 'Balance day job + side gigs. Allocate 24 hours to hit your income goals!', href: '../bot-side-hustle-sprint/', topic: 'career', type: 'strategy', difficulty: 'medium', playTime: '10-15 min', plays: 7890, new: true },
@@ -1202,10 +1319,12 @@
             const plays = game.plays || estimatePlays(index, source);
             const rating = game.rating || estimateRating(index, game.featured);
 
+            const isYc = /yc lesson|startup school|runway|pivot|demo day|term sheet|growth loops|ramen profitability/i.test([game.tag, game.title, game.desc].filter(Boolean).join(' '));
+
             return {
                 id: game.id,
                 title,
-                category,
+                category: isYc ? 'yc' : category,
                 type: game.type || game.tag || source,
                 difficulty: game.difficulty || (source === 'classic' ? 'classic' : 'easy'),
                 featured: Boolean(game.featured),
@@ -1217,8 +1336,9 @@
                 rating,
                 url: game.href,
                 external: Boolean(game.external),
-                source,
-                searchText: [title, game.desc, game.topic, game.type, game.tag, source].filter(Boolean).join(' ').toLowerCase()
+                source: isYc ? 'yc' : source,
+                isYc,
+                searchText: [title, game.desc, game.topic, game.type, game.tag, source, isYc ? 'yc startup school founder simulator' : ''].filter(Boolean).join(' ').toLowerCase()
             };
         }
 
@@ -1312,27 +1432,55 @@
             });
         }
 
+        function renderSection(gridId, games, emptyText = 'Try another search or filter.') {
+            const grid = document.getElementById(gridId);
+            if (!grid) return;
+            grid.innerHTML = games.map(g => renderGameCard(g, false, g.isYc)).join('') || renderNoResults(emptyText);
+        }
+
+        function getSimulatorGames(sourceGames = [...catalogGames, ...classicGames]) {
+            return sourceGames.filter(game => game.type === 'simulation'
+                || game.type === 'strategy'
+                || /simulator|builder|tycoon|command|calculator|profitability|term sheet|deal|negotiation|estate|startup|runway|pivot|hire|growth/i.test(game.title + ' ' + game.type + ' ' + game.description));
+        }
+
         function renderCatalog() {
             const featuredGrid = document.getElementById('featuredGrid');
             const allGamesGrid = document.getElementById('allGamesGrid');
-            const ycGrid = document.getElementById('ycGrid');
-            const featuredGames = catalogGames.filter(g => g.featured && !g.id.startsWith('burn-rate') && !g.id.startsWith('the-pivot') && !g.id.startsWith('do-things') && !g.id.startsWith('demo-day') && !g.id.startsWith('first-hire') && !g.id.startsWith('ramen') && !g.id.startsWith('100-fans') && !g.id.startsWith('term-sheet') && !g.id.startsWith('growth-loops')).slice(0, 5);
-            
-            // YC games - grouped together
-            const ycGames = catalogGames.filter(g => 
-                g.id === 'burn-rate' || g.id === 'the-pivot' || g.id === 'do-things' || 
-                g.id === 'demo-day' || g.id === 'first-hire' || g.id === 'ramen' || 
-                g.id === '100-fans' || g.id === 'term-sheet' || g.id === 'growth-loops'
-            );
+            const featuredGames = catalogGames.filter(g => g.featured && !g.isYc).slice(0, 5);
+            const ycGames = catalogGames.filter(g => g.isYc);
+            const simulatorGames = getSimulatorGames(catalogGames).filter(g => !g.isYc).slice(0, 12);
+            const classicsPreview = classicGames.slice(0, 12);
 
-            if (ycGrid) ycGrid.innerHTML = ycGames.map(g => renderGameCard(g, false, true)).join('');
             featuredGrid.innerHTML = featuredGames.map(g => renderGameCard(g, true)).join('');
-            allGamesGrid.innerHTML = visibleGames.map(g => renderGameCard(g)).join('') || renderNoResults();
+            renderSection('simulatorGrid', simulatorGames);
+            renderSection('ycGrid', ycGames);
+            renderSection('classicGrid', classicsPreview);
+            allGamesGrid.innerHTML = visibleGames.map(g => renderGameCard(g, false, g.isYc)).join('') || renderNoResults();
 
             const featuredCount = document.querySelector('#featured .section-count');
             const allGamesCount = document.getElementById('allGamesCount');
+            const simulatorCount = document.getElementById('simulatorCount');
+            const ycCount = document.getElementById('ycCount');
+            const classicCount = document.getElementById('classicCount');
+            const allCount = catalogGames.length + classicGames.length;
+            const simulatorTotal = getSimulatorGames(catalogGames).filter(g => !g.isYc).length;
             if (featuredCount) featuredCount.textContent = featuredGames.length + ' featured';
+            if (simulatorCount) simulatorCount.textContent = simulatorTotal + ' games';
+            if (ycCount) ycCount.textContent = ycGames.length + ' games';
+            if (classicCount) classicCount.textContent = classicGames.length + ' games';
             if (allGamesCount) allGamesCount.textContent = visibleGames.length + ' games';
+
+            const lanes = {
+                classicLaneCount: classicGames.length + ' games',
+                simLaneCount: simulatorTotal + ' games',
+                ycLaneCount: ycGames.length + ' games',
+                allLaneCount: allCount + ' games'
+            };
+            Object.entries(lanes).forEach(([id, text]) => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = text;
+            });
 
             updateHeroStats();
         }
@@ -1345,7 +1493,14 @@
 
             visibleGames = [...catalogGames, ...classicGames].filter(game => {
                 const matchesSearch = !query || game.searchText.includes(query);
-                const matchesCategory = category === 'all' || game.category === category || game.type === category || CATEGORY_ALIASES[game.category]?.includes(category) || CATEGORY_ALIASES[game.type]?.includes(category);
+                const matchesCategory = category === 'all'
+                    || (category === 'classic' && game.source === 'classic')
+                    || (category === 'yc' && game.isYc)
+                    || (category === 'simulation' && getSimulatorGames([game]).length > 0)
+                    || game.category === category
+                    || game.type === category
+                    || CATEGORY_ALIASES[game.category]?.includes(category)
+                    || CATEGORY_ALIASES[game.type]?.includes(category);
                 return matchesSearch && matchesCategory;
             });
 
@@ -1373,8 +1528,8 @@
             }
         }
 
-        function renderNoResults() {
-            return '<div class="no-results"><div class="no-results-icon">🔎</div><h3>No games found</h3><p>Try another search or filter.</p></div>';
+        function renderNoResults(message = 'Try another search or filter.') {
+            return '<div class="no-results"><div class="no-results-icon">🔎</div><h3>No games found</h3><p>' + escapeHtml(message) + '</p></div>';
         }
 
         function updateHeroStats() {
