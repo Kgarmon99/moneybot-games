@@ -371,8 +371,8 @@ const Game = {
       if (p.life <= 0) this.particles.splice(i, 1);
     });
     
-    // Check wave complete
-    if (this.waveSpawned >= this.waveEnemies.length && this.enemies.length === 0) {
+    // Check wave complete (only if wave was active)
+    if (this.waveActive && this.waveSpawned >= this.waveEnemies.length && this.enemies.length === 0) {
       this.waveActive = false;
       this.month++;
       
