@@ -1178,13 +1178,13 @@
     
     <script>
         const gamesDB = [
-            // FEATURED (Top 12 Most Polished)
+            // FEATURED CATALOG
             { id: 'dividend-drip', title: 'Dividend Drip', img: '../bot-dividend-drip/assets/thumb.png', tag: 'Idle', desc: 'Watch dividends auto-reinvest and grow. Visualize the power of DRIP over time!', href: '../bot-dividend-drip/', topic: 'invest', type: 'idle', difficulty: 'easy', playTime: '5-10 min', plays: 15420, featured: true, new: true },
             { id: 'roth-vs-traditional', title: 'Roth vs Traditional', img: '../bot-roth-vs-traditional/assets/thumb.png', tag: 'Decision Tree', desc: 'Choose the right retirement account. Learn when Roth or Traditional makes sense!', href: '../bot-roth-vs-traditional/', topic: 'invest', type: 'strategy', difficulty: 'medium', playTime: '10-15 min', plays: 12850, featured: true, new: true },
             { id: 'expense-ratio-hunter', title: 'Expense Ratio Hunter', img: '../bot-expense-ratio-hunter/assets/thumb.png', tag: 'Hidden Object', desc: 'Spot high-fee funds hiding among low-cost index funds. Fees matter!', href: '../bot-expense-ratio-hunter/', topic: 'invest', type: 'puzzle', difficulty: 'easy', playTime: '5-8 min', plays: 11230, featured: true, new: true },
             { id: 'dca-game', title: 'Dollar Cost Averager', img: '../bot-dca-game/assets/thumb.png', tag: 'Rhythm', desc: 'Time monthly investments to smooth out volatility. Consistency wins!', href: '../bot-dca-game/', topic: 'invest', type: 'arcade', difficulty: 'easy', playTime: '8-12 min', plays: 9870, featured: true, new: true },
             { id: 'net-worth-tracker', title: 'Net Worth Tracker', img: '../bot-net-worth-tracker/assets/thumb.png', tag: 'Puzzle', desc: 'Connect assets and liabilities. Calculate your net worth in real-time!', href: '../bot-net-worth-tracker/', topic: 'budget', type: 'puzzle', difficulty: 'easy', playTime: '5-10 min', plays: 14200, featured: true, new: true },
-            { id: 'insurance-defender', title: 'Insurance Defender', img: '../bot-insurance-defender/assets/thumb.png', tag: 'Tower Defense', desc: 'Defend against life events with proper coverage. Health, life, home, auto!', href: '../bot-insurance-defender/', topic: 'life', type: 'strategy', difficulty: 'medium', playTime: '15-20 min', plays: 8650, featured: true, new: true },
+            { id: 'insurance-defender', title: 'Insurance Tower Defense', img: '../bot-insurance-defender/assets/thumb.png', tag: 'Tower Defense', desc: 'Defend against life events with proper coverage. Health, life, home, auto!', href: '../bot-insurance-defender/', topic: 'life', type: 'strategy', difficulty: 'medium', playTime: '15-20 min', plays: 8650, featured: true, new: true },
             { id: 'refinance-racer', title: 'Refinance Racer', img: '../bot-refinance-racer/assets/thumb.png', tag: 'Racing', desc: 'Calculate break-even points on mortgage refinancing. Race to savings!', href: '../bot-refinance-racer/', topic: 'life', type: 'arcade', difficulty: 'medium', playTime: '10-15 min', plays: 7890, featured: true, new: true },
             { id: 'charitable-giving', title: 'Charitable Giving Guru', img: '../bot-charitable-giving/assets/thumb.png', tag: 'Strategy', desc: 'Optimize donations for tax savings. Cash, stock, DAF, QCD - what\'s best?', href: '../bot-charitable-giving/', topic: 'invest', type: 'strategy', difficulty: 'hard', playTime: '15-20 min', plays: 6540, featured: true, new: true },
             { id: 'emergency-fund', title: 'Emergency Fund Escape', img: '../bot-emergency-fund-escape/assets/thumb.png', tag: 'Arcade', desc: 'Dodge bills, collect paychecks, build your 6-month emergency fund. Financial security awaits!', href: '../bot-emergency-fund-escape/', topic: 'save', type: 'arcade', difficulty: 'easy', playTime: '8-12 min', plays: 18230, featured: true, new: true },
@@ -1235,12 +1235,12 @@
             { id: 'smart-borrower', title: 'Smart Borrower', img: '../bot-smart-borrower/assets/hero-moneybot.png', tag: 'Education', desc: 'Learn to spot predatory loans and make informed financial decisions.', href: '../bot-smart-borrower/', topic: 'life', type: 'simulation', difficulty: 'easy', playTime: '10-15 min', plays: 11230 },
             { id: 'financial-sim', title: 'Financial Life Simulator', img: '../bot-financial-simulator/assets/thumb.png', emoji: '💎', tag: 'Simulation', desc: 'Live a full financial life from 18 to retirement. Every decision shapes your wealth.', href: '../bot-financial-simulator/', topic: 'life', type: 'simulation', difficulty: 'medium', playTime: '30-60 min', plays: 15670 },
             { id: 'college-quest', title: 'College Quest', img: '../bot-college-quest/assets/thumb.png', emoji: '🎓', tag: 'Simulation', desc: 'Navigate college financial decisions. Tuition, loans, jobs, and outcomes.', href: '../bot-college-quest/', topic: 'life', type: 'simulation', difficulty: 'medium', playTime: '20-30 min', plays: 9870 },
-            { id: 'cashflow-cruiser', title: 'Cashflow Cruiser', img: '../cashflow-cruiser/assets/thumb.png', tag: 'Endless Runner', desc: 'Jetpack through financial obstacles. Collect coins, avoid debt.', href: '../cashflow-cruiser/', topic: 'budget', type: 'arcade', difficulty: 'easy', playTime: '5-10 min', plays: 14560 },
-            { id: 'compound-cookoff', title: 'Compound Cookoff', img: '../compound-cookoff/assets/thumb.png', tag: 'Strategy', desc: 'Cook and serve while learning compound interest.', href: '../compound-cookoff/', topic: 'invest', type: 'strategy', difficulty: 'easy', playTime: '10-15 min', plays: 8760 },
-            { id: 'money-printer', title: 'Money Printer GO', img: '../money-printer-go/assets/thumb.png', tag: 'Idle', desc: 'Print money, manage inflation, balance the economy.', href: '../money-printer-go/', topic: 'invest', type: 'idle', difficulty: 'easy', playTime: '10-20 min', plays: 12340 },
+            { id: 'cashflow-cruiser', title: 'CashFlow Cruiser', img: '../cashflow-cruiser/assets/thumb.png', tag: 'Endless Runner', desc: 'Jetpack through financial obstacles. Collect coins, avoid debt.', href: '../cashflow-cruiser/', topic: 'budget', type: 'arcade', difficulty: 'easy', playTime: '5-10 min', plays: 14560 },
+            { id: 'compound-cookoff', title: 'Compound Cookout', img: '../compound-cookoff/assets/thumb.png', tag: 'Strategy', desc: 'Cook and serve while learning compound interest.', href: '../compound-cookoff/', topic: 'invest', type: 'strategy', difficulty: 'easy', playTime: '10-15 min', plays: 8760 },
+            { id: 'money-printer', title: 'MoneyBot Printer', img: '../money-printer-go/assets/thumb.png', tag: 'Idle', desc: 'Print money, manage inflation, balance the economy.', href: '../money-printer-go/', topic: 'invest', type: 'idle', difficulty: 'easy', playTime: '10-20 min', plays: 12340 },
             { id: 'flappybot', title: 'FlappyBot', img: '../flappybot/assets/thumb.png', tag: 'Arcade', desc: 'Navigate through financial barriers in this addictive arcade classic.', href: '../flappybot/', topic: 'arcade', type: 'arcade', difficulty: 'medium', playTime: '5-10 min', plays: 21340 },
             { id: 'financial-hangman', title: 'Financial Hangman', img: '../bot-financial-hangman/assets/thumb.png', tag: 'Puzzle', desc: 'Guess financial terms before time runs out.', href: '../bot-financial-hangman/', topic: 'arcade', type: 'puzzle', difficulty: 'easy', playTime: '5-10 min', plays: 9870 },
-            { id: 'bull-market', title: 'Bull Market Survivor', img: '../bull-market-survivor/assets/thumb.png', tag: 'Strategy', desc: 'Survive market crashes and bull runs. Time your trades.', href: '../bull-market-survivor/', topic: 'invest', type: 'strategy', difficulty: 'hard', playTime: '20-30 min', plays: 7650 },
+            { id: 'bull-market', title: 'Market Survivor', img: '../bull-market-survivor/assets/thumb.png', tag: 'Strategy', desc: 'Survive market crashes and bull runs. Time your trades.', href: '../bull-market-survivor/', topic: 'invest', type: 'strategy', difficulty: 'hard', playTime: '20-30 min', plays: 7650 },
             { id: 'savings-sprint', title: 'Savings Sprint', img: '../bot-savings-sprint/assets/thumb.png', tag: 'Runner', desc: '3-lane endless runner. Dodge expenses, collect savings.', href: '../bot-savings-sprint/', topic: 'save', type: 'arcade', difficulty: 'easy', playTime: '5-10 min', plays: 13450 },
             { id: 'capital-command', title: 'Capital Command', img: '../capital-command/assets/thumb.png', tag: 'Strategy', desc: 'Command your capital. Invest, grow, dominate markets.', href: '../capital-command/', topic: 'invest', type: 'strategy', difficulty: 'hard', playTime: '25-40 min', plays: 6540 },
             { id: 'yield-merge', title: 'Yield Merge', img: '../yield-merge/assets/thumb.png', tag: 'Puzzle', desc: 'Merge investments to create higher yielding assets.', href: '../yield-merge/', topic: 'invest', type: 'puzzle', difficulty: 'medium', playTime: '10-20 min', plays: 8920 },
@@ -1366,7 +1366,28 @@
             return (4.3 + ((index % 6) * 0.1)).toFixed(1);
         }
 
+        const TOP_FEATURED_IDS = [
+            'insurance-defender',
+            'flappybot',
+            'compound-climb',
+            'buy-the-dip',
+            'cashflow-cruiser',
+            'bull-market',
+            'money-printer',
+            'compound-cookoff',
+            'inflation-eater',
+            'deal-master',
+            'negotiation'
+        ];
+        const topFeaturedRanks = new Map(TOP_FEATURED_IDS.map((id, index) => [id, index]));
+
         const catalogGames = gamesDB.map((game, index) => normalizeGame(game, index, 'moneybot'));
+        catalogGames.forEach(game => {
+            game.featured = topFeaturedRanks.has(game.id);
+            if (game.featured) {
+                game.featuredRank = topFeaturedRanks.get(game.id);
+            }
+        });
         const classicGames = classicsDB.map((game, index) => normalizeGame(game, index, 'classic'));
         let visibleGames = [...catalogGames, ...classicGames];
 
@@ -1452,7 +1473,9 @@
         function renderCatalog() {
             const featuredGrid = document.getElementById('featuredGrid');
             const allGamesGrid = document.getElementById('allGamesGrid');
-            const featuredGames = catalogGames.filter(g => g.featured && !g.isYc).slice(0, 5);
+            const featuredGames = catalogGames
+                .filter(g => topFeaturedRanks.has(g.id) && !g.isYc)
+                .sort((a, b) => a.featuredRank - b.featuredRank);
             const ycGames = catalogGames.filter(g => g.isYc);
             const simulatorGames = getSimulatorGames(catalogGames).filter(g => !g.isYc).slice(0, 12);
             const classicsPreview = classicGames.slice(0, 12);
