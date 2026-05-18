@@ -395,25 +395,22 @@ const Game = {
     const ctx = this.ctx;
     ctx.clearRect(0, 0, this.width, this.height);
     
-    // Draw grid
-    ctx.strokeStyle = 'rgba(255,255,255,0.03)';
-    ctx.lineWidth = 1;
+    // Draw subtle grid dots (Insurance Defender style)
+    ctx.fillStyle = 'rgba(0, 255, 136, 0.04)';
     for (let c = 0; c <= this.cols; c++) {
-      ctx.beginPath();
-      ctx.moveTo(c * this.cellSize, 0);
-      ctx.lineTo(c * this.cellSize, this.height);
-      ctx.stroke();
-    }
-    for (let r = 0; r <= this.rows; r++) {
-      ctx.beginPath();
-      ctx.moveTo(0, r * this.cellSize);
-      ctx.lineTo(this.width, r * this.cellSize);
-      ctx.stroke();
+      for (let r = 0; r <= this.rows; r++) {
+        ctx.beginPath();
+        ctx.arc(c * this.cellSize, r * this.cellSize, 1, 0, Math.PI * 2);
+        ctx.fill();
+      }
     }
     
-    // Draw path
-    ctx.strokeStyle = 'rgba(0, 230, 118, 0.3)';
-    ctx.lineWidth = this.cellSize * 0.6;
+    // Draw path with glow (dashed line like Insurance Defender)
+    ctx.save();
+    ctx.shadowColor = 'rgba(0, 255, 136, 0.3)';
+    ctx.shadowBlur = 20;
+    ctx.strokeStyle = 'rgba(0, 255, 136, 0.15)';
+    ctx.lineWidth = this.cellSize * 0.8;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
     ctx.beginPath();
@@ -424,100 +421,156 @@ const Game = {
       else ctx.lineTo(x, y);
     });
     ctx.stroke();
+    ctx.restore();
     
-    // Path glow
-    ctx.strokeStyle = 'rgba(0, 230, 118, 0.1)';
-    ctx.lineWidth = this.cellSize * 0.8;
-    ctx.stroke();
-    
-    // Draw spawn point
-    const start = this.path[0];
-    ctx.fillStyle = 'rgba(251, 113, 133, 0.3)';
+    // Path inner line
+    ctx.strokeStyle = 'rgba(0, 255, 136, 0.4)';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([8, 8]);
     ctx.beginPath();
-    ctx.arc(start.x * this.cellSize, start.y * this.cellSize, this.cellSize * 0.4, 0, Math.PI * 2);
-    ctx.fill();
+    this.path.forEach((p, i) => {
+      const x = p.x * this.cellSize;
+      const y = p.y * this.cellSize;
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+    ctx.setLineDash([]);
     
-    // Draw base (cash pile)
+    // Draw spawn point (pulsing)
+    const start = this.path[0];
+    const spawnPulse = (Math.sin(Date.now() * 0.003) + 1) * 0.5;
+    ctx.fillStyle = `rgba(255, 68, 68, ${0.2 + spawnPulse * 0.3})`;
+    ctx.shadowColor = '#ff4444';
+    ctx.shadowBlur = 15 + spawnPulse * 10;
+    ctx.beginPath();
+    ctx.arc(start.x * this.cellSize, start.y * this.cellSize, this.cellSize * 0.35, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    
+    // Draw base (cash pile) with glow
     const end = this.path[this.path.length - 1];
-    ctx.fillStyle = 'rgba(0, 230, 118, 0.3)';
+    ctx.fillStyle = 'rgba(0, 255, 136, 0.2)';
+    ctx.shadowColor = '#00ff88';
+    ctx.shadowBlur = 20;
     ctx.beginPath();
     ctx.arc(end.x * this.cellSize, end.y * this.cellSize, this.cellSize * 0.4, 0, Math.PI * 2);
     ctx.fill();
-    ctx.fillStyle = '#00E676';
-    ctx.font = `${this.cellSize * 0.5}px Arial`;
+    ctx.shadowBlur = 0;
+    
+    // Base icon
+    ctx.fillStyle = '#00ff88';
+    ctx.font = `${this.cellSize * 0.45}px Arial`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText('💰', end.x * this.cellSize, end.y * this.cellSize);
     
-    // Draw towers
+    // Draw towers with glow rings
     this.towers.forEach(tower => {
       const x = tower.col * this.cellSize + this.cellSize / 2;
       const y = tower.row * this.cellSize + this.cellSize / 2;
-      const size = this.cellSize * 0.35;
+      const size = this.cellSize * 0.3;
       
-      // Range indicator (subtle)
-      ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+      // Range indicator (subtle dotted)
+      ctx.strokeStyle = `${tower.color}15`;
       ctx.lineWidth = 1;
+      ctx.setLineDash([4, 4]);
       ctx.beginPath();
       ctx.arc(x, y, tower.range * this.cellSize, 0, Math.PI * 2);
       ctx.stroke();
+      ctx.setLineDash([]);
+      
+      // Outer glow ring
+      ctx.strokeStyle = `${tower.color}40`;
+      ctx.lineWidth = 3;
+      ctx.shadowColor = tower.color;
+      ctx.shadowBlur = 15;
+      ctx.beginPath();
+      ctx.arc(x, y, size + 4, 0, Math.PI * 2);
+      ctx.stroke();
       
       // Tower body
-      ctx.fillStyle = tower.color;
-      ctx.shadowColor = tower.color;
-      ctx.shadowBlur = 10;
+      ctx.fillStyle = `${tower.color}30`;
       ctx.beginPath();
       ctx.arc(x, y, size, 0, Math.PI * 2);
       ctx.fill();
+      
+      // Inner ring
+      ctx.strokeStyle = tower.color;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(x, y, size, 0, Math.PI * 2);
+      ctx.stroke();
       ctx.shadowBlur = 0;
       
       // Emoji
       ctx.fillStyle = '#fff';
-      ctx.font = `${size}px Arial`;
+      ctx.font = `${size * 0.9}px Arial`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText(tower.emoji, x, y);
     });
     
-    // Draw enemies
+    // Draw enemies with health bars
     this.enemies.forEach(enemy => {
-      const size = this.cellSize * 0.25;
+      const size = this.cellSize * 0.22;
       
-      // Health bar
+      // Health bar background
       const barWidth = this.cellSize * 0.5;
-      const barHeight = 4;
+      const barHeight = 3;
       const healthPct = enemy.health / enemy.maxHealth;
       
-      ctx.fillStyle = 'rgba(255,255,255,0.2)';
-      ctx.fillRect(enemy.x - barWidth / 2, enemy.y - size - 8, barWidth, barHeight);
+      ctx.fillStyle = 'rgba(255,255,255,0.1)';
+      ctx.fillRect(enemy.x - barWidth / 2, enemy.y - size - 10, barWidth, barHeight);
       
-      ctx.fillStyle = healthPct > 0.5 ? '#00E676' : healthPct > 0.25 ? '#FBBF24' : '#FB7185';
-      ctx.fillRect(enemy.x - barWidth / 2, enemy.y - size - 8, barWidth * healthPct, barHeight);
+      // Health bar fill
+      const healthColor = healthPct > 0.5 ? '#00ff88' : healthPct > 0.25 ? '#ffaa00' : '#ff4444';
+      ctx.fillStyle = healthColor;
+      ctx.shadowColor = healthColor;
+      ctx.shadowBlur = 4;
+      ctx.fillRect(enemy.x - barWidth / 2, enemy.y - size - 10, barWidth * healthPct, barHeight);
+      ctx.shadowBlur = 0;
       
-      // Enemy body
-      ctx.fillStyle = enemy.color;
+      // Enemy glow
+      ctx.fillStyle = `${enemy.color}40`;
       ctx.shadowColor = enemy.color;
-      ctx.shadowBlur = 8;
+      ctx.shadowBlur = 12;
       ctx.beginPath();
-      ctx.arc(enemy.x, enemy.y, size, 0, Math.PI * 2);
+      ctx.arc(enemy.x, enemy.y, size + 3, 0, Math.PI * 2);
       ctx.fill();
       ctx.shadowBlur = 0;
       
+      // Enemy body
+      ctx.fillStyle = enemy.color;
+      ctx.beginPath();
+      ctx.arc(enemy.x, enemy.y, size, 0, Math.PI * 2);
+      ctx.fill();
+      
       // Emoji
       ctx.fillStyle = '#fff';
-      ctx.font = `${size * 1.2}px Arial`;
+      ctx.font = `${size * 1.1}px Arial`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText(enemy.emoji, enemy.x, enemy.y);
     });
     
-    // Draw projectiles
+    // Draw projectiles with trails
     this.projectiles.forEach(proj => {
+      // Trail
+      ctx.strokeStyle = `${proj.color}60`;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(proj.x, proj.y);
+      const angle = Math.atan2(proj.target.y - proj.y, proj.target.x - proj.x);
+      ctx.lineTo(proj.x - Math.cos(angle) * 8, proj.y - Math.sin(angle) * 8);
+      ctx.stroke();
+      
+      // Projectile head
       ctx.fillStyle = proj.color;
       ctx.shadowColor = proj.color;
-      ctx.shadowBlur = 6;
+      ctx.shadowBlur = 8;
       ctx.beginPath();
-      ctx.arc(proj.x, proj.y, 4, 0, Math.PI * 2);
+      ctx.arc(proj.x, proj.y, 3, 0, Math.PI * 2);
       ctx.fill();
       ctx.shadowBlur = 0;
     });
@@ -526,15 +579,18 @@ const Game = {
     this.particles.forEach(p => {
       ctx.globalAlpha = p.life;
       ctx.fillStyle = p.color;
+      ctx.shadowColor = p.color;
+      ctx.shadowBlur = 6;
       ctx.beginPath();
       ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
       ctx.fill();
+      ctx.shadowBlur = 0;
       ctx.globalAlpha = 1;
     });
     
     // Placement preview
     if (this.selectedTower) {
-      // This would need mouse position tracking
+      // Could add hover preview here
     }
   },
   
