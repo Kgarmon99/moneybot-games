@@ -142,6 +142,7 @@ const Game = {
   },
   
   showWaveScreen() {
+    console.log('showWaveScreen called, month:', this.month);
     const wave = this.waves[this.month - 1];
     document.getElementById('wave-number').textContent = `Month ${wave.month}`;
     document.getElementById('wave-title').textContent = wave.title;
@@ -155,6 +156,7 @@ const Game = {
     const ws = document.getElementById('wave-screen');
     ws.classList.remove('hidden');
     ws.style.display = 'flex';
+    console.log('Wave screen should be visible now');
   },
   
   startWave() {
