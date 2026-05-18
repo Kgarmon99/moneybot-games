@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SaaS Empire</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app">
+        <!-- HUD -->
+        <header id="hud" class="hidden">
+            <div class="hud-main">
+                <div class="mrr-display">
+                    <span class="mrr-label">MRR</span>
+                    <span id="mrr-val" class="mrr-value">$0</span>
+                    <span id="mrr-growth" class="mrr-growth">+$0/mo</span>
+                </div>
+                <div class="mini-stats">
+                    <div class="mini-stat">
+                        <span class="mini-label">CUSTOMERS</span>
+                        <span id="customers-val" class="mini-value">0</span>
+                    </div>
+                    <div class="mini-stat">
+                        <span class="mini-label">CHURN</span>
+                        <span id="churn-val" class="mini-value">5%</span>
+                    </div>
+                    <div class="mini-stat">
+                        <span class="mini-label">CAC</span>
+                        <span id="cac-val" class="mini-value">$100</span>
+                    </div>
+                    <div class="mini-stat">
+                        <span class="mini-label">LTV</span>
+                        <span id="ltv-val" class="mini-value">$0</span>
+                    </div>
+                </div>
+            </div>
+            <div class="metrics-bar">
+                <div class="metric-pill">
+                    <span>ARR</span>
+                    <span id="arr-val">$0</span>
+                </div>
+                <div class="metric-pill">
+                    <span>NET</span>
+                    <span id="net-val">-$5K</span>
+                </div>
+                <div class="metric-pill" id="ltv-cac-pill">
+                    <span>LTV:CAC</span>
+                    <span id="ltv-cac-val">0x</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Start Screen -->
+        <div id="start-screen" class="screen active">
+            <div class="logo-area">
+                <div class="mascot">☁️</div>
+                <h1>SaaS<br><span class="highlight">EMPIRE</span></h1>
+                <p class="tagline">Grow MRR. Beat churn. Scale forever.</p>
+            </div>
+            <div class="instructions">
+                <div class="inst-item"><span class="inst-icon">👆</span> Tap to acquire customers manually</div>
+                <div class="inst-item"><span class="inst-icon">⚡</span> Buy upgrades to automate growth</div>
+                <div class="inst-item"><span class="inst-icon">📉</span> Fight churn with better product</div>
+                <div class="inst-item"><span class="inst-icon">🎯</span> LTV:CAC ratio above 3x = healthy</div>
+            </div>
+            <button id="start-btn" class="btn-primary">LAUNCH PRODUCT</button>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="game-screen" class="screen hidden">
+            <div id="click-zone" class="click-zone">
+                <div class="click-inner">
+                    <span class="click-icon">👆</span>
+                    <span class="click-text">TAP TO SELL</span>
+                    <span class="click-sub">+$<span id="click-revenue">10</span> MRR</span>
+                </div>
+                <div id="click-particles" class="click-particles"></div>
+            </div>
+
+            <div class="upgrades-panel">
+                <div class="panel-header">
+                    <span class="panel-title">UPGRADES</span>
+                    <span class="panel-cash">$<span id="cash-val">5000</span></span>
+                </div>
+                <div id="upgrades-list" class="upgrades-list"></div>
+            </div>
+        </div>
+
+        <!-- Win Screen -->
+        <div id="win-screen" class="screen hidden">
+            <div class="mascot big">🦄</div>
+            <h1 class="highlight">$1M ARR!</h1>
+            <p class="subtitle">You built a SaaS empire.</p>
+            <div class="final-stats">
+                <div class="final-row"><span>Time</span><span id="win-time">5m 32s</span></div>
+                <div class="final-row"><span>Customers</span><span id="win-customers">2,400</span></div>
+                <div class="final-row"><span>LTV:CAC</span><span id="win-ltv-cac">4.2x</span></div>
+                <div class="final-row"><span>Churn</span><span id="win-churn">2.1%</span></div>
+            </div>
+            <div class="tip-box">
+                💡 SaaS success = LTV:CAC > 3x, churn &lt; 5%, and net negative churn from expansion revenue.
+            </div>
+            <button id="win-restart-btn" class="btn-primary">BUILD AGAIN</button>
+        </div>
+    </div>
+    <script src="game.js"></script>
+</body>
+</html>
