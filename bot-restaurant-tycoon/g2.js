@@ -1,5 +1,6 @@
 (function() {
   'use strict';
+  console.log('Restaurant Tycoon JS loaded');
 
   let state = {
     day: 1,
@@ -320,4 +321,5 @@
   $('win-restart-btn').addEventListener('click', initGame);
 
   showScreen('start-screen');
+  console.log('Restaurant Tycoon JS initialized');
 })();
