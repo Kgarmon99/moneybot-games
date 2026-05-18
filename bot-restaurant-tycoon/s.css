@@ -321,4 +321,5 @@ h1.danger { color: var(--mb-red); }
 
 .good { color: var(--mb-green) !important; }
 .danger { color: var(--mb-red) !important; }
-.hidden { display: none !important; }
+.hidden { display: none; }
+.screen.active { display: flex !important; }
