@@ -3,1574 +3,745 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Play 100+ MoneyBot financial literacy games for budgeting, saving, investing, credit, taxes, insurance, and career skills.">
-    <link rel="canonical" href="https://kgarmon99.github.io/moneybot-games/moneybot-official/">
-    <title>MoneyBot Gaming | Financial Education Arcade</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
-    <link rel="icon" type="image/svg+xml" href="./assets/moneybot-logo-1.jpg">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <title>MoneyBot Gaming</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --neon-green: #0f0;
-            --neon-dim: rgba(0, 255, 0, 0.7);
-            --neon-faint: rgba(0, 255, 0, 0.15);
-            --bg-black: #000;
-            --bg-dark: #0a0a0a;
-            --bg-card: #0d0d0d;
-            --text-primary: #0f0;
-            --text-secondary: rgba(0, 255, 0, 0.7);
-            --text-muted: rgba(0, 255, 0, 0.4);
-            --accent-gold: #ffd700;
-            --accent-red: #ff3333;
-            --accent-blue: #00ccff;
-        }
-        
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        body {
-            font-family: 'Rajdhani', sans-serif;
-            background: var(--bg-black);
-            color: var(--text-primary);
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-        
-        /* Animated Grid Background */
-        .grid-bg {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            pointer-events: none;
-            z-index: 0;
-            background-image: 
-                linear-gradient(rgba(0,255,0,0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0,255,0,0.03) 1px, transparent 1px);
-            background-size: 50px 50px;
-            animation: gridMove 20s linear infinite;
-        }
-        
-        @keyframes gridMove {
-            0% { transform: perspective(500px) rotateX(60deg) translateY(0); }
-            100% { transform: perspective(500px) rotateX(60deg) translateY(50px); }
-        }
-        
-        /* Scanline Effect */
-        .scanlines {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            pointer-events: none;
-            z-index: 1;
-            background: repeating-linear-gradient(
-                0deg,
-                transparent,
-                transparent 2px,
-                rgba(0,255,0,0.02) 2px,
-                rgba(0,255,0,0.02) 4px
-            );
-        }
-        
-        /* Navigation */
-        .nav {
-            position: fixed;
-            top: 0; left: 0; right: 0;
-            background: rgba(0,0,0,0.95);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--neon-faint);
-            z-index: 1000;
-            padding: 0 40px;
-        }
-        
-        .nav-inner {
-            max-width: 1600px;
-            margin: 0 auto;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            height: 70px;
-        }
-        
-        .nav-logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            text-decoration: none;
-        }
-        
-        .nav-logo img {
-            width: 40px;
-            height: 40px;
-            border-radius: 8px;
-            border: 2px solid var(--neon-green);
-            box-shadow: 0 0 15px rgba(0,255,0,0.3);
-        }
-        
-        .nav-logo-text {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 20px;
-            font-weight: 900;
-            color: var(--neon-green);
-            text-shadow: 0 0 20px rgba(0,255,0,0.5);
-            letter-spacing: 2px;
-        }
-        
-        .nav-logo-sub {
-            font-size: 11px;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            margin-top: -2px;
-        }
-        
-        .nav-links {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-        }
-        
-        .nav-link {
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: 600;
-            padding: 8px 16px;
-            border-radius: 6px;
-            transition: all 0.3s;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            border: 1px solid transparent;
-        }
-        
-        .nav-link:hover, .nav-link.active {
-            color: var(--neon-green);
-            border-color: var(--neon-green);
-            background: var(--neon-faint);
-            box-shadow: 0 0 15px rgba(0,255,0,0.2);
-        }
-        
-        .nav-cta {
-            background: var(--neon-green);
-            color: #000;
-            padding: 10px 24px;
-            border-radius: 6px;
-            font-weight: 700;
-            text-decoration: none;
-            text-transform: uppercase;
-            font-size: 13px;
-            letter-spacing: 1px;
-            transition: all 0.3s;
-            margin-left: 16px;
-        }
-        
-        .nav-cta:hover {
-            box-shadow: 0 0 25px rgba(0,255,0,0.5);
-            transform: translateY(-2px);
-        }
-        
-        /* Hero Section */
-        .hero {
-            position: relative;
-            z-index: 2;
-            padding: 140px 40px 80px;
-            text-align: center;
-            overflow: hidden;
-        }
-        
-        .hero-glow {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 600px;
-            height: 600px;
-            background: radial-gradient(circle, rgba(0,255,0,0.1) 0%, transparent 70%);
-            pointer-events: none;
-            animation: pulse 4s ease-in-out infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
-            50% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
-        }
-        
-        .hero-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: var(--neon-faint);
-            border: 1px solid var(--neon-green);
-            padding: 8px 20px;
-            border-radius: 50px;
-            font-size: 13px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-bottom: 30px;
-            animation: glow 2s ease-in-out infinite alternate;
-        }
-        
-        @keyframes glow {
-            from { box-shadow: 0 0 5px rgba(0,255,0,0.2); }
-            to { box-shadow: 0 0 20px rgba(0,255,0,0.4); }
-        }
-        
-        .hero h1 {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 64px;
-            font-weight: 900;
-            margin-bottom: 20px;
-            text-shadow: 0 0 40px rgba(0,255,0,0.5);
-            letter-spacing: 4px;
-            line-height: 1.1;
-        }
-        
-        .hero h1 span {
-            color: var(--accent-gold);
-            text-shadow: 0 0 40px rgba(255,215,0,0.5);
-        }
-        
-        .hero-subtitle {
-            font-size: 20px;
-            color: var(--text-secondary);
-            max-width: 600px;
-            margin: 0 auto 40px;
-            line-height: 1.6;
-        }
-        
-        .hero-stats {
-            display: flex;
-            justify-content: center;
-            gap: 60px;
-            margin-top: 50px;
-        }
-        
-        .hero-stat {
-            text-align: center;
-        }
-        
-        .hero-stat-number {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 48px;
-            font-weight: 900;
-            color: var(--neon-green);
-            text-shadow: 0 0 20px rgba(0,255,0,0.5);
-            line-height: 1;
-        }
-        
-        .hero-stat-label {
-            font-size: 13px;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-top: 8px;
-        }
-        
-        /* Search & Filter Bar */
-        .filter-bar {
-            position: sticky;
-            top: 70px;
-            background: rgba(0,0,0,0.95);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--neon-faint);
-            z-index: 999;
-            padding: 20px 40px;
-        }
-        
-        .filter-inner {
-            max-width: 1600px;
-            margin: 0 auto;
-        }
-        
-        .search-box {
-            width: 100%;
-            max-width: 700px;
-            background: var(--bg-card);
-            border: 2px solid var(--neon-faint);
-            color: var(--neon-green);
-            padding: 16px 24px 16px 50px;
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 16px;
-            font-weight: 600;
-            border-radius: 12px;
-            outline: none;
-            transition: all 0.3s;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%230f0' stroke-width='2' opacity='0.5'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: 18px center;
-        }
-        
-        .search-box::placeholder {
-            color: var(--text-muted);
-        }
-        
-        .search-box:focus {
-            border-color: var(--neon-green);
-            box-shadow: 0 0 20px rgba(0,255,0,0.2);
-        }
-        
-        .filter-tags {
-            display: flex;
-            gap: 10px;
-            margin-top: 16px;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-        
-        .filter-label {
-            font-size: 12px;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-right: 10px;
-        }
-        
-        .filter-tag {
-            background: transparent;
-            border: 1px solid var(--neon-faint);
-            color: var(--text-secondary);
-            padding: 8px 18px;
-            border-radius: 8px;
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        
-        .filter-tag:hover {
-            border-color: var(--neon-green);
-            background: var(--neon-faint);
-        }
-        
-        .filter-tag.active {
-            background: var(--neon-green);
-            color: #000;
-            border-color: var(--neon-green);
-            box-shadow: 0 0 15px rgba(0,255,0,0.3);
-        }
-        
-        .sort-select {
-            margin-left: auto;
-            background: var(--bg-card);
-            border: 1px solid var(--neon-faint);
-            color: var(--neon-green);
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            outline: none;
-        }
-        
-        /* Main Content */
-        .main-content {
-            position: relative;
-            z-index: 2;
-            max-width: 1600px;
-            margin: 0 auto;
-            padding: 40px;
-        }
-        
-        /* Section Headers */
-        .section {
-            margin-bottom: 60px;
-        }
-        
-        .section-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid var(--neon-faint);
-        }
-        
-        .section-title-group {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        
-        .section-icon {
-            width: 40px;
-            height: 40px;
-            background: var(--neon-faint);
-            border: 1px solid var(--neon-green);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-        }
-        
-        .section-title {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 24px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 3px;
-        }
-        
-        .section-count {
-            font-size: 14px;
-            color: var(--text-muted);
-            background: var(--bg-card);
-            padding: 6px 14px;
-            border-radius: 6px;
-            border: 1px solid var(--neon-faint);
-        }
-        
-        .collapse-btn {
-            background: transparent;
-            border: 1px solid var(--neon-faint);
-            color: var(--text-secondary);
-            padding: 8px 16px;
-            border-radius: 6px;
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-transform: uppercase;
-        }
-        
-        .collapse-btn:hover {
-            border-color: var(--neon-green);
-            color: var(--neon-green);
-        }
-        
-        /* Games Grid */
-        .games-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 24px;
-        }
-        
-        /* Game Card */
-        .game-card {
-            position: relative;
-            background: var(--bg-card);
-            border: 1px solid var(--neon-faint);
-            border-radius: 16px;
-            overflow: hidden;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            text-decoration: none;
-            color: inherit;
-            display: block;
-        }
-        
-        .game-card:hover {
-            border-color: var(--neon-green);
-            box-shadow: 0 0 30px rgba(0,255,0,0.2), 0 10px 40px rgba(0,0,0,0.5);
-            transform: translateY(-8px) scale(1.02);
-        }
-        
-        .game-card.hidden {
-            display: none;
-        }
-        
-        /* YC Startup School Branding */
-        .yc-section {
-            background: linear-gradient(180deg, rgba(255,102,0,0.05) 0%, transparent 100%);
-            border: 1px solid rgba(255,102,0,0.2);
-            border-radius: 20px;
-            padding: 40px;
-            margin-bottom: 60px;
-        }
-        .yc-section .section-header {
-            border-bottom-color: rgba(255,102,0,0.3);
-        }
-        .yc-section .section-icon {
-            background: linear-gradient(135deg, #FF6600, #FF8533);
-            border-color: #FF6600;
-            color: white;
-            font-weight: 900;
-            font-size: 24px;
-        }
-        .yc-section .section-title {
-            color: #FF6600;
-            text-shadow: 0 0 20px rgba(255,102,0,0.3);
-        }
-        .yc-card {
-            border-color: rgba(255,102,0,0.3) !important;
-        }
-        .yc-card:hover {
-            border-color: #FF6600 !important;
-            box-shadow: 0 0 30px rgba(255,102,0,0.2), 0 10px 40px rgba(0,0,0,0.5) !important;
-        }
-        .yc-card .game-tag {
-            background: rgba(255,102,0,0.15) !important;
-            color: #FF8533 !important;
-            border-color: rgba(255,102,0,0.3) !important;
-        }
-        .yc-card .game-play-btn {
-            background: #FF6600 !important;
-            color: white !important;
-        }
-        .yc-card .game-play-btn:hover {
-            box-shadow: 0 0 20px rgba(255,102,0,0.4) !important;
-        }
-        .yc-card .game-title {
-            color: #FF8533 !important;
-        }
-        
-        .game-image {
-            aspect-ratio: 16/10;
-            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .game-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.5s;
-        }
-        
-        .game-card:hover .game-image img {
-            transform: scale(1.1);
-        }
-        
-        .game-image-overlay {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            padding: 40px 16px 16px;
-            background: linear-gradient(transparent, rgba(0,0,0,0.9));
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-        
-        .game-badge {
-            padding: 4px 10px;
-            border-radius: 4px;
-            font-size: 10px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        
-        .badge-new {
-            background: var(--neon-green);
-            color: #000;
-        }
-        
-        .badge-featured {
-            background: var(--accent-gold);
-            color: #000;
-        }
-        
-        .badge-difficulty-easy {
-            background: rgba(0,255,0,0.2);
-            color: var(--neon-green);
-            border: 1px solid var(--neon-green);
-        }
-        
-        .badge-difficulty-medium {
-            background: rgba(255,215,0,0.2);
-            color: var(--accent-gold);
-            border: 1px solid var(--accent-gold);
-        }
-        
-        .badge-difficulty-hard {
-            background: rgba(255,51,51,0.2);
-            color: var(--accent-red);
-            border: 1px solid var(--accent-red);
-        }
-        
-        .game-info {
-            padding: 20px;
-        }
-        
-        .game-title {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 16px;
-            font-weight: 700;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        
-        .game-meta {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 12px;
-            flex-wrap: wrap;
-        }
-        
-        .game-tag {
-            font-size: 11px;
-            padding: 4px 10px;
-            border-radius: 4px;
-            background: var(--neon-faint);
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
-        .game-desc {
-            font-size: 14px;
-            color: var(--text-secondary);
-            line-height: 1.6;
-            margin-bottom: 16px;
-        }
-        
-        .game-footer {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding-top: 16px;
-            border-top: 1px solid var(--neon-faint);
-        }
-        
-        .game-play-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: var(--neon-green);
-            color: #000;
-            padding: 10px 24px;
-            border-radius: 8px;
-            font-weight: 700;
-            font-size: 13px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: all 0.3s;
-        }
-        
-        .game-play-btn:hover {
-            box-shadow: 0 0 20px rgba(0,255,0,0.4);
-            transform: scale(1.05);
-        }
-        
-        .game-stats {
-            display: flex;
-            gap: 16px;
-            font-size: 12px;
-            color: var(--text-muted);
-        }
-        
-        .game-stat {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-        
-        /* Featured Game (Large) */
-        .featured-game {
-            grid-column: span 2;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 0;
-        }
-        
-        .featured-game .game-image {
-            aspect-ratio: auto;
-            height: 100%;
-            min-height: 300px;
-        }
-        
-        .featured-game .game-info {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            padding: 40px;
-        }
-        
-        .featured-game .game-title {
-            font-size: 28px;
-            margin-bottom: 16px;
-        }
-        
-        .featured-game .game-desc {
-            font-size: 16px;
-            margin-bottom: 24px;
-        }
-        
-
-        .discovery-grid {
-            display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
-            gap: 18px;
-            margin-bottom: 44px;
-        }
-
-        .discovery-card {
-            position: relative;
-            display: block;
-            min-height: 154px;
-            padding: 22px;
-            border: 1px solid var(--neon-faint);
-            border-radius: 14px;
-            background: linear-gradient(135deg, rgba(0,255,0,0.08), rgba(255,255,255,0.02));
-            color: inherit;
-            text-decoration: none;
-            overflow: hidden;
-            transition: all 0.3s;
-        }
-
-        .discovery-card:hover {
-            transform: translateY(-4px);
-            border-color: var(--neon-green);
-            box-shadow: 0 0 24px rgba(0,255,0,0.18);
-        }
-
-        .discovery-card strong {
-            display: block;
-            font-family: 'Orbitron', sans-serif;
-            font-size: 18px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-bottom: 10px;
-        }
-
-        .discovery-card span {
-            display: block;
-            color: var(--text-secondary);
-            font-size: 14px;
-            line-height: 1.5;
-            max-width: 230px;
-        }
-
-        .discovery-card em {
-            position: absolute;
-            right: 18px;
-            bottom: 14px;
-            font-style: normal;
-            color: var(--neon-green);
-            font-weight: 800;
-            font-size: 13px;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-        }
-
-        .section-subtitle {
-            margin-top: 8px;
-            color: var(--text-muted);
-            font-size: 15px;
-            max-width: 720px;
-            line-height: 1.5;
-        }
-
-        .section-actions {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .section-link {
-            color: var(--neon-green);
-            border: 1px solid var(--neon-faint);
-            border-radius: 8px;
-            padding: 8px 14px;
-            text-decoration: none;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-size: 12px;
-            font-weight: 800;
-            transition: all 0.3s;
-        }
-
-        .section-link:hover {
-            border-color: var(--neon-green);
-            background: var(--neon-faint);
-        }
-
-        .compact-grid {
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        }
-
-        /* No Results */
-        .no-results {
-            text-align: center;
-            padding: 80px 20px;
-            border: 2px dashed var(--neon-faint);
-            border-radius: 16px;
-            grid-column: 1 / -1;
-        }
-        
-        .no-results-icon {
-            font-size: 64px;
-            margin-bottom: 20px;
-            opacity: 0.5;
-        }
-        
-        .no-results h3 {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 24px;
-            margin-bottom: 10px;
-        }
-        
-        .no-results p {
-            color: var(--text-muted);
-        }
-        
-        /* Footer */
-        .footer {
-            position: relative;
-            z-index: 2;
-            border-top: 1px solid var(--neon-faint);
-            padding: 60px 40px 40px;
-            margin-top: 80px;
-        }
-        
-        .footer-inner {
-            max-width: 1600px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: 2fr 1fr 1fr 1fr;
-            gap: 60px;
-        }
-        
-        .footer-brand {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-        
-        .footer-brand img {
-            width: 40px;
-            height: 40px;
-            border-radius: 8px;
-            border: 2px solid var(--neon-green);
-        }
-        
-        .footer-brand-text {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 18px;
-            font-weight: 700;
-        }
-        
-        .footer-desc {
-            color: var(--text-muted);
-            font-size: 14px;
-            line-height: 1.6;
-            margin-bottom: 20px;
-        }
-        
-        .footer-social {
-            display: flex;
-            gap: 12px;
-        }
-        
-        .footer-social a {
-            width: 40px;
-            height: 40px;
-            border: 1px solid var(--neon-faint);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--text-secondary);
-            text-decoration: none;
-            transition: all 0.3s;
-            font-size: 14px;
-            font-weight: 700;
-        }
-        
-        .footer-social a:hover {
-            border-color: var(--neon-green);
-            background: var(--neon-faint);
-            color: var(--neon-green);
-        }
-        
-        .footer-column h4 {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 14px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-bottom: 20px;
-        }
-        
-        .footer-column ul {
-            list-style: none;
-        }
-        
-        .footer-column li {
-            margin-bottom: 12px;
-        }
-        
-        .footer-column a {
-            color: var(--text-muted);
-            text-decoration: none;
-            font-size: 14px;
-            transition: all 0.3s;
-        }
-        
-        .footer-column a:hover {
-            color: var(--neon-green);
-            padding-left: 8px;
-        }
-        
-        .footer-bottom {
-            max-width: 1600px;
-            margin: 40px auto 0;
-            padding-top: 20px;
-            border-top: 1px solid var(--neon-faint);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 13px;
-            color: var(--text-muted);
-        }
-        
-        /* Mobile Responsive */
-        @media (max-width: 1200px) {
-            .discovery-grid {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-            }
-            .featured-game {
-                grid-column: span 1;
-                grid-template-columns: 1fr;
-            }
-            .featured-game .game-image {
-                aspect-ratio: 16/10;
-                min-height: auto;
-            }
-        }
-        
-        @media (max-width: 768px) {
-            .nav { padding: 0 20px; }
-            .nav-links { display: none; }
-            .hero { padding: 120px 20px 60px; }
-            .hero h1 { font-size: 36px; }
-            .hero-stats { gap: 30px; }
-            .hero-stat-number { font-size: 32px; }
-            .filter-bar { padding: 16px 20px; top: 60px; }
-            .main-content { padding: 20px; }
-            .games-grid { grid-template-columns: 1fr; }
-            .discovery-grid { grid-template-columns: 1fr; }
-            .footer-inner { grid-template-columns: 1fr; gap: 40px; }
-            .footer-bottom { flex-direction: column; gap: 10px; text-align: center; }
-        }
-        
-        /* Loading Animation */
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 2px solid var(--neon-faint);
-            border-top-color: var(--neon-green);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        /* Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        
-        ::-webkit-scrollbar-track {
-            background: var(--bg-black);
-        }
-        
-        ::-webkit-scrollbar-thumb {
-            background: var(--neon-faint);
-            border-radius: 4px;
-        }
-        
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--neon-green);
-        }
+        body { font-family: 'JetBrains Mono', monospace; background: #000; color: #0f0; min-height: 100vh; line-height: 1.6; }
+        .matrix-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; opacity: 0.03; }
+        .nav { position: fixed; top: 0; left: 0; right: 0; background: rgba(0,0,0,0.95); border-bottom: 1px solid #0f0; z-index: 100; padding: 0 40px; }
+        .nav-inner { max-width: 1400px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 60px; }
+        .nav-logo { display: flex; align-items: center; gap: 12px; text-decoration: none; color: #0f0; }
+        .nav-logo img { width: 32px; height: 32px; border-radius: 4px; border: 1px solid #0f0; }
+        .nav-logo span { font-size: 18px; font-weight: 700; }
+        .nav-links { display: flex; gap: 30px; }
+        .nav-links a { color: #0f0; text-decoration: none; font-size: 14px; opacity: 0.7; transition: all 0.2s; text-transform: uppercase; letter-spacing: 1px; }
+        .nav-links a:hover, .nav-links a.active { opacity: 1; text-shadow: 0 0 10px #0f0; }
+        .container { position: relative; z-index: 1; max-width: 1400px; margin: 0 auto; padding: 100px 40px 60px; }
+        .hero { text-align: center; padding: 60px 0; border: 1px solid #0f0; margin-bottom: 60px; box-shadow: 0 0 20px rgba(0,255,0,0.2), inset 0 0 20px rgba(0,255,0,0.05); }
+        .hero h1 { font-size: 48px; font-weight: 700; margin-bottom: 10px; text-shadow: 0 0 20px #0f0; }
+        .hero p { font-size: 14px; opacity: 0.7; text-transform: uppercase; letter-spacing: 3px; }
+        .section { margin-bottom: 80px; }
+        .section-header { display: flex; align-items: center; gap: 15px; margin-bottom: 30px; padding-bottom: 15px; border-bottom: 1px solid #0f0; }
+        .section-header img { width: 28px; height: 28px; border-radius: 4px; border: 1px solid #0f0; }
+        .section-title { font-size: 20px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; }
+        .games-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        .game-card { background: #000; border: 1px solid #0f0; text-decoration: none; color: #0f0; transition: all 0.2s; display: block; }
+        .game-card:hover { box-shadow: 0 0 20px rgba(0,255,0,0.4), inset 0 0 10px rgba(0,255,0,0.1); transform: translateY(-2px); }
+        .game-image { aspect-ratio: 16/10; background: #050505; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid #0f0; overflow: hidden; }
+        .game-image img { width: 100%; height: 100%; object-fit: cover; }
+        .game-emoji { font-size: 60px; filter: drop-shadow(0 0 10px #0f0); }
+        .game-info { padding: 20px; }
+        .game-title { font-size: 16px; font-weight: 700; margin-bottom: 8px; text-transform: uppercase; }
+        .game-tag { font-size: 11px; opacity: 0.7; margin-bottom: 12px; display: inline-block; border: 1px solid #0f0; padding: 2px 8px; }
+        .game-desc { font-size: 13px; opacity: 0.8; line-height: 1.5; }
+        .new-badge { position: absolute; top: 10px; right: 10px; background: #0f0; color: #000; font-size: 10px; font-weight: 700; padding: 4px 8px; text-transform: uppercase; }
+        .game-card-wrap { position: relative; }
+        .game-card.soon { opacity: 0.5; cursor: default; }
+        .game-card.soon:hover { box-shadow: none; transform: none; }
+        @media (max-width: 768px) { .nav { padding: 0 20px; } .nav-links { gap: 15px; } .nav-links a { font-size: 12px; } .container { padding: 80px 20px 40px; } .hero h1 { font-size: 32px; } .games-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
-    <div class="grid-bg"></div>
-    <div class="scanlines"></div>
-    
-    <!-- Navigation -->
+    <canvas class="matrix-bg" id="matrix"></canvas>
     <nav class="nav">
         <div class="nav-inner">
-            <a href="#" class="nav-logo">
-                <img src="./assets/moneybot-logo-1.jpg" alt="MoneyBot">
-                <div>
-                    <div class="nav-logo-text">MONEYBOT</div>
-                    <div class="nav-logo-sub">Gaming Library</div>
-                </div>
+            <a href="index.html" class="nav-logo">
+                <img src="assets/moneybot-logo-1.jpg" alt="MoneyBot">
+                <span>MoneyBot</span>
             </a>
             <div class="nav-links">
-                <a href="#featured" class="nav-link active">Featured</a>
-                <a href="#simulators" class="nav-link">Simulators</a>
-                <a href="#yc" class="nav-link">YC Games</a>
-                <a href="#classics" class="nav-link">Web Classics</a>
-                <a href="#allGames" class="nav-link">All Games</a>
+                <a href="#games" class="active">Games</a>
+                <a href="#classics">Classics</a>
+                <a href="#sims">Sims</a>
+                <a href="#calc">Tools</a>
             </div>
-            <a href="https://getmoneybot.com" class="nav-cta">Start Learning</a>
         </div>
     </nav>
-    
-    <!-- Hero -->
-    <section class="hero">
-        <div class="hero-glow"></div>
-        <div class="hero-badge">
-            <span style="font-size: 16px;">🎮</span>
-            <span>100+ Financial Education Games</span>
+    <div class="container">
+        <div class="hero">
+            <h1>MONEYBOT GAMING</h1>
+            <p>Financial Education Through Play</p>
         </div>
-        <h1>Level Up Your<br><span>Financial IQ</span></h1>
-        <p class="hero-subtitle">Master money skills through play. From budgeting to investing, every game teaches real-world financial literacy.</p>
-        <div class="hero-stats">
-            <div class="hero-stat">
-                <div class="hero-stat-number">110+</div>
-                <div class="hero-stat-label">Games</div>
-            </div>
-            <div class="hero-stat">
-                <div class="hero-stat-number">12</div>
-                <div class="hero-stat-label">Topics</div>
-            </div>
-            <div class="hero-stat">
-                <div class="hero-stat-number">50K+</div>
-                <div class="hero-stat-label">Players</div>
-            </div>
-        </div>
-    </section>
-    
-    <!-- Filter Bar -->
-    <div class="filter-bar">
-        <div class="filter-inner">
-            <input type="text" class="search-box" placeholder="Search games..." id="searchBox">
-            <div class="filter-tags">
-                <span class="filter-label">Find:</span>
-                <button class="filter-tag active" data-filter="all">All</button>
-                <button class="filter-tag" data-filter="simulation">Simulators</button>
-                <button class="filter-tag" data-filter="yc">YC Games</button>
-                <button class="filter-tag" data-filter="classic">Web Classics</button>
-                <button class="filter-tag" data-filter="budget">Budget</button>
-                <button class="filter-tag" data-filter="save">Save</button>
-                <button class="filter-tag" data-filter="invest">Invest</button>
-                <button class="filter-tag" data-filter="debt">Debt</button>
-                <button class="filter-tag" data-filter="tax">Tax</button>
-                <button class="filter-tag" data-filter="arcade">Arcade</button>
-                <select class="sort-select" id="sortSelect">
-                    <option value="featured">Featured</option>
-                    <option value="newest">Newest</option>
-                    <option value="name">Name A-Z</option>
-                    <option value="difficulty">Difficulty</option>
-                </select>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Main Content -->
-    <main class="main-content">
-        <section class="discovery-grid" aria-label="Quick game paths">
-            <a class="discovery-card" href="#classics"><strong>Web Classics</strong><span>Trusted outside games and legacy finance sims, grouped in one lane.</span><em id="classicLaneCount">0 games</em></a>
-            <a class="discovery-card" href="#simulators"><strong>Simulators</strong><span>Longer decision games for life, investing, business, and planning.</span><em id="simLaneCount">0 games</em></a>
-            <a class="discovery-card" href="#yc"><strong>YC Games</strong><span>Startup-school lessons: runway, pivots, hiring, growth, and fundraising.</span><em id="ycLaneCount">0 games</em></a>
-            <a class="discovery-card" href="#allGames"><strong>Browse All</strong><span>Search and filter the full MoneyBot arcade catalog from one place.</span><em id="allLaneCount">0 games</em></a>
-        </section>
-
-        <section class="section" id="featured">
+        
+        <!-- FEATURED GAMES - BEST/MOST POLISHED FIRST -->
+        <section class="section" id="games">
             <div class="section-header">
-                <div>
-                    <div class="section-title-group"><div class="section-icon">⭐</div><h2 class="section-title">Featured</h2></div>
-                    <p class="section-subtitle">A tight launch row of the strongest MoneyBot games.</p>
-                </div>
-                <div class="section-actions"><a class="section-link" href="#allGames">Browse all</a><span class="section-count">0 games</span></div>
+                <img src="assets/moneybot-logo-1.jpg" alt="">
+                <span class="section-title">Featured Games</span>
             </div>
-            <div class="games-grid" id="featuredGrid"></div>
-        </section>
-
-        <section class="section" id="simulators">
-            <div class="section-header">
-                <div>
-                    <div class="section-title-group"><div class="section-icon">🧠</div><h2 class="section-title">Simulators</h2></div>
-                    <p class="section-subtitle">Decision-heavy games for running scenarios, making tradeoffs, and seeing money systems play out.</p>
+            <div class="games-grid">
+                <!-- TOP TIER - Most Polished -->
+                <div class="game-card-wrap">
+                    <a href="../bot-shot/" class="game-card">
+                        <span class="new-badge">NEW</span>
+                        <div class="game-image"><span class="game-emoji">🏀</span></div>
+                        <div class="game-info">
+                            <div class="game-title">Bot Shot</div>
+                            <span class="game-tag">Arcade</span>
+                            <p class="game-desc">Space basketball. Drag to shoot, score to advance. The hoop moves further each level.</p>
+                        </div>
+                    </a>
                 </div>
-                <div class="section-actions"><button class="filter-tag" data-filter="simulation">Filter simulators</button><span class="section-count" id="simulatorCount">0 games</span></div>
-            </div>
-            <div class="games-grid compact-grid" id="simulatorGrid"></div>
-        </section>
-
-        <section class="section" id="yc">
-            <div class="section-header">
-                <div>
-                    <div class="section-title-group"><div class="section-icon" style="background: linear-gradient(135deg, #FF6600, #FF8533); border-color: #FF6600;">Y</div><h2 class="section-title" style="color: #FF6600;">YC Startup School</h2></div>
-                    <p class="section-subtitle">Startup games for founder skills: runway, customers, pitch, hiring, fundraising, and growth loops.</p>
+                
+                <div class="game-card-wrap">
+                    <a href="../bot-smart-borrower/" class="game-card">
+                        <span class="new-badge">NEW</span>
+                        <div class="game-image"><img src="../bot-smart-borrower/assets/hero-moneybot.png" alt=""></div>
+                        <div class="game-info">
+                            <div class="game-title">Smart Borrower</div>
+                            <span class="game-tag">Education</span>
+                            <p class="game-desc">Learn to spot predatory loans and make informed financial decisions.</p>
+                        </div>
+                    </a>
                 </div>
-                <div class="section-actions"><button class="filter-tag" data-filter="yc">Filter YC</button><span class="section-count" id="ycCount">0 games</span></div>
+                
+                <div class="game-card-wrap">
+                    <a href="../bot-college-quest/" class="game-card">
+                        <div class="game-image"><span class="game-emoji">🎓</span></div>
+                        <div class="game-info">
+                            <div class="game-title">College Quest</div>
+                            <span class="game-tag">Simulation</span>
+                            <p class="game-desc">Navigate college financial decisions. Tuition, loans, jobs, and outcomes.</p>
+                        </div>
+                    </a>
+                </div>
+                
+                <div class="game-card-wrap">
+                    <a href="../cashflow-cruiser/" class="game-card">
+                        <div class="game-image"><img src="../cashflow-cruiser/assets/thumb.png" alt=""></div>
+                        <div class="game-info">
+                            <div class="game-title">Cashflow Cruiser</div>
+                            <span class="game-tag">Endless Runner</span>
+                            <p class="game-desc">Jetpack through financial obstacles. Collect coins, avoid debt.</p>
+                        </div>
+                    </a>
+                </div>
+                
+                <div class="game-card-wrap">
+                    <a href="../compound-cookoff/" class="game-card">
+                        <div class="game-image"><img src="../compound-cookoff/assets/thumb.png" alt=""></div>
+                        <div class="game-info">
+                            <div class="game-title">Compound Cookoff</div>
+                            <span class="game-tag">Strategy</span>
+                            <p class="game-desc">Cook and serve while learning compound interest.</p>
+                        </div>
+                    </a>
+                </div>
+                
+                <div class="game-card-wrap">
+                    <a href="../money-printer-go/" class="game-card">
+                        <div class="game-image"><img src="../money-printer-go/assets/thumb.png" alt=""></div>
+                        <div class="game-info">
+                            <div class="game-title">Money Printer GO</div>
+                            <span class="game-tag">Idle</span>
+                            <p class="game-desc">Print money, manage inflation, balance the economy.</p>
+                        </div>
+                    </a>
+                </div>
+                
+                <div class="game-card-wrap">
+                    <a href="../flappybot/" class="game-card">
+                        <div class="game-image"><img src="../flappybot/assets/thumb.png" alt=""></div>
+                        <div class="game-info">
+                            <div class="game-title">FlappyBot</div>
+                            <span class="game-tag">Arcade</span>
+                            <p class="game-desc">Navigate through financial barriers in this addictive arcade classic.</p>
+                        </div>
+                    </a>
+                </div>
+                
+                <div class="game-card-wrap">
+                    <a href="../bot-financial-hangman/" class="game-card">
+                        <div class="game-image"><img src="../bot-financial-hangman/assets/thumb.png" alt=""></div>
+                        <div class="game-info">
+                            <div class="game-title">Financial Hangman</div>
+                            <span class="game-tag">Puzzle</span>
+                            <p class="game-desc">Guess financial terms before time runs out.</p>
+                        </div>
+                    </a>
+                </div>
+                
+                <!-- MID TIER -->
+                <div class="game-card-wrap">
+                    <a href="../bull-market-survivor/" class="game-card">
+                        <div class="game-image"><img src="../bull-market-survivor/assets/thumb.png" alt=""></div>
+                        <div class="game-info">
+                            <div class="game-title">Bull Market Survivor</div>
+                            <span class="game-tag">Strategy</span>
+                            <p class="game-desc">Survive market crashes and bull runs. Time your trades.</p>
+                        </div>
+                    </a>
+                </div>
+                
+                <div class="game-card-wrap">
+                    <a href="../bot-savings-sprint/" class="game-card">
+                        <div class="game-image"><img src="../bot-savings-sprint/assets/thumb.png" alt=""></div>
+                        <div class="game-info">
+                            <div class="game-title">Savings Sprint</div>
+                            <span class="game-tag">Runner</span>
+                            <p class="game-desc">3-lane endless runner. Dodge expenses, collect savings.</p>
+                        </div>
+                    </a>
+                </div>
+                
+                <div class="game-card-wrap">
+                    <a href="../capital-command/" class="game-card">
+                        <div class="game-image"><img src="../capital-command/assets/thumb.png" alt=""></div>
+                        <div class="game-info">
+                            <div class="game-title">Capital Command</div>
+                            <span class="game-tag">Strategy</span>
+                            <p class="game-desc">Command your capital. Invest, grow, dominate markets.</p>
+                        </div>
+                    </a>
+                </div>
+                
+                <div class="game-card-wrap">
+                    <a href="../yield-merge/" class="game-card">
+                        <div class="game-image"><img src="../yield-merge/assets/thumb.png" alt=""></div>
+                        <div class="game-info">
+                            <div class="game-title">Yield Merge</div>
+                            <span class="game-tag">Puzzle</span>
+                            <p class="game-desc">Merge investments to create higher yielding assets.</p>
+                        </div>
+                    </a>
+                </div>
+                
+                <div class="game-card-wrap">
+                    <a href="../bot-budget-builder/" class="game-card">
+                        <div class="game-image"><img src="../bot-budget-builder/assets/thumb.png" alt=""></div>
+                        <div class="game-info">
+                            <div class="game-title">Budget Builder</div>
+                            <span class="game-tag">Simulation</span>
+                            <p class="game-desc">Build and manage your monthly budget. Balance needs vs wants.</p>
+                        </div>
+                    </a>
+                </div>
+                
+                <div class="game-card-wrap">
+                    <a href="../bot-achievement-hunt/" class="game-card">
+                        <div class="game-image"><img src="../bot-achievement-hunt/assets/thumb.png" alt=""></div>
+                        <div class="game-info">
+                            <div class="game-title">Achievement Hunt</div>
+                            <span class="game-tag">Adventure</span>
+                            <p class="game-desc">Unlock financial milestones and collect achievements.</p>
+                        </div>
+                    </a>
+                </div>
+                
+                <!-- LOWER TIER - Less Polished -->
+                <div class="game-card-wrap">
+                    <a href="../bot-buy-the-dip/" class="game-card">
+                        <div class="game-image"><img src="../bot-buy-the-dip/assets/thumb.png" alt=""></div>
+                        <div class="game-info">
+                            <div class="game-title">Buy The Dip</div>
+                            <span class="game-tag">Arcade</span>
+                            <p class="game-desc">Catch falling prices before they bounce. Timing is everything.</p>
+                        </div>
+                    </a>
+                </div>
+                
+                <div class="game-card-wrap">
+                    <a href="../bot-asset-allocator/" class="game-card">
+                        <div class="game-image"><img src="../bot-asset-allocator/assets/thumb.png" alt=""></div>
+                        <div class="game-info">
+                            <div class="game-title">Asset Allocator</div>
+                            <span class="game-tag">Strategy</span>
+                            <p class="game-desc">Balance your portfolio across different asset classes.</p>
+                        </div>
+                    </a>
+                </div>
+                
+                <div class="game-card-wrap">
+                    <a href="../bot-debt-destroyer/" class="game-card">
+                        <div class="game-image"><img src="../bot-debt-destroyer/assets/thumb.png" alt=""></div>
+                        <div class="game-info">
+                            <div class="game-title">Debt Destroyer</div>
+                            <span class="game-tag">Action</span>
+                            <p class="game-desc">Blast through debt and achieve financial freedom.</p>
+                        </div>
+                    </a>
+                </div>
+                
+                <div class="game-card-wrap">
+                    <a href="../bot-crypto-climb/" class="game-card">
+                        <div class="game-image"><img src="../bot-crypto-climb/assets/thumb.png" alt=""></div>
+                        <div class="game-info">
+                            <div class="game-title">Crypto Climb</div>
+                            <span class="game-tag">Arcade</span>
+                            <p class="game-desc">Climb the volatile crypto markets. Buy low, sell high.</p>
+                        </div>
+                    </a>
+                </div>
+                
+                <div class="game-card-wrap">
+                    <a href="../bot-compound-climb/" class="game-card">
+                        <div class="game-image"><img src="../bot-compound-climb/assets/thumb.png" alt=""></div>
+                        <div class="game-info">
+                            <div class="game-title">Compound Climb</div>
+                            <span class="game-tag">Puzzle</span>
+                            <p class="game-desc">Stack investments and watch them grow with compound interest.</p>
+                        </div>
+                    </a>
+                </div>
+                
+                <div class="game-card-wrap">
+                    <a href="../bot-stock-stack/" class="game-card">
+                        <div class="game-image"><img src="../bot-stock-stack/assets/thumb.png" alt=""></div>
+                        <div class="game-info">
+                            <div class="game-title">Stock Stack</div>
+                            <span class="game-tag">Puzzle</span>
+                            <p class="game-desc">Stack stocks strategically. Build your portfolio tower.</p>
+                        </div>
+                    </a>
+                </div>
+                
+                <div class="game-card-wrap">
+                    <a href="../bot-risk-tetris/" class="game-card">
+                        <div class="game-image"><img src="../bot-risk-tetris/assets/thumb.png" alt=""></div>
+                        <div class="game-info">
+                            <div class="game-title">Risk Tetris</div>
+                            <span class="game-tag">Arcade</span>
+                            <p class="game-desc">Balance risk and reward in this Tetris-inspired game.</p>
+                        </div>
+                    </a>
+                </div>
+                
+                <div class="game-card-wrap">
+                    <a href="../bot-wealth-tower/" class="game-card">
+                        <div class="game-image"><img src="../bot-wealth-tower/assets/thumb.png" alt=""></div>
+                        <div class="game-info">
+                            <div class="game-title">Wealth Tower</div>
+                            <span class="game-tag">Strategy</span>
+                            <p class="game-desc">Build a tower of wealth. Careful - it might topple!</p>
+                        </div>
+                    </a>
+                </div>
+                
+                <div class="game-card-wrap">
+                    <a href="../bot-dividend-defense/" class="game-card">
+                        <div class="game-image"><img src="../bot-dividend-defense/assets/thumb.png" alt=""></div>
+                        <div class="game-info">
+                            <div class="game-title">Dividend Defense</div>
+                            <span class="game-tag">Tower Defense</span>
+                            <p class="game-desc">Defend your dividend empire from market crashes.</p>
+                        </div>
+                    </a>
+                </div>
+                
+                <div class="game-card-wrap">
+                    <a href="../bot-invest-island/" class="game-card">
+                        <div class="game-image"><img src="../bot-invest-island/assets/thumb.png" alt=""></div>
+                        <div class="game-info">
+                            <div class="game-title">Invest Island</div>
+                            <span class="game-tag">Simulation</span>
+                            <p class="game-desc">Build an investment portfolio on your own island.</p>
+                        </div>
+                    </a>
+                </div>
+                
+                <div class="game-card-wrap">
+                    <a href="../bot-cash-craze/" class="game-card">
+                        <div class="game-image"><img src="../bot-cash-craze/assets/thumb.png" alt=""></div>
+                        <div class="game-info">
+                            <div class="game-title">Cash Craze</div>
+                            <span class="game-tag">Match-3</span>
+                            <p class="game-desc">Match cash symbols and build your fortune.</p>
+                        </div>
+                    </a>
+                </div>
+                
+                <div class="game-card-wrap">
+                    <a href="../bot-coin-pong/" class="game-card">
+                        <div class="game-image"><img src="../bot-coin-pong/assets/thumb.png" alt=""></div>
+                        <div class="game-info">
+                            <div class="game-title">Coin Pong</div>
+                            <span class="game-tag">Arcade</span>
+                            <p class="game-desc">Classic pong with a crypto twist. Collect coins as you play.</p>
+                        </div>
+                    </a>
+                </div>
+                
+                <div class="game-card-wrap">
+                    <a href="../bot-budget-blaster/" class="game-card">
+                        <div class="game-image"><img src="../bot-budget-blaster/assets/thumb.png" alt=""></div>
+                        <div class="game-info">
+                            <div class="game-title">Budget Blaster</div>
+                            <span class="game-tag">Action</span>
+                            <p class="game-desc">Blast through expenses and protect your savings.</p>
+                        </div>
+                    </a>
+                </div>
+                
+                <div class="game-card-wrap">
+                    <a href="../bot-bull-bear-battle/" class="game-card">
+                        <div class="game-image"><img src="../bot-bull-bear-battle/assets/thumb.png" alt=""></div>
+                        <div class="game-info">
+                            <div class="game-title">Bull Bear Battle</div>
+                            <span class="game-tag">Fighting</span>
+                            <p class="game-desc">Battle between market bulls and bears.</p>
+                        </div>
+                    </a>
+                </div>
+                
+                <div class="game-card-wrap">
+                    <a href="../bot-budget-breakout/" class="game-card">
+                        <div class="game-image"><img src="../bot-budget-breakout/assets/thumb.png" alt=""></div>
+                        <div class="game-info">
+                            <div class="game-title">Budget Breakout</div>
+                            <span class="game-tag">Arcade</span>
+                            <p class="game-desc">Break through budget barriers brick by brick.</p>
+                        </div>
+                    </a>
+                </div>
+                
+                <div class="game-card-wrap">
+                    <a href="../bot-budget-slice/" class="game-card">
+                        <div class="game-image"><img src="../bot-budget-slice/assets/thumb.png" alt=""></div>
+                        <div class="game-info">
+                            <div class="game-title">Budget Slice</div>
+                            <span class="game-tag">Puzzle</span>
+                            <p class="game-desc">Slice your budget into perfect portions.</p>
+                        </div>
+                    </a>
+                </div>
+                
+                <div class="game-card-wrap">
+                    <a href="../bot-dollar-drop/" class="game-card">
+                        <div class="game-image"><img src="../bot-dollar-drop/assets/thumb.png" alt=""></div>
+                        <div class="game-info">
+                            <div class="game-title">Dollar Drop</div>
+                            <span class="game-tag">Arcade</span>
+                            <p class="game-desc">Drop dollars strategically to maximize returns.</p>
+                        </div>
+                    </a>
+                </div>
+                
+                <div class="game-card-wrap">
+                    <a href="../bot-galactic-loan-sharks/" class="game-card">
+                        <div class="game-image"><img src="../bot-galactic-loan-sharks/assets/thumb.png" alt=""></div>
+                        <div class="game-info">
+                            <div class="game-title">Galactic Loan Sharks</div>
+                            <span class="game-tag">Adventure</span>
+                            <p class="game-desc">Space adventure where you navigate predatory lenders.</p>
+                        </div>
+                    </a>
+                </div>
+                
+                <div class="game-card-wrap">
+                    <a href="../bot-history-of-money/" class="game-card">
+                        <div class="game-image"><img src="../bot-history-of-money/assets/thumb.png" alt=""></div>
+                        <div class="game-info">
+                            <div class="game-title">History of Money</div>
+                            <span class="game-tag">Educational</span>
+                            <p class="game-desc">Journey through the evolution of currency and finance.</p>
+                        </div>
+                    </a>
+                </div>
+                
+                <div class="game-card-wrap">
+                    <a href="../bot-ipo-launch/" class="game-card">
+                        <div class="game-image"><img src="../bot-ipo-launch/assets/thumb.png" alt=""></div>
+                        <div class="game-info">
+                            <div class="game-title">IPO Launch</div>
+                            <span class="game-tag">Simulation</span>
+                            <p class="game-desc">Take your company public. Navigate the IPO process.</p>
+                        </div>
+                    </a>
+                </div>
+                
+                <div class="game-card-wrap">
+                    <a href="../bot-lemonade-empire/" class="game-card">
+                        <div class="game-image"><img src="../bot-lemonade-empire/assets/thumb.png" alt=""></div>
+                        <div class="game-info">
+                            <div class="game-title">Lemonade Empire</div>
+                            <span class="game-tag">Tycoon</span>
+                            <p class="game-desc">Start with a lemonade stand, build a beverage empire.</p>
+                        </div>
+                    </a>
+                </div>
+                
+                <div class="game-card-wrap">
+                    <a href="../bot-market-racer/" class="game-card">
+                        <div class="game-image"><img src="../bot-market-racer/assets/thumb.png" alt=""></div>
+                        <div class="game-info">
+                            <div class="game-title">Market Racer</div>
+                            <span class="game-tag">Racing</span>
+                            <p class="game-desc">Race through market trends. Speed equals profit.</p>
+                        </div>
+                    </a>
+                </div>
+                
+                <div class="game-card-wrap">
+                    <a href="../bot-diversification-drop/" class="game-card">
+                        <div class="game-image"><img src="../bot-diversification-drop/assets/thumb.png" alt=""></div>
+                        <div class="game-info">
+                            <div class="game-title">Diversification Drop</div>
+                            <span class="game-tag">Puzzle</span>
+                            <p class="game-desc">Drop pieces to build a diversified portfolio.</p>
+                        </div>
+                    </a>
+                </div>
+                
+                <div class="game-card-wrap">
+                    <a href="../bot-wealth-wheel/" class="game-card">
+                        <div class="game-image"><img src="../bot-wealth-wheel/assets/thumb.png" alt=""></div>
+                        <div class="game-info">
+                            <div class="game-title">Wealth Wheel</div>
+                            <span class="game-tag">Chance</span>
+                            <p class="game-desc">Spin the wheel of fortune. Test your financial luck.</p>
+                        </div>
+                    </a>
+                </div>
+                
+                <div class="game-card-wrap">
+                    <a href="../bot-profit-pinball/" class="game-card">
+                        <div class="game-image"><img src="../bot-profit-pinball/assets/thumb.png" alt=""></div>
+                        <div class="game-info">
+                            <div class="game-title">Profit Pinball</div>
+                            <span class="game-tag">Arcade</span>
+                            <p class="game-desc">Classic pinball with a profit twist. Rack up points.</p>
+                        </div>
+                    </a>
+                </div>
+                
+                <div class="game-card-wrap">
+                    <a href="../bot-fiscal-frogger/" class="game-card">
+                        <div class="game-image"><img src="../bot-fiscal-frogger/assets/thumb.png" alt=""></div>
+                        <div class="game-info">
+                            <div class="game-title">Fiscal Frogger</div>
+                            <span class="game-tag">Arcade</span>
+                            <p class="game-desc">Cross the financial highway. Dodge debt collectors.</p>
+                        </div>
+                    </a>
+                </div>
+                
+                <div class="game-card-wrap">
+                    <a href="../bot-savings-snake/" class="game-card">
+                        <div class="game-image"><img src="../bot-savings-snake/assets/thumb.png" alt=""></div>
+                        <div class="game-info">
+                            <div class="game-title">Savings Snake</div>
+                            <span class="game-tag">Arcade</span>
+                            <p class="game-desc">Grow your savings snake. Don't run into expenses!</p>
+                        </div>
+                    </a>
+                </div>
+                
+                <div class="game-card-wrap">
+                    <a href="../bot-tax-tetris/" class="game-card">
+                        <div class="game-image"><img src="../bot-tax-tetris/assets/thumb.png" alt=""></div>
+                        <div class="game-info">
+                            <div class="game-title">Tax Tetris</div>
+                            <span class="game-tag">Puzzle</span>
+                            <p class="game-desc">Fit deductions together before time runs out.</p>
+                        </div>
+                    </a>
+                </div>
+                
+                <div class="game-card-wrap">
+                    <a href="../bot-stock-tycoon/" class="game-card">
+                        <div class="game-image"><img src="../bot-stock-tycoon/assets/thumb.png" alt=""></div>
+                        <div class="game-info">
+                            <div class="game-title">Stock Tycoon</div>
+                            <span class="game-tag">Tycoon</span>
+                            <p class="game-desc">Build a stock trading empire from the ground up.</p>
+                        </div>
+                    </a>
+                </div>
+                
+                <div class="game-card-wrap">
+                    <a href="../bot-cash-dash/" class="game-card">
+                        <div class="game-image"><img src="../bot-cash-dash/assets/thumb.png" alt=""></div>
+                        <div class="game-info">
+                            <div class="game-title">Cash Dash</div>
+                            <span class="game-tag">Racing</span>
+                            <p class="game-desc">Race to collect cash before time runs out.</p>
+                        </div>
+                    </a>
+                </div>
+                
+                <div class="game-card-wrap">
+                    <a href="../bot-market-surfers/" class="game-card">
+                        <div class="game-image"><img src="../bot-market-surfers/assets/thumb.png" alt=""></div>
+                        <div class="game-info">
+                            <div class="game-title">Market Surfers</div>
+                            <span class="game-tag">Arcade</span>
+                            <p class="game-desc">Surf the waves of market volatility.</p>
+                        </div>
+                    </a>
+                </div>
             </div>
-            <div class="games-grid compact-grid" id="ycGrid"></div>
         </section>
-
+        
+        <!-- WEB CLASSICS -->
         <section class="section" id="classics">
             <div class="section-header">
-                <div>
-                    <div class="section-title-group"><div class="section-icon">🌐</div><h2 class="section-title">Web Classics</h2></div>
-                    <p class="section-subtitle">External classics and finance-adjacent games with local thumbnails, easy to scan and open.</p>
-                </div>
-                <div class="section-actions"><button class="filter-tag" data-filter="classic">Filter classics</button><span class="section-count" id="classicCount">0 games</span></div>
+                <img src="assets/moneybot-logo-1.jpg" alt="" style="filter: grayscale(100%) brightness(1.2);">
+                <span class="section-title">Web Classics</span>
             </div>
-            <div class="games-grid compact-grid" id="classicGrid"></div>
+            <div class="games-grid">
+                <div class="game-card-wrap">
+                    <a href="https://www.coolmathgames.com/0-lemonade-stand" target="_blank" class="game-card">
+                        <div class="game-image"><span class="game-emoji">🍋</span></div>
+                        <div class="game-info">
+                            <div class="game-title">Lemonade Stand</div>
+                            <span class="game-tag">Classic</span>
+                            <p class="game-desc">The OG business simulation. Manage inventory, pricing, and demand.</p>
+                        </div>
+                    </a>
+                </div>
+                
+                <div class="game-card-wrap">
+                    <a href="https://ngpf.org/arcade/shady-sam/" target="_blank" class="game-card">
+                        <div class="game-image"><span class="game-emoji">🦈</span></div>
+                        <div class="game-info">
+                            <div class="game-title">Shady Sam</div>
+                            <span class="game-tag">NGPF</span>
+                            <p class="game-desc">Learn how predatory lenders trick borrowers. Don't get scammed.</p>
+                        </div>
+                    </a>
+                </div>
+                
+                <div class="game-card-wrap">
+                    <a href="https://playspent.org/" target="_blank" class="game-card">
+                        <div class="game-image"><span class="game-emoji">💸</span></div>
+                        <div class="game-info">
+                            <div class="game-title">Spent</div>
+                            <span class="game-tag">Urban Ministries</span>
+                            <p class="game-desc">Experience living on minimum wage. Survive 30 days.</p>
+                        </div>
+                    </a>
+                </div>
+                
+                <div class="game-card-wrap">
+                    <a href="https://www.practicalmoneyskills.com/play/financial_football/" target="_blank" class="game-card">
+                        <div class="game-image"><span class="game-emoji">🏈</span></div>
+                        <div class="game-info">
+                            <div class="game-title">Financial Football</div>
+                            <span class="game-tag">Visa</span>
+                            <p class="game-desc">Answer financial questions to advance down the field.</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
         </section>
         
-        <section class="section" id="allGames">
+        <!-- SIMULATORS -->
+        <section class="section" id="sims">
             <div class="section-header">
-                <div>
-                    <div class="section-title-group"><div class="section-icon">🎮</div><h2 class="section-title">Browse All</h2></div>
-                    <p class="section-subtitle">Use search, filters, and sorting when you know what skill or game style you need.</p>
-                </div>
-                <span class="section-count" id="allGamesCount">0 games</span>
+                <img src="assets/moneybot-logo-1.jpg" alt="" style="filter: hue-rotate(270deg);">
+                <span class="section-title">Simulators</span>
             </div>
-            <div class="games-grid" id="allGamesGrid"></div>
+            <div class="games-grid">
+                <div class="game-card soon">
+                    <div class="game-image"><span class="game-emoji">💰</span></div>
+                    <div class="game-info">
+                        <div class="game-title">Budget Simulator</div>
+                        <span class="game-tag">Coming Soon</span>
+                        <p class="game-desc">Simulate real monthly budgeting scenarios.</p>
+                    </div>
+                </div>
+                
+                <div class="game-card soon">
+                    <div class="game-image"><span class="game-emoji">🏦</span></div>
+                    <div class="game-info">
+                        <div class="game-title">Loan Simulator</div>
+                        <span class="game-tag">Coming Soon</span>
+                        <p class="game-desc">Explore loan types, interest rates, repayment terms.</p>
+                    </div>
+                </div>
+                
+                <div class="game-card soon">
+                    <div class="game-image"><span class="game-emoji">📊</span></div>
+                    <div class="game-info">
+                        <div class="game-title">Tax Simulator</div>
+                        <span class="game-tag">Coming Soon</span>
+                        <p class="game-desc">Navigate taxes, deductions, and credits.</p>
+                    </div>
+                </div>
+                
+                <div class="game-card soon">
+                    <div class="game-image"><span class="game-emoji">🎓</span></div>
+                    <div class="game-info">
+                        <div class="game-title">College Simulator</div>
+                        <span class="game-tag">Coming Soon</span>
+                        <p class="game-desc">Experience college financial decisions.</p>
+                    </div>
+                </div>
+            </div>
         </section>
-    </main>
-    
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="footer-inner">
-            <div>
-                <div class="footer-brand">
-                    <img src="./assets/moneybot-logo-1.jpg" alt="MoneyBot">
-                    <span class="footer-brand-text">MONEYBOT</span>
+        
+        <!-- CALCULATORS -->
+        <section class="section" id="calc">
+            <div class="section-header">
+                <img src="assets/moneybot-logo-1.jpg" alt="" style="filter: hue-rotate(180deg);">
+                <span class="section-title">Calculators</span>
+            </div>
+            <div class="games-grid">
+                <div class="game-card soon">
+                    <div class="game-image"><span class="game-emoji">📈</span></div>
+                    <div class="game-info">
+                        <div class="game-title">Compound Interest</div>
+                        <span class="game-tag">Coming Soon</span>
+                        <p class="game-desc">See how compound interest grows your investments.</p>
+                    </div>
                 </div>
-                <p class="footer-desc">Making financial education accessible and fun through interactive gaming. Learn, play, and level up your money skills.</p>
-                <div class="footer-social">
-                    <a href="#">IG</a>
-                    <a href="#">X</a>
-                    <a href="#">YT</a>
-                    <a href="#">LI</a>
+                
+                <div class="game-card soon">
+                    <div class="game-image"><span class="game-emoji">🏡</span></div>
+                    <div class="game-info">
+                        <div class="game-title">Mortgage Calculator</div>
+                        <span class="game-tag">Coming Soon</span>
+                        <p class="game-desc">Calculate payments, interest, amortization.</p>
+                    </div>
+                </div>
+                
+                <div class="game-card soon">
+                    <div class="game-image"><span class="game-emoji">💳</span></div>
+                    <div class="game-info">
+                        <div class="game-title">Debt Payoff</div>
+                        <span class="game-tag">Coming Soon</span>
+                        <p class="game-desc">Compare avalanche vs snowball methods.</p>
+                    </div>
                 </div>
             </div>
-            <div class="footer-column">
-                <h4>Games</h4>
-                <ul>
-                    <li><a href="#">Budget Games</a></li>
-                    <li><a href="#">Invest Games</a></li>
-                    <li><a href="#">Save Games</a></li>
-                    <li><a href="#">Credit Games</a></li>
-                </ul>
-            </div>
-            <div class="footer-column">
-                <h4>Platform</h4>
-                <ul>
-                    <li><a href="https://getmoneybot.com">Learn</a></li>
-                    <li><a href="https://getmoneybot.com">Classes</a></li>
-                    <li><a href="https://getmoneybot.com">Leaderboard</a></li>
-                    <li><a href="https://getmoneybot.com">Shop</a></li>
-                </ul>
-            </div>
-            <div class="footer-column">
-                <h4>Support</h4>
-                <ul>
-                    <li><a href="#">Help Center</a></li>
-                    <li><a href="#">Contact</a></li>
-                    <li><a href="#">Privacy</a></li>
-                    <li><a href="#">Terms</a></li>
-                </ul>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <p>© 2026 MoneyBot. All rights reserved.</p>
-            <p>Made with 💚 for financial literacy</p>
-        </div>
-    </footer>
+        </section>
+    </div>
     
     <script>
-        const gamesDB = [
-            // FEATURED CATALOG
-            { id: 'dividend-drip', title: 'Dividend Drip', img: '../bot-dividend-drip/assets/thumb.png', tag: 'Idle', desc: 'Watch dividends auto-reinvest and grow. Visualize the power of DRIP over time!', href: '../bot-dividend-drip/', topic: 'invest', type: 'idle', difficulty: 'easy', playTime: '5-10 min', plays: 15420, featured: true, new: true },
-            { id: 'roth-vs-traditional', title: 'Roth vs Traditional', img: '../bot-roth-vs-traditional/assets/thumb.png', tag: 'Decision Tree', desc: 'Choose the right retirement account. Learn when Roth or Traditional makes sense!', href: '../bot-roth-vs-traditional/', topic: 'invest', type: 'strategy', difficulty: 'medium', playTime: '10-15 min', plays: 12850, featured: true, new: true },
-            { id: 'expense-ratio-hunter', title: 'Expense Ratio Hunter', img: '../bot-expense-ratio-hunter/assets/thumb.png', tag: 'Hidden Object', desc: 'Spot high-fee funds hiding among low-cost index funds. Fees matter!', href: '../bot-expense-ratio-hunter/', topic: 'invest', type: 'puzzle', difficulty: 'easy', playTime: '5-8 min', plays: 11230, featured: true, new: true },
-            { id: 'dca-game', title: 'Dollar Cost Averager', img: '../bot-dca-game/assets/thumb.png', tag: 'Rhythm', desc: 'Time monthly investments to smooth out volatility. Consistency wins!', href: '../bot-dca-game/', topic: 'invest', type: 'arcade', difficulty: 'easy', playTime: '8-12 min', plays: 9870, featured: true, new: true },
-            { id: 'net-worth-tracker', title: 'Net Worth Tracker', img: '../bot-net-worth-tracker/assets/thumb.png', tag: 'Puzzle', desc: 'Connect assets and liabilities. Calculate your net worth in real-time!', href: '../bot-net-worth-tracker/', topic: 'budget', type: 'puzzle', difficulty: 'easy', playTime: '5-10 min', plays: 14200, featured: true, new: true },
-            { id: 'insurance-defender', title: 'Insurance Tower Defense', img: '../bot-insurance-defender/assets/thumb.png', tag: 'Tower Defense', desc: 'Defend against life events with proper coverage. Health, life, home, auto!', href: '../bot-insurance-defender/', topic: 'life', type: 'strategy', difficulty: 'medium', playTime: '15-20 min', plays: 8650, featured: true, new: true },
-            { id: 'refinance-racer', title: 'Refinance Racer', img: '../bot-refinance-racer/assets/thumb.png', tag: 'Racing', desc: 'Calculate break-even points on mortgage refinancing. Race to savings!', href: '../bot-refinance-racer/', topic: 'life', type: 'arcade', difficulty: 'medium', playTime: '10-15 min', plays: 7890, featured: true, new: true },
-            { id: 'charitable-giving', title: 'Charitable Giving Guru', img: '../bot-charitable-giving/assets/thumb.png', tag: 'Strategy', desc: 'Optimize donations for tax savings. Cash, stock, DAF, QCD - what\'s best?', href: '../bot-charitable-giving/', topic: 'invest', type: 'strategy', difficulty: 'hard', playTime: '15-20 min', plays: 6540, featured: true, new: true },
-            { id: 'emergency-fund', title: 'Emergency Fund Escape', img: '../bot-emergency-fund-escape/assets/thumb.png', tag: 'Arcade', desc: 'Dodge bills, collect paychecks, build your 6-month emergency fund. Financial security awaits!', href: '../bot-emergency-fund-escape/', topic: 'save', type: 'arcade', difficulty: 'easy', playTime: '8-12 min', plays: 18230, featured: true, new: true },
-            { id: '401k-match', title: '401k Match Master', img: '../bot-401k-match/assets/thumb.png', tag: 'Puzzle', desc: 'Catch employer match contributions before they expire. Don\'t leave free money on the table!', href: '../bot-401k-match/', topic: 'career', type: 'puzzle', difficulty: 'easy', playTime: '5-8 min', plays: 15670, featured: true, new: true },
-            { id: 'credit-score', title: 'Credit Score Climb', img: '../bot-credit-score-climb/assets/thumb.png', tag: 'Platformer', desc: 'Climb from 300 to 850! Collect on-time payments, avoid late fees. Reach excellent credit!', href: '../bot-credit-score-climb/', topic: 'life', type: 'arcade', difficulty: 'medium', playTime: '10-15 min', plays: 13450, featured: true, new: true },
-            { id: 'inflation-eater', title: 'Inflation Eater', img: '../bot-inflation-eater/assets/thumb.png', tag: 'Defense', desc: 'Defend your savings from inflation monsters. Invest to preserve purchasing power!', href: '../bot-inflation-eater/', topic: 'invest', type: 'arcade', difficulty: 'medium', playTime: '12-18 min', plays: 9230, featured: true, new: true },
-            
-            // DRAG & DROP CATEGORIZATION GAMES
-            { id: 'needs-wants', title: 'Needs vs Wants', img: '../bot-needs-wants/assets/thumb.png', tag: 'Puzzle', desc: 'Drag and drop to categorize expenses. Master the foundation of budgeting!', href: '../bot-needs-wants/', topic: 'budget', type: 'puzzle', difficulty: 'easy', playTime: '5-10 min', plays: 12450, new: true },
-            { id: 'fixed-variable', title: 'Fixed vs Variable', img: '../bot-fixed-variable/assets/thumb.png', tag: 'Puzzle', desc: 'Sort expenses by predictability. Essential for flexible budgeting!', href: '../bot-fixed-variable/', topic: 'budget', type: 'puzzle', difficulty: 'easy', playTime: '5-10 min', plays: 9870, new: true },
-            { id: 'good-bad-debt', title: 'Good vs Bad Debt', img: '../bot-good-bad-debt/assets/thumb.png', tag: 'Puzzle', desc: 'Learn which debts build wealth vs drain it. Not all debt is equal!', href: '../bot-good-bad-debt/', topic: 'save', type: 'puzzle', difficulty: 'medium', playTime: '8-12 min', plays: 11230, new: true },
-            { id: 'tax-advantaged', title: 'Tax-Advantaged Accounts', img: '../bot-taxable-tax-advantaged/assets/thumb.png', tag: 'Puzzle', desc: 'Sort accounts by tax treatment. Maximize your tax efficiency!', href: '../bot-taxable-tax-advantaged/', topic: 'invest', type: 'puzzle', difficulty: 'medium', playTime: '10-15 min', plays: 8760, new: true },
-            { id: 'liquid-illiquid', title: 'Liquid vs Illiquid', img: '../bot-liquid-illiquid/assets/thumb.png', tag: 'Puzzle', desc: 'Understand asset accessibility. Critical for emergency planning!', href: '../bot-liquid-illiquid/', topic: 'save', type: 'puzzle', difficulty: 'easy', playTime: '5-10 min', plays: 9230, new: true },
-            { id: 'active-passive', title: 'Active vs Passive Income', img: '../bot-active-passive-income/assets/thumb.png', tag: 'Puzzle', desc: 'Learn how money is earned. Build your path to financial freedom!', href: '../bot-active-passive-income/', topic: 'career', type: 'puzzle', difficulty: 'medium', playTime: '8-12 min', plays: 7890, new: true },
-            { id: 'appreciating-depreciating', title: 'Appreciating vs Depreciating', img: '../bot-appreciating-depreciating/assets/thumb.png', tag: 'Puzzle', desc: 'Identify assets that grow vs lose value. Smart buying decisions!', href: '../bot-appreciating-depreciating/', topic: 'invest', type: 'puzzle', difficulty: 'easy', playTime: '5-10 min', plays: 8650, new: true },
-            
-            // YC STARTUP SCHOOL GAMES
-            { id: 'burn-rate', title: 'Burn Rate', img: './assets/yc-thumbnails/runway-rush.png', emoji: '🔥', tag: 'YC Lesson', desc: 'Manage monthly cashflow to extend your startup runway. Survive 12 months.', href: '../runway-rush/', topic: 'career', type: 'simulation', difficulty: 'medium', playTime: '10-15 min', plays: 0, new: true, featured: true },
-            { id: 'the-pivot', title: 'The Pivot', img: './assets/yc-thumbnails/the-pivot.png', emoji: '🎯', tag: 'YC Lesson', desc: 'Interview customers, gather signals, decide: kill, pivot, or persevere.', href: '../the-pivot/', topic: 'career', type: 'simulation', difficulty: 'medium', playTime: '10-15 min', plays: 0, new: true },
-            { id: 'do-things', title: 'Do Things That Don\'t Scale', img: './assets/yc-thumbnails/do-things-that-dont-scale.png', emoji: '🚀', tag: 'YC Lesson', desc: 'Handle tasks manually, automate only when it hurts. Grow to 100 users.', href: '../do-things-that-dont-scale/', topic: 'career', type: 'simulation', difficulty: 'easy', playTime: '10-15 min', plays: 0, new: true },
-            { id: 'demo-day', title: 'Demo Day Dash', img: './assets/yc-thumbnails/demo-day-dash.png', emoji: '🎤', tag: 'YC Lesson', desc: '60-second pitch simulation. Hook, problem, solution, traction, ask.', href: '../demo-day-dash/', topic: 'career', type: 'simulation', difficulty: 'medium', playTime: '5-10 min', plays: 0, new: true },
-            { id: 'first-hire', title: 'The First Hire', img: './assets/yc-thumbnails/the-first-hire.png', emoji: '👥', tag: 'YC Lesson', desc: 'Interview candidates, evaluate culture fit vs skill. Build your team.', href: '../the-first-hire/', topic: 'career', type: 'simulation', difficulty: 'medium', playTime: '10-15 min', plays: 0, new: true },
-            { id: 'ramen', title: 'Ramen Profitability', img: './assets/yc-thumbnails/ramen-profitability.png', emoji: '🍜', tag: 'YC Lesson', desc: 'Minimize burn, maximize revenue. Reach ramen profitability before runway ends.', href: '../ramen-profitability/', topic: 'career', type: 'simulation', difficulty: 'hard', playTime: '15-20 min', plays: 0, new: true },
-            { id: '100-fans', title: '100 Fans', img: './assets/yc-thumbnails/100-fans.png', emoji: '💯', tag: 'YC Lesson', desc: 'Acquire users, measure retention, iterate. Find 100 true fans.', href: '../100-fans/', topic: 'career', type: 'simulation', difficulty: 'medium', playTime: '10-15 min', plays: 0, new: true },
-            { id: 'term-sheet', title: 'The Term Sheet', img: './assets/yc-thumbnails/the-term-sheet.png', emoji: '📊', tag: 'YC Lesson', desc: 'Negotiate valuation, dilution, control. Keep your company.', href: '../the-term-sheet/', topic: 'career', type: 'simulation', difficulty: 'hard', playTime: '15-20 min', plays: 0, new: true },
-            { id: 'growth-loops', title: 'Growth Loops', img: './assets/yc-thumbnails/growth-loops.png', emoji: '📈', tag: 'YC Lesson', desc: 'Design viral loops, retention mechanics, referral systems. Compound users.', href: '../growth-loops/', topic: 'career', type: 'simulation', difficulty: 'hard', playTime: '15-20 min', plays: 0, new: true },
-            
-            // JUST ADDED (Next 8 to complete 20 newest)
-            { id: 'side-hustle', title: 'Side Hustle Sprint', img: '../bot-side-hustle-sprint/assets/thumb.png', tag: 'Time Management', desc: 'Balance day job + side gigs. Allocate 24 hours to hit your income goals!', href: '../bot-side-hustle-sprint/', topic: 'career', type: 'strategy', difficulty: 'medium', playTime: '10-15 min', plays: 7890, new: true },
-            { id: 'hsa-hero', title: 'HSA Health Hero', img: '../bot-hsa-health-hero/assets/thumb.png', tag: 'Maze', desc: 'Navigate healthcare costs. Collect HSA contributions tax-free vs taxable spending!', href: '../bot-hsa-health-hero/', topic: 'life', type: 'puzzle', difficulty: 'hard', playTime: '15-20 min', plays: 6540, new: true },
-            { id: 'fire-calc', title: 'FIRE Calculator', img: '../bot-fire-calculator/assets/thumb.png', tag: 'Idle', desc: 'Every dollar saved brings you closer to Financial Independence. Watch your freedom grow!', href: '../bot-fire-calculator/', topic: 'save', type: 'idle', difficulty: 'easy', playTime: '5-10 min', plays: 11230, new: true },
-            { id: 'deal-master', title: 'Deal Master', img: '../bot-deal-master/assets/thumb.png', tag: 'Negotiation', desc: 'Multi-scenario deal-making. Real estate, acquisitions, contracts. Master the art of the deal!', href: '../bot-deal-master/', topic: 'career', type: 'simulation', difficulty: 'hard', playTime: '20-40 min', plays: 5430, new: true },
-            { id: 'negotiation', title: 'Negotiation Nation', img: '../bot-negotiation-nation/assets/thumb.png', tag: 'Dialogue', desc: 'Practice salary, rent, and purchase negotiations. Learn tactics that save thousands!', href: '../bot-negotiation-nation/', topic: 'career', type: 'simulation', difficulty: 'medium', playTime: '10-20 min', plays: 9870, new: true },
-            { id: 'estate-escape', title: 'Estate Escape Room', img: '../bot-estate-escape/assets/thumb.png', tag: 'Puzzle', desc: 'Solve clues about wills, trusts, and estate planning. Escape before time runs out!', href: '../bot-estate-escape/', topic: 'life', type: 'puzzle', difficulty: 'hard', playTime: '20-30 min', plays: 5430, new: true },
-            { id: 'crypto-storage', title: 'Crypto Cold Storage', img: '../bot-crypto-cold-storage/assets/thumb.png', tag: 'Memory', desc: 'Protect seed phrases from hackers. Learn proper cold storage security practices!', href: '../bot-crypto-cold-storage/', topic: 'invest', type: 'puzzle', difficulty: 'medium', playTime: '8-12 min', plays: 8760, new: true },
-            { id: 'budget-v2', title: 'Budget Builder v2', img: '../bot-budget-builder-v2/assets/thumb.png', tag: 'Simulation', desc: 'Drag-and-drop budget balancing. Master cash flow with interactive income and expense blocks.', href: '../bot-budget-builder-v2/', topic: 'budget', type: 'simulation', difficulty: 'easy', playTime: '15-25 min', plays: 14560, new: true },
-            { id: 'tax-trail', title: 'Tax Trail', img: '../bot-tax-trail/assets/thumb.png', tag: 'Strategy', desc: 'Navigate the maze of deductions and tax brackets. Maximize your refund with smart choices.', href: '../bot-tax-trail/', topic: 'life', type: 'strategy', difficulty: 'hard', playTime: '20-30 min', plays: 7650, new: true },
-            
-            // BUSINESS SIMULATIONS
-            { id: 'startup-tycoon', title: 'Startup Tycoon', emoji: '🚀', tag: 'Business Sim', desc: 'Manage runway, hire smart, and grow MRR. Build a startup from seed to profitability without dying.', href: '../bot-startup-tycoon/', topic: 'career', type: 'simulation', difficulty: 'medium', playTime: '15-25 min', plays: 0, new: true, featured: true },
-            { id: 'saas-empire', title: 'SaaS Empire', emoji: '☁️', tag: 'Idle Sim', desc: 'Tap to acquire customers, buy upgrades, and scale to $1M ARR. Master MRR, churn, CAC, and LTV.', href: '../bot-saas-empire/', topic: 'invest', type: 'idle', difficulty: 'easy', playTime: '10-20 min', plays: 0, new: true, featured: true },
-            { id: 'property-flipper', title: 'Property Flipper', emoji: '🏠', tag: 'Business Sim', desc: 'Buy distressed properties, renovate, and sell for profit. Time the market cycle and manage leverage.', href: '../bot-property-flipper/', topic: 'invest', type: 'simulation', difficulty: 'medium', playTime: '15-25 min', plays: 0, new: true, featured: true },
-            
-            // REMAINING GAMES (organized by topic/type)
-            { id: 'risk-roulette', title: 'Risk Roulette', img: '../bot-risk-roulette/assets/thumb.png', tag: 'Probability', desc: 'Learn expected value and risk assessment. Spin the wheel, place bets, understand odds.', href: '../bot-risk-roulette/', topic: 'invest', type: 'simulation', difficulty: 'medium', playTime: '10-15 min', plays: 8920 },
-            { id: 'real-estate', title: 'Real Estate Simulator', img: '../bot-real-estate-sim/assets/thumb.png', emoji: '🏡', tag: 'Simulation', desc: 'Rent vs Buy: The Ultimate Showdown. See the 30-year impact of homeownership.', href: '../bot-real-estate-sim/', topic: 'life', type: 'simulation', difficulty: 'medium', playTime: '15-25 min', plays: 12340 },
-            { id: 'bot-shot', title: 'Bot Shot', img: '../bot-shot/assets/thumb.png', emoji: '🏀', tag: 'Arcade', desc: 'Space basketball. Drag to shoot, score to advance. The hoop moves further each level.', href: '../bot-shot/', topic: 'arcade', type: 'arcade', difficulty: 'easy', playTime: '5-10 min', plays: 18760 },
-            { id: 'smart-borrower', title: 'Smart Borrower', img: '../bot-smart-borrower/assets/hero-moneybot.png', tag: 'Education', desc: 'Learn to spot predatory loans and make informed financial decisions.', href: '../bot-smart-borrower/', topic: 'life', type: 'simulation', difficulty: 'easy', playTime: '10-15 min', plays: 11230 },
-            { id: 'financial-sim', title: 'Financial Life Simulator', img: '../bot-financial-simulator/assets/thumb.png', emoji: '💎', tag: 'Simulation', desc: 'Live a full financial life from 18 to retirement. Every decision shapes your wealth.', href: '../bot-financial-simulator/', topic: 'life', type: 'simulation', difficulty: 'medium', playTime: '30-60 min', plays: 15670 },
-            { id: 'college-quest', title: 'College Quest', img: '../bot-college-quest/assets/thumb.png', emoji: '🎓', tag: 'Simulation', desc: 'Navigate college financial decisions. Tuition, loans, jobs, and outcomes.', href: '../bot-college-quest/', topic: 'life', type: 'simulation', difficulty: 'medium', playTime: '20-30 min', plays: 9870 },
-            { id: 'cashflow-cruiser', title: 'CashFlow Cruiser', img: '../cashflow-cruiser/assets/thumb.png', tag: 'Endless Runner', desc: 'Jetpack through financial obstacles. Collect coins, avoid debt.', href: '../cashflow-cruiser/', topic: 'budget', type: 'arcade', difficulty: 'easy', playTime: '5-10 min', plays: 14560 },
-            { id: 'compound-cookoff', title: 'Compound Cookout', img: '../compound-cookoff/assets/thumb.png', tag: 'Strategy', desc: 'Cook and serve while learning compound interest.', href: '../compound-cookoff/', topic: 'invest', type: 'strategy', difficulty: 'easy', playTime: '10-15 min', plays: 8760 },
-            { id: 'money-printer', title: 'MoneyBot Printer', img: '../money-printer-go/assets/thumb.png', tag: 'Idle', desc: 'Print money, manage inflation, balance the economy.', href: '../money-printer-go/', topic: 'invest', type: 'idle', difficulty: 'easy', playTime: '10-20 min', plays: 12340 },
-            { id: 'flappybot', title: 'FlappyBot', img: '../flappybot/assets/thumb.png', tag: 'Arcade', desc: 'Navigate through financial barriers in this addictive arcade classic.', href: '../flappybot/', topic: 'arcade', type: 'arcade', difficulty: 'medium', playTime: '5-10 min', plays: 21340 },
-            { id: 'financial-hangman', title: 'Financial Hangman', img: '../bot-financial-hangman/assets/thumb.png', tag: 'Puzzle', desc: 'Guess financial terms before time runs out.', href: '../bot-financial-hangman/', topic: 'arcade', type: 'puzzle', difficulty: 'easy', playTime: '5-10 min', plays: 9870 },
-            { id: 'bull-market', title: 'Market Survivor', img: '../bull-market-survivor/assets/thumb.png', tag: 'Strategy', desc: 'Survive market crashes and bull runs. Time your trades.', href: '../bull-market-survivor/', topic: 'invest', type: 'strategy', difficulty: 'hard', playTime: '20-30 min', plays: 7650 },
-            { id: 'savings-sprint', title: 'Savings Sprint', img: '../bot-savings-sprint/assets/thumb.png', tag: 'Runner', desc: '3-lane endless runner. Dodge expenses, collect savings.', href: '../bot-savings-sprint/', topic: 'save', type: 'arcade', difficulty: 'easy', playTime: '5-10 min', plays: 13450 },
-            { id: 'capital-command', title: 'Capital Command', img: '../capital-command/assets/thumb.png', tag: 'Strategy', desc: 'Command your capital. Invest, grow, dominate markets.', href: '../capital-command/', topic: 'invest', type: 'strategy', difficulty: 'hard', playTime: '25-40 min', plays: 6540 },
-            { id: 'yield-merge', title: 'Yield Merge', img: '../yield-merge/assets/thumb.png', tag: 'Puzzle', desc: 'Merge investments to create higher yielding assets.', href: '../yield-merge/', topic: 'invest', type: 'puzzle', difficulty: 'medium', playTime: '10-20 min', plays: 8920 },
-            { id: 'budget-builder', title: 'Budget Builder', img: '../bot-budget-builder/assets/thumb.png', tag: 'Simulation', desc: 'Build and manage your monthly budget. Balance needs vs wants.', href: '../bot-budget-builder/', topic: 'budget', type: 'simulation', difficulty: 'easy', playTime: '15-25 min', plays: 11230 },
-            { id: 'achievement-hunt', title: 'Achievement Hunt', img: '../bot-achievement-hunt/assets/thumb.png', tag: 'Adventure', desc: 'Unlock financial milestones and collect achievements.', href: '../bot-achievement-hunt/', topic: 'arcade', type: 'arcade', difficulty: 'easy', playTime: '10-20 min', plays: 9870 },
-            { id: 'buy-the-dip', title: 'Buy The Dip', img: '../bot-buy-the-dip/assets/thumb.png', tag: 'Arcade', desc: 'Catch falling prices before they bounce. Timing is everything.', href: '../bot-buy-the-dip/', topic: 'invest', type: 'arcade', difficulty: 'medium', playTime: '5-10 min', plays: 15670 },
-            { id: 'asset-allocator', title: 'Asset Allocator', img: '../bot-asset-allocator/assets/thumb.png', tag: 'Strategy', desc: 'Balance your portfolio across different asset classes.', href: '../bot-asset-allocator/', topic: 'invest', type: 'strategy', difficulty: 'medium', playTime: '15-25 min', plays: 7890 },
-            { id: 'debt-destroyer', title: 'Debt Destroyer', img: '../bot-debt-destroyer/assets/thumb.png', tag: 'Action', desc: 'Blast through debt and achieve financial freedom.', href: '../bot-debt-destroyer/', topic: 'budget', type: 'arcade', difficulty: 'easy', playTime: '10-15 min', plays: 11230 },
-            { id: 'crypto-climb', title: 'Crypto Climb', img: '../bot-crypto-climb/assets/thumb.png', tag: 'Arcade', desc: 'Climb the volatile crypto markets. Buy low, sell high.', href: '../bot-crypto-climb/', topic: 'invest', type: 'arcade', difficulty: 'hard', playTime: '10-20 min', plays: 14560 },
-            { id: 'compound-climb', title: 'Compound Climb', img: '../bot-compound-climb/assets/thumb.png', tag: 'Puzzle', desc: 'Stack investments and watch them grow with compound interest.', href: '../bot-compound-climb/', topic: 'invest', type: 'puzzle', difficulty: 'easy', playTime: '8-12 min', plays: 8760 },
-            { id: 'stock-stack', title: 'Stock Stack', img: '../bot-stock-stack/assets/thumb.png', tag: 'Puzzle', desc: 'Stack stocks strategically. Build your portfolio tower.', href: '../bot-stock-stack/', topic: 'invest', type: 'puzzle', difficulty: 'medium', playTime: '10-15 min', plays: 9230 },
-            { id: 'risk-tetris', title: 'Risk Tetris', img: '../bot-risk-tetris/assets/thumb.png', tag: 'Arcade', desc: 'Balance risk and reward in this Tetris-inspired game.', href: '../bot-risk-tetris/', topic: 'invest', type: 'arcade', difficulty: 'medium', playTime: '10-20 min', plays: 11230 },
-            { id: 'wealth-tower', title: 'Wealth Tower', img: '../bot-wealth-tower/assets/thumb.png', tag: 'Strategy', desc: 'Build a tower of wealth. Careful - it might topple!', href: '../bot-wealth-tower/', topic: 'invest', type: 'strategy', difficulty: 'hard', playTime: '15-25 min', plays: 6540 },
-            { id: 'dividend-defense', title: 'Dividend Defense', img: '../bot-dividend-defense/assets/thumb.png', tag: 'Tower Defense', desc: 'Defend your dividend empire from market crashes.', href: '../bot-dividend-defense/', topic: 'invest', type: 'strategy', difficulty: 'medium', playTime: '20-30 min', plays: 7890 },
-            { id: 'invest-island', title: 'Invest Island', img: '../bot-invest-island/assets/thumb.png', tag: 'Simulation', desc: 'Build an investment portfolio on your own island.', href: '../bot-invest-island/', topic: 'invest', type: 'simulation', difficulty: 'easy', playTime: '15-30 min', plays: 9870 },
-            { id: 'cash-craze', title: 'Cash Craze', img: '../bot-cash-craze/assets/thumb.png', tag: 'Match-3', desc: 'Match cash symbols and build your fortune.', href: '../bot-cash-craze/', topic: 'arcade', type: 'arcade', difficulty: 'easy', playTime: '5-15 min', plays: 13450 },
-            { id: 'coin-pong', title: 'Coin Pong', img: '../bot-coin-pong/assets/thumb.png', tag: 'Arcade', desc: 'Classic pong with a crypto twist. Collect coins as you play.', href: '../bot-coin-pong/', topic: 'arcade', type: 'arcade', difficulty: 'easy', playTime: '5-10 min', plays: 11230 },
-            { id: 'budget-blaster', title: 'Budget Blaster', img: '../bot-budget-blaster/assets/thumb.png', tag: 'Action', desc: 'Blast through expenses and protect your savings.', href: '../bot-budget-blaster/', topic: 'budget', type: 'arcade', difficulty: 'easy', playTime: '10-15 min', plays: 8760 },
-            { id: 'bull-bear-battle', title: 'Bull Bear Battle', img: '../bot-bull-bear-battle/assets/thumb.png', tag: 'Fighting', desc: 'Battle between market bulls and bears.', href: '../bot-bull-bear-battle/', topic: 'invest', type: 'arcade', difficulty: 'medium', playTime: '10-15 min', plays: 9230 },
-            { id: 'budget-breakout', title: 'Budget Breakout', img: '../bot-budget-breakout/assets/thumb.png', tag: 'Arcade', desc: 'Break through budget barriers brick by brick.', href: '../bot-budget-breakout/', topic: 'budget', type: 'arcade', difficulty: 'easy', playTime: '10-15 min', plays: 7890 },
-            { id: 'budget-slice', title: 'Budget Slice', img: '../bot-budget-slice/assets/thumb.png', tag: 'Puzzle', desc: 'Slice your budget into perfect portions.', href: '../bot-budget-slice/', topic: 'budget', type: 'puzzle', difficulty: 'easy', playTime: '5-10 min', plays: 6540 },
-            { id: 'dollar-drop', title: 'Dollar Drop', img: '../bot-dollar-drop/assets/thumb.png', tag: 'Arcade', desc: 'Drop dollars strategically to maximize returns.', href: '../bot-dollar-drop/', topic: 'invest', type: 'arcade', difficulty: 'medium', playTime: '10-15 min', plays: 8760 },
-            { id: 'galactic-loan', title: 'Galactic Loan Sharks', img: '../bot-galactic-loan-sharks/assets/thumb.png', tag: 'Adventure', desc: 'Space adventure where you navigate predatory lenders.', href: '../bot-galactic-loan-sharks/', topic: 'life', type: 'arcade', difficulty: 'medium', playTime: '15-25 min', plays: 7230 },
-            { id: 'history-money', title: 'History of Money', img: '../bot-history-of-money/assets/thumb.png', tag: 'Educational', desc: 'Journey through the evolution of currency and finance.', href: '../bot-history-of-money/', topic: 'arcade', type: 'simulation', difficulty: 'easy', playTime: '15-30 min', plays: 6540 },
-            { id: 'ipo-launch', title: 'IPO Launch', img: '../bot-ipo-launch/assets/thumb.png', tag: 'Simulation', desc: 'Take your company public. Navigate the IPO process.', href: '../bot-ipo-launch/', topic: 'invest', type: 'simulation', difficulty: 'hard', playTime: '20-40 min', plays: 5870 },
-            { id: 'lemonade-empire', title: 'Lemonade Empire', img: '../bot-lemonade-empire/assets/thumb.png', tag: 'Tycoon', desc: 'Start with a lemonade stand, build a beverage empire.', href: '../bot-lemonade-empire/', topic: 'career', type: 'simulation', difficulty: 'easy', playTime: '20-40 min', plays: 11230 },
-            { id: 'market-racer', title: 'Market Racer', img: '../bot-market-racer/assets/thumb.png', tag: 'Racing', desc: 'Race through market trends. Speed equals profit.', href: '../bot-market-racer/', topic: 'invest', type: 'arcade', difficulty: 'medium', playTime: '10-15 min', plays: 9230 },
-            { id: 'diversification', title: 'Diversification Drop', img: '../bot-diversification-drop/assets/thumb.png', tag: 'Puzzle', desc: 'Drop pieces to build a diversified portfolio.', href: '../bot-diversification-drop/', topic: 'invest', type: 'puzzle', difficulty: 'medium', playTime: '10-20 min', plays: 7890 },
-            { id: 'wealth-wheel', title: 'Wealth Wheel', img: '../bot-wealth-wheel/assets/thumb.png', tag: 'Chance', desc: 'Spin the wheel of fortune. Test your financial luck.', href: '../bot-wealth-wheel/', topic: 'arcade', type: 'arcade', difficulty: 'easy', playTime: '5-10 min', plays: 15670 },
-            { id: 'profit-pinball', title: 'Profit Pinball', img: '../bot-profit-pinball/assets/thumb.png', tag: 'Arcade', desc: 'Classic pinball with a profit twist. Rack up points.', href: '../bot-profit-pinball/', topic: 'arcade', type: 'arcade', difficulty: 'easy', playTime: '5-15 min', plays: 11230 },
-            { id: 'fiscal-frogger', title: 'Fiscal Frogger', img: '../bot-fiscal-frogger/assets/thumb.png', tag: 'Arcade', desc: 'Cross the financial highway. Dodge debt collectors.', href: '../bot-fiscal-frogger/', topic: 'budget', type: 'arcade', difficulty: 'medium', playTime: '5-10 min', plays: 13450 },
-            { id: 'savings-snake', title: 'Savings Snake', img: '../bot-savings-snake/assets/thumb.png', tag: 'Arcade', desc: 'Grow your savings snake. Don\'t run into expenses!', href: '../bot-savings-snake/', topic: 'save', type: 'arcade', difficulty: 'easy', playTime: '5-15 min', plays: 18760 },
-            { id: 'tax-tetris', title: 'Tax Tetris', img: '../bot-tax-tetris/assets/thumb.png', tag: 'Puzzle', desc: 'Fit deductions together before time runs out.', href: '../bot-tax-tetris/', topic: 'life', type: 'puzzle', difficulty: 'hard', playTime: '15-25 min', plays: 8760 },
-            { id: 'stock-tycoon', title: 'Stock Tycoon', img: '../bot-stock-tycoon/assets/thumb.png', tag: 'Tycoon', desc: 'Build a stock trading empire from the ground up.', href: '../bot-stock-tycoon/', topic: 'invest', type: 'simulation', difficulty: 'medium', playTime: '30-60 min', plays: 11230 },
-            { id: 'cash-dash', title: 'Cash Dash', img: '../bot-cash-dash/assets/thumb.png', tag: 'Racing', desc: 'Race to collect cash before time runs out.', href: '../bot-cash-dash/', topic: 'arcade', type: 'arcade', difficulty: 'easy', playTime: '5-10 min', plays: 14560 },
-            { id: 'market-surfers', title: 'Market Surfers', img: '../bot-market-surfers/assets/thumb.png', tag: 'Arcade', desc: 'Surf the waves of market volatility.', href: '../bot-market-surfers/', topic: 'invest', type: 'arcade', difficulty: 'medium', playTime: '10-15 min', plays: 9870 }
-        ];
-        
-        // Web Classics
-        const classicsDB = [
-            { id: 'lemonade-stand', title: 'Lemonade Stand', emoji: '🍋', tag: 'Classic', desc: 'The OG business simulation. Manage inventory, pricing, and demand.', href: 'https://www.coolmathgames.com/0-lemonade-stand', external: true, img: './assets/classic-thumbnails/lemonade-stand.png' },
-            { id: 'shady-sam', title: 'Shady Sam', emoji: '🦈', tag: 'NGPF', desc: 'Learn how predatory lenders trick borrowers. Don\'t get scammed.', href: 'https://ngpf.org/arcade/shady-sam/', external: true, img: './assets/classic-thumbnails/shady-sam.png' },
-            { id: 'spent', title: 'Spent', emoji: '💸', tag: 'Urban Ministries', desc: 'Experience living on minimum wage. Survive 30 days.', href: 'https://playspent.org/', external: true, img: './assets/classic-thumbnails/spent.png' },
-            { id: 'financial-football', title: 'Financial Football', emoji: '🏈', tag: 'Visa', desc: 'Answer financial questions to advance down the field.', href: 'https://www.practicalmoneyskills.com/play/financial_football/', external: true, img: './assets/classic-thumbnails/financial-football.png' },
-            { id: 'tax-audit', title: 'Tax Season Audit Adventure', emoji: '📋', tag: 'CoolMath', desc: 'Navigate the perils of tax season and survive an audit.', href: 'https://www.coolmathgames.com/0-tax-season-audit-adventure', external: true, img: './assets/classic-thumbnails/tax-audit.png' },
-            { id: 'cryptid', title: 'Cryptid: Kimber Budget Beest', emoji: '🦁', tag: 'CoolMath', desc: 'Track the legendary budget beast through financial wilderness.', href: 'https://www.coolmathgames.com/0-cryptid-kimber-budget-beest', external: true, img: './assets/classic-thumbnails/cryptid.png' },
-            { id: 'slice-market', title: 'Slice of the Market', emoji: '🍕', tag: 'CoolMath', desc: 'Run a pizza business and learn market economics.', href: 'https://www.coolmathgames.com/0-slice-of-the-market', external: true, img: './assets/classic-thumbnails/slice-market.png' },
-            { id: 'investor-tower', title: 'Investor Tower', emoji: '🏢', tag: 'CoolMath', desc: 'Build a tower of investments. Higher floors, higher risk.', href: 'https://www.coolmathgames.com/0-investor-tower', external: true, img: './assets/classic-thumbnails/investor-tower.png' },
-            { id: 'dont-duped', title: 'Don\'t Get Duped', emoji: '🎭', tag: 'CoolMath', desc: 'Spot scams and fraudulent schemes before they get you.', href: 'https://www.coolmathgames.com/0-dont-get-duped', external: true, img: './assets/classic-thumbnails/dont-duped.png' },
-            { id: 'cash-clash', title: 'Cash Clash', emoji: '⚔️', tag: 'CoolMath', desc: 'Battle for financial supremacy in this competitive game.', href: 'https://www.coolmathgames.com/0-cash-clash', external: true, img: './assets/classic-thumbnails/cash-clash.png' },
-            { id: 'rabbit-sweets', title: 'Rabbit Sweets', emoji: '🐰', tag: 'CoolMath', desc: 'Run a sweet shop and manage inventory and profits.', href: 'https://www.coolmathgames.com/0-rabbit-sweets', external: true, img: './assets/classic-thumbnails/rabbit-sweets.png' },
-            { id: 'startup-tycoon', title: 'Idle Startup Tycoon', emoji: '🚀', tag: 'CoolMath', desc: 'Build a startup empire from garage to unicorn.', href: 'https://www.coolmathgames.com/0-idle-startup-tycoon', external: true, img: './assets/classic-thumbnails/startup-tycoon.png' },
-            { id: 'tiny-fishing', title: 'Tiny Fishing', emoji: '🎣', tag: 'CoolMath', desc: 'Fish, sell, upgrade. Build your fishing empire.', href: 'https://www.coolmathgames.com/0-tiny-fishing', external: true, img: './assets/classic-thumbnails/tiny-fishing.png' },
-            { id: 'cars-merge', title: 'Cars Merge', emoji: '🚗', tag: 'CoolMath', desc: 'Merge cars to build your automotive empire.', href: 'https://www.coolmathgames.com/0-cars-merge', external: true, img: './assets/classic-thumbnails/cars-merge.png' },
-            { id: 'fisquarium', title: 'Fisquarium', emoji: '🐠', tag: 'CoolMath', desc: 'Build an aquarium business. Buy fish, sell tickets.', href: 'https://www.coolmathgames.com/0-fisquarium', external: true, img: './assets/classic-thumbnails/fisquarium.png' },
-            { id: 'penguin-diner', title: 'Penguin Diner', emoji: '🐧', tag: 'CoolMath', desc: 'Run a diner in Antarctica. Serve penguins, make money.', href: 'https://www.coolmathgames.com/0-penguin-diner', external: true, img: './assets/classic-thumbnails/penguin-diner.png' },
-            { id: 'house-painter', title: 'House Painter', emoji: '🏠', tag: 'CoolMath', desc: 'Paint houses efficiently. Time is money.', href: 'https://www.coolmathgames.com/0-house-painter-game', external: true, img: './assets/classic-thumbnails/house-painter.png' },
-            { id: 'tap-race', title: 'Tap Tap Race', emoji: '🏁', tag: 'CoolMath', desc: 'Race and earn cash to upgrade your vehicle.', href: 'https://www.coolmathgames.com/0-tap-tap-race', external: true, img: './assets/classic-thumbnails/tap-race.png' },
-            { id: 'coffee-shop', title: 'Coffee Shop', emoji: '☕', tag: 'CoolMath', desc: 'Run a coffee shop. Balance quality, price, and demand.', href: 'https://www.coolmathgames.com/0-coffee-shop', external: true, img: './assets/classic-thumbnails/coffee-shop.png' },
-            { id: 'building-rush', title: 'Building Rush', emoji: '🏗️', tag: 'CoolMath', desc: 'Construct buildings and manage construction crews.', href: 'https://www.coolmathgames.com/0-building-rush', external: true, img: './assets/classic-thumbnails/building-rush.png' },
-            { id: 'red-planet', title: 'Red Planet Farming', emoji: '🌱', tag: 'CoolMath', desc: 'Farm on Mars. Manage resources in harsh conditions.', href: 'https://www.coolmathgames.com/0-red-planet-farming', external: true, img: './assets/classic-thumbnails/red-planet.png' },
-            { id: 'slipways', title: 'Slipways', emoji: '🌌', tag: 'CoolMath', desc: 'Build a space trade empire. Connect planets, trade goods.', href: 'https://www.coolmathgames.com/0-slipways', external: true, img: './assets/classic-thumbnails/slipways.png' },
-            { id: 'boba-sim', title: 'Boba Simulator', emoji: '🧋', tag: 'CoolMath', desc: 'Run a boba tea shop. Perfect your recipes.', href: 'https://www.coolmathgames.com/0-boba-simulator', external: true, img: './assets/classic-thumbnails/boba-sim.png' },
-            { id: 'toy-factories', title: 'Idle Toy Factories', emoji: '🧸', tag: 'CoolMath', desc: 'Build toy factories and automate production.', href: 'https://www.coolmathgames.com/0-idle-toy-factories', external: true, img: './assets/classic-thumbnails/toy-factories.png' },
-            { id: 'mini-metro', title: 'Mini Metro London', emoji: '🚇', tag: 'CoolMath', desc: 'Design a subway system. Keep the city moving.', href: 'https://www.coolmathgames.com/0-mini-metro-london', external: true, img: './assets/classic-thumbnails/mini-metro.png' },
-            { id: 'shapez', title: 'Shapez.io', emoji: '🔷', tag: 'CoolMath', desc: 'Build a factory to automate shape production.', href: 'https://www.coolmathgames.com/0-shapez-io', external: true, img: './assets/classic-thumbnails/shapez.png' },
-            { id: 'soccer-manager', title: 'Bad Soccer Manager', emoji: '⚽', tag: 'CoolMath', desc: 'Manage a soccer team... badly. Learn from mistakes.', href: 'https://www.coolmathgames.com/0-bad-soccer-manager', external: true, img: './assets/classic-thumbnails/soccer-manager.png' },
-            { id: 'blocco', title: 'Blocco', emoji: '📦', tag: 'CoolMath', desc: 'Strategic block placement game. Think ahead.', href: 'https://www.coolmathgames.com/0-blocco', external: true, img: './assets/classic-thumbnails/blocco.png' }
-        ];
-
-        const CATEGORY_ALIASES = {
-            life: ['credit', 'debt', 'tax', 'insurance'],
-            arcade: ['arcade']
-        };
-
-        function normalizeGame(game, index, source = 'moneybot') {
-            const title = game.title || 'Untitled Game';
-            const category = getPrimaryCategory(game);
-            const image = game.img || null;
-            const emoji = game.emoji || '🎮';
-            const plays = game.plays || estimatePlays(index, source);
-            const rating = game.rating || estimateRating(index, game.featured);
-
-            const isYc = /yc lesson|startup school|runway|pivot|demo day|term sheet|growth loops|ramen profitability/i.test([game.tag, game.title, game.desc].filter(Boolean).join(' '));
-
-            return {
-                id: game.id,
-                title,
-                category: isYc ? 'yc' : category,
-                type: game.type || game.tag || source,
-                difficulty: game.difficulty || (source === 'classic' ? 'classic' : 'easy'),
-                featured: Boolean(game.featured),
-                new: Boolean(game.new),
-                image,
-                emoji,
-                description: game.desc || '',
-                plays,
-                rating,
-                url: game.href,
-                external: Boolean(game.external),
-                source: isYc ? 'yc' : source,
-                isYc,
-                searchText: [title, game.desc, game.topic, game.type, game.tag, source, isYc ? 'yc startup school founder simulator' : ''].filter(Boolean).join(' ').toLowerCase()
-            };
-        }
-
-        function getPrimaryCategory(game) {
-            const text = [game.title, game.desc, game.tag, game.topic, game.type].filter(Boolean).join(' ').toLowerCase();
-            if (text.includes('insurance')) return 'insurance';
-            if (text.includes('credit')) return 'credit';
-            if (text.includes('debt') || text.includes('loan') || text.includes('borrow')) return 'debt';
-            if (text.includes('tax') || text.includes('roth') || text.includes('traditional') || text.includes('hsa')) return 'tax';
-            return game.topic || game.type || 'arcade';
-        }
-
-        function estimatePlays(index, source) {
-            if (source === 'classic') return 5000 + ((index * 731) % 9000);
-            return 7000 + ((index * 887) % 12000);
-        }
-
-        function estimateRating(index, featured) {
-            if (featured) return 4.8;
-            return (4.3 + ((index % 6) * 0.1)).toFixed(1);
-        }
-
-        const TOP_FEATURED_IDS = [
-            'insurance-defender',
-            'flappybot',
-            'compound-climb',
-            'buy-the-dip',
-            'cashflow-cruiser',
-            'bull-market',
-            'money-printer',
-            'compound-cookoff',
-            'inflation-eater',
-            'deal-master',
-            'negotiation'
-        ];
-        const topFeaturedRanks = new Map(TOP_FEATURED_IDS.map((id, index) => [id, index]));
-
-        const catalogGames = gamesDB.map((game, index) => normalizeGame(game, index, 'moneybot'));
-        catalogGames.forEach(game => {
-            game.featured = topFeaturedRanks.has(game.id);
-            if (game.featured) {
-                game.featuredRank = topFeaturedRanks.get(game.id);
+        const canvas = document.getElementById('matrix');
+        const ctx = canvas.getContext('2d');
+        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        window.addEventListener('resize', resize);
+        resize();
+        const chars = '01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
+        const fontSize = 14;
+        const columns = Math.floor(canvas.width / fontSize);
+        const drops = [];
+        for (let i = 0; i < columns; i++) drops[i] = Math.random() * -100;
+        function drawMatrix() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#0f0';
+            ctx.font = fontSize + 'px monospace';
+            for (let i = 0; i < drops.length; i++) {
+                const char = chars[Math.floor(Math.random() * chars.length)];
+                ctx.fillText(char, i * fontSize, drops[i] * fontSize);
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+                drops[i]++;
             }
+        }
+        setInterval(drawMatrix, 50);
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', (e) => {
+                const href = link.getAttribute('href');
+                if (href.startsWith('#')) {
+                    e.preventDefault();
+                    document.querySelector(href).scrollIntoView({ behavior: 'smooth' });
+                }
+            });
         });
-        const classicGames = classicsDB.map((game, index) => normalizeGame(game, index, 'classic'));
-        let visibleGames = [...catalogGames, ...classicGames];
-
-        function escapeHtml(value) {
-            return String(value).replace(/[&<>'"]/g, char => ({
-                '&': '&amp;',
-                '<': '&lt;',
-                '>': '&gt;',
-                "'": '&#39;',
-                '"': '&quot;'
-            }[char]));
-        }
-
-        function formatTitle(value) {
-            return String(value)
-                .split(/[-_s]+/)
-                .filter(Boolean)
-                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-                .join(' ');
-        }
-
-        function renderGameCard(game, featured = false, isYC = false) {
-            const difficultyClass = game.difficulty === 'classic' ? 'badge-difficulty-easy' : 'badge-difficulty-' + game.difficulty;
-            const featuredClass = featured ? 'featured-game' : '';
-            const ycClass = isYC ? 'yc-card' : '';
-            const newBadge = game.new ? '<span class="game-badge badge-new">New</span>' : '';
-            const featuredBadge = game.featured ? '<span class="game-badge badge-featured">Featured</span>' : '';
-            const externalBadge = game.external ? '<span class="game-badge badge-featured">Classic</span>' : '';
-            const ycBadge = isYC ? '<span class="game-badge yc-badge">YC</span>' : '';
-            const targetAttr = game.external ? ' target="_blank" rel="noopener noreferrer"' : '';
-            const imageHtml = game.image
-                ? '<img src="' + escapeHtml(game.image) + '" alt="' + escapeHtml(game.title) + '" loading="lazy">'
-                : '<div class="game-emoji" aria-hidden="true">' + escapeHtml(game.emoji) + '</div>';
-
-            return [
-                '<a href="' + escapeHtml(game.url) + '" class="game-card ' + featuredClass + ' ' + ycClass + '" data-category="' + escapeHtml(game.category) + '" data-type="' + escapeHtml(game.type) + '" data-name="' + escapeHtml(game.title.toLowerCase()) + '" data-search="' + escapeHtml(game.searchText) + '"' + targetAttr + '>',
-                '<div class="game-image">',
-                imageHtml,
-                '<div class="game-image-overlay">',
-                newBadge, featuredBadge, externalBadge, ycBadge,
-                '<span class="game-badge ' + difficultyClass + '">' + escapeHtml(formatTitle(game.difficulty)) + '</span>',
-                '</div></div>',
-                '<div class="game-info">',
-                '<h3 class="game-title">' + escapeHtml(game.title) + '</h3>',
-                '<div class="game-meta"><span class="game-tag">' + escapeHtml(formatTitle(game.category)) + '</span><span class="game-tag">' + Number(game.plays).toLocaleString() + ' plays</span></div>',
-                '<p class="game-desc">' + escapeHtml(game.description) + '</p>',
-                '<div class="game-footer"><span class="game-play-btn">' + (game.external ? 'Open Classic →' : 'Play Now →') + '</span><div class="game-stats"><span class="game-stat">⭐ ' + game.rating + '</span></div></div>',
-                '</div></a>'
-            ].join('');
-        }
-
-        function init() {
-            const searchBox = document.getElementById('searchBox');
-            const sortSelect = document.getElementById('sortSelect');
-            const filterTags = document.querySelectorAll('.filter-tag');
-
-            renderCatalog();
-
-            searchBox.addEventListener('input', applyFilters);
-            sortSelect.addEventListener('change', applyFilters);
-
-            filterTags.forEach(tag => {
-                tag.addEventListener('click', () => {
-                    filterTags.forEach(t => t.classList.remove('active'));
-                    tag.classList.add('active');
-                    applyFilters();
-                });
-            });
-        }
-
-        function renderSection(gridId, games, emptyText = 'Try another search or filter.') {
-            const grid = document.getElementById(gridId);
-            if (!grid) return;
-            grid.innerHTML = games.map(g => renderGameCard(g, false, g.isYc)).join('') || renderNoResults(emptyText);
-        }
-
-        function getSimulatorGames(sourceGames = [...catalogGames, ...classicGames]) {
-            return sourceGames.filter(game => game.type === 'simulation'
-                || game.type === 'strategy'
-                || /simulator|builder|tycoon|command|calculator|profitability|term sheet|deal|negotiation|estate|startup|runway|pivot|hire|growth/i.test(game.title + ' ' + game.type + ' ' + game.description));
-        }
-
-        function renderCatalog() {
-            const featuredGrid = document.getElementById('featuredGrid');
-            const allGamesGrid = document.getElementById('allGamesGrid');
-            const featuredGames = catalogGames
-                .filter(g => topFeaturedRanks.has(g.id) && !g.isYc)
-                .sort((a, b) => a.featuredRank - b.featuredRank);
-            const ycGames = catalogGames.filter(g => g.isYc);
-            const simulatorGames = getSimulatorGames(catalogGames).filter(g => !g.isYc).slice(0, 12);
-            const classicsPreview = classicGames.slice(0, 12);
-
-            featuredGrid.innerHTML = featuredGames.map(g => renderGameCard(g, true)).join('');
-            renderSection('simulatorGrid', simulatorGames);
-            renderSection('ycGrid', ycGames);
-            renderSection('classicGrid', classicsPreview);
-            allGamesGrid.innerHTML = visibleGames.map(g => renderGameCard(g, false, g.isYc)).join('') || renderNoResults();
-
-            const featuredCount = document.querySelector('#featured .section-count');
-            const allGamesCount = document.getElementById('allGamesCount');
-            const simulatorCount = document.getElementById('simulatorCount');
-            const ycCount = document.getElementById('ycCount');
-            const classicCount = document.getElementById('classicCount');
-            const allCount = catalogGames.length + classicGames.length;
-            const simulatorTotal = getSimulatorGames(catalogGames).filter(g => !g.isYc).length;
-            if (featuredCount) featuredCount.textContent = featuredGames.length + ' featured';
-            if (simulatorCount) simulatorCount.textContent = simulatorTotal + ' games';
-            if (ycCount) ycCount.textContent = ycGames.length + ' games';
-            if (classicCount) classicCount.textContent = classicGames.length + ' games';
-            if (allGamesCount) allGamesCount.textContent = visibleGames.length + ' games';
-
-            const lanes = {
-                classicLaneCount: classicGames.length + ' games',
-                simLaneCount: simulatorTotal + ' games',
-                ycLaneCount: ycGames.length + ' games',
-                allLaneCount: allCount + ' games'
-            };
-            Object.entries(lanes).forEach(([id, text]) => {
-                const el = document.getElementById(id);
-                if (el) el.textContent = text;
-            });
-
-            updateHeroStats();
-        }
-
-        function applyFilters() {
-            const searchBox = document.getElementById('searchBox');
-            const query = searchBox.value.trim().toLowerCase();
-            const category = getActiveFilter();
-            const sortType = document.getElementById('sortSelect').value;
-
-            visibleGames = [...catalogGames, ...classicGames].filter(game => {
-                const matchesSearch = !query || game.searchText.includes(query);
-                const matchesCategory = category === 'all'
-                    || (category === 'classic' && game.source === 'classic')
-                    || (category === 'yc' && game.isYc)
-                    || (category === 'simulation' && getSimulatorGames([game]).length > 0)
-                    || game.category === category
-                    || game.type === category
-                    || CATEGORY_ALIASES[game.category]?.includes(category)
-                    || CATEGORY_ALIASES[game.type]?.includes(category);
-                return matchesSearch && matchesCategory;
-            });
-
-            visibleGames.sort(getSorter(sortType));
-            renderCatalog();
-        }
-
-        function getActiveFilter() {
-            const active = document.querySelector('.filter-tag.active');
-            return active ? active.dataset.filter : 'all';
-        }
-
-        function getSorter(sortType) {
-            const difficultyOrder = { easy: 1, medium: 2, hard: 3, classic: 4 };
-            switch (sortType) {
-                case 'newest':
-                    return (a, b) => Number(b.new) - Number(a.new) || Number(b.featured) - Number(a.featured) || b.plays - a.plays;
-                case 'name':
-                    return (a, b) => a.title.localeCompare(b.title);
-                case 'difficulty':
-                    return (a, b) => (difficultyOrder[a.difficulty] || 99) - (difficultyOrder[b.difficulty] || 99) || a.title.localeCompare(b.title);
-                case 'featured':
-                default:
-                    return (a, b) => Number(b.featured) - Number(a.featured) || b.plays - a.plays || a.title.localeCompare(b.title);
-            }
-        }
-
-        function renderNoResults(message = 'Try another search or filter.') {
-            return '<div class="no-results"><div class="no-results-icon">🔎</div><h3>No games found</h3><p>' + escapeHtml(message) + '</p></div>';
-        }
-
-        function updateHeroStats() {
-            const statNumbers = document.querySelectorAll('.hero-stat-number');
-            if (statNumbers[0]) statNumbers[0].textContent = (catalogGames.length + classicGames.length) + '+';
-            if (statNumbers[1]) statNumbers[1].textContent = new Set(catalogGames.map(g => g.category)).size;
-            if (statNumbers[2]) statNumbers[2].textContent = Math.round(catalogGames.reduce((sum, game) => sum + Number(game.plays || 0), 0) / 1000) + 'K+';
-
-            const heroBadgeText = document.querySelector('.hero-badge span:last-child');
-            if (heroBadgeText) heroBadgeText.textContent = (catalogGames.length + classicGames.length) + ' Financial Education Games';
-        }
-
-        init();
     </script>
 </body>
 </html>
