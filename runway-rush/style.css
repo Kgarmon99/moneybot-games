@@ -441,6 +441,8 @@ body {
 
 /* Utilities */
 .hidden { display: none !important; }
+.screen.hidden { display: none !important; }
+.screen:not(.hidden) { display: flex !important; }
 
 /* Animations */
 @keyframes popIn {
