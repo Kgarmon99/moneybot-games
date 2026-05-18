@@ -1,164 +1,235 @@
 /**
- * The Term Sheet — MoneyBot Gaming Library
- * YC Lesson: Know your numbers
- * Negotiation simulation: valuation, dilution, control
+ * The Term Sheet — Upgraded
+ * YC Lesson: Understand valuation, control, and ownership tradeoffs
+ * Negotiation card game - balance founder ownership vs investor terms
  */
 
-const GameState = {
+const Game = {
+  founderOwnership: 100,
+  valuation: 2000000,
+  cashRaised: 0,
+  targetRaise: 500000,
   round: 1,
-  score: 0,
-  valuation: 5000000,
-  ownership: 100,
-  boardSeats: 1,
-  cash: 0,
+  maxRounds: 8,
+  investorOffers: [],
+  acceptedTerms: [],
   gameOver: false,
   won: false
 };
 
-const TERMS = [
-  {
-    text: "Investor offers $2M at $8M pre. They want 20%.",
-    choices: [
-      { text: "Accept", valuation: 8000000, ownership: -20, boardSeats: 0, cash: 2000000, desc: "Standard deal" },
-      { text: "Counter at $10M pre", valuation: 10000000, ownership: -16, boardSeats: 0, cash: 2000000, desc: "Better valuation" },
-      { text: "Ask for pro-rata rights", valuation: 8000000, ownership: -20, boardSeats: 0, cash: 2000000, desc: "Protect future rounds" },
-      { text: "Decline, keep bootstrapping", valuation: 5000000, ownership: 0, boardSeats: 0, cash: 0, desc: "Keep control" }
-    ]
-  },
-  {
-    text: "Investor wants a board seat and veto on future rounds.",
-    choices: [
-      { text: "Give them the seat", valuation: 0, ownership: 0, boardSeats: 1, cash: 0, desc: "Lose control" },
-      { text: "Negotiate observer seat only", valuation: 0, ownership: 0, boardSeats: 0, cash: 0, desc: "Keep voting power" },
-      { text: "Require supermajority for vetoes", valuation: 0, ownership: 0, boardSeats: 0, cash: 0, desc: "Protect decisions" },
-      { text: "Walk away", valuation: 0, ownership: 0, boardSeats: 0, cash: 0, desc: "Find better terms" }
-    ]
-  },
-  {
-    text: "Investor wants participating preferred shares.",
-    choices: [
-      { text: "Accept", valuation: 0, ownership: -5, boardSeats: 0, cash: 0, desc: "Expensive in exit" },
-      { text: "Counter with non-participating", valuation: 0, ownership: 0, boardSeats: 0, cash: 0, desc: "Standard, fair" },
-      { text: "Ask for cap on participation", valuation: 0, ownership: -2, boardSeats: 0, cash: 0, desc: "Middle ground" },
-      { text: "Refuse", valuation: 0, ownership: 0, boardSeats: 0, cash: 0, desc: "Stand firm" }
-    ]
-  },
-  {
-    text: "Investor wants 2x liquidation preference.",
-    choices: [
-      { text: "Accept", valuation: 0, ownership: -3, boardSeats: 0, cash: 0, desc: "Founders get less" },
-      { text: "Counter at 1x", valuation: 0, ownership: 0, boardSeats: 0, cash: 0, desc: "Market standard" },
-      { text: "Offer 1.5x with cap", valuation: 0, ownership: -1, boardSeats: 0, cash: 0, desc: "Compromise" },
-      { text: "Walk", valuation: 0, ownership: 0, boardSeats: 0, cash: 0, desc: "Too greedy" }
-    ]
-  },
-  {
-    text: "Final term: Investor wants right of first refusal on sale.",
-    choices: [
-      { text: "Accept", valuation: 0, ownership: 0, boardSeats: 0, cash: 0, desc: "Limits buyers" },
-      { text: "Limit ROFR to 48 hours", valuation: 0, ownership: 0, boardSeats: 0, cash: 0, desc: "Reasonable" },
-      { text: "Require board approval for ROFR", valuation: 0, ownership: 0, boardSeats: 0, cash: 0, desc: "Protects founders" },
-      { text: "Reject entirely", valuation: 0, ownership: 0, boardSeats: 0, cash: 0, desc: "Clean terms" }
-    ]
-  }
+const INVESTORS = [
+  { name: "Angel Annie", emoji: "👼", type: "Angel", valuation: 2000000, amount: 100000, terms: { board: 0, liquidation: 1, antiDilution: false }, style: "friendly", color: "#00ff88" },
+  { name: "VC Victor", emoji: "🏢", type: "Seed VC", valuation: 3000000, amount: 250000, terms: { board: 1, liquidation: 1.5, antiDilution: true }, style: "tough", color: "#ff3366" },
+  { name: "Strategic Sam", emoji: "🤝", type: "Strategic", valuation: 2500000, amount: 200000, terms: { board: 0, liquidation: 1, antiDilution: false, strategic: true }, style: "balanced", color: "#ffcc00" },
+  { name: "Accelerator Amy", emoji: "🚀", type: "Accelerator", valuation: 1500000, amount: 150000, terms: { board: 0, liquidation: 1, program: true }, style: "helpful", color: "#ff6600" },
+  { name: "Corporate Carl", emoji: "🏭", type: "Corporate", valuation: 4000000, amount: 500000, terms: { board: 2, liquidation: 2, antiDilution: true, veto: true }, style: "aggressive", color: "#aa00ff" },
+  { name: "Syndicate Sue", emoji: "👥", type: "Syndicate", valuation: 2200000, amount: 300000, terms: { board: 0, liquidation: 1, antiDilution: false }, style: "flexible", color: "#00ccff" }
 ];
 
-const els = {
-  score: document.getElementById('score'),
-  round: document.getElementById('round'),
-  cardCategory: document.getElementById('card-category'),
-  cardQuestion: document.getElementById('card-question'),
-  choices: document.getElementById('choices'),
-  startScreen: document.getElementById('start-screen'),
-  winScreen: document.getElementById('win-screen'),
-  lossScreen: document.getElementById('loss-screen'),
-  startBtn: document.getElementById('start-btn'),
-  replayBtn: document.getElementById('replay-btn'),
-  tryAgainBtn: document.getElementById('try-again-btn'),
-  winReason: document.getElementById('win-reason'),
-  lossReason: document.getElementById('loss-reason'),
-  lossTip: document.getElementById('loss-tip')
+const TERM_EXPLANATIONS = {
+  board: "Board seats = control over company decisions",
+  liquidation: "Liquidation preference = investor gets X before you on exit",
+  antiDilution: "Anti-dilution = investor protected if valuation drops later",
+  strategic: "Strategic investor = potential customer/partner access",
+  program: "Accelerator program = mentorship + network + demo day",
+  veto: "Veto rights = investor can block key decisions"
 };
 
+function $(id) { return document.getElementById(id); }
+
+function init() {
+  $('start-btn').onclick = startGame;
+  $('replay-btn').onclick = startGame;
+  $('try-again-btn').onclick = startGame;
+  $('start-screen').classList.add('active');
+}
+
 function startGame() {
-  GameState.round = 1;
-  GameState.score = 0;
-  GameState.valuation = 5000000;
-  GameState.ownership = 100;
-  GameState.boardSeats = 1;
-  GameState.cash = 0;
-  GameState.gameOver = false;
-  GameState.won = false;
-
-  els.startScreen.classList.add('hidden');
-  els.winScreen.classList.add('hidden');
-  els.lossScreen.classList.add('hidden');
-
+  Object.assign(Game, {
+    founderOwnership: 100, valuation: 2000000,
+    cashRaised: 0, targetRaise: 500000,
+    round: 1, maxRounds: 8,
+    investorOffers: [], acceptedTerms: [],
+    gameOver: false, won: false
+  });
+  
+  // Generate random offers
+  Game.investorOffers = INVESTORS.map(inv => ({
+    ...inv,
+    id: Math.random().toString(36).substr(2, 9)
+  })).sort(() => Math.random() - 0.5).slice(0, 4);
+  
+  $('start-screen').classList.remove('active');
+  $('win-screen').classList.remove('active');
+  $('loss-screen').classList.remove('active');
+  
   updateHUD();
-  loadTerm();
+  renderGame();
 }
 
 function updateHUD() {
-  els.score.textContent = `${GameState.ownership}%`;
-  els.round.textContent = GameState.round;
+  $('score').textContent = `${Math.round(Game.founderOwnership)}% owned`;
+  $('round').textContent = `Offer ${Game.round}/${Game.maxRounds}`;
+  
+  const cashEl = $('cash-display');
+  if (cashEl) cashEl.textContent = `$${(Game.cashRaised / 1000).toFixed(0)}K / $${(Game.targetRaise / 1000).toFixed(0)}K`;
+  
+  const valEl = $('valuation-display');
+  if (valEl) valEl.textContent = `$${(Game.valuation / 1000000).toFixed(1)}M`;
 }
 
-function loadTerm() {
-  if (GameState.round > 5) {
-    if (GameState.ownership >= 50 && GameState.boardSeats <= 2) {
-      gameOver(true, `You kept ${GameState.ownership}% ownership and control. Well negotiated!`);
+function renderGame() {
+  const container = $('choices');
+  container.innerHTML = '';
+  
+  if (Game.round > Game.investorOffers.length) {
+    if (Game.cashRaised >= Game.targetRaise) {
+      showWin();
     } else {
-      gameOver(false, `You only own ${GameState.ownership}% and have ${GameState.boardSeats} board seats. Too much given up.`);
+      showLoss();
     }
     return;
   }
-
-  const term = TERMS[GameState.round - 1];
-  els.cardCategory.textContent = `Term ${GameState.round}`;
-  els.cardQuestion.textContent = term.text;
-
-  renderChoices(term.choices);
+  
+  const offer = Game.investorOffers[Game.round - 1];
+  
+  // Dashboard
+  const dashboard = document.createElement('div');
+  dashboard.className = 'card animate-fade-in';
+  dashboard.innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;text-align:center;">
+      <div>
+        <div style="font-size:11px;color:var(--text-dim);text-transform:uppercase;">Raised</div>
+        <div style="font-size:20px;font-weight:700;color:var(--success);" id="cash-display">$${(Game.cashRaised/1000).toFixed(0)}K / $${(Game.targetRaise/1000).toFixed(0)}K</div>
+      </div>
+      <div>
+        <div style="font-size:11px;color:var(--text-dim);text-transform:uppercase;">Valuation</div>
+        <div style="font-size:20px;font-weight:700;color:var(--accent);" id="valuation-display">$${(Game.valuation/1000000).toFixed(1)}M</div>
+      </div>
+      <div>
+        <div style="font-size:11px;color:var(--text-dim);text-transform:uppercase;">Ownership</div>
+        <div style="font-size:20px;font-weight:700;color:${Game.founderOwnership < 50 ? 'var(--danger)' : 'var(--accent)'};">${Math.round(Game.founderOwnership)}%</div>
+      </div>
+    </div>
+    <div class="progress-bar" style="margin-top:12px;">
+      <div class="progress-fill ${Game.cashRaised >= Game.targetRaise ? '' : Game.cashRaised < Game.targetRaise * 0.5 ? 'danger' : 'warning'}" 
+           style="width:${Math.min((Game.cashRaised / Game.targetRaise) * 100, 100)}%;"></div>
+    </div>
+  `;
+  container.appendChild(dashboard);
+  
+  // Investor offer card
+  const dilution = (offer.amount / (offer.valuation + offer.amount)) * 100;
+  const newOwnership = Game.founderOwnership * (1 - dilution / 100);
+  
+  const offerCard = document.createElement('div');
+  offerCard.className = 'card animate-fade-in';
+  offerCard.style.borderTop = `4px solid ${offer.color}`;
+  offerCard.innerHTML = `
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+      <span style="font-size:40px;">${offer.emoji}</span>
+      <div>
+        <div style="font-size:20px;font-weight:700;">${offer.name}</div>
+        <div style="font-size:13px;color:var(--text-dim);">${offer.type} • ${offer.style}</div>
+      </div>
+    </div>
+    
+    <div style="background:rgba(0,0,0,0.2);padding:16px;border-radius:8px;margin-bottom:16px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div>
+          <div style="font-size:11px;color:var(--text-dim);">Offering</div>
+          <div style="font-size:22px;font-weight:700;color:var(--success);">$${(offer.amount/1000).toFixed(0)}K</div>
+        </div>
+        <div>
+          <div style="font-size:11px;color:var(--text-dim);">Valuation</div>
+          <div style="font-size:22px;font-weight:700;color:var(--accent);">$${(offer.valuation/1000000).toFixed(1)}M</div>
+        </div>
+      </div>
+      <div style="margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.1);">
+        <div style="font-size:14px;color:var(--text-dim);margin-bottom:8px;">Your ownership after: <span style="color:${newOwnership < 50 ? 'var(--danger)' : 'var(--accent)'};font-weight:700;">${Math.round(newOwnership)}%</span> (currently ${Math.round(Game.founderOwnership)}%)</div>
+      </div>
+    </div>
+    
+    <div style="font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--accent);margin-bottom:8px;">Term Sheet Terms</div>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
+      ${Object.entries(offer.terms).map(([key, val]) => {
+        if (typeof val === 'boolean') {
+          return `<div style="display:flex;justify-content:space-between;padding:8px 12px;background:rgba(0,0,0,0.2);border-radius:6px;">
+            <span>${key.replace(/([A-Z])/g, ' $1').trim()}</span>
+            <span style="color:${val ? 'var(--danger)' : 'var(--success)'};font-weight:700;">${val ? '⚠️ YES' : '✅ No'}</span>
+          </div>`;
+        } else {
+          return `<div style="display:flex;justify-content:space-between;padding:8px 12px;background:rgba(0,0,0,0.2);border-radius:6px;">
+            <span>${key.replace(/([A-Z])/g, ' $1').trim()}</span>
+            <span style="color:var(--accent);font-weight:700;">${val}x</span>
+          </div>`;
+        }
+      }).join('')}
+    </div>
+    
+    ${Object.entries(offer.terms).filter(([k]) => TERM_EXPLANATIONS[k]).map(([k]) => `
+      <div style="font-size:12px;color:var(--text-dim);margin-bottom:4px;padding-left:12px;border-left:2px solid var(--accent-3);">
+        💡 ${TERM_EXPLANATIONS[k]}
+      </div>
+    `).join('')}
+    
+    <div style="display:flex;gap:10px;margin-top:20px;">
+      <button class="btn-primary" style="flex:1;" onclick="acceptOffer()">✅ Accept</button>
+      <button class="btn-danger" style="flex:1;" onclick="rejectOffer()">❌ Pass</button>
+    </div>
+  `;
+  
+  container.appendChild(offerCard);
 }
 
-function renderChoices(choices) {
-  els.choices.innerHTML = '';
-  choices.forEach(choice => {
-    const btn = document.createElement('button');
-    btn.className = 'choice-card';
-    btn.innerHTML = `<span class="choice-text">${choice.text}</span><span class="choice-preview">${choice.desc}</span>`;
-    btn.addEventListener('click', () => makeChoice(choice));
-    els.choices.appendChild(btn);
-  });
-}
-
-function makeChoice(choice) {
-  GameState.valuation = Math.max(choice.valuation, GameState.valuation);
-  GameState.ownership += choice.ownership;
-  GameState.boardSeats += choice.boardSeats;
-  GameState.cash += choice.cash;
-  GameState.score = GameState.ownership;
-
-  GameState.round++;
+function acceptOffer() {
+  const offer = Game.investorOffers[Game.round - 1];
+  const dilution = offer.amount / (offer.valuation + offer.amount);
+  
+  Game.cashRaised += offer.amount;
+  Game.founderOwnership *= (1 - dilution);
+  Game.valuation = offer.valuation;
+  Game.acceptedTerms.push(offer);
+  
+  showFloatingText(`+$${(offer.amount/1000).toFixed(0)}K! Ownership: ${Math.round(Game.founderOwnership)}%`, 'var(--success)');
+  
+  Game.round++;
   updateHUD();
-  loadTerm();
+  renderGame();
 }
 
-function gameOver(won, reason) {
-  GameState.gameOver = true;
-  GameState.won = won;
-
-  if (won) {
-    els.winReason.textContent = reason;
-    els.winScreen.classList.remove('hidden');
-  } else {
-    els.lossReason.textContent = reason;
-    els.lossTip.textContent = "YC's standard deal: $500K for 7%. Anything worse than that, negotiate harder.";
-    els.lossScreen.classList.remove('hidden');
-  }
+function rejectOffer() {
+  showFloatingText('Offer rejected', 'var(--danger)');
+  Game.round++;
+  updateHUD();
+  renderGame();
 }
 
-els.startBtn.addEventListener('click', startGame);
-els.replayBtn.addEventListener('click', startGame);
-els.tryAgainBtn.addEventListener('click', startGame);
+function showWin() {
+  Game.won = true;
+  Game.gameOver = true;
+  $('win-screen').classList.add('active');
+  $('win-reason').textContent = `Raised $${(Game.cashRaised/1000).toFixed(0)}K! You own ${Math.round(Game.founderOwnership)}% with a $${(Game.valuation/1000000).toFixed(1)}M valuation.`;
+}
 
-updateHUD();
+function showLoss() {
+  Game.gameOver = true;
+  $('loss-screen').classList.add('active');
+  $('loss-reason').textContent = `Only raised $${(Game.cashRaised/1000).toFixed(0)}K of $${(Game.targetRaise/1000).toFixed(0)}K needed.`;
+  $('loss-tip').textContent = Game.cashRaised > 0
+    ? "Don't be too greedy on valuation. A smaller piece of a funded company beats 100% of nothing."
+    : "Consider all offers carefully. Even 'friendly' angels can add value beyond cash.";
+}
+
+function showFloatingText(text, color) {
+  const el = document.createElement('div');
+  el.className = 'score-pop';
+  el.style.color = color;
+  el.textContent = text;
+  el.style.left = '50%';
+  el.style.top = '40%';
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 1200);
+}
+
+init();
