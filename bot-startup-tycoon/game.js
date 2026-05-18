@@ -121,6 +121,7 @@
 
   function showScreen(name) {
     Object.values(screens).forEach(s => s.classList.remove('active'));
+    screens[name].classList.remove('hidden');
     screens[name].classList.add('active');
   }
 

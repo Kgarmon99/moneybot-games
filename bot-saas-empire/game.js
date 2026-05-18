@@ -271,6 +271,7 @@
   function showScreen(id) {
     ['start-screen', 'game-screen', 'win-screen'].forEach(sid => {
       $(sid).classList.toggle('active', sid === id);
+      if (sid === id) $(sid).classList.remove('hidden');
     });
   }
 

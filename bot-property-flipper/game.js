@@ -62,6 +62,7 @@
   function showScreen(id) {
     ['start-screen', 'deal-screen', 'reno-screen', 'sell-screen', 'result-screen', 'gameover-screen'].forEach(sid => {
       $(sid).classList.toggle('active', sid === id);
+      if (sid === id) $(sid).classList.remove('hidden');
     });
   }
 
