@@ -1167,6 +1167,30 @@
       "difficulty": "medium",
       "xp": 100,
       "coins": 50
+    },
+    {
+      "id": "bot-startup-tycoon",
+      "name": "startup tycoon",
+      "category": "career",
+      "difficulty": "medium",
+      "xp": 150,
+      "coins": 100
+    },
+    {
+      "id": "bot-saas-empire",
+      "name": "saas empire",
+      "category": "invest",
+      "difficulty": "easy",
+      "xp": 100,
+      "coins": 75
+    },
+    {
+      "id": "bot-property-flipper",
+      "name": "property flipper",
+      "category": "invest",
+      "difficulty": "medium",
+      "xp": 150,
+      "coins": 100
     }
   ]
 }
