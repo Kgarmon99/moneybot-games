@@ -554,11 +554,13 @@ const Game = {
   
   updateHUD() {
     const runway = Math.floor(this.cash / 8000); // Approximate
-    document.getElementById('runway').textContent = runway > 99 ? '∞' : Math.max(0, runway);
-    document.getElementById('cash').textContent = '$' + (this.cash / 1000).toFixed(0) + 'K';
-    document.getElementById('burn').textContent = '$8K';
-    document.getElementById('month-text').textContent = `Month ${this.month} of ${this.maxMonths}`;
-    document.getElementById('month-fill').style.width = (this.month / this.maxMonths * 100) + '%';
+    const runwayEl = document.getElementById('runway');
+    const cashEl = document.getElementById('cash');
+    const burnEl = document.getElementById('burn');
+    
+    if (runwayEl) runwayEl.textContent = runway > 99 ? '∞' : Math.max(0, runway);
+    if (cashEl) cashEl.textContent = '$' + (this.cash / 1000).toFixed(0) + 'K';
+    if (burnEl) burnEl.textContent = '$8K';
     
     // Update tower affordability
     document.querySelectorAll('.tower-card').forEach(card => {
@@ -573,9 +575,11 @@ const Game = {
     
     // Color coding
     const runwayStat = document.getElementById('runway-stat');
-    runwayStat.classList.remove('danger', 'warning');
-    if (runway <= 2) runwayStat.classList.add('danger');
-    else if (runway <= 4) runwayStat.classList.add('warning');
+    if (runwayStat) {
+      runwayStat.classList.remove('danger', 'warning');
+      if (runway <= 2) runwayStat.classList.add('danger');
+      else if (runway <= 4) runwayStat.classList.add('warning');
+    }
   },
   
   gameOver(won) {
