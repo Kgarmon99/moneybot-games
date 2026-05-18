@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Runway Rush — MoneyBot</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="game-shell">
+    <!-- HUD -->
+    <header class="hud">
+      <div class="hud-brand">
+        <span class="logo">🤖</span>
+        <span class="title">Runway Rush</span>
+      </div>
+      <div class="hud-stats">
+        <div class="stat-pill" id="runway-pill">
+          <span class="stat-label">Runway</span>
+          <span class="stat-value" id="runway-display">6</span>
+          <span class="stat-unit">mo</span>
+        </div>
+        <div class="stat-pill" id="cashflow-pill">
+          <span class="stat-label">Cashflow</span>
+          <span class="stat-value" id="cashflow-display">+$2,000</span>
+        </div>
+        <div class="stat-pill" id="streak-pill">
+          <span class="stat-label">Streak</span>
+          <span class="stat-value" id="streak-display">0</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Play Area -->
+    <main class="play-area">
+      <!-- Month Indicator -->
+      <div class="month-banner">
+        <span id="month-display">Month 1 of 12</span>
+        <div class="progress-track">
+          <div class="progress-fill" id="month-progress"></div>
+        </div>
+      </div>
+
+      <!-- Mascot Coach -->
+      <div class="mascot-container" id="mascot">
+        <div class="mascot-avatar">🤖</div>
+        <div class="mascot-bubble" id="mascot-text">
+          Welcome, CFO! Your startup has 6 months of runway. Make smart monthly decisions to survive the year.
+        </div>
+      </div>
+
+      <!-- Decision Cards -->
+      <div class="decision-panel" id="decision-panel">
+        <h2 class="panel-title">This Month's Decision</h2>
+        <div class="scenario-text" id="scenario-text">
+          You have $10,000 in the bank. Monthly burn is $8,000. What do you prioritize?
+        </div>
+        
+        <div class="choice-grid" id="choices">
+          <!-- Choices injected by JS -->
+        </div>
+      </div>
+
+      <!-- Event Overlay -->
+      <div class="event-overlay hidden" id="event-overlay">
+        <div class="event-card">
+          <div class="event-icon" id="event-icon">⚡</div>
+          <h3 class="event-title" id="event-title">Surprise Expense!</h3>
+          <p class="event-desc" id="event-desc">A server outage cost you $3,000.</p>
+          <button class="btn-primary" id="event-ok">Continue</button>
+        </div>
+      </div>
+    </main>
+
+    <!-- Bottom Bar -->
+    <footer class="bottom-bar">
+      <div class="emergency-fund" id="emergency-fund">
+        <span class="ef-label">Emergency Fund</span>
+        <div class="ef-bar">
+          <div class="ef-fill" id="ef-fill"></div>
+        </div>
+        <span class="ef-value" id="ef-value">$0</span>
+      </div>
+    </footer>
+
+    <!-- Start Screen -->
+    <div class="modal-overlay" id="start-screen">
+      <div class="modal-card">
+        <div class="modal-mascot">🤖</div>
+        <h1>Runway Rush</h1>
+        <p class="modal-subtitle">You're the CFO. Keep the lights on.</p>
+        <div class="modal-stats">
+          <div class="modal-stat">
+            <span class="modal-stat-num">12</span>
+            <span class="modal-stat-label">Months to Survive</span>
+          </div>
+          <div class="modal-stat">
+            <span class="modal-stat-num">6</span>
+            <span class="modal-stat-label">Months of Runway</span>
+          </div>
+        </div>
+        <button class="btn-primary btn-large" id="start-btn">Start Playing</button>
+        <button class="btn-secondary" id="how-to-btn">How to Play</button>
+      </div>
+    </div>
+
+    <!-- How to Play -->
+    <div class="modal-overlay hidden" id="how-to-screen">
+      <div class="modal-card modal-scroll">
+        <h2>How to Play</h2>
+        <div class="how-to-section">
+          <h3>🎯 Goal</h3>
+          <p>Survive 12 months by making smart financial decisions. Don't let your runway hit zero!</p>
+        </div>
+        <div class="how-to-section">
+          <h3>📊 Key Numbers</h3>
+          <ul>
+            <li><strong>Runway:</strong> How many months you can survive at current burn rate</li>
+            <li><strong>Cashflow:</strong> Monthly income minus expenses</li>
+            <li><strong>Streak:</strong> Consecutive months of positive cashflow</li>
+            <li><strong>Emergency Fund:</strong> Buffer for surprise expenses</li>
+          </ul>
+        </div>
+        <div class="how-to-section">
+          <h3>💡 Tips</h3>
+          <ul>
+            <li>Recurring revenue is more valuable than one-time sales</li>
+            <li>Build an emergency fund for surprise costs</li>
+            <li>Cut costs early — they compound</li>
+            <li>Invest in growth only when runway is healthy</li>
+          </ul>
+        </div>
+        <button class="btn-primary" id="how-to-back">Got it</button>
+      </div>
+    </div>
+
+    <!-- Win Screen -->
+    <div class="modal-overlay hidden" id="win-screen">
+      <div class="modal-card">
+        <div class="modal-mascot">🎉</div>
+        <h1>Year Survived!</h1>
+        <p class="modal-subtitle">You kept the business alive for 12 months.</p>
+        <div class="final-stats">
+          <div class="final-stat">
+            <span class="final-stat-value" id="final-runway">8</span>
+            <span class="final-stat-label">Months Runway</span>
+          </div>
+          <div class="final-stat">
+            <span class="final-stat-value" id="final-streak">5</span>
+            <span class="final-stat-label">Best Streak</span>
+          </div>
+          <div class="final-stat">
+            <span class="final-stat-value" id="final-score">12,400</span>
+            <span class="final-stat-label">Final Score</span>
+          </div>
+        </div>
+        <button class="btn-primary btn-large" id="replay-btn">Play Again</button>
+      </div>
+    </div>
+
+    <!-- Loss Screen -->
+    <div class="modal-overlay hidden" id="loss-screen">
+      <div class="modal-card">
+        <div class="modal-mascot">💸</div>
+        <h1>Bankruptcy</h1>
+        <p class="modal-subtitle" id="loss-reason">Your runway ran out in month 7.</p>
+        <div class="tip-box">
+          <strong>💡 Tip for next time:</strong>
+          <p id="loss-tip">Build an emergency fund early. Surprise expenses are guaranteed.</p>
+        </div>
+        <button class="btn-primary btn-large" id="try-again-btn">Try Again</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>

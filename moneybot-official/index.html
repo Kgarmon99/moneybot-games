@@ -878,7 +878,7 @@
         <p class="hero-subtitle">Master money skills through play. From budgeting to investing, every game teaches real-world financial literacy.</p>
         <div class="hero-stats">
             <div class="hero-stat">
-                <div class="hero-stat-number">100+</div>
+                <div class="hero-stat-number">110+</div>
                 <div class="hero-stat-label">Games</div>
             </div>
             <div class="hero-stat">
@@ -907,6 +907,7 @@
                 <button class="filter-tag" data-filter="debt">Debt</button>
                 <button class="filter-tag" data-filter="tax">Tax</button>
                 <button class="filter-tag" data-filter="insurance">Insurance</button>
+                <button class="filter-tag" data-filter="career">Career</button>
                 <select class="sort-select" id="sortSelect">
                     <option value="featured">Featured</option>
                     <option value="newest">Newest</option>
@@ -926,7 +927,7 @@
                     <div class="section-icon">⭐</div>
                     <h2 class="section-title">Featured</h2>
                 </div>
-                <span class="section-count">5 games</span>
+                <span class="section-count">6 games</span>
             </div>
             <div class="games-grid" id="featuredGrid">
                 <!-- Featured games will be populated by JS -->
@@ -940,7 +941,7 @@
                     <div class="section-icon">🎮</div>
                     <h2 class="section-title">All Games</h2>
                 </div>
-                <span class="section-count" id="allGamesCount">100+ games</span>
+                <span class="section-count" id="allGamesCount">110+ games</span>
             </div>
             <div class="games-grid" id="allGamesGrid">
                 <!-- All games will be populated by JS -->
@@ -1022,6 +1023,17 @@
             { id: 'liquid-illiquid', title: 'Liquid vs Illiquid', img: '../bot-liquid-illiquid/assets/thumb.png', tag: 'Puzzle', desc: 'Understand asset accessibility. Critical for emergency planning!', href: '../bot-liquid-illiquid/', topic: 'save', type: 'puzzle', difficulty: 'easy', playTime: '5-10 min', plays: 9230, new: true },
             { id: 'active-passive', title: 'Active vs Passive Income', img: '../bot-active-passive-income/assets/thumb.png', tag: 'Puzzle', desc: 'Learn how money is earned. Build your path to financial freedom!', href: '../bot-active-passive-income/', topic: 'career', type: 'puzzle', difficulty: 'medium', playTime: '8-12 min', plays: 7890, new: true },
             { id: 'appreciating-depreciating', title: 'Appreciating vs Depreciating', img: '../bot-appreciating-depreciating/assets/thumb.png', tag: 'Puzzle', desc: 'Identify assets that grow vs lose value. Smart buying decisions!', href: '../bot-appreciating-depreciating/', topic: 'invest', type: 'puzzle', difficulty: 'easy', playTime: '5-10 min', plays: 8650, new: true },
+            
+            // YC STARTUP SCHOOL GAMES
+            { id: 'burn-rate', title: 'Burn Rate', emoji: '🔥', tag: 'YC Lesson', desc: 'Manage monthly cashflow to extend your startup runway. Survive 12 months.', href: '../runway-rush/', topic: 'career', type: 'simulation', difficulty: 'medium', playTime: '10-15 min', plays: 0, new: true, featured: true },
+            { id: 'the-pivot', title: 'The Pivot', emoji: '🎯', tag: 'YC Lesson', desc: 'Interview customers, gather signals, decide: kill, pivot, or persevere.', href: '../the-pivot/', topic: 'career', type: 'simulation', difficulty: 'medium', playTime: '10-15 min', plays: 0, new: true },
+            { id: 'do-things', title: 'Do Things That Don\'t Scale', emoji: '🚀', tag: 'YC Lesson', desc: 'Handle tasks manually, automate only when it hurts. Grow to 100 users.', href: '../do-things-that-dont-scale/', topic: 'career', type: 'simulation', difficulty: 'easy', playTime: '10-15 min', plays: 0, new: true },
+            { id: 'demo-day', title: 'Demo Day Dash', emoji: '🎤', tag: 'YC Lesson', desc: '60-second pitch simulation. Hook, problem, solution, traction, ask.', href: '../demo-day-dash/', topic: 'career', type: 'simulation', difficulty: 'medium', playTime: '5-10 min', plays: 0, new: true },
+            { id: 'first-hire', title: 'The First Hire', emoji: '👥', tag: 'YC Lesson', desc: 'Interview candidates, evaluate culture fit vs skill. Build your team.', href: '../the-first-hire/', topic: 'career', type: 'simulation', difficulty: 'medium', playTime: '10-15 min', plays: 0, new: true },
+            { id: 'ramen', title: 'Ramen Profitability', emoji: '🍜', tag: 'YC Lesson', desc: 'Minimize burn, maximize revenue. Reach ramen profitability before runway ends.', href: '../ramen-profitability/', topic: 'career', type: 'simulation', difficulty: 'hard', playTime: '15-20 min', plays: 0, new: true },
+            { id: '100-fans', title: '100 Fans', emoji: '💯', tag: 'YC Lesson', desc: 'Acquire users, measure retention, iterate. Find 100 true fans.', href: '../100-fans/', topic: 'career', type: 'simulation', difficulty: 'medium', playTime: '10-15 min', plays: 0, new: true },
+            { id: 'term-sheet', title: 'The Term Sheet', emoji: '📊', tag: 'YC Lesson', desc: 'Negotiate valuation, dilution, control. Keep your company.', href: '../the-term-sheet/', topic: 'career', type: 'simulation', difficulty: 'hard', playTime: '15-20 min', plays: 0, new: true },
+            { id: 'growth-loops', title: 'Growth Loops', emoji: '📈', tag: 'YC Lesson', desc: 'Design viral loops, retention mechanics, referral systems. Compound users.', href: '../growth-loops/', topic: 'career', type: 'simulation', difficulty: 'hard', playTime: '15-20 min', plays: 0, new: true },
             
             // JUST ADDED (Next 8 to complete 20 newest)
             { id: 'side-hustle', title: 'Side Hustle Sprint', img: '../bot-side-hustle-sprint/assets/thumb.png', tag: 'Time Management', desc: 'Balance day job + side gigs. Allocate 24 hours to hit your income goals!', href: '../bot-side-hustle-sprint/', topic: 'career', type: 'strategy', difficulty: 'medium', playTime: '10-15 min', plays: 7890, new: true },

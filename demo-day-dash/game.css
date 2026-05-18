@@ -1,0 +1,194 @@
+/* Demo Day Dash — MoneyBot Design System Extensions */
+
+/* Timer Bar */
+.timer-bar {
+  height: 4px;
+  background: rgba(255,255,255,0.08);
+  margin: 0 16px;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.timer-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--mb-green), var(--mb-gold), var(--mb-red));
+  border-radius: 2px;
+  transition: width 0.1s linear;
+  width: 100%;
+}
+
+/* Phase Label */
+.phase-label {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--mb-green);
+  display: block;
+  margin-bottom: 8px;
+}
+
+/* Card Category */
+#card-category {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--mb-green);
+  margin-bottom: 12px;
+  display: block;
+}
+
+/* Investor Panel */
+#investor-panel {
+  margin-top: 12px;
+}
+
+#investor-face {
+  background: linear-gradient(135deg, var(--mb-gold), var(--mb-orange));
+}
+
+#investor-reaction.liked {
+  color: var(--mb-green);
+}
+
+#investor-reaction.disliked {
+  color: var(--mb-red);
+}
+
+/* Lesson Badge */
+.lesson-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 12px;
+  background: rgba(0, 230, 118, 0.08);
+  border: 1px solid var(--mb-line);
+  border-radius: var(--mb-radius-sm);
+  margin-bottom: 20px;
+}
+
+.lesson-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--mb-green);
+}
+
+.lesson-text {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--mb-white);
+}
+
+/* Phase Preview */
+.phase-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 24px;
+}
+
+.phase-item {
+  font-size: 13px;
+  color: var(--mb-muted);
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+
+.phase-item:last-child {
+  border-bottom: none;
+}
+
+/* Valuation Display */
+.valuation-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 16px;
+  background: rgba(0, 200, 83, 0.08);
+  border: 1px solid rgba(0, 200, 83, 0.2);
+  border-radius: var(--mb-radius-sm);
+  margin-bottom: 20px;
+}
+
+.valuation-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--mb-green);
+}
+
+.valuation-value {
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--mb-green);
+}
+
+/* Partner Quote */
+.partner-quote {
+  font-size: 15px;
+  font-style: italic;
+  color: var(--mb-muted);
+  padding: 16px;
+  border-left: 3px solid var(--mb-green);
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+/* How To Content */
+.how-to-content {
+  text-align: left;
+  margin-bottom: 20px;
+}
+
+.how-to-content p {
+  color: var(--mb-muted);
+  font-size: 14px;
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+
+.how-to-content h3 {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--mb-green);
+  margin-bottom: 8px;
+  margin-top: 16px;
+}
+
+.how-to-content ol,
+.how-to-content ul {
+  padding-left: 20px;
+  color: var(--mb-muted);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.how-to-content li {
+  margin-bottom: 4px;
+}
+
+/* Tip Box */
+.tip-box {
+  background: rgba(0, 230, 118, 0.06);
+  border: 1px solid var(--mb-line);
+  border-radius: var(--mb-radius-sm);
+  padding: 16px;
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.tip-box strong {
+  color: var(--mb-green);
+  display: block;
+  margin-bottom: 6px;
+}
+
+.tip-box p {
+  color: var(--mb-muted);
+  font-size: 14px;
+  line-height: 1.5;
+}

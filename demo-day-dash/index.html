@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Demo Day Dash — MoneyBot</title>
+  <link rel="stylesheet" href="../runway-rush/style.css">
+  <link rel="stylesheet" href="game.css">
+</head>
+<body>
+  <div id="game-shell">
+    <!-- MoneyBot Header -->
+    <header class="hud">
+      <div class="hud-brand">
+        <span class="logo">🤖</span>
+        <span class="title">Demo Day Dash</span>
+      </div>
+      <div class="hud-stats">
+        <div class="stat-pill" id="score-pill">
+          <span class="stat-label">Score</span>
+          <span class="stat-value" id="score">0</span>
+        </div>
+        <div class="stat-pill" id="time-pill">
+          <span class="stat-label">Time</span>
+          <span class="stat-value" id="time">60</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Timer Bar -->
+    <div class="timer-bar">
+      <div class="timer-fill" id="timer-fill"></div>
+    </div>
+
+    <!-- Main Play Area -->
+    <main class="play-area">
+      <!-- Phase Indicator -->
+      <div class="month-banner">
+        <span class="phase-label" id="phase-label">Phase 1: The Hook</span>
+        <div class="progress-track">
+          <div class="progress-fill" id="phase-progress"></div>
+        </div>
+      </div>
+
+      <!-- Game Card -->
+      <div class="decision-panel" id="game-card">
+        <div class="panel-title" id="card-category">Problem</div>
+        <div class="scenario-text" id="card-question">
+          How do you open your pitch?
+        </div>
+        <div class="choice-grid" id="choices">
+          <!-- Injected by JS -->
+        </div>
+      </div>
+
+      <!-- Investor Panel -->
+      <div class="mascot-container" id="investor-panel">
+        <div class="mascot-avatar" id="investor-face">🎯</div>
+        <div class="mascot-bubble" id="investor-reaction">
+          I'm listening...
+        </div>
+      </div>
+    </main>
+
+    <!-- Start Screen -->
+    <div class="modal-overlay" id="start-screen">
+      <div class="modal-card">
+        <div class="modal-mascot">🎯</div>
+        <h1>Demo Day Dash</h1>
+        <p class="modal-subtitle">You have 60 seconds to pitch. Don't fumble.</p>
+        
+        <div class="lesson-badge">
+          <span class="lesson-label">YC Lesson</span>
+          <span class="lesson-text">Sell the dream</span>
+        </div>
+        
+        <div class="phase-preview">
+          <div class="phase-item">1. The Hook</div>
+          <div class="phase-item">2. Problem</div>
+          <div class="phase-item">3. Solution</div>
+          <div class="phase-item">4. Traction</div>
+          <div class="phase-item">5. The Ask</div>
+        </div>
+        
+        <button class="btn-primary btn-large" id="start-btn">Start Pitching</button>
+        <button class="btn-secondary" id="how-to-btn">How to Play</button>
+      </div>
+    </div>
+
+    <!-- How to Play -->
+    <div class="modal-overlay hidden" id="how-to-screen">
+      <div class="modal-card modal-scroll">
+        <h2>How to Play</h2>
+        <div class="how-to-content">
+          <p>You have <strong>60 seconds</strong> to deliver a complete pitch to YC partners.</p>
+          
+          <h3>The 5 Phases</h3>
+          <ol>
+            <li><strong>The Hook</strong> — Grab attention in 10 seconds</li>
+            <li><strong>Problem</strong> — Make it painful and specific</li>
+            <li><strong>Solution</strong> — Show, don't tell</li>
+            <li><strong>Traction</strong> — Numbers beat promises</li>
+            <li><strong>The Ask</strong> — Be specific about what you need</li>
+          </ol>
+          
+          <h3>Scoring</h3>
+          <ul>
+            <li>Correct answers: +100 points</li>
+            <li>Speed bonus: Up to +50 points</li>
+            <li>Investor reactions affect final valuation</li>
+          </ul>
+          
+          <h3>Tips</h3>
+          <ul>
+            <li>YC partners hate jargon</li>
+            <li>Traction beats vision</li>
+            <li>Be specific about the problem</li>
+            <li>Know your numbers cold</li>
+          </ul>
+        </div>
+        <button class="btn-primary" id="how-to-back">Got it</button>
+      </div>
+    </div>
+
+    <!-- Win Screen -->
+    <div class="modal-overlay hidden" id="win-screen">
+      <div class="modal-card">
+        <div class="modal-mascot">🎉</div>
+        <h1>Funded!</h1>
+        <p class="modal-subtitle">The partners want to invest.</p>
+        
+        <div class="valuation-display">
+          <span class="valuation-label">Pre-money valuation</span>
+          <span class="valuation-value" id="valuation">$12M</span>
+        </div>
+        
+        <div class="final-stats">
+          <div class="final-stat">
+            <span class="final-stat-value" id="final-score">0</span>
+            <span class="final-stat-label">Score</span>
+          </div>
+          <div class="final-stat">
+            <span class="final-stat-value" id="final-time">0s</span>
+            <span class="final-stat-label">Time Left</span>
+          </div>
+          <div class="final-stat">
+            <span class="final-stat-value" id="final-reactions">0</span>
+            <span class="final-stat-label">Partner Likes</span>
+          </div>
+        </div>
+        
+        <div class="partner-quote" id="partner-quote">
+          "This is the kind of clarity we look for."
+        </div>
+        
+        <button class="btn-primary btn-large" id="replay-btn">Pitch Again</button>
+      </div>
+    </div>
+
+    <!-- Loss Screen -->
+    <div class="modal-overlay hidden" id="loss-screen">
+      <div class="modal-card">
+        <div class="modal-mascot">❌</div>
+        <h1>Pass</h1>
+        <p class="modal-subtitle" id="loss-reason">The partners weren't convinced.</p>
+        
+        <div class="tip-box">
+          <strong>YC Lesson:</strong>
+          <p id="loss-tip">Great pitches start with the problem, not the solution.</p>
+        </div>
+        
+        <button class="btn-primary btn-large" id="try-again-btn">Try Again</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>

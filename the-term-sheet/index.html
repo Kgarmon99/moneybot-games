@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>The Term Sheet — MoneyBot</title>
+  <link rel="stylesheet" href="../runway-rush/style.css">
+  <link rel="stylesheet" href="game.css">
+</head>
+<body>
+  <div id="game-shell">
+    <header class="hud">
+      <div class="hud-brand">
+        <span class="logo">🤖</span>
+        <span class="title">The Term Sheet</span>
+      </div>
+      <div class="hud-stats">
+        <div class="stat-pill">
+          <span class="stat-label">Score</span>
+          <span class="stat-value" id="score">0</span>
+        </div>
+        <div class="stat-pill">
+          <span class="stat-label">Round</span>
+          <span class="stat-value" id="round">1</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="play-area">
+      <div class="decision-panel">
+        <div class="panel-title" id="card-category">Know your numbers</div>
+        <div class="scenario-text" id="card-question">
+          Loading...
+        </div>
+        <div class="choice-grid" id="choices"></div>
+      </div>
+    </main>
+
+    <div class="modal-overlay" id="start-screen">
+      <div class="modal-card">
+        <div class="modal-mascot">🤖</div>
+        <h1>The Term Sheet</h1>
+        <p class="modal-subtitle">Keep your company</p>
+        <div class="lesson-badge">
+          <span class="lesson-label">YC Lesson</span>
+          <span class="lesson-text">Know your numbers</span>
+        </div>
+        <button class="btn-primary btn-large" id="start-btn">Start</button>
+      </div>
+    </div>
+
+    <div class="modal-overlay hidden" id="win-screen">
+      <div class="modal-card">
+        <div class="modal-mascot">🎉</div>
+        <h1>Success!</h1>
+        <p class="modal-subtitle" id="win-reason">You mastered this lesson.</p>
+        <button class="btn-primary btn-large" id="replay-btn">Play Again</button>
+      </div>
+    </div>
+
+    <div class="modal-overlay hidden" id="loss-screen">
+      <div class="modal-card">
+        <div class="modal-mascot">💡</div>
+        <h1>Lesson Learned</h1>
+        <p class="modal-subtitle" id="loss-reason">Not quite.</p>
+        <div class="tip-box">
+          <strong>YC Lesson:</strong>
+          <p id="loss-tip">Keep practicing.</p>
+        </div>
+        <button class="btn-primary btn-large" id="try-again-btn">Try Again</button>
+      </div>
+    </div>
+  </div>
+  <script src="game.js"></script>
+</body>
+</html>
