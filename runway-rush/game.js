@@ -136,7 +136,7 @@ const Game = {
     document.getElementById('loss-screen').classList.add('hidden');
     
     this.updateHUD();
-    this.showWaveScreen();
+    setTimeout(() => this.showWaveScreen(), 100);
   },
   
   showWaveScreen() {
