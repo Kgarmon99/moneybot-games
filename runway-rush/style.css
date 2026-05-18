@@ -1,0 +1,458 @@
+/* Burn Rate — Tower Defense, YC Startup School */
+
+:root {
+  --mb-green: #00E676;
+  --mb-green-dark: #00C853;
+  --mb-green-soft: #69F0AE;
+  --mb-ink: #07111F;
+  --mb-ink-2: #0B1628;
+  --mb-panel: rgba(10, 24, 42, 0.95);
+  --mb-line: rgba(105, 240, 174, 0.2);
+  --mb-white: #F8FAFC;
+  --mb-muted: #8899AA;
+  --mb-gold: #FBBF24;
+  --mb-red: #FB7185;
+  --mb-orange: #FF6600;
+  --mb-radius: 16px;
+  --mb-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--mb-ink);
+  color: var(--mb-white);
+  min-height: 100vh;
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: none;
+}
+
+#game {
+  max-width: 480px;
+  margin: 0 auto;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+/* HUD */
+.hud {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  background: rgba(7, 17, 31, 0.95);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--mb-line);
+  z-index: 100;
+}
+
+.hud-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.yc-mark {
+  width: 28px;
+  height: 28px;
+  background: linear-gradient(135deg, #FF6600, #FF8533);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 900;
+  color: white;
+}
+
+.hud-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--mb-white);
+}
+
+.hud-stats {
+  display: flex;
+  gap: 8px;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 4px 10px;
+  background: var(--mb-panel);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 10px;
+  min-width: 56px;
+}
+
+.stat.danger { border-color: var(--mb-red); background: rgba(251, 113, 133, 0.08); }
+.stat.warning { border-color: var(--mb-gold); background: rgba(251, 191, 36, 0.08); }
+
+.stat-label {
+  font-size: 8px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--mb-muted);
+}
+
+.stat-value {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--mb-white);
+  line-height: 1.2;
+}
+
+.stat-unit {
+  font-size: 9px;
+  color: var(--mb-muted);
+}
+
+/* Canvas */
+#gameCanvas {
+  flex: 1;
+  width: 100%;
+  background: radial-gradient(ellipse at 50% 50%, #0B1628 0%, #07111F 100%);
+  cursor: crosshair;
+}
+
+/* Tower Bar */
+.tower-bar {
+  display: flex;
+  gap: 8px;
+  padding: 10px 12px;
+  background: rgba(7, 17, 31, 0.95);
+  border-top: 1px solid var(--mb-line);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.tower-bar::-webkit-scrollbar { display: none; }
+
+.tower-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 64px;
+  padding: 8px 6px;
+  background: rgba(255,255,255,0.03);
+  border: 2px solid transparent;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s var(--mb-spring);
+  user-select: none;
+}
+
+.tower-card:hover {
+  border-color: var(--mb-green);
+  background: rgba(0, 230, 118, 0.06);
+  transform: translateY(-2px);
+}
+
+.tower-card.selected {
+  border-color: var(--mb-green);
+  background: rgba(0, 230, 118, 0.1);
+  box-shadow: 0 0 16px rgba(0, 230, 118, 0.2);
+}
+
+.tower-card.disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.tower-icon {
+  font-size: 24px;
+  margin-bottom: 2px;
+}
+
+.tower-name {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--mb-white);
+  text-transform: uppercase;
+}
+
+.tower-cost {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--mb-green);
+}
+
+.tower-desc {
+  font-size: 9px;
+  color: var(--mb-muted);
+}
+
+/* Screens */
+.screen {
+  position: fixed;
+  inset: 0;
+  background: rgba(7, 17, 31, 0.95);
+  backdrop-filter: blur(20px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 300;
+  padding: 20px;
+}
+
+.screen-card {
+  background: var(--mb-panel);
+  border: 1px solid var(--mb-line);
+  border-radius: var(--mb-radius);
+  padding: 40px 28px;
+  text-align: center;
+  max-width: 400px;
+  width: 100%;
+  animation: popIn 0.5s var(--mb-spring);
+}
+
+.screen-card.scroll {
+  max-height: 80vh;
+  overflow-y: auto;
+  text-align: left;
+}
+
+.yc-logo {
+  width: 64px;
+  height: 64px;
+  background: linear-gradient(135deg, #FF6600, #FF8533);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  font-weight: 900;
+  color: white;
+  margin: 0 auto 20px;
+}
+
+.screen-card h1 {
+  font-size: 32px;
+  font-weight: 800;
+  margin-bottom: 8px;
+  color: var(--mb-white);
+}
+
+.screen-card h2 {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 20px;
+  color: var(--mb-white);
+}
+
+.screen-sub {
+  font-size: 15px;
+  color: var(--mb-muted);
+  margin-bottom: 20px;
+}
+
+.screen-emoji {
+  font-size: 64px;
+  margin-bottom: 8px;
+}
+
+.screen-lesson {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 12px;
+  background: rgba(255, 102, 0, 0.08);
+  border: 1px solid rgba(255, 102, 0, 0.2);
+  border-radius: 12px;
+  margin-bottom: 24px;
+}
+
+.lesson-tag {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--mb-orange);
+}
+
+.lesson-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--mb-white);
+}
+
+/* Wave Screen */
+.wave-number {
+  font-size: 48px;
+  font-weight: 900;
+  color: var(--mb-green);
+  margin-bottom: 8px;
+}
+
+.wave-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--mb-white);
+  margin-bottom: 8px;
+}
+
+.wave-enemies {
+  font-size: 14px;
+  color: var(--mb-muted);
+  margin-bottom: 24px;
+}
+
+/* Buttons */
+.btn-primary {
+  display: block;
+  width: 100%;
+  padding: 16px 24px;
+  background: linear-gradient(135deg, var(--mb-green), var(--mb-green-dark));
+  color: var(--mb-ink);
+  font-size: 16px;
+  font-weight: 800;
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 230, 118, 0.3);
+}
+
+.btn-primary:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.btn-secondary {
+  display: block;
+  width: 100%;
+  padding: 14px 24px;
+  background: transparent;
+  color: var(--mb-muted);
+  font-size: 15px;
+  font-weight: 600;
+  border: 2px solid rgba(255,255,255,0.1);
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+  border-color: var(--mb-green);
+  color: var(--mb-green);
+}
+
+/* How To */
+.how-section {
+  margin-bottom: 20px;
+}
+
+.how-section h3 {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--mb-green);
+  margin-bottom: 8px;
+}
+
+.how-section p, .how-section li {
+  font-size: 14px;
+  color: var(--mb-muted);
+  line-height: 1.5;
+}
+
+.how-section ul {
+  list-style: none;
+  padding: 0;
+}
+
+.how-section li {
+  padding-left: 20px;
+  position: relative;
+  margin-bottom: 6px;
+}
+
+.how-section li::before {
+  content: "→";
+  position: absolute;
+  left: 0;
+  color: var(--mb-green);
+}
+
+/* Final Stats */
+.final-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.final-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px;
+  background: rgba(255,255,255,0.03);
+  border-radius: 12px;
+}
+
+.final-value {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--mb-green);
+}
+
+.final-label {
+  font-size: 11px;
+  color: var(--mb-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 4px;
+}
+
+/* Tip Box */
+.tip-box {
+  background: rgba(0, 230, 118, 0.06);
+  border: 1px solid var(--mb-line);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 24px;
+  text-align: left;
+}
+
+.tip-box strong {
+  color: var(--mb-green);
+  display: block;
+  margin-bottom: 6px;
+}
+
+.tip-box p {
+  color: var(--mb-muted);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* Utilities */
+.hidden { display: none !important; }
+
+/* Animations */
+@keyframes popIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* Responsive */
+@media (max-width: 390px) {
+  .hud-stats { gap: 6px; }
+  .stat { padding: 4px 6px; min-width: 50px; }
+  .stat-value { font-size: 16px; }
+  .tower-card { min-width: 58px; padding: 6px 4px; }
+  .tower-icon { font-size: 20px; }
+}
