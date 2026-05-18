@@ -315,7 +315,9 @@
     renderUpgrades();
   }
 
-  $('start-btn').addEventListener('click', initGame);
+  const startBtn = $('start-btn');
+  console.log('start-btn found:', !!startBtn);
+  if (startBtn) startBtn.addEventListener('click', initGame);
   $('close-summary-btn').addEventListener('click', nextDay);
   $('restart-btn').addEventListener('click', initGame);
   $('win-restart-btn').addEventListener('click', initGame);
