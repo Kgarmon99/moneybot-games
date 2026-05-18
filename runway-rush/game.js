@@ -173,6 +173,7 @@ const Game = {
     this.waveSpawned = 0;
     this.spawnTimer = 0;
     this.waveActive = true;
+    this.waveStartTime = Date.now();
   },
   
   selectTower(type) {
@@ -264,7 +265,7 @@ const Game = {
       const dy = ty - enemy.y;
       const dist = Math.sqrt(dx * dx + dy * dy);
       
-      let speed = enemy.speed * this.cellSize * 0.02;
+      let speed = enemy.speed * this.cellSize * 0.005; // Slowed down for visibility
       if (enemy.slowTimer > 0) {
         speed *= 0.5;
         enemy.slowTimer -= dt;
@@ -373,8 +374,9 @@ const Game = {
       if (p.life <= 0) this.particles.splice(i, 1);
     });
     
-    // Check wave complete (only if wave was active)
-    if (this.waveActive && this.waveSpawned >= this.waveEnemies.length && this.enemies.length === 0) {
+    // Check wave complete (only if wave was active and minimum duration passed)
+    const waveDuration = Date.now() - (this.waveStartTime || 0);
+    if (this.waveActive && this.waveSpawned >= this.waveEnemies.length && this.enemies.length === 0 && waveDuration > 3000) {
       this.waveActive = false;
       this.month++;
       
