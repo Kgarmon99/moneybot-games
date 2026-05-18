@@ -1,6 +1,5 @@
 (function() {
   'use strict';
-  console.log('Restaurant Tycoon JS loaded');
 
   let state = {
     day: 1,
@@ -315,18 +314,10 @@
     renderUpgrades();
   }
 
-  try {
-    const startBtn = $('start-btn');
-    console.log('start-btn found:', !!startBtn);
-    if (startBtn) startBtn.addEventListener('click', initGame);
-    $('close-summary-btn').addEventListener('click', nextDay);
-    $('restart-btn').addEventListener('click', initGame);
-    $('win-restart-btn').addEventListener('click', initGame);
-    console.log('Event listeners attached');
-  } catch(e) {
-    console.error('Error attaching listeners:', e.message);
-  }
+  $('start-btn').addEventListener('click', initGame);
+  $('close-summary-btn').addEventListener('click', nextDay);
+  $('restart-btn').addEventListener('click', initGame);
+  $('win-restart-btn').addEventListener('click', initGame);
 
   showScreen('start-screen');
-  console.log('Restaurant Tycoon JS initialized');
 })();
