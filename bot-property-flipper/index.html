@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Property Flipper</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app">
+        <!-- HUD -->
+        <header id="hud" class="hidden">
+            <div class="hud-row">
+                <div class="hud-pill">
+                    <span class="hud-label">YEAR</span>
+                    <span id="year-val" class="hud-value">1</span>
+                </div>
+                <div class="hud-pill cash">
+                    <span class="hud-label">CASH</span>
+                    <span id="cash-val" class="hud-value">$100K</span>
+                </div>
+                <div class="hud-pill">
+                    <span class="hud-label">NET WORTH</span>
+                    <span id="net-val" class="hud-value">$100K</span>
+                </div>
+            </div>
+            <div class="market-bar">
+                <span class="market-label">MARKET</span>
+                <div class="market-track">
+                    <div id="market-dot" class="market-dot"></div>
+                </div>
+                <span id="market-text" class="market-text">Normal</span>
+            </div>
+        </header>
+
+        <!-- Start Screen -->
+        <div id="start-screen" class="screen active">
+            <div class="logo-area">
+                <div class="mascot">🏠</div>
+                <h1>PROPERTY<br><span class="highlight">FLIPPER</span></h1>
+                <p class="tagline">Buy low. Renovate smart. Sell high.</p>
+            </div>
+            <div class="instructions">
+                <div class="inst-item"><span class="inst-icon">🏠</span> Buy distressed properties with cash or leverage</div>
+                <div class="inst-item"><span class="inst-icon">🔨</span> Renovate to boost value (but don't over-improve)</div>
+                <div class="inst-item"><span class="inst-icon">📈</span> Time your sale with the market cycle</div>
+                <div class="inst-item"><span class="inst-icon">🏦</span> Leverage multiplies gains AND losses</div>
+            </div>
+            <button id="start-btn" class="btn-primary">GET LICENSE</button>
+        </div>
+
+        <!-- Deal Screen -->
+        <div id="deal-screen" class="screen hidden">
+            <div class="phase-title">NEW DEAL</div>
+            <div id="deal-card" class="deal-card">
+                <div class="deal-img">🏚️</div>
+                <div class="deal-name" id="deal-name">Fixer Upper</div>
+                <div class="deal-stats">
+                    <div class="deal-stat"><span>Asking</span><span id="deal-ask">$150K</span></div>
+                    <div class="deal-stat"><span>After Repair</span><span id="deal-arv">$220K</span></div>
+                    <div class="deal-stat"><span>Renovation</span><span id="deal-reno">$30K</span></div>
+                    <div class="deal-stat"><span>Potential Profit</span><span id="deal-profit" class="good">+$40K</span></div>
+                </div>
+            </div>
+            <div class="action-btns">
+                <button id="buy-cash-btn" class="btn-action btn-green">BUY CASH</button>
+                <button id="buy-loan-btn" class="btn-action btn-blue">20% DOWN + LOAN</button>
+                <button id="pass-btn" class="btn-action btn-dark">PASS</button>
+            </div>
+        </div>
+
+        <!-- Renovate Screen -->
+        <div id="reno-screen" class="screen hidden">
+            <div class="phase-title">RENOVATE</div>
+            <div class="reno-property">
+                <div class="reno-img">🔨</div>
+                <div class="reno-name" id="reno-name">Fixer Upper</div>
+                <div class="reno-info">
+                    <span>Purchase: <b id="reno-purchase">$150K</b></span>
+                    <span>ARV Before: <b id="reno-arv">$220K</b></span>
+                </div>
+            </div>
+            <div class="reno-options" id="reno-options"></div>
+            <button id="skip-reno-btn" class="btn-action btn-dark">SKIP & LIST</button>
+        </div>
+
+        <!-- Sell Screen -->
+        <div id="sell-screen" class="screen hidden">
+            <div class="phase-title">LIST FOR SALE</div>
+            <div class="sell-card">
+                <div class="sell-img">🏠</div>
+                <div class="sell-name" id="sell-name">Fixer Upper</div>
+                <div class="sell-stats">
+                    <div class="sell-stat"><span>Invested</span><span id="sell-invested">$180K</span></div>
+                    <div class="sell-stat"><span>ARV</span><span id="sell-arv">$250K</span></div>
+                    <div class="sell-stat"><span>Market</span><span id="sell-market">+5%</span></div>
+                    <div class="sell-stat"><span>Est. Sale</span><span id="sell-est" class="good">$262K</span></div>
+                </div>
+            </div>
+            <div class="action-btns">
+                <button id="sell-now-btn" class="btn-action btn-green">SELL NOW</button>
+                <button id="hold-btn" class="btn-action btn-gold">HOLD 1 YEAR</button>
+            </div>
+        </div>
+
+        <!-- Result Screen -->
+        <div id="result-screen" class="screen hidden">
+            <h2 id="result-title" class="highlight">SOLD!</h2>
+            <div class="result-card">
+                <div class="result-row"><span>Sale Price</span><span id="res-sale">$262K</span></div>
+                <div class="result-row"><span>Loan Payoff</span><span id="res-loan">-$120K</span></div>
+                <div class="result-row"><span>Closing Costs</span><span id="res-closing">-$15K</span></div>
+                <div class="result-row highlight"><span>Your Profit</span><span id="res-profit" class="good">+$27K</span></div>
+                <div class="result-row"><span>Cash After</span><span id="res-cash">$127K</span></div>
+                <div class="result-row"><span>ROI</span><span id="res-roi" class="good">+22%</span></div>
+            </div>
+            <div id="res-tip" class="tip-box"></div>
+            <button id="next-deal-btn" class="btn-primary">NEXT DEAL</button>
+        </div>
+
+        <!-- Game Over -->
+        <div id="gameover-screen" class="screen hidden">
+            <div class="mascot big">📉</div>
+            <h1 class="danger">BANKRUPT</h1>
+            <p class="subtitle">Your real estate empire crumbled.</p>
+            <div class="final-stats">
+                <div class="final-row"><span>Deals Done</span><span id="final-deals">3</span></div>
+                <div class="final-row"><span>Total Profit</span><span id="final-profit">-$45K</span></div>
+                <div class="final-row"><span>Peak Net Worth</span><span id="final-peak">$140K</span></div>
+            </div>
+            <div id="go-tip" class="tip-box"></div>
+            <button id="restart-btn" class="btn-primary">TRY AGAIN</button>
+        </div>
+    </div>
+    <script src="game.js"></script>
+</body>
+</html>
