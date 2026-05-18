@@ -130,13 +130,15 @@ const Game = {
     this.projectiles = [];
     this.particles = [];
     this.waveActive = false;
+    this.waveEnemies = [];
+    this.waveSpawned = 0;
     
     document.getElementById('start-screen').classList.add('hidden');
     document.getElementById('win-screen').classList.add('hidden');
     document.getElementById('loss-screen').classList.add('hidden');
     
     this.updateHUD();
-    setTimeout(() => this.showWaveScreen(), 100);
+    this.showWaveScreen();
   },
   
   showWaveScreen() {
@@ -150,7 +152,9 @@ const Game = {
     }).join(', ');
     document.getElementById('wave-enemies').textContent = enemyList;
     
-    document.getElementById('wave-screen').classList.remove('hidden');
+    const ws = document.getElementById('wave-screen');
+    ws.classList.remove('hidden');
+    ws.style.display = 'flex';
   },
   
   startWave() {
