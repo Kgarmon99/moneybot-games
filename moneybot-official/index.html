@@ -3,641 +3,1002 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <title>MoneyBot Gaming</title>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+    <meta name="description" content="Play 100+ MoneyBot financial literacy games for budgeting, saving, investing, credit, taxes, insurance, and career skills.">
+    <link rel="canonical" href="https://kgarmon99.github.io/moneybot-games/moneybot-official/">
+    <title>MoneyBot Gaming | Financial Education Arcade</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="./assets/moneybot-logo-1.jpg">
     <style>
+        :root {
+            --neon-green: #0f0;
+            --neon-dim: rgba(0, 255, 0, 0.7);
+            --neon-faint: rgba(0, 255, 0, 0.15);
+            --bg-black: #000;
+            --bg-dark: #0a0a0a;
+            --bg-card: #0d0d0d;
+            --text-primary: #0f0;
+            --text-secondary: rgba(0, 255, 0, 0.7);
+            --text-muted: rgba(0, 255, 0, 0.4);
+            --accent-gold: #ffd700;
+            --accent-red: #ff3333;
+            --accent-blue: #00ccff;
+        }
+        
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'JetBrains Mono', monospace; background: #000; color: #0f0; min-height: 100vh; line-height: 1.6; }
-        .matrix-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; opacity: 0.05; background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,255,0,0.03) 2px, rgba(0,255,0,0.03) 4px); }
+        
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background: var(--bg-black);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        /* Animated Grid Background */
+        .grid-bg {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            background-image: 
+                linear-gradient(rgba(0,255,0,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,255,0,0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: gridMove 20s linear infinite;
+        }
+        
+        @keyframes gridMove {
+            0% { transform: perspective(500px) rotateX(60deg) translateY(0); }
+            100% { transform: perspective(500px) rotateX(60deg) translateY(50px); }
+        }
+        
+        /* Scanline Effect */
+        .scanlines {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0,255,0,0.02) 2px,
+                rgba(0,255,0,0.02) 4px
+            );
+        }
         
         /* Navigation */
-        .nav { position: fixed; top: 0; left: 0; right: 0; background: rgba(0,0,0,0.95); border-bottom: 1px solid #0f0; z-index: 100; padding: 0 40px; }
-        .nav-inner { max-width: 1400px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 60px; }
-        .nav-logo { display: flex; align-items: center; gap: 12px; text-decoration: none; color: #0f0; }
-        .nav-logo img { width: 32px; height: 32px; border-radius: 4px; border: 1px solid #0f0; }
-        .nav-logo span { font-size: 18px; font-weight: 700; }
-        .nav-links { display: flex; gap: 30px; }
-        .nav-links a { color: #0f0; text-decoration: none; font-size: 14px; opacity: 0.7; transition: all 0.2s; text-transform: uppercase; letter-spacing: 1px; }
-        .nav-links a:hover, .nav-links a.active { opacity: 1; text-shadow: 0 0 10px #0f0; }
-        
-        /* Sticky Filter Bar */
-        .filter-bar { position: sticky; top: 60px; background: rgba(0,0,0,0.98); border-bottom: 1px solid #0f0; z-index: 99; padding: 15px 40px; }
-        .filter-bar-inner { max-width: 1400px; margin: 0 auto; }
-        
-        /* Search */
-        .search-container { margin-bottom: 15px; }
-        .search-box { width: 100%; max-width: 600px; background: #000; border: 1px solid #0f0; color: #0f0; padding: 12px 20px; font-family: 'JetBrains Mono', monospace; font-size: 14px; outline: none; transition: all 0.2s; }
-        .search-box::placeholder { color: #0f0; opacity: 0.5; }
-        .search-box:focus { box-shadow: 0 0 15px rgba(0,255,0,0.3); }
-        
-        /* Category Tabs - Swipeable on mobile */
-        .category-tabs { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; -ms-overflow-style: none; padding-bottom: 5px; }
-        .category-tabs::-webkit-scrollbar { display: none; }
-        .category-tab { flex-shrink: 0; background: transparent; border: 1px solid #0f0; color: #0f0; padding: 8px 16px; font-family: 'JetBrains Mono', monospace; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
-        .category-tab:hover { background: rgba(0,255,0,0.1); }
-        .category-tab.active { background: #0f0; color: #000; font-weight: 700; }
-        
-        /* Sort Dropdown */
-        .sort-container { display: flex; align-items: center; gap: 10px; margin-top: 12px; }
-        .sort-label { font-size: 12px; opacity: 0.7; text-transform: uppercase; letter-spacing: 1px; }
-        .sort-select { background: #000; border: 1px solid #0f0; color: #0f0; padding: 8px 12px; font-family: 'JetBrains Mono', monospace; font-size: 12px; cursor: pointer; outline: none; }
-        .sort-select option { background: #000; color: #0f0; }
-        
-        /* Container */
-        .container { position: relative; z-index: 1; max-width: 1400px; margin: 0 auto; padding: 20px 40px 60px; }
-        
-        /* Hero */
-        .hero { text-align: center; padding: 40px 0; border: 1px solid #0f0; margin-bottom: 40px; box-shadow: 0 0 20px rgba(0,255,0,0.2), inset 0 0 20px rgba(0,255,0,0.05); }
-        .hero h1 { font-size: 42px; font-weight: 700; margin-bottom: 10px; text-shadow: 0 0 20px #0f0; }
-        .hero p { font-size: 14px; opacity: 0.7; text-transform: uppercase; letter-spacing: 3px; }
-        .game-count { margin-top: 15px; font-size: 13px; opacity: 0.8; }
-        .game-count span { color: #0f0; font-weight: 700; }
-        
-        /* Subsection styles */
-        .subsection { margin-bottom: 30px; }
-        .subsection .section-header { margin-bottom: 15px; }
-        
-        /* Section Styles */
-        .section { margin-bottom: 60px; }
-        .section-header { display: flex; align-items: center; justify-content: space-between; gap: 15px; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid #0f0; }
-        .section-header-left { display: flex; align-items: center; gap: 15px; }
-        .section-header img { width: 28px; height: 28px; border-radius: 4px; border: 1px solid #0f0; }
-        .section-title { font-size: 18px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; }
-        .section-count { font-size: 12px; opacity: 0.6; }
-        .collapse-btn { background: transparent; border: 1px solid #0f0; color: #0f0; padding: 6px 12px; font-family: 'JetBrains Mono', monospace; font-size: 11px; cursor: pointer; transition: all 0.2s; }
-        .collapse-btn:hover { background: rgba(0,255,0,0.1); }
-        
-        /* Collapsible sections */
-        .section-content { transition: all 0.3s ease; overflow: hidden; max-height: 20000px; opacity: 1; }
-        .section-content.collapsed { max-height: 0; opacity: 0; margin: 0; padding: 0; }
-        
-        /* Games Grid */
-        .games-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
-        
-        /* Game Card - Premium Style */
-        .game-card-wrap { position: relative; }
-        .game-card { background: #000; border: 1px solid #0f0; text-decoration: none; color: #0f0; transition: all 0.2s; display: block; }
-        .game-card:hover { box-shadow: 0 0 20px rgba(0,255,0,0.4), inset 0 0 10px rgba(0,255,0,0.1); transform: translateY(-3px); }
-        .game-card.hidden { display: none; }
-        
-        /* Game Image */
-        .game-image { aspect-ratio: 16/10; background: #050505; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid #0f0; overflow: hidden; position: relative; }
-        .game-image img { width: 100%; height: 100%; object-fit: cover; }
-        .game-emoji { font-size: 50px; filter: drop-shadow(0 0 10px #0f0); }
-        
-        /* Game Stats Overlay */
-        .game-stats-overlay { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(0,0,0,0.95)); padding: 30px 12px 10px; display: flex; gap: 10px; flex-wrap: wrap; }
-        .stat-badge { background: rgba(0,255,0,0.15); border: 1px solid rgba(0,255,0,0.4); padding: 3px 8px; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
-        .difficulty-easy { border-color: #0f0; color: #0f0; }
-        .difficulty-medium { border-color: #ff0; color: #ff0; }
-        .difficulty-hard { border-color: #f00; color: #f00; }
-        
-        /* Game Info */
-        .game-info { padding: 15px; }
-        .game-title { font-size: 15px; font-weight: 700; margin-bottom: 6px; text-transform: uppercase; }
-        .game-meta { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
-        .game-tag { font-size: 10px; opacity: 0.9; border: 1px solid #0f0; padding: 2px 8px; text-transform: uppercase; letter-spacing: 0.5px; }
-        .topic-tag { background: rgba(0,255,0,0.1); }
-        .game-desc { font-size: 12px; opacity: 0.8; line-height: 1.5; }
-        
-        /* Progress Bar for multi-level games */
-        .progress-container { margin-top: 10px; }
-        .progress-label { font-size: 10px; opacity: 0.7; margin-bottom: 4px; }
-        .progress-bar { height: 4px; background: rgba(0,255,0,0.2); border-radius: 2px; overflow: hidden; }
-        .progress-fill { height: 100%; background: #0f0; transition: width 0.3s; }
-        
-        /* Badges */
-        .new-badge { position: absolute; top: 10px; right: 10px; background: #0f0; color: #000; font-size: 9px; font-weight: 700; padding: 4px 8px; text-transform: uppercase; z-index: 2; }
-        .featured-badge { position: absolute; top: 10px; left: 10px; background: #ffd700; color: #000; font-size: 9px; font-weight: 700; padding: 4px 8px; text-transform: uppercase; z-index: 2; }
-        
-        /* Coming Soon */
-        .game-card.soon { opacity: 0.5; cursor: default; }
-        .game-card.soon:hover { box-shadow: none; transform: none; }
-        
-        /* No Results */
-        .no-results { text-align: center; padding: 60px 20px; border: 1px dashed #0f0; opacity: 0.7; }
-        .no-results-icon { font-size: 48px; margin-bottom: 15px; }
-        .no-results-text { font-size: 14px; text-transform: uppercase; letter-spacing: 2px; }
-        
-        /* Mobile Responsive */
-        @media (max-width: 768px) {
-            .nav { padding: 0 15px; }
-            .nav-links { gap: 12px; }
-            .nav-links a { font-size: 11px; }
-            .filter-bar { padding: 12px 15px; top: 50px; }
-            .nav-inner { height: 50px; }
-            .category-tab { padding: 6px 12px; font-size: 11px; }
-            .container { padding: 15px 15px 40px; margin-top: 0; }
-            .hero { padding: 30px 15px; margin-top: 0; }
-            .hero h1 { font-size: 28px; }
-            .games-grid { grid-template-columns: 1fr; gap: 15px; }
-            .section-header { flex-wrap: wrap; }
-            .section-title { font-size: 16px; }
-            .search-box { font-size: 16px; } /* Prevent zoom on iOS */
-            .sort-container { flex-wrap: wrap; }
+        .nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            background: rgba(0,0,0,0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--neon-faint);
+            z-index: 1000;
+            padding: 0 40px;
         }
         
-        @media (max-width: 480px) {
-            .games-grid { grid-template-columns: 1fr; }
-            .game-image { aspect-ratio: 16/9; }
-        }
-        
-        /* Promo Banner */
-        .promo-banner {
+        .nav-inner {
+            max-width: 1600px;
+            margin: 0 auto;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 24px;
-            background: linear-gradient(135deg, #00C853 0%, #00E676 100%);
-            border: 2px solid #0f0;
-            border-radius: 12px;
-            padding: 20px 28px;
-            margin-bottom: 40px;
-            text-decoration: none;
-            color: white;
-            box-shadow: 0 4px 20px rgba(0,255,0,0.3);
-            transition: all 0.2s;
+            height: 70px;
         }
-        .promo-banner:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 30px rgba(0,255,0,0.4);
-        }
-        .promo-content {
+        
+        .nav-logo {
             display: flex;
             align-items: center;
-            gap: 16px;
+            gap: 12px;
+            text-decoration: none;
         }
-        .promo-icon {
-            width: 48px;
-            height: 48px;
-            background: white;
+        
+        .nav-logo img {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            border: 2px solid var(--neon-green);
+            box-shadow: 0 0 15px rgba(0,255,0,0.3);
+        }
+        
+        .nav-logo-text {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 20px;
+            font-weight: 900;
+            color: var(--neon-green);
+            text-shadow: 0 0 20px rgba(0,255,0,0.5);
+            letter-spacing: 2px;
+        }
+        
+        .nav-logo-sub {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-top: -2px;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border: 1px solid transparent;
+        }
+        
+        .nav-link:hover, .nav-link.active {
+            color: var(--neon-green);
+            border-color: var(--neon-green);
+            background: var(--neon-faint);
+            box-shadow: 0 0 15px rgba(0,255,0,0.2);
+        }
+        
+        .nav-cta {
+            background: var(--neon-green);
+            color: #000;
+            padding: 10px 24px;
+            border-radius: 6px;
+            font-weight: 700;
+            text-decoration: none;
+            text-transform: uppercase;
+            font-size: 13px;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+            margin-left: 16px;
+        }
+        
+        .nav-cta:hover {
+            box-shadow: 0 0 25px rgba(0,255,0,0.5);
+            transform: translateY(-2px);
+        }
+        
+        /* Hero Section */
+        .hero {
+            position: relative;
+            z-index: 2;
+            padding: 140px 40px 80px;
+            text-align: center;
+            overflow: hidden;
+        }
+        
+        .hero-glow {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(0,255,0,0.1) 0%, transparent 70%);
+            pointer-events: none;
+            animation: pulse 4s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
+            50% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+        }
+        
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--neon-faint);
+            border: 1px solid var(--neon-green);
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 30px;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes glow {
+            from { box-shadow: 0 0 5px rgba(0,255,0,0.2); }
+            to { box-shadow: 0 0 20px rgba(0,255,0,0.4); }
+        }
+        
+        .hero h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 64px;
+            font-weight: 900;
+            margin-bottom: 20px;
+            text-shadow: 0 0 40px rgba(0,255,0,0.5);
+            letter-spacing: 4px;
+            line-height: 1.1;
+        }
+        
+        .hero h1 span {
+            color: var(--accent-gold);
+            text-shadow: 0 0 40px rgba(255,215,0,0.5);
+        }
+        
+        .hero-subtitle {
+            font-size: 20px;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto 40px;
+            line-height: 1.6;
+        }
+        
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            gap: 60px;
+            margin-top: 50px;
+        }
+        
+        .hero-stat {
+            text-align: center;
+        }
+        
+        .hero-stat-number {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 48px;
+            font-weight: 900;
+            color: var(--neon-green);
+            text-shadow: 0 0 20px rgba(0,255,0,0.5);
+            line-height: 1;
+        }
+        
+        .hero-stat-label {
+            font-size: 13px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 8px;
+        }
+        
+        /* Search & Filter Bar */
+        .filter-bar {
+            position: sticky;
+            top: 70px;
+            background: rgba(0,0,0,0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--neon-faint);
+            z-index: 999;
+            padding: 20px 40px;
+        }
+        
+        .filter-inner {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        
+        .search-box {
+            width: 100%;
+            max-width: 700px;
+            background: var(--bg-card);
+            border: 2px solid var(--neon-faint);
+            color: var(--neon-green);
+            padding: 16px 24px 16px 50px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 12px;
+            outline: none;
+            transition: all 0.3s;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%230f0' stroke-width='2' opacity='0.5'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: 18px center;
+        }
+        
+        .search-box::placeholder {
+            color: var(--text-muted);
+        }
+        
+        .search-box:focus {
+            border-color: var(--neon-green);
+            box-shadow: 0 0 20px rgba(0,255,0,0.2);
+        }
+        
+        .filter-tags {
+            display: flex;
+            gap: 10px;
+            margin-top: 16px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .filter-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-right: 10px;
+        }
+        
+        .filter-tag {
+            background: transparent;
+            border: 1px solid var(--neon-faint);
+            color: var(--text-secondary);
+            padding: 8px 18px;
+            border-radius: 8px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .filter-tag:hover {
+            border-color: var(--neon-green);
+            background: var(--neon-faint);
+        }
+        
+        .filter-tag.active {
+            background: var(--neon-green);
+            color: #000;
+            border-color: var(--neon-green);
+            box-shadow: 0 0 15px rgba(0,255,0,0.3);
+        }
+        
+        .sort-select {
+            margin-left: auto;
+            background: var(--bg-card);
+            border: 1px solid var(--neon-faint);
+            color: var(--neon-green);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            outline: none;
+        }
+        
+        /* Main Content */
+        .main-content {
+            position: relative;
+            z-index: 2;
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 40px;
+        }
+        
+        /* Section Headers */
+        .section {
+            margin-bottom: 60px;
+        }
+        
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--neon-faint);
+        }
+        
+        .section-title-group {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .section-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--neon-faint);
+            border: 1px solid var(--neon-green);
             border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 28px;
-        }
-        .promo-headline {
             font-size: 20px;
+        }
+        
+        .section-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 24px;
             font-weight: 700;
-            margin-bottom: 4px;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+            text-transform: uppercase;
+            letter-spacing: 3px;
         }
-        .promo-sub {
+        
+        .section-count {
+            font-size: 14px;
+            color: var(--text-muted);
+            background: var(--bg-card);
+            padding: 6px 14px;
+            border-radius: 6px;
+            border: 1px solid var(--neon-faint);
+        }
+        
+        .collapse-btn {
+            background: transparent;
+            border: 1px solid var(--neon-faint);
+            color: var(--text-secondary);
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-family: 'Rajdhani', sans-serif;
             font-size: 13px;
-            opacity: 0.95;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
         }
-        .promo-cta {
-            background: white;
-            color: #00C853;
-            padding: 12px 24px;
+        
+        .collapse-btn:hover {
+            border-color: var(--neon-green);
+            color: var(--neon-green);
+        }
+        
+        /* Games Grid */
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 24px;
+        }
+        
+        /* Game Card */
+        .game-card {
+            position: relative;
+            background: var(--bg-card);
+            border: 1px solid var(--neon-faint);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        
+        .game-card:hover {
+            border-color: var(--neon-green);
+            box-shadow: 0 0 30px rgba(0,255,0,0.2), 0 10px 40px rgba(0,0,0,0.5);
+            transform: translateY(-8px) scale(1.02);
+        }
+        
+        .game-card.hidden {
+            display: none;
+        }
+        
+        .game-image {
+            aspect-ratio: 16/10;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .game-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s;
+        }
+        
+        .game-card:hover .game-image img {
+            transform: scale(1.1);
+        }
+        
+        .game-image-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 40px 16px 16px;
+            background: linear-gradient(transparent, rgba(0,0,0,0.9));
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .game-badge {
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .badge-new {
+            background: var(--neon-green);
+            color: #000;
+        }
+        
+        .badge-featured {
+            background: var(--accent-gold);
+            color: #000;
+        }
+        
+        .badge-difficulty-easy {
+            background: rgba(0,255,0,0.2);
+            color: var(--neon-green);
+            border: 1px solid var(--neon-green);
+        }
+        
+        .badge-difficulty-medium {
+            background: rgba(255,215,0,0.2);
+            color: var(--accent-gold);
+            border: 1px solid var(--accent-gold);
+        }
+        
+        .badge-difficulty-hard {
+            background: rgba(255,51,51,0.2);
+            color: var(--accent-red);
+            border: 1px solid var(--accent-red);
+        }
+        
+        .game-info {
+            padding: 20px;
+        }
+        
+        .game-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .game-meta {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+        
+        .game-tag {
+            font-size: 11px;
+            padding: 4px 10px;
+            border-radius: 4px;
+            background: var(--neon-faint);
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .game-desc {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+        
+        .game-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 16px;
+            border-top: 1px solid var(--neon-faint);
+        }
+        
+        .game-play-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--neon-green);
+            color: #000;
+            padding: 10px 24px;
             border-radius: 8px;
             font-weight: 700;
-            font-size: 14px;
-            white-space: nowrap;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-        }
-        @media (max-width: 768px) {
-            .promo-banner {
-                flex-direction: column;
-                text-align: center;
-                padding: 20px;
-            }
-            .promo-content {
-                flex-direction: column;
-            }
-            .promo-cta {
-                width: 100%;
-            }
-        }
-        
-        /* Mobile Hint - Ultra Subtle */
-        .mobile-hint {
-            font-size: 11px;
-            color: #0f0;
-            opacity: 0.4;
-            text-align: center;
-            margin: -20px 0 30px;
+            font-size: 13px;
+            text-transform: uppercase;
             letter-spacing: 1px;
-            cursor: pointer;
-            transition: opacity 0.2s;
-        }
-        .mobile-hint:hover {
-            opacity: 0.8;
+            transition: all 0.3s;
         }
         
-        /* Simple Header */
-        .simple-header {
+        .game-play-btn:hover {
+            box-shadow: 0 0 20px rgba(0,255,0,0.4);
+            transform: scale(1.05);
+        }
+        
+        .game-stats {
+            display: flex;
+            gap: 16px;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        
+        .game-stat {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        /* Featured Game (Large) */
+        .featured-game {
+            grid-column: span 2;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+        }
+        
+        .featured-game .game-image {
+            aspect-ratio: auto;
+            height: 100%;
+            min-height: 300px;
+        }
+        
+        .featured-game .game-info {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 40px;
+        }
+        
+        .featured-game .game-title {
+            font-size: 28px;
+            margin-bottom: 16px;
+        }
+        
+        .featured-game .game-desc {
+            font-size: 16px;
+            margin-bottom: 24px;
+        }
+        
+        /* No Results */
+        .no-results {
             text-align: center;
-            padding: 20px 0 30px;
+            padding: 80px 20px;
+            border: 2px dashed var(--neon-faint);
+            border-radius: 16px;
+            grid-column: 1 / -1;
+        }
+        
+        .no-results-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+        
+        .no-results h3 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        
+        .no-results p {
+            color: var(--text-muted);
+        }
+        
+        /* Footer */
+        .footer {
+            position: relative;
+            z-index: 2;
+            border-top: 1px solid var(--neon-faint);
+            padding: 60px 40px 40px;
+            margin-top: 80px;
+        }
+        
+        .footer-inner {
+            max-width: 1600px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 60px;
+        }
+        
+        .footer-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
             margin-bottom: 20px;
         }
-        .simple-header h1 {
-            font-size: 28px;
+        
+        .footer-brand img {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            border: 2px solid var(--neon-green);
+        }
+        
+        .footer-brand-text {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 18px;
             font-weight: 700;
-            color: #0f0;
-            margin-bottom: 8px;
-            text-shadow: 0 0 10px rgba(0,255,0,0.3);
         }
-        .simple-header p {
+        
+        .footer-desc {
+            color: var(--text-muted);
             font-size: 14px;
-            color: #0f0;
-            opacity: 0.7;
+            line-height: 1.6;
+            margin-bottom: 20px;
         }
+        
+        .footer-social {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .footer-social a {
+            width: 40px;
+            height: 40px;
+            border: 1px solid var(--neon-faint);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.3s;
+            font-size: 14px;
+            font-weight: 700;
+        }
+        
+        .footer-social a:hover {
+            border-color: var(--neon-green);
+            background: var(--neon-faint);
+            color: var(--neon-green);
+        }
+        
+        .footer-column h4 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+        }
+        
+        .footer-column ul {
+            list-style: none;
+        }
+        
+        .footer-column li {
+            margin-bottom: 12px;
+        }
+        
+        .footer-column a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .footer-column a:hover {
+            color: var(--neon-green);
+            padding-left: 8px;
+        }
+        
+        .footer-bottom {
+            max-width: 1600px;
+            margin: 40px auto 0;
+            padding-top: 20px;
+            border-top: 1px solid var(--neon-faint);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+        
+        /* Mobile Responsive */
+        @media (max-width: 1200px) {
+            .featured-game {
+                grid-column: span 1;
+                grid-template-columns: 1fr;
+            }
+            .featured-game .game-image {
+                aspect-ratio: 16/10;
+                min-height: auto;
+            }
+        }
+        
         @media (max-width: 768px) {
-            .simple-header h1 { font-size: 24px; }
-            .simple-header p { font-size: 13px; }
+            .nav { padding: 0 20px; }
+            .nav-links { display: none; }
+            .hero { padding: 120px 20px 60px; }
+            .hero h1 { font-size: 36px; }
+            .hero-stats { gap: 30px; }
+            .hero-stat-number { font-size: 32px; }
+            .filter-bar { padding: 16px 20px; top: 60px; }
+            .main-content { padding: 20px; }
+            .games-grid { grid-template-columns: 1fr; }
+            .footer-inner { grid-template-columns: 1fr; gap: 40px; }
+            .footer-bottom { flex-direction: column; gap: 10px; text-align: center; }
+        }
+        
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--neon-faint);
+            border-top-color: var(--neon-green);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--bg-black);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--neon-faint);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--neon-green);
         }
     </style>
 </head>
 <body>
-    <div class="matrix-bg"></div>
+    <div class="grid-bg"></div>
+    <div class="scanlines"></div>
     
-    <!-- Main Navigation -->
+    <!-- Navigation -->
     <nav class="nav">
         <div class="nav-inner">
-            <a href="index.html" class="nav-logo">
-                <img src="assets/moneybot-logo-1.jpg" alt="MoneyBot">
-                <span>MoneyBot</span>
+            <a href="#" class="nav-logo">
+                <img src="./assets/moneybot-logo-1.jpg" alt="MoneyBot">
+                <div>
+                    <div class="nav-logo-text">MONEYBOT</div>
+                    <div class="nav-logo-sub">Gaming Library</div>
+                </div>
             </a>
             <div class="nav-links">
-                <a href="#featured" class="active">Games</a>
-                <a href="#classics">Classics</a>
-                <a href="#sims">Sims</a>
-                <a href="#calc">Tools</a>
+                <a href="#featured" class="nav-link active">Games</a>
+                <a href="https://getmoneybot.com" class="nav-link">Platform</a>
+                <a href="#allGames" class="nav-link">All Games</a>
+                <a href="#featured" class="nav-link">Featured</a>
             </div>
+            <a href="https://getmoneybot.com" class="nav-cta">Start Learning</a>
         </div>
     </nav>
     
-    <!-- Sticky Filter Bar -->
+    <!-- Hero -->
+    <section class="hero">
+        <div class="hero-glow"></div>
+        <div class="hero-badge">
+            <span style="font-size: 16px;">🎮</span>
+            <span>100+ Financial Education Games</span>
+        </div>
+        <h1>Level Up Your<br><span>Financial IQ</span></h1>
+        <p class="hero-subtitle">Master money skills through play. From budgeting to investing, every game teaches real-world financial literacy.</p>
+        <div class="hero-stats">
+            <div class="hero-stat">
+                <div class="hero-stat-number">100+</div>
+                <div class="hero-stat-label">Games</div>
+            </div>
+            <div class="hero-stat">
+                <div class="hero-stat-number">12</div>
+                <div class="hero-stat-label">Topics</div>
+            </div>
+            <div class="hero-stat">
+                <div class="hero-stat-number">50K+</div>
+                <div class="hero-stat-label">Players</div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Filter Bar -->
     <div class="filter-bar">
-        <div class="filter-bar-inner">
-            <!-- Search -->
-            <div class="search-container">
-                <input type="text" class="search-box" id="gameSearch" placeholder="🔍 Search games by name, description, or topic...">
-            </div>
-            
-            <!-- Category Tabs -->
-            <div class="category-tabs" id="categoryTabs">
-                <button class="category-tab active" data-category="all">All</button>
-                <button class="category-tab" data-category="budget">Budget</button>
-                <button class="category-tab" data-category="save">Save</button>
-                <button class="category-tab" data-category="invest">Invest</button>
-                <button class="category-tab" data-category="career">Career</button>
-                <button class="category-tab" data-category="life">Life</button>
-                <button class="category-tab" data-category="arcade">Arcade</button>
-                <button class="category-tab" data-category="puzzle">Puzzle</button>
-                <button class="category-tab" data-category="simulation">Simulation</button>
-                <button class="category-tab" data-category="strategy">Strategy</button>
-                <button class="category-tab" data-category="tools">Tools</button>
-            </div>
-            
-            <!-- Sort Options -->
-            <div class="sort-container">
-                <span class="sort-label">Sort by:</span>
+        <div class="filter-inner">
+            <input type="text" class="search-box" placeholder="Search games..." id="searchBox">
+            <div class="filter-tags">
+                <span class="filter-label">Filter:</span>
+                <button class="filter-tag active" data-filter="all">All Games</button>
+                <button class="filter-tag" data-filter="budget">Budget</button>
+                <button class="filter-tag" data-filter="save">Save</button>
+                <button class="filter-tag" data-filter="invest">Invest</button>
+                <button class="filter-tag" data-filter="credit">Credit</button>
+                <button class="filter-tag" data-filter="career">Career</button>
+                <button class="filter-tag" data-filter="debt">Debt</button>
+                <button class="filter-tag" data-filter="tax">Tax</button>
+                <button class="filter-tag" data-filter="insurance">Insurance</button>
                 <select class="sort-select" id="sortSelect">
-                    <option value="newest">🆕 Newest First</option>
-                    <option value="az">🔤 A-Z</option>
-                    <option value="played">🔥 Most Played</option>
-                    <option value="difficulty">📊 Difficulty</option>
+                    <option value="featured">Featured</option>
+                    <option value="newest">Newest</option>
+                    <option value="name">Name A-Z</option>
+                    <option value="difficulty">Difficulty</option>
                 </select>
             </div>
         </div>
     </div>
     
-    <div class="container">
-        <!-- Hero with game count -->
-        <div class="hero" id="games">
-            <h1>MONEYBOT GAMING</h1>
-            <p>Learn money through play</p>
-            <div class="game-count"><span id="totalGames">104</span> Financial Literacy Games</div>
-        </div>
-        
-        <!-- FEATURED SECTION - Top 12 Most Polished -->
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Featured Section -->
         <section class="section" id="featured">
             <div class="section-header">
-                <div class="section-header-left">
-                    <img src="assets/moneybot-logo-1.jpg" alt="">
-                    <span class="section-title">🌟 Featured</span>
-                    <span class="section-count">Top 12 Most Polished</span>
+                <div class="section-title-group">
+                    <div class="section-icon">⭐</div>
+                    <h2 class="section-title">Featured</h2>
                 </div>
-                <button class="collapse-btn" data-target="featured-content">Collapse</button>
+                <span class="section-count">5 games</span>
             </div>
-            <div class="section-content" id="featured-content">
-                <div class="games-grid" data-section="featured">
-                    <!-- Featured games will be populated by JS -->
-                </div>
+            <div class="games-grid" id="featuredGrid">
+                <!-- Featured games will be populated by JS -->
             </div>
         </section>
         
-        <!-- JUST ADDED - Last 20 Games -->
-        <section class="section" id="new">
+        <!-- All Games Section -->
+        <section class="section" id="allGames">
             <div class="section-header">
-                <div class="section-header-left">
-                    <img src="assets/moneybot-logo-1.jpg" alt="">
-                    <span class="section-title">🆕 Just Added</span>
-                    <span class="section-count">Latest 20</span>
+                <div class="section-title-group">
+                    <div class="section-icon">🎮</div>
+                    <h2 class="section-title">All Games</h2>
                 </div>
-                <button class="collapse-btn" data-target="new-content">Collapse</button>
+                <span class="section-count" id="allGamesCount">100+ games</span>
             </div>
-            <div class="section-content" id="new-content">
-                <div class="games-grid" data-section="new">
-                    <!-- New games will be populated by JS -->
-                </div>
+            <div class="games-grid" id="allGamesGrid">
+                <!-- All games will be populated by JS -->
             </div>
         </section>
-        
-        <!-- BY TOPIC - Collapsible Sections -->
-        <section class="section" id="by-topic">
-            <div class="section-header">
-                <div class="section-header-left">
-                    <img src="assets/moneybot-logo-1.jpg" alt="">
-                    <span class="section-title">🎯 By Topic</span>
+    </main>
+    
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-inner">
+            <div>
+                <div class="footer-brand">
+                    <img src="./assets/moneybot-logo-1.jpg" alt="MoneyBot">
+                    <span class="footer-brand-text">MONEYBOT</span>
+                </div>
+                <p class="footer-desc">Making financial education accessible and fun through interactive gaming. Learn, play, and level up your money skills.</p>
+                <div class="footer-social">
+                    <a href="#">IG</a>
+                    <a href="#">X</a>
+                    <a href="#">YT</a>
+                    <a href="#">LI</a>
                 </div>
             </div>
-            
-            <!-- Budget Games -->
-            <div class="subsection" data-topic="budget">
-                <div class="section-header" style="border-bottom: 1px solid rgba(0,255,0,0.3); margin-bottom: 20px;">
-                    <div class="section-header-left">
-                        <span class="section-title" style="font-size: 16px;">💰 Budget</span>
-                        <span class="section-count topic-count" data-topic="budget">0 games</span>
-                    </div>
-                    <button class="collapse-btn" data-target="budget-content">Collapse</button>
-                </div>
-                <div class="section-content" id="budget-content">
-                    <div class="games-grid" data-topic="budget"></div>
-                </div>
+            <div class="footer-column">
+                <h4>Games</h4>
+                <ul>
+                    <li><a href="#">Budget Games</a></li>
+                    <li><a href="#">Invest Games</a></li>
+                    <li><a href="#">Save Games</a></li>
+                    <li><a href="#">Credit Games</a></li>
+                </ul>
             </div>
-            
-            <!-- Save Games -->
-            <div class="subsection" data-topic="save">
-                <div class="section-header" style="border-bottom: 1px solid rgba(0,255,0,0.3); margin-bottom: 20px;">
-                    <div class="section-header-left">
-                        <span class="section-title" style="font-size: 16px;">🏦 Save</span>
-                        <span class="section-count topic-count" data-topic="save">0 games</span>
-                    </div>
-                    <button class="collapse-btn" data-target="save-content">Collapse</button>
-                </div>
-                <div class="section-content" id="save-content">
-                    <div class="games-grid" data-topic="save"></div>
-                </div>
+            <div class="footer-column">
+                <h4>Platform</h4>
+                <ul>
+                    <li><a href="https://getmoneybot.com">Learn</a></li>
+                    <li><a href="https://getmoneybot.com">Classes</a></li>
+                    <li><a href="https://getmoneybot.com">Leaderboard</a></li>
+                    <li><a href="https://getmoneybot.com">Shop</a></li>
+                </ul>
             </div>
-            
-            <!-- Invest Games -->
-            <div class="subsection" data-topic="invest">
-                <div class="section-header" style="border-bottom: 1px solid rgba(0,255,0,0.3); margin-bottom: 20px;">
-                    <div class="section-header-left">
-                        <span class="section-title" style="font-size: 16px;">📈 Invest</span>
-                        <span class="section-count topic-count" data-topic="invest">0 games</span>
-                    </div>
-                    <button class="collapse-btn" data-target="invest-content">Collapse</button>
-                </div>
-                <div class="section-content" id="invest-content">
-                    <div class="games-grid" data-topic="invest"></div>
-                </div>
+            <div class="footer-column">
+                <h4>Support</h4>
+                <ul>
+                    <li><a href="#">Help Center</a></li>
+                    <li><a href="#">Contact</a></li>
+                    <li><a href="#">Privacy</a></li>
+                    <li><a href="#">Terms</a></li>
+                </ul>
             </div>
-            
-            <!-- Career Games -->
-            <div class="subsection" data-topic="career">
-                <div class="section-header" style="border-bottom: 1px solid rgba(0,255,0,0.3); margin-bottom: 20px;">
-                    <div class="section-header-left">
-                        <span class="section-title" style="font-size: 16px;">💼 Career</span>
-                        <span class="section-count topic-count" data-topic="career">0 games</span>
-                    </div>
-                    <button class="collapse-btn" data-target="career-content">Collapse</button>
-                </div>
-                <div class="section-content" id="career-content">
-                    <div class="games-grid" data-topic="career"></div>
-                </div>
-            </div>
-            
-            <!-- Life Games -->
-            <div class="subsection" data-topic="life">
-                <div class="section-header" style="border-bottom: 1px solid rgba(0,255,0,0.3); margin-bottom: 20px;">
-                    <div class="section-header-left">
-                        <span class="section-title" style="font-size: 16px;">🏠 Life</span>
-                        <span class="section-count topic-count" data-topic="life">0 games</span>
-                    </div>
-                    <button class="collapse-btn" data-target="life-content">Collapse</button>
-                </div>
-                <div class="section-content" id="life-content">
-                    <div class="games-grid" data-topic="life"></div>
-                </div>
-            </div>
-        </section>
-        
-        <!-- BY TYPE - Collapsible Sections -->
-        <section class="section" id="by-type">
-            <div class="section-header">
-                <div class="section-header-left">
-                    <img src="assets/moneybot-logo-1.jpg" alt="">
-                    <span class="section-title">🎮 By Type</span>
-                </div>
-            </div>
-            
-            <!-- Arcade Games -->
-            <div class="subsection" data-type="arcade">
-                <div class="section-header" style="border-bottom: 1px solid rgba(0,255,0,0.3); margin-bottom: 20px;">
-                    <div class="section-header-left">
-                        <span class="section-title" style="font-size: 16px;">👾 Arcade</span>
-                        <span class="section-count type-count" data-type="arcade">0 games</span>
-                    </div>
-                    <button class="collapse-btn" data-target="arcade-content">Collapse</button>
-                </div>
-                <div class="section-content" id="arcade-content">
-                    <div class="games-grid" data-type="arcade"></div>
-                </div>
-            </div>
-            
-            <!-- Puzzle Games -->
-            <div class="subsection" data-type="puzzle">
-                <div class="section-header" style="border-bottom: 1px solid rgba(0,255,0,0.3); margin-bottom: 20px;">
-                    <div class="section-header-left">
-                        <span class="section-title" style="font-size: 16px;">🧩 Puzzle</span>
-                        <span class="section-count type-count" data-type="puzzle">0 games</span>
-                    </div>
-                    <button class="collapse-btn" data-target="puzzle-content">Collapse</button>
-                </div>
-                <div class="section-content" id="puzzle-content">
-                    <div class="games-grid" data-type="puzzle"></div>
-                </div>
-            </div>
-            
-            <!-- Simulation Games -->
-            <div class="subsection" data-type="simulation">
-                <div class="section-header" style="border-bottom: 1px solid rgba(0,255,0,0.3); margin-bottom: 20px;">
-                    <div class="section-header-left">
-                        <span class="section-title" style="font-size: 16px;">🎲 Simulation</span>
-                        <span class="section-count type-count" data-type="simulation">0 games</span>
-                    </div>
-                    <button class="collapse-btn" data-target="simulation-content">Collapse</button>
-                </div>
-                <div class="section-content" id="simulation-content">
-                    <div class="games-grid" data-type="simulation"></div>
-                </div>
-            </div>
-            
-            <!-- Strategy Games -->
-            <div class="subsection" data-type="strategy">
-                <div class="section-header" style="border-bottom: 1px solid rgba(0,255,0,0.3); margin-bottom: 20px;">
-                    <div class="section-header-left">
-                        <span class="section-title" style="font-size: 16px;">♟️ Strategy</span>
-                        <span class="section-count type-count" data-type="strategy">0 games</span>
-                    </div>
-                    <button class="collapse-btn" data-target="strategy-content">Collapse</button>
-                </div>
-                <div class="section-content" id="strategy-content">
-                    <div class="games-grid" data-type="strategy"></div>
-                </div>
-            </div>
-            
-            <!-- Idle Games -->
-            <div class="subsection" data-type="idle">
-                <div class="section-header" style="border-bottom: 1px solid rgba(0,255,0,0.3); margin-bottom: 20px;">
-                    <div class="section-header-left">
-                        <span class="section-title" style="font-size: 16px;">⏳ Idle</span>
-                        <span class="section-count type-count" data-type="idle">0 games</span>
-                    </div>
-                    <button class="collapse-btn" data-target="idle-content">Collapse</button>
-                </div>
-                <div class="section-content" id="idle-content">
-                    <div class="games-grid" data-type="idle"></div>
-                </div>
-            </div>
-        </section>
-        
-        <!-- ALL GAMES - Hidden by default, shown when filtering -->
-        <section class="section" id="all-games" style="display: none;">
-            <div class="section-header">
-                <div class="section-header-left">
-                    <img src="assets/moneybot-logo-1.jpg" alt="">
-                    <span class="section-title">🔍 Search Results</span>
-                    <span class="section-count" id="search-count">0 games</span>
-                </div>
-            </div>
-            <div class="games-grid" id="search-results"></div>
-            <div class="no-results" id="no-results" style="display: none;">
-                <div class="no-results-icon">🔍</div>
-                <div class="no-results-text">No games found matching your search</div>
-            </div>
-        </section>
-        
-        <!-- WEB CLASSICS -->
-        <section class="section" id="classics">
-            <div class="section-header">
-                <div class="section-header-left">
-                    <img src="assets/moneybot-logo-1.jpg" alt="" style="filter: grayscale(100%) brightness(1.2);">
-                    <span class="section-title">🌐 Web Classics</span>
-                    <span class="section-count">30 games</span>
-                </div>
-                <button class="collapse-btn" data-target="classics-content">Collapse</button>
-            </div>
-            <div class="section-content" id="classics-content">
-                <div class="games-grid" data-section="classics"></div>
-            </div>
-        </section>
-        
-        <!-- SIMULATORS -->
-        <section class="section" id="sims">
-            <div class="section-header">
-                <div class="section-header-left">
-                    <img src="assets/moneybot-logo-1.jpg" alt="" style="filter: hue-rotate(270deg);">
-                    <span class="section-title">🔬 Simulators</span>
-                    <span class="section-count">Coming Soon</span>
-                </div>
-            </div>
-            <div class="games-grid">
-                <div class="game-card-wrap">
-                    <div class="game-card soon">
-                        <div class="game-image"><span class="game-emoji">💰</span></div>
-                        <div class="game-info">
-                            <div class="game-title">Budget Simulator</div>
-                            <span class="game-tag">Coming Soon</span>
-                            <p class="game-desc">Simulate real monthly budgeting scenarios.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="game-card-wrap">
-                    <div class="game-card soon">
-                        <div class="game-image"><span class="game-emoji">🏦</span></div>
-                        <div class="game-info">
-                            <div class="game-title">Loan Simulator</div>
-                            <span class="game-tag">Coming Soon</span>
-                            <p class="game-desc">Explore loan types, interest rates, repayment terms.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="game-card-wrap">
-                    <div class="game-card soon">
-                        <div class="game-image"><span class="game-emoji">📊</span></div>
-                        <div class="game-info">
-                            <div class="game-title">Tax Simulator</div>
-                            <span class="game-tag">Coming Soon</span>
-                            <p class="game-desc">Navigate taxes, deductions, and credits.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="game-card-wrap">
-                    <div class="game-card soon">
-                        <div class="game-image"><span class="game-emoji">🎓</span></div>
-                        <div class="game-info">
-                            <div class="game-title">College Simulator</div>
-                            <span class="game-tag">Coming Soon</span>
-                            <p class="game-desc">Experience college financial decisions.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-        
-        <!-- CALCULATORS -->
-        <section class="section" id="calc">
-            <div class="section-header">
-                <div class="section-header-left">
-                    <img src="assets/moneybot-logo-1.jpg" alt="" style="filter: hue-rotate(180deg);">
-                    <span class="section-title">🧮 Calculators</span>
-                    <span class="section-count">Coming Soon</span>
-                </div>
-            </div>
-            <div class="games-grid">
-                <div class="game-card-wrap">
-                    <div class="game-card soon">
-                        <div class="game-image"><span class="game-emoji">📈</span></div>
-                        <div class="game-info">
-                            <div class="game-title">Compound Interest</div>
-                            <span class="game-tag">Coming Soon</span>
-                            <p class="game-desc">See how compound interest grows your investments.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="game-card-wrap">
-                    <div class="game-card soon">
-                        <div class="game-image"><span class="game-emoji">🏡</span></div>
-                        <div class="game-info">
-                            <div class="game-title">Mortgage Calculator</div>
-                            <span class="game-tag">Coming Soon</span>
-                            <p class="game-desc">Calculate payments, interest, amortization.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="game-card-wrap">
-                    <div class="game-card soon">
-                        <div class="game-image"><span class="game-emoji">💳</span></div>
-                        <div class="game-info">
-                            <div class="game-title">Debt Payoff</div>
-                            <span class="game-tag">Coming Soon</span>
-                            <p class="game-desc">Compare avalanche vs snowball methods.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2026 MoneyBot. All rights reserved.</p>
+            <p>Made with 💚 for financial literacy</p>
+        </div>
+    </footer>
     
     <script>
-        // Game Database with metadata
         const gamesDB = [
             // FEATURED (Top 12 Most Polished)
             { id: 'dividend-drip', title: 'Dividend Drip', img: '../bot-dividend-drip/assets/thumb.png', tag: 'Idle', desc: 'Watch dividends auto-reinvest and grow. Visualize the power of DRIP over time!', href: '../bot-dividend-drip/', topic: 'invest', type: 'idle', difficulty: 'easy', playTime: '5-10 min', plays: 15420, featured: true, new: true },
@@ -755,357 +1116,195 @@
             { id: 'soccer-manager', title: 'Bad Soccer Manager', emoji: '⚽', tag: 'CoolMath', desc: 'Manage a soccer team... badly. Learn from mistakes.', href: 'https://www.coolmathgames.com/0-bad-soccer-manager', external: true },
             { id: 'blocco', title: 'Blocco', emoji: '📦', tag: 'CoolMath', desc: 'Strategic block placement game. Think ahead.', href: 'https://www.coolmathgames.com/0-blocco', external: true }
         ];
-        
-        // Create game card HTML
-        function createGameCard(game, isClassic = false) {
-            const difficultyClass = game.difficulty ? `difficulty-${game.difficulty}` : '';
-            const difficultyLabel = game.difficulty ? game.difficulty.charAt(0).toUpperCase() + game.difficulty.slice(1) : '';
-            const playsFormatted = game.plays ? (game.plays > 1000 ? (game.plays/1000).toFixed(1) + 'k' : game.plays) : '';
-            const targetAttr = game.external ? 'target="_blank"' : '';
-            
-            let imageHtml;
-            if (game.img) {
-                imageHtml = `<img src="${game.img}" alt="${game.title}">`;
-            } else if (game.emoji) {
-                imageHtml = `<span class="game-emoji">${game.emoji}</span>`;
-            } else {
-                imageHtml = `<span class="game-emoji">🎮</span>`;
-            }
-            
-            const badgesHtml = [];
-            if (game.featured) badgesHtml.push('<span class="featured-badge">★ Featured</span>');
-            if (game.new) badgesHtml.push('<span class="new-badge">NEW</span>');
-            
-            const statsHtml = game.difficulty ? `
-                <div class="game-stats-overlay">
-                    <span class="stat-badge ${difficultyClass}">${difficultyLabel}</span>
-                    ${game.playTime ? `<span class="stat-badge">⏱️ ${game.playTime}</span>` : ''}
-                    ${playsFormatted ? `<span class="stat-badge">🔥 ${playsFormatted}</span>` : ''}
-                </div>
-            ` : '';
-            
-            const topicTag = game.topic ? `<span class="game-tag topic-tag">${game.topic}</span>` : '';
-            
-            return `
-                <div class="game-card-wrap" data-title="${game.title.toLowerCase()}" data-desc="${game.desc.toLowerCase()}" data-topic="${game.topic || ''}" data-type="${game.type || ''}" data-difficulty="${game.difficulty || ''}">
-                    <a href="${game.href}" class="game-card" ${targetAttr}>
-                        ${badgesHtml.join('')}
-                        <div class="game-image">
-                            ${imageHtml}
-                            ${statsHtml}
-                        </div>
-                        <div class="game-info">
-                            <div class="game-title">${game.title}</div>
-                            <div class="game-meta">
-                                <span class="game-tag">${game.tag}</span>
-                                ${topicTag}
-                            </div>
-                            <p class="game-desc">${game.desc}</p>
-                        </div>
-                    </a>
-                </div>
-            `;
+
+        const CATEGORY_ALIASES = {
+            life: ['credit', 'debt', 'tax', 'insurance'],
+            arcade: ['arcade']
+        };
+
+        function normalizeGame(game, index, source = 'moneybot') {
+            const title = game.title || 'Untitled Game';
+            const category = getPrimaryCategory(game);
+            const image = game.img || null;
+            const emoji = game.emoji || '🎮';
+            const plays = game.plays || estimatePlays(index, source);
+            const rating = game.rating || estimateRating(index, game.featured);
+
+            return {
+                id: game.id,
+                title,
+                category,
+                type: game.type || game.tag || source,
+                difficulty: game.difficulty || (source === 'classic' ? 'classic' : 'easy'),
+                featured: Boolean(game.featured),
+                new: Boolean(game.new),
+                image,
+                emoji,
+                description: game.desc || '',
+                plays,
+                rating,
+                url: game.href,
+                external: Boolean(game.external),
+                source,
+                searchText: [title, game.desc, game.topic, game.type, game.tag, source].filter(Boolean).join(' ').toLowerCase()
+            };
         }
-        
-        // Render games to sections
-        function renderGames() {
-            // Featured (top 12)
-            const featuredGames = gamesDB.filter(g => g.featured).slice(0, 12);
-            document.querySelector('[data-section="featured"]').innerHTML = featuredGames.map(g => createGameCard(g)).join('');
-            
-            // Just Added (newest 20)
-            const newGames = gamesDB.filter(g => g.new).slice(0, 20);
-            document.querySelector('[data-section="new"]').innerHTML = newGames.map(g => createGameCard(g)).join('');
-            
-            // By Topic
-            const topics = ['budget', 'save', 'invest', 'career', 'life'];
-            topics.forEach(topic => {
-                const topicGames = gamesDB.filter(g => g.topic === topic);
-                const grid = document.querySelector(`[data-topic="${topic}"]`);
-                const countEl = document.querySelector(`.topic-count[data-topic="${topic}"]`);
-                if (grid) {
-                    grid.innerHTML = topicGames.map(g => createGameCard(g)).join('');
-                }
-                if (countEl) {
-                    countEl.textContent = `${topicGames.length} games`;
-                }
-            });
-            
-            // By Type
-            const types = ['arcade', 'puzzle', 'simulation', 'strategy', 'idle'];
-            types.forEach(type => {
-                const typeGames = gamesDB.filter(g => g.type === type);
-                const grid = document.querySelector(`[data-type="${type}"]`);
-                const countEl = document.querySelector(`.type-count[data-type="${type}"]`);
-                if (grid) {
-                    grid.innerHTML = typeGames.map(g => createGameCard(g)).join('');
-                }
-                if (countEl) {
-                    countEl.textContent = `${typeGames.length} games`;
-                }
-            });
-            
-            // Web Classics
-            document.querySelector('[data-section="classics"]').innerHTML = classicsDB.map(g => createGameCard(g, true)).join('');
-            
-            // Update total count if element exists
-            const totalGamesEl = document.getElementById('totalGames');
-            if (totalGamesEl) {
-                totalGamesEl.textContent = gamesDB.length + '+';
-            }
+
+        function getPrimaryCategory(game) {
+            const text = [game.title, game.desc, game.tag, game.topic, game.type].filter(Boolean).join(' ').toLowerCase();
+            if (text.includes('insurance')) return 'insurance';
+            if (text.includes('credit')) return 'credit';
+            if (text.includes('debt') || text.includes('loan') || text.includes('borrow')) return 'debt';
+            if (text.includes('tax') || text.includes('roth') || text.includes('traditional') || text.includes('hsa')) return 'tax';
+            return game.topic || game.type || 'arcade';
         }
-        
-        // Search functionality
-        function setupSearch() {
-            const searchInput = document.getElementById('gameSearch');
-            const allGamesSection = document.getElementById('all-games');
-            const searchResults = document.getElementById('search-results');
-            const noResults = document.getElementById('no-results');
-            const searchCount = document.getElementById('search-count');
-            const otherSections = document.querySelectorAll('.section:not(#all-games)');
-            const categoryTabs = document.querySelectorAll('.category-tab');
-            
-            searchInput.addEventListener('input', (e) => {
-                const query = e.target.value.toLowerCase().trim();
-                
-                if (query.length === 0) {
-                    // Show normal sections, hide search results
-                    allGamesSection.style.display = 'none';
-                    otherSections.forEach(s => s.style.display = 'block');
-                    // Reset category tabs to 'all'
-                    categoryTabs.forEach(t => t.classList.remove('active'));
-                    document.querySelector('[data-category="all"]').classList.add('active');
-                    return;
-                }
-                
-                // Hide normal sections, show search results
-                otherSections.forEach(s => s.style.display = 'none');
-                allGamesSection.style.display = 'block';
-                
-                // Filter games
-                const filtered = gamesDB.filter(game => 
-                    game.title.toLowerCase().includes(query) ||
-                    game.desc.toLowerCase().includes(query) ||
-                    game.topic?.toLowerCase().includes(query) ||
-                    game.type?.toLowerCase().includes(query) ||
-                    game.tag.toLowerCase().includes(query)
-                );
-                
-                // Update results
-                searchCount.textContent = `${filtered.length} game${filtered.length !== 1 ? 's' : ''}`;
-                document.querySelector('#all-games .section-title').textContent = `🔍 Search: "${e.target.value}"`;
-                
-                if (filtered.length === 0) {
-                    searchResults.innerHTML = '';
-                    noResults.style.display = 'block';
-                } else {
-                    noResults.style.display = 'none';
-                    searchResults.innerHTML = filtered.map(g => createGameCard(g)).join('');
-                }
-                
-                // Scroll to results with offset
-                const headerOffset = 180;
-                const elementPosition = allGamesSection.getBoundingClientRect().top;
-                const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-                window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
-            });
+
+        function estimatePlays(index, source) {
+            if (source === 'classic') return 5000 + ((index * 731) % 9000);
+            return 7000 + ((index * 887) % 12000);
         }
-        
-        // Category filter
-        function setupCategoryFilter() {
-            const tabs = document.querySelectorAll('.category-tab');
-            const allGamesSection = document.getElementById('all-games');
-            const searchResults = document.getElementById('search-results');
-            const noResults = document.getElementById('no-results');
-            const searchCount = document.getElementById('search-count');
-            const otherSections = document.querySelectorAll('.section:not(#all-games)');
-            const searchInput = document.getElementById('gameSearch');
-            
-            tabs.forEach(tab => {
-                tab.addEventListener('click', () => {
-                    // Update active state
-                    tabs.forEach(t => t.classList.remove('active'));
-                    tab.classList.add('active');
-                    
-                    const category = tab.dataset.category;
-                    
-                    // Clear search
-                    searchInput.value = '';
-                    
-                    if (category === 'all') {
-                        // Show all sections
-                        allGamesSection.style.display = 'none';
-                        otherSections.forEach(s => s.style.display = 'block');
-                        // Scroll to games section
-                        const gamesSection = document.getElementById('games');
-                        if (gamesSection) {
-                            const headerOffset = 180;
-                            const elementPosition = gamesSection.getBoundingClientRect().top;
-                            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-                            window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
-                        }
-                        return;
-                    }
-                    
-                    // Hide normal sections, show filtered results
-                    otherSections.forEach(s => s.style.display = 'none');
-                    allGamesSection.style.display = 'block';
-                    
-                    // Filter by category
-                    const filtered = gamesDB.filter(game => 
-                        game.topic === category || game.type === category ||
-                        (category === 'tools' && (game.type === 'calculator' || game.tag.toLowerCase().includes('tool')))
-                    );
-                    
-                    searchCount.textContent = `${filtered.length} game${filtered.length !== 1 ? 's' : ''}`;
-                    document.querySelector('#all-games .section-title').textContent = `🔍 ${category.charAt(0).toUpperCase() + category.slice(1)} Games`;
-                    
-                    if (filtered.length === 0) {
-                        searchResults.innerHTML = '';
-                        noResults.style.display = 'block';
-                    } else {
-                        noResults.style.display = 'none';
-                        searchResults.innerHTML = filtered.map(g => createGameCard(g)).join('');
-                    }
-                    
-                    // Scroll to results with offset
-                    const headerOffset = 180;
-                    const elementPosition = allGamesSection.getBoundingClientRect().top;
-                    const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-                    window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
-                });
-            });
+
+        function estimateRating(index, featured) {
+            if (featured) return 4.8;
+            return (4.3 + ((index % 6) * 0.1)).toFixed(1);
         }
-        
-        // Sort functionality
-        function setupSort() {
+
+        const catalogGames = gamesDB.map((game, index) => normalizeGame(game, index, 'moneybot'));
+        const classicGames = classicsDB.map((game, index) => normalizeGame(game, index, 'classic'));
+        let visibleGames = [...catalogGames, ...classicGames];
+
+        function escapeHtml(value) {
+            return String(value).replace(/[&<>'"]/g, char => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                "'": '&#39;',
+                '"': '&quot;'
+            }[char]));
+        }
+
+        function formatTitle(value) {
+            return String(value)
+                .split(/[-_s]+/)
+                .filter(Boolean)
+                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                .join(' ');
+        }
+
+        function renderGameCard(game, featured = false) {
+            const difficultyClass = game.difficulty === 'classic' ? 'badge-difficulty-easy' : 'badge-difficulty-' + game.difficulty;
+            const featuredClass = featured ? 'featured-game' : '';
+            const newBadge = game.new ? '<span class="game-badge badge-new">New</span>' : '';
+            const featuredBadge = game.featured ? '<span class="game-badge badge-featured">Featured</span>' : '';
+            const externalBadge = game.external ? '<span class="game-badge badge-featured">Classic</span>' : '';
+            const targetAttr = game.external ? ' target="_blank" rel="noopener noreferrer"' : '';
+            const imageHtml = game.image
+                ? '<img src="' + escapeHtml(game.image) + '" alt="' + escapeHtml(game.title) + '" loading="lazy">'
+                : '<div class="game-emoji" aria-hidden="true">' + escapeHtml(game.emoji) + '</div>';
+
+            return [
+                '<a href="' + escapeHtml(game.url) + '" class="game-card ' + featuredClass + '" data-category="' + escapeHtml(game.category) + '" data-type="' + escapeHtml(game.type) + '" data-name="' + escapeHtml(game.title.toLowerCase()) + '" data-search="' + escapeHtml(game.searchText) + '"' + targetAttr + '>',
+                '<div class="game-image">',
+                imageHtml,
+                '<div class="game-image-overlay">',
+                newBadge, featuredBadge, externalBadge,
+                '<span class="game-badge ' + difficultyClass + '">' + escapeHtml(formatTitle(game.difficulty)) + '</span>',
+                '</div></div>',
+                '<div class="game-info">',
+                '<h3 class="game-title">' + escapeHtml(game.title) + '</h3>',
+                '<div class="game-meta"><span class="game-tag">' + escapeHtml(formatTitle(game.category)) + '</span><span class="game-tag">' + Number(game.plays).toLocaleString() + ' plays</span></div>',
+                '<p class="game-desc">' + escapeHtml(game.description) + '</p>',
+                '<div class="game-footer"><span class="game-play-btn">' + (game.external ? 'Open Classic →' : 'Play Now →') + '</span><div class="game-stats"><span class="game-stat">⭐ ' + game.rating + '</span></div></div>',
+                '</div></a>'
+            ].join('');
+        }
+
+        function init() {
+            const searchBox = document.getElementById('searchBox');
             const sortSelect = document.getElementById('sortSelect');
-            const allGamesSection = document.getElementById('all-games');
-            const otherSections = document.querySelectorAll('.section:not(#all-games)');
-            const searchInput = document.getElementById('gameSearch');
-            const categoryTabs = document.querySelectorAll('.category-tab');
-            
-            sortSelect.addEventListener('change', () => {
-                const sortType = sortSelect.value;
-                let sorted = [...gamesDB];
-                
-                switch(sortType) {
-                    case 'az':
-                        sorted.sort((a, b) => a.title.localeCompare(b.title));
-                        break;
-                    case 'played':
-                        sorted.sort((a, b) => (b.plays || 0) - (a.plays || 0));
-                        break;
-                    case 'difficulty':
-                        const diffOrder = { easy: 1, medium: 2, hard: 3 };
-                        sorted.sort((a, b) => (diffOrder[a.difficulty] || 99) - (diffOrder[b.difficulty] || 99));
-                        break;
-                    case 'newest':
-                    default:
-                        // Keep original order (newest first) - games with 'new' flag first
-                        sorted.sort((a, b) => {
-                            if (a.new && !b.new) return -1;
-                            if (!a.new && b.new) return 1;
-                            return 0;
-                        });
-                        break;
-                }
-                
-                // Clear search and category selection
-                searchInput.value = '';
-                categoryTabs.forEach(t => t.classList.remove('active'));
-                document.querySelector('[data-category="all"]').classList.add('active');
-                
-                // Re-render with sorted data
-                otherSections.forEach(s => s.style.display = 'none');
-                allGamesSection.style.display = 'block';
-                
-                document.getElementById('search-results').innerHTML = sorted.map(g => createGameCard(g)).join('');
-                document.getElementById('search-count').textContent = `${sorted.length} games`;
-                document.querySelector('#all-games .section-title').textContent = `🔍 All Games (${sortSelect.options[sortSelect.selectedIndex].text})`;
-                document.getElementById('no-results').style.display = 'none';
-                
-                // Scroll to results with offset
-                const headerOffset = 180;
-                const elementPosition = allGamesSection.getBoundingClientRect().top;
-                const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-                window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
-            });
-        }
-        
-        // Collapsible sections
-        function setupCollapsible() {
-            document.querySelectorAll('.collapse-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    const targetId = btn.dataset.target;
-                    const target = document.getElementById(targetId);
-                    
-                    if (!target) return;
-                    
-                    if (target.classList.contains('collapsed')) {
-                        target.classList.remove('collapsed');
-                        btn.textContent = 'Collapse';
-                    } else {
-                        target.classList.add('collapsed');
-                        btn.textContent = 'Expand';
-                    }
+            const filterTags = document.querySelectorAll('.filter-tag');
+
+            renderCatalog();
+
+            searchBox.addEventListener('input', applyFilters);
+            sortSelect.addEventListener('change', applyFilters);
+
+            filterTags.forEach(tag => {
+                tag.addEventListener('click', () => {
+                    filterTags.forEach(t => t.classList.remove('active'));
+                    tag.classList.add('active');
+                    applyFilters();
                 });
             });
         }
-        
-        // Smooth scroll for nav links
-        function setupNavLinks() {
-            document.querySelectorAll('.nav-links a').forEach(link => {
-                link.addEventListener('click', (e) => {
-                    const href = link.getAttribute('href');
-                    if (href.startsWith('#')) {
-                        e.preventDefault();
-                        const target = document.querySelector(href);
-                        if (target) {
-                            // Account for sticky header height (60px nav + ~110px filter bar)
-                            const headerOffset = 180;
-                            const elementPosition = target.getBoundingClientRect().top;
-                            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-                            
-                            window.scrollTo({
-                                top: offsetPosition,
-                                behavior: 'smooth'
-                            });
-                        }
-                    }
-                });
+
+        function renderCatalog() {
+            const featuredGrid = document.getElementById('featuredGrid');
+            const allGamesGrid = document.getElementById('allGamesGrid');
+            const featuredGames = catalogGames.filter(g => g.featured).slice(0, 5);
+
+            featuredGrid.innerHTML = featuredGames.map(g => renderGameCard(g, true)).join('');
+            allGamesGrid.innerHTML = visibleGames.map(g => renderGameCard(g)).join('') || renderNoResults();
+
+            const featuredCount = document.querySelector('#featured .section-count');
+            const allGamesCount = document.getElementById('allGamesCount');
+            if (featuredCount) featuredCount.textContent = featuredGames.length + ' featured';
+            if (allGamesCount) allGamesCount.textContent = visibleGames.length + ' games';
+
+            updateHeroStats();
+        }
+
+        function applyFilters() {
+            const searchBox = document.getElementById('searchBox');
+            const query = searchBox.value.trim().toLowerCase();
+            const category = getActiveFilter();
+            const sortType = document.getElementById('sortSelect').value;
+
+            visibleGames = [...catalogGames, ...classicGames].filter(game => {
+                const matchesSearch = !query || game.searchText.includes(query);
+                const matchesCategory = category === 'all' || game.category === category || game.type === category || CATEGORY_ALIASES[game.category]?.includes(category) || CATEGORY_ALIASES[game.type]?.includes(category);
+                return matchesSearch && matchesCategory;
             });
+
+            visibleGames.sort(getSorter(sortType));
+            renderCatalog();
         }
-        
-        // Join Waitlist
-        function joinWaitlist() {
-            alert('🎉 You\'re on the MoneyBot Mobile waitlist! We\'ll notify you when the iOS & Android apps launch.');
+
+        function getActiveFilter() {
+            const active = document.querySelector('.filter-tag.active');
+            return active ? active.dataset.filter : 'all';
         }
-        
-        // Initialize
-        document.addEventListener('DOMContentLoaded', () => {
-            renderGames();
-            setupSearch();
-            setupCategoryFilter();
-            setupSort();
-            setupCollapsible();
-            setupNavLinks();
-            
-            // Handle initial hash in URL
-            if (window.location.hash) {
-                setTimeout(() => {
-                    const target = document.querySelector(window.location.hash);
-                    if (target) {
-                        const headerOffset = 180;
-                        const elementPosition = target.getBoundingClientRect().top;
-                        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-                        window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
-                    }
-                }, 100);
+
+        function getSorter(sortType) {
+            const difficultyOrder = { easy: 1, medium: 2, hard: 3, classic: 4 };
+            switch (sortType) {
+                case 'newest':
+                    return (a, b) => Number(b.new) - Number(a.new) || Number(b.featured) - Number(a.featured) || b.plays - a.plays;
+                case 'name':
+                    return (a, b) => a.title.localeCompare(b.title);
+                case 'difficulty':
+                    return (a, b) => (difficultyOrder[a.difficulty] || 99) - (difficultyOrder[b.difficulty] || 99) || a.title.localeCompare(b.title);
+                case 'featured':
+                default:
+                    return (a, b) => Number(b.featured) - Number(a.featured) || b.plays - a.plays || a.title.localeCompare(b.title);
             }
-        });
+        }
+
+        function renderNoResults() {
+            return '<div class="no-results"><div class="no-results-icon">🔎</div><h3>No games found</h3><p>Try another search or filter.</p></div>';
+        }
+
+        function updateHeroStats() {
+            const statNumbers = document.querySelectorAll('.hero-stat-number');
+            if (statNumbers[0]) statNumbers[0].textContent = (catalogGames.length + classicGames.length) + '+';
+            if (statNumbers[1]) statNumbers[1].textContent = new Set(catalogGames.map(g => g.category)).size;
+            if (statNumbers[2]) statNumbers[2].textContent = Math.round(catalogGames.reduce((sum, game) => sum + Number(game.plays || 0), 0) / 1000) + 'K+';
+
+            const heroBadgeText = document.querySelector('.hero-badge span:last-child');
+            if (heroBadgeText) heroBadgeText.textContent = (catalogGames.length + classicGames.length) + ' Financial Education Games';
+        }
+
+        init();
     </script>
 </body>
 </html>
