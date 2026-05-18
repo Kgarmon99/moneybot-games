@@ -48,7 +48,7 @@ body, html {
   background: var(--mb-ink);
   overflow-y: auto;
 }
-.screen.active { display: flex; }
+.screen.active { display: flex !important; }
 
 .logo-area { text-align: center; margin: 20px 0 30px; }
 .mascot { font-size: 48px; line-height: 1; margin-bottom: 12px; }
