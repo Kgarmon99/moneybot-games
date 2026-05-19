@@ -1191,6 +1191,14 @@
       "difficulty": "medium",
       "xp": 150,
       "coins": 100
+    },
+    {
+      "id": "bot-freelancer-agency",
+      "name": "Freelancer to Agency",
+      "category": "career",
+      "difficulty": "medium",
+      "xp": 150,
+      "coins": 100
     }
   ]
 }

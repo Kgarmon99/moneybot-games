@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Crypto Trading Sim — MoneyBot</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="s.css?v=4">
+</head>
+<body>
+<div id="game-shell">
+  <!-- START SCREEN -->
+  <div id="screen-start" class="screen active">
+    <div class="start-bg"></div>
+    <div class="start-content">
+      <div class="mascot-avatar">🤖</div>
+      <h1>Crypto Trading Sim</h1>
+      <p class="tagline">Learn risk management, position sizing, and emotional discipline.</p>
+      <div class="start-stats">
+        <div class="ss-row"><span>Start with</span><strong>$10,000</strong></div>
+        <div class="ss-row"><span>Goal</span><strong>$1,000,000</strong></div>
+        <div class="ss-row"><span>Trade</span><strong>5 Coins</strong></div>
+        <div class="ss-row"><span>Leverage</span><strong>Up to 10x</strong></div>
+      </div>
+      <button id="btn-start" class="btn-primary">Start Trading</button>
+      <p class="demo-label">[DEMO] — Simulated market data. Not financial advice.</p>
+    </div>
+  </div>
+
+  <!-- GAMEPLAY SCREEN -->
+  <div id="screen-game" class="screen">
+    <!-- Top HUD -->
+    <div class="hud">
+      <div class="hud-pill">
+        <span class="hud-label">Day</span>
+        <span id="hud-day" class="hud-value">1</span>
+      </div>
+      <div class="hud-pill hud-gold">
+        <span class="hud-label">Portfolio</span>
+        <span id="hud-portfolio" class="hud-value">$10,000</span>
+      </div>
+      <div class="hud-pill">
+        <span class="hud-label">Cash</span>
+        <span id="hud-cash" class="hud-value">$10,000</span>
+      </div>
+      <div class="hud-pill" id="hud-pnl-wrap">
+        <span class="hud-label">P&L</span>
+        <span id="hud-pnl" class="hud-value">$0</span>
+      </div>
+    </div>
+
+    <!-- Progress to goal -->
+    <div class="goal-bar">
+      <div class="goal-track">
+        <div id="goal-fill" class="goal-fill" style="width:1%"></div>
+      </div>
+      <div class="goal-labels"><span>$10K</span><span>$1M</span></div>
+    </div>
+
+    <!-- Market Event Banner -->
+    <div id="event-banner" class="event-banner hidden">
+      <span id="event-icon">📰</span>
+      <span id="event-text">Market is calm</span>
+    </div>
+
+    <!-- Coin Cards -->
+    <div id="coin-list" class="coin-list"></div>
+
+    <!-- Trade Panel (modal-like overlay) -->
+    <div id="trade-panel" class="trade-panel hidden">
+      <div class="tp-header">
+        <h3 id="tp-title">Trade BTC</h3>
+        <button id="tp-close" class="tp-close">&times;</button>
+      </div>
+      <div class="tp-price">
+        <span id="tp-price-label">Price</span>
+        <span id="tp-price-value">$0</span>
+      </div>
+      <div class="tp-position" id="tp-position-info">
+        <span>Position: <strong id="tp-pos-shares">0</strong> coins</span>
+        <span>Avg: <strong id="tp-pos-avg">$0</strong></span>
+        <span>Unrealized: <strong id="tp-pos-unreal">$0</strong></span>
+      </div>
+
+      <div class="tp-tabs">
+        <button class="tp-tab active" data-tab="buy">Buy</button>
+        <button class="tp-tab" data-tab="sell">Sell</button>
+      </div>
+
+      <div class="tp-body">
+        <div class="tp-row">
+          <label>Amount ($)</label>
+          <input type="number" id="tp-amount" placeholder="0" min="1" step="10">
+        </div>
+        <div class="tp-quick">
+          <button data-pct="10">10%</button>
+          <button data-pct="25">25%</button>
+          <button data-pct="50">50%</button>
+          <button data-pct="100">Max</button>
+        </div>
+        <div class="tp-row">
+          <label>Leverage</label>
+          <div class="leverage-toggle">
+            <button data-lev="1" class="active">1x</button>
+            <button data-lev="2">2x</button>
+            <button data-lev="5">5x</button>
+            <button data-lev="10">10x</button>
+          </div>
+        </div>
+        <div class="tp-row">
+          <label>Stop-Loss (% below entry)</label>
+          <input type="number" id="tp-stop" placeholder="None" min="1" max="95" step="1">
+        </div>
+        <div class="tp-row">
+          <label>Take-Profit (% above entry)</label>
+          <input type="number" id="tp-take" placeholder="None" min="1" max="1000" step="1">
+        </div>
+        <div class="tp-summary" id="tp-summary"></div>
+        <button id="tp-action" class="btn-primary btn-full">Buy</button>
+      </div>
+    </div>
+
+    <!-- Bottom Controls -->
+    <div class="game-controls">
+      <button id="btn-next-day" class="btn-primary">Next Day</button>
+      <button id="btn-portfolio" class="btn-secondary">Portfolio</button>
+      <button id="btn-pause" class="btn-secondary">Pause</button>
+    </div>
+  </div>
+
+  <!-- PORTFOLIO MODAL -->
+  <div id="modal-portfolio" class="modal hidden">
+    <div class="modal-panel">
+      <div class="modal-header">
+        <h2>Portfolio</h2>
+        <button class="modal-close" data-close="modal-portfolio">&times;</button>
+      </div>
+      <div class="port-summary">
+        <div class="ps-row"><span>Total Value</span><strong id="port-total">$0</strong></div>
+        <div class="ps-row"><span>Cash</span><strong id="port-cash">$0</strong></div>
+        <div class="ps-row"><span>Invested</span><strong id="port-invested">$0</strong></div>
+        <div class="ps-row"><span>Realized Gains</span><strong id="port-realized">$0</strong></div>
+        <div class="ps-row"><span>Unrealized P&L</span><strong id="port-unreal">$0</strong></div>
+        <div class="ps-row"><span>Win Rate</span><strong id="port-winrate">0%</strong></div>
+        <div class="ps-row"><span>Tax Owed (est.)</span><strong id="port-tax">$0</strong></div>
+        <div class="ps-row"><span>Max Drawdown</span><strong id="port-drawdown">0%</strong></div>
+      </div>
+      <h3 class="modal-sub">Positions</h3>
+      <div id="port-positions" class="port-positions"></div>
+      <h3 class="modal-sub">History</h3>
+      <div id="port-history" class="port-history"></div>
+    </div>
+  </div>
+
+  <!-- PAUSE MODAL -->
+  <div id="modal-pause" class="modal hidden">
+    <div class="modal-panel modal-small">
+      <h2>Paused</h2>
+      <button id="btn-resume" class="btn-primary btn-full">Resume</button>
+      <button id="btn-restart" class="btn-secondary btn-full">Restart</button>
+    </div>
+  </div>
+
+  <!-- WIN MODAL -->
+  <div id="modal-win" class="modal hidden">
+    <div class="modal-panel">
+      <div class="mascot-avatar">🤖</div>
+      <h2 class="win-title">$1,000,000!</h2>
+      <p class="win-sub">You mastered the market.</p>
+      <div class="win-stats">
+        <div><span>Days</span><strong id="win-days">0</strong></div>
+        <div><span>Win Rate</span><strong id="win-winrate">0%</strong></div>
+        <div><span>Tax Paid</span><strong id="win-tax">$0</strong></div>
+        <div><span>Max Drawdown</span><strong id="win-drawdown">0%</strong></div>
+      </div>
+      <button id="btn-play-again-win" class="btn-primary btn-full">Play Again</button>
+    </div>
+  </div>
+
+  <!-- LOSS MODAL -->
+  <div id="modal-loss" class="modal hidden">
+    <div class="modal-panel">
+      <div class="mascot-avatar">🤖</div>
+      <h2 class="loss-title">Liquidated</h2>
+      <p class="loss-sub" id="loss-reason">Leverage wiped you out.</p>
+      <div class="loss-stats">
+        <div><span>Days Survived</span><strong id="loss-days">0</strong></div>
+        <div><span>Final Portfolio</span><strong id="loss-final">$0</strong></div>
+        <div><span>Win Rate</span><strong id="loss-winrate">0%</strong></div>
+        <div><span>Tax Paid</span><strong id="loss-tax">$0</strong></div>
+      </div>
+      <p class="loss-tip" id="loss-tip">Tip: Use stop-losses and avoid max leverage on volatile coins.</p>
+      <button id="btn-play-again-loss" class="btn-primary btn-full">Try Again</button>
+    </div>
+  </div>
+
+  <!-- TAX REPORT MODAL -->
+  <div id="modal-tax" class="modal hidden">
+    <div class="modal-panel">
+      <div class="modal-header">
+        <h2>Tax Report — Year <span id="tax-year">1</span></h2>
+        <button class="modal-close" data-close="modal-tax">&times;</button>
+      </div>
+      <div class="tax-summary">
+        <div class="ts-row"><span>Short-term gains</span><strong id="tax-st-gains">$0</strong></div>
+        <div class="ts-row"><span>Short-term tax (35%)</span><strong id="tax-st-tax">$0</strong></div>
+        <div class="ts-row"><span>Long-term gains</span><strong id="tax-lt-gains">$0</strong></div>
+        <div class="ts-row"><span>Long-term tax (15%)</span><strong id="tax-lt-tax">$0</strong></div>
+        <div class="ts-row ts-total"><span>Total tax owed</span><strong id="tax-total">$0</strong></div>
+      </div>
+      <p class="tax-note">Short-term = held &lt; 30 days. Long-term = held &ge; 30 days. Taxes auto-deducted from cash.</p>
+      <button id="btn-tax-ok" class="btn-primary btn-full">Continue</button>
+    </div>
+  </div>
+
+  <!-- Toast container -->
+  <div id="toast-container"></div>
+</div>
+<script src="g.js?v=4"></script>
+</body>
+</html>

@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>E-commerce Empire</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="s.css?v=4">
+</head>
+<body>
+    <div id="app">
+        <!-- HUD -->
+        <header id="hud" class="hidden">
+            <div class="hud-row">
+                <div class="hud-pill">
+                    <span class="hud-label">DAY</span>
+                    <span id="day-val" class="hud-value">1</span>
+                </div>
+                <div class="hud-pill">
+                    <span class="hud-label">STREAK</span>
+                    <span id="streak-val" class="hud-value">0</span>
+                </div>
+                <div class="hud-pill cash">
+                    <span class="hud-label">CASH</span>
+                    <span id="cash-val" class="hud-value">$10K</span>
+                </div>
+            </div>
+            <div class="hud-row metrics">
+                <div class="metric">
+                    <span class="metric-label">INVENTORY</span>
+                    <span id="inv-val" class="metric-value">0</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">REVENUE</span>
+                    <span id="rev-val" class="metric-value">$0</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">PROFIT</span>
+                    <span id="profit-val" class="metric-value">$0</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">RATING</span>
+                    <span id="rating-val" class="metric-value">⭐ 3.0</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Start Screen -->
+        <div id="start-screen" class="screen active">
+            <div class="logo-area">
+                <div class="mascot">🛒</div>
+                <h1>E-COMMERCE<br><span class="highlight">EMPIRE</span></h1>
+                <p class="tagline">Source. Price. Advertise. Ship. Profit.</p>
+            </div>
+            <div class="instructions">
+                <div class="inst-item"><span class="inst-icon">📦</span> Source products from suppliers</div>
+                <div class="inst-item"><span class="inst-icon">🏷️</span> Set prices — too high kills sales</div>
+                <div class="inst-item"><span class="inst-icon">📢</span> Run ads — budget vs reach</div>
+                <div class="inst-item"><span class="inst-icon">📊</span> Watch cashflow — you pay first, customers pay later</div>
+            </div>
+            <div class="win-target">
+                <div class="target-row"><span>Win:</span> <span class="good">$500K profit</span> or <span class="good">50K units sold</span></div>
+                <div class="target-row"><span>Lose:</span> <span class="danger">Cash hits $0</span></div>
+            </div>
+            <button id="btn-start" class="btn-primary">Open Store</button>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="game-screen" class="screen">
+            <!-- Season / Event Banner -->
+            <div id="event-banner" class="event-banner hidden"></div>
+
+            <!-- Phase: Source -->
+            <div id="phase-source" class="phase-panel">
+                <div class="phase-header">
+                    <span class="phase-icon">📦</span>
+                    <span class="phase-title">Source Products</span>
+                </div>
+                <div class="suppliers-grid" id="suppliers-list"></div>
+            </div>
+
+            <!-- Phase: Price -->
+            <div id="phase-price" class="phase-panel hidden">
+                <div class="phase-header">
+                    <span class="phase-icon">🏷️</span>
+                    <span class="phase-title">Set Price</span>
+                </div>
+                <div class="price-card">
+                    <div class="price-info">
+                        <div class="price-row"><span>Unit Cost</span><span id="unit-cost" class="price-value">$5.00</span></div>
+                        <div class="price-row"><span>Your Price</span><span id="your-price" class="price-value good">$10.00</span></div>
+                        <div class="price-row"><span>Margin</span><span id="margin-pct" class="price-value">50%</span></div>
+                    </div>
+                    <div class="slider-wrap">
+                        <input type="range" id="price-slider" min="1" max="50" step="0.5" value="10">
+                        <div class="slider-labels"><span>$1</span><span>$50</span></div>
+                    </div>
+                    <div class="conversion-est">
+                        <span>Est. conversion:</span>
+                        <span id="conversion-rate" class="good">8.5%</span>
+                    </div>
+                </div>
+                <button id="btn-confirm-price" class="btn-primary">Set Price</button>
+            </div>
+
+            <!-- Phase: Ads -->
+            <div id="phase-ads" class="phase-panel hidden">
+                <div class="phase-header">
+                    <span class="phase-icon">📢</span>
+                    <span class="phase-title">Run Ads</span>
+                </div>
+                <div class="ads-card">
+                    <div class="ads-info">
+                        <div class="ads-row"><span>Daily Budget</span><span id="ad-budget" class="price-value">$200</span></div>
+                        <div class="ads-row"><span>Est. Reach</span><span id="ad-reach" class="price-value">2,000</span></div>
+                        <div class="ads-row"><span>Est. Visitors</span><span id="ad-visitors" class="price-value">170</span></div>
+                    </div>
+                    <div class="slider-wrap">
+                        <input type="range" id="ad-slider" min="0" max="2000" step="50" value="200">
+                        <div class="slider-labels"><span>$0</span><span>$2,000</span></div>
+                    </div>
+                    <div class="ad-tip">Higher budgets have diminishing returns. Test and learn.</div>
+                </div>
+                <button id="btn-confirm-ads" class="btn-primary">Launch Campaign</button>
+            </div>
+
+            <!-- Phase: Results -->
+            <div id="phase-results" class="phase-panel hidden">
+                <div class="phase-header">
+                    <span class="phase-icon">📊</span>
+                    <span class="phase-title">Daily Results</span>
+                </div>
+                <div class="results-card">
+                    <div class="result-row"><span>Visitors</span><span id="res-visitors">0</span></div>
+                    <div class="result-row"><span>Orders</span><span id="res-orders">0</span></div>
+                    <div class="result-row"><span>Revenue</span><span id="res-revenue">$0</span></div>
+                    <div class="result-row"><span>Ad Spend</span><span id="res-adspend" class="danger">-$0</span></div>
+                    <div class="result-row"><span>Shipping</span><span id="res-shipping" class="danger">-$0</span></div>
+                    <div class="result-row"><span>Returns</span><span id="res-returns" class="danger">-$0</span></div>
+                    <div class="result-row"><span>Carrying Cost</span><span id="res-carrying" class="danger">-$0</span></div>
+                    <div class="result-row highlight"><span>Net Profit</span><span id="res-profit">$0</span></div>
+                    <div class="result-row"><span>Inventory Left</span><span id="res-inventory">0</span></div>
+                    <div class="result-row"><span>New Reviews</span><span id="res-reviews">0</span></div>
+                </div>
+                <div id="review-flash" class="review-flash hidden"></div>
+                <button id="btn-next-day" class="btn-primary">Next Day →</button>
+            </div>
+        </div>
+
+        <!-- Win Screen -->
+        <div id="win-screen" class="screen">
+            <div class="mascot big">🏆</div>
+            <h1>EMPIRE<br><span class="highlight">BUILT</span></h1>
+            <p class="subtitle">You mastered e-commerce cashflow.</p>
+            <div class="final-stats" id="win-stats"></div>
+            <div class="tip-box" id="win-tip"></div>
+            <button id="btn-replay-win" class="btn-primary">Play Again</button>
+        </div>
+
+        <!-- Loss Screen -->
+        <div id="loss-screen" class="screen">
+            <div class="mascot big">💸</div>
+            <h1 class="danger">OUT OF<br>CASH</h1>
+            <p class="subtitle">Your store couldn't stay afloat.</p>
+            <div class="final-stats" id="loss-stats"></div>
+            <div class="tip-box" id="loss-tip"></div>
+            <button id="btn-replay-loss" class="btn-primary">Try Again</button>
+        </div>
+    </div>
+
+    <script src="g.js?v=4"></script>
+</body>
+</html>

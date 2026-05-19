@@ -1,0 +1,1341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>E-commerce Empire</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>:root {
+  --mb-green: #00E676;
+  --mb-green-dark: #00C853;
+  --mb-green-soft: #69F0AE;
+  --mb-ink: #07111F;
+  --mb-ink-2: #0B1628;
+  --mb-panel: rgba(10, 24, 42, 0.92);
+  --mb-line: rgba(105, 240, 174, 0.2);
+  --mb-white: #F8FAFC;
+  --mb-muted: #94A3B8;
+  --mb-gold: #FBBF24;
+  --mb-red: #FB7185;
+  --mb-blue: #38BDF8;
+  --mb-purple: #A78BFA;
+  --mb-radius: 16px;
+  --mb-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  --mb-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body, html {
+  width: 100%; height: 100%;
+  background: var(--mb-ink);
+  color: var(--mb-white);
+  font-family: 'Outfit', sans-serif;
+  user-select: none;
+  overflow: hidden;
+}
+
+#app {
+  max-width: 480px;
+  margin: 0 auto;
+  height: 100%;
+  position: relative;
+  background: var(--mb-ink);
+  display: flex;
+  flex-direction: column;
+}
+
+/* ===== SCREENS ===== */
+.screen {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  padding: 24px 20px;
+  display: none;
+  flex-direction: column;
+  background: var(--mb-ink);
+  overflow-y: auto;
+}
+
+/* ===== START SCREEN ===== */
+.logo-area { text-align: center; margin: 10px 0 24px; }
+.mascot { font-size: 48px; line-height: 1; margin-bottom: 12px; }
+.mascot.big { font-size: 72px; margin-bottom: 16px; }
+
+h1 {
+  font-size: 38px;
+  font-weight: 900;
+  line-height: 1.05;
+  letter-spacing: -1px;
+}
+h1 .highlight { color: var(--mb-green); }
+h1.danger { color: var(--mb-red); }
+
+.tagline {
+  font-size: 16px;
+  color: var(--mb-muted);
+  margin-top: 10px;
+  font-weight: 600;
+}
+
+.instructions {
+  background: var(--mb-panel);
+  border: 1px solid var(--mb-line);
+  border-radius: var(--mb-radius);
+  padding: 18px;
+  margin-bottom: 20px;
+}
+.inst-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--mb-line);
+}
+.inst-item:last-child { border-bottom: none; }
+.inst-icon { font-size: 20px; }
+
+.win-target {
+  background: var(--mb-panel);
+  border: 1px solid var(--mb-line);
+  border-radius: var(--mb-radius);
+  padding: 14px 18px;
+  margin-bottom: 24px;
+}
+.target-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 6px 0;
+}
+.target-row span:first-child { color: var(--mb-muted); }
+
+/* ===== HUD ===== */
+#hud {
+  z-index: 30;
+  padding: 12px 16px;
+  background: linear-gradient(to bottom, rgba(7,17,31,0.95), rgba(7,17,31,0.7));
+  border-bottom: 1px solid var(--mb-line);
+  flex-shrink: 0;
+}
+
+.hud-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.hud-row:last-child { margin-bottom: 0; }
+.hud-row.metrics { gap: 12px; justify-content: space-between; }
+
+.hud-pill {
+  flex: 1;
+  background: var(--mb-panel);
+  border: 1px solid var(--mb-line);
+  border-radius: 12px;
+  padding: 10px 12px;
+  text-align: center;
+}
+.hud-pill.cash { border-color: rgba(0,230,118,0.4); }
+
+.hud-label {
+  display: block;
+  font-size: 9px;
+  font-weight: 800;
+  color: var(--mb-muted);
+  letter-spacing: 1.5px;
+  margin-bottom: 4px;
+}
+.hud-value {
+  display: block;
+  font-size: 20px;
+  font-weight: 900;
+  color: var(--mb-white);
+}
+#streak-val { color: var(--mb-gold); }
+#cash-val { color: var(--mb-green-soft); }
+
+.metric { text-align: center; }
+.metric-label {
+  display: block;
+  font-size: 9px;
+  font-weight: 800;
+  color: var(--mb-muted);
+  letter-spacing: 1px;
+}
+.metric-value {
+  display: block;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--mb-white);
+  margin-top: 2px;
+}
+.metric-value.danger { color: var(--mb-red); }
+.metric-value.good { color: var(--mb-green); }
+
+/* ===== GAME SCREEN ===== */
+#game-screen {
+  position: relative;
+  padding-top: 110px;
+  justify-content: flex-start;
+}
+
+.event-banner {
+  background: linear-gradient(90deg, rgba(251,113,133,0.2), rgba(251,113,133,0.05));
+  border-left: 3px solid var(--mb-red);
+  padding: 12px 16px;
+  margin: 0 0 14px;
+  border-radius: 0 12px 12px 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--mb-red);
+  animation: slideIn 0.3s var(--mb-spring);
+}
+.event-banner.good {
+  background: linear-gradient(90deg, rgba(0,230,118,0.2), rgba(0,230,118,0.05));
+  border-left-color: var(--mb-green);
+  color: var(--mb-green);
+}
+.event-banner.gold {
+  background: linear-gradient(90deg, rgba(251,191,36,0.2), rgba(251,191,36,0.05));
+  border-left-color: var(--mb-gold);
+  color: var(--mb-gold);
+}
+
+@keyframes slideIn {
+  from { transform: translateX(-20px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+/* ===== PHASE PANELS ===== */
+.phase-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  animation: popIn 0.25s var(--mb-spring);
+}
+@keyframes popIn {
+  from { transform: scale(0.96); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.phase-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+.phase-icon { font-size: 24px; }
+.phase-title {
+  font-size: 20px;
+  font-weight: 900;
+  color: var(--mb-white);
+  letter-spacing: -0.5px;
+}
+
+/* ===== SUPPLIERS ===== */
+.suppliers-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.supplier-card {
+  background: var(--mb-panel);
+  border: 1px solid var(--mb-line);
+  border-radius: 16px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.15s;
+  position: relative;
+  overflow: hidden;
+}
+.supplier-card::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 4px;
+  background: var(--mb-green);
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.supplier-card:hover::before, .supplier-card:active::before { opacity: 1; }
+.supplier-card:hover {
+  border-color: rgba(105, 240, 174, 0.5);
+  transform: translateX(4px);
+}
+.supplier-card:active { transform: scale(0.98); }
+.supplier-card.locked {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.supplier-card.locked:hover { transform: none; border-color: var(--mb-line); }
+.supplier-card.locked::before { display: none; }
+
+.supplier-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.supplier-tier {
+  font-size: 11px;
+  font-weight: 800;
+  padding: 3px 10px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.tier-budget { background: rgba(56,189,248,0.15); color: var(--mb-blue); }
+.tier-standard { background: rgba(0,230,118,0.15); color: var(--mb-green); }
+.tier-premium { background: rgba(251,191,36,0.15); color: var(--mb-gold); }
+.tier-wholesale { background: rgba(167,139,250,0.15); color: var(--mb-purple); }
+
+.supplier-name {
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--mb-white);
+}
+.supplier-desc {
+  font-size: 13px;
+  color: var(--mb-muted);
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+.supplier-stats {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.supplier-stat {
+  font-size: 12px;
+  font-weight: 700;
+}
+.supplier-stat .stat-label { color: var(--mb-muted); margin-right: 4px; }
+.supplier-stat .stat-value { color: var(--mb-white); }
+
+/* ===== PRICE / ADS CARDS ===== */
+.price-card, .ads-card {
+  background: var(--mb-panel);
+  border: 1px solid var(--mb-line);
+  border-radius: var(--mb-radius);
+  padding: 18px;
+}
+
+.price-info, .ads-info {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+.price-row, .ads-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 15px;
+  font-weight: 700;
+}
+.price-row span:first-child, .ads-row span:first-child { color: var(--mb-muted); }
+.price-value { font-weight: 900; font-size: 16px; }
+
+.slider-wrap {
+  margin-bottom: 14px;
+}
+input[type="range"] {
+  width: 100%;
+  height: 8px;
+  border-radius: 4px;
+  background: var(--mb-ink-2);
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--mb-green);
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(0,230,118,0.4);
+}
+input[type="range"]::-moz-range-thumb {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--mb-green);
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 2px 10px rgba(0,230,118,0.4);
+}
+.slider-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--mb-muted);
+  margin-top: 6px;
+  font-weight: 700;
+}
+
+.conversion-est, .ad-tip {
+  text-align: center;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 10px;
+  border-radius: 10px;
+}
+.conversion-est { background: rgba(0,230,118,0.08); color: var(--mb-green); }
+.ad-tip { background: rgba(56,189,248,0.08); color: var(--mb-blue); }
+
+/* ===== RESULTS ===== */
+.results-card {
+  background: var(--mb-panel);
+  border: 1px solid var(--mb-line);
+  border-radius: var(--mb-radius);
+  padding: 16px 20px;
+}
+.result-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 9px 0;
+  font-size: 15px;
+  font-weight: 600;
+  border-bottom: 1px solid var(--mb-line);
+}
+.result-row:last-child { border-bottom: none; }
+.result-row span:first-child { color: var(--mb-muted); }
+.result-row span:last-child { font-weight: 900; font-size: 16px; }
+.result-row.highlight {
+  background: rgba(0,230,118,0.08);
+  margin: 0 -20px;
+  padding: 12px 20px;
+  border-radius: 8px;
+  border-bottom: none;
+}
+.result-row.highlight span:last-child { color: var(--mb-green); font-size: 18px; }
+
+.review-flash {
+  text-align: center;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 10px;
+  border-radius: 10px;
+  animation: popIn 0.3s var(--mb-spring);
+}
+.review-flash.good {
+  background: rgba(0,230,118,0.1);
+  color: var(--mb-green);
+  border: 1px solid rgba(0,230,118,0.3);
+}
+.review-flash.bad {
+  background: rgba(251,113,133,0.1);
+  color: var(--mb-red);
+  border: 1px solid rgba(251,113,133,0.3);
+}
+
+/* ===== WIN / LOSS ===== */
+#win-screen, #loss-screen {
+  justify-content: center;
+  text-align: center;
+}
+#win-screen h2, #loss-screen h2 {
+  font-size: 28px;
+  font-weight: 900;
+  margin-bottom: 20px;
+}
+
+.final-stats {
+  background: var(--mb-panel);
+  border: 1px solid var(--mb-line);
+  border-radius: var(--mb-radius);
+  padding: 16px 20px;
+  margin-bottom: 20px;
+}
+.final-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  font-size: 15px;
+  font-weight: 600;
+  border-bottom: 1px solid var(--mb-line);
+}
+.final-row:last-child { border-bottom: none; }
+.final-row span:first-child { color: var(--mb-muted); }
+.final-row span:last-child { font-weight: 900; font-size: 16px; }
+
+.subtitle {
+  font-size: 16px;
+  color: var(--mb-muted);
+  margin-bottom: 24px;
+}
+
+.tip-box {
+  background: rgba(56,189,248,0.1);
+  border: 1px solid rgba(56,189,248,0.3);
+  border-radius: 12px;
+  padding: 14px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--mb-blue);
+  line-height: 1.4;
+  margin-bottom: 20px;
+}
+
+/* ===== BUTTONS ===== */
+.btn-primary {
+  background: linear-gradient(135deg, var(--mb-green-soft), var(--mb-green-dark));
+  color: var(--mb-ink);
+  font-family: 'Outfit', sans-serif;
+  font-weight: 900;
+  font-size: 18px;
+  padding: 18px;
+  border-radius: 14px;
+  border: none;
+  width: 100%;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: 0 8px 25px rgba(0,230,118,0.25);
+  transition: transform 0.1s;
+  margin-top: 8px;
+}
+.btn-primary:active { transform: scale(0.96); }
+
+.good { color: var(--mb-green) !important; }
+.danger { color: var(--mb-red) !important; }
+
+/* ===== PROGRESS BAR ===== */
+.progress-wrap {
+  background: var(--mb-ink-2);
+  border-radius: 10px;
+  height: 10px;
+  overflow: hidden;
+  margin: 8px 0 16px;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--mb-green-soft), var(--mb-green));
+  border-radius: 10px;
+  transition: width 0.5s var(--mb-spring);
+}
+
+/* ===== MISC ===== */
+.hidden { display: none !important; }
+
+.screen.active { display: flex !important; }
+</style>
+</head>
+<body>
+    <div id="app">
+        <!-- HUD -->
+        <header id="hud" class="hidden">
+            <div class="hud-row">
+                <div class="hud-pill">
+                    <span class="hud-label">DAY</span>
+                    <span id="day-val" class="hud-value">1</span>
+                </div>
+                <div class="hud-pill">
+                    <span class="hud-label">STREAK</span>
+                    <span id="streak-val" class="hud-value">0</span>
+                </div>
+                <div class="hud-pill cash">
+                    <span class="hud-label">CASH</span>
+                    <span id="cash-val" class="hud-value">$10K</span>
+                </div>
+            </div>
+            <div class="hud-row metrics">
+                <div class="metric">
+                    <span class="metric-label">INVENTORY</span>
+                    <span id="inv-val" class="metric-value">0</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">REVENUE</span>
+                    <span id="rev-val" class="metric-value">$0</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">PROFIT</span>
+                    <span id="profit-val" class="metric-value">$0</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">RATING</span>
+                    <span id="rating-val" class="metric-value">⭐ 3.0</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Start Screen -->
+        <div id="start-screen" class="screen active">
+            <div class="logo-area">
+                <div class="mascot">🛒</div>
+                <h1>E-COMMERCE<br><span class="highlight">EMPIRE</span></h1>
+                <p class="tagline">Source. Price. Advertise. Ship. Profit.</p>
+            </div>
+            <div class="instructions">
+                <div class="inst-item"><span class="inst-icon">📦</span> Source products from suppliers</div>
+                <div class="inst-item"><span class="inst-icon">🏷️</span> Set prices — too high kills sales</div>
+                <div class="inst-item"><span class="inst-icon">📢</span> Run ads — budget vs reach</div>
+                <div class="inst-item"><span class="inst-icon">📊</span> Watch cashflow — you pay first, customers pay later</div>
+            </div>
+            <div class="win-target">
+                <div class="target-row"><span>Win:</span> <span class="good">$500K profit</span> or <span class="good">50K units sold</span></div>
+                <div class="target-row"><span>Lose:</span> <span class="danger">Cash hits $0</span></div>
+            </div>
+            <button id="btn-start" class="btn-primary">Open Store</button>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="game-screen" class="screen">
+            <!-- Season / Event Banner -->
+            <div id="event-banner" class="event-banner hidden"></div>
+
+            <!-- Phase: Source -->
+            <div id="phase-source" class="phase-panel">
+                <div class="phase-header">
+                    <span class="phase-icon">📦</span>
+                    <span class="phase-title">Source Products</span>
+                </div>
+                <div class="suppliers-grid" id="suppliers-list"></div>
+            </div>
+
+            <!-- Phase: Price -->
+            <div id="phase-price" class="phase-panel hidden">
+                <div class="phase-header">
+                    <span class="phase-icon">🏷️</span>
+                    <span class="phase-title">Set Price</span>
+                </div>
+                <div class="price-card">
+                    <div class="price-info">
+                        <div class="price-row"><span>Unit Cost</span><span id="unit-cost" class="price-value">$5.00</span></div>
+                        <div class="price-row"><span>Your Price</span><span id="your-price" class="price-value good">$10.00</span></div>
+                        <div class="price-row"><span>Margin</span><span id="margin-pct" class="price-value">50%</span></div>
+                    </div>
+                    <div class="slider-wrap">
+                        <input type="range" id="price-slider" min="1" max="50" step="0.5" value="10">
+                        <div class="slider-labels"><span>$1</span><span>$50</span></div>
+                    </div>
+                    <div class="conversion-est">
+                        <span>Est. conversion:</span>
+                        <span id="conversion-rate" class="good">8.5%</span>
+                    </div>
+                </div>
+                <button id="btn-confirm-price" class="btn-primary">Set Price</button>
+            </div>
+
+            <!-- Phase: Ads -->
+            <div id="phase-ads" class="phase-panel hidden">
+                <div class="phase-header">
+                    <span class="phase-icon">📢</span>
+                    <span class="phase-title">Run Ads</span>
+                </div>
+                <div class="ads-card">
+                    <div class="ads-info">
+                        <div class="ads-row"><span>Daily Budget</span><span id="ad-budget" class="price-value">$200</span></div>
+                        <div class="ads-row"><span>Est. Reach</span><span id="ad-reach" class="price-value">2,000</span></div>
+                        <div class="ads-row"><span>Est. Visitors</span><span id="ad-visitors" class="price-value">170</span></div>
+                    </div>
+                    <div class="slider-wrap">
+                        <input type="range" id="ad-slider" min="0" max="2000" step="50" value="200">
+                        <div class="slider-labels"><span>$0</span><span>$2,000</span></div>
+                    </div>
+                    <div class="ad-tip">Higher budgets have diminishing returns. Test and learn.</div>
+                </div>
+                <button id="btn-confirm-ads" class="btn-primary">Launch Campaign</button>
+            </div>
+
+            <!-- Phase: Results -->
+            <div id="phase-results" class="phase-panel hidden">
+                <div class="phase-header">
+                    <span class="phase-icon">📊</span>
+                    <span class="phase-title">Daily Results</span>
+                </div>
+                <div class="results-card">
+                    <div class="result-row"><span>Visitors</span><span id="res-visitors">0</span></div>
+                    <div class="result-row"><span>Orders</span><span id="res-orders">0</span></div>
+                    <div class="result-row"><span>Revenue</span><span id="res-revenue">$0</span></div>
+                    <div class="result-row"><span>Ad Spend</span><span id="res-adspend" class="danger">-$0</span></div>
+                    <div class="result-row"><span>Shipping</span><span id="res-shipping" class="danger">-$0</span></div>
+                    <div class="result-row"><span>Returns</span><span id="res-returns" class="danger">-$0</span></div>
+                    <div class="result-row"><span>Carrying Cost</span><span id="res-carrying" class="danger">-$0</span></div>
+                    <div class="result-row highlight"><span>Net Profit</span><span id="res-profit">$0</span></div>
+                    <div class="result-row"><span>Inventory Left</span><span id="res-inventory">0</span></div>
+                    <div class="result-row"><span>New Reviews</span><span id="res-reviews">0</span></div>
+                </div>
+                <div id="review-flash" class="review-flash hidden"></div>
+                <button id="btn-next-day" class="btn-primary">Next Day →</button>
+            </div>
+        </div>
+
+        <!-- Win Screen -->
+        <div id="win-screen" class="screen">
+            <div class="mascot big">🏆</div>
+            <h1>EMPIRE<br><span class="highlight">BUILT</span></h1>
+            <p class="subtitle">You mastered e-commerce cashflow.</p>
+            <div class="final-stats" id="win-stats"></div>
+            <div class="tip-box" id="win-tip"></div>
+            <button id="btn-replay-win" class="btn-primary">Play Again</button>
+        </div>
+
+        <!-- Loss Screen -->
+        <div id="loss-screen" class="screen">
+            <div class="mascot big">💸</div>
+            <h1 class="danger">OUT OF<br>CASH</h1>
+            <p class="subtitle">Your store couldn't stay afloat.</p>
+            <div class="final-stats" id="loss-stats"></div>
+            <div class="tip-box" id="loss-tip"></div>
+            <button id="btn-replay-loss" class="btn-primary">Try Again</button>
+        </div>
+    </div>
+
+    <script>(function() {
+  'use strict';
+
+  // ===== CONSTANTS =====
+  const WIN_PROFIT = 500000;
+  const WIN_UNITS = 50000;
+  const START_CASH = 10000;
+  const CARRYING_COST_PER_UNIT = 0.15; // per day per unsold unit
+  const SHIPPING_COST_PER_UNIT = 2.50;
+  const BASE_RETURN_RATE = 0.05; // 5% returns
+  const REVIEW_WEIGHT = 0.08; // each review affects rating by this much
+
+  const SEASONS = [
+    { name: 'Normal', multiplier: 1.0, color: '' },
+    { name: 'Back to School', multiplier: 1.4, color: 'good' },
+    { name: 'Black Friday', multiplier: 2.2, color: 'gold' },
+    { name: 'Holiday Rush', multiplier: 1.8, color: 'gold' },
+    { name: 'Summer Slump', multiplier: 0.7, color: '' },
+  ];
+
+  const SUPPLIERS = [
+    {
+      id: 'budget',
+      name: 'Budget Direct',
+      tier: 'budget',
+      cost: 3.00,
+      quality: 0.6,
+      minOrder: 50,
+      maxOrder: 500,
+      leadTime: 0,
+      desc: 'Cheap, slow shipping, higher returns. Good for testing.',
+      unlockDay: 0,
+    },
+    {
+      id: 'standard',
+      name: 'Standard Wholesale',
+      tier: 'standard',
+      cost: 5.00,
+      quality: 0.85,
+      minOrder: 100,
+      maxOrder: 2000,
+      leadTime: 0,
+      desc: 'Balanced cost and quality. The safe choice.',
+      unlockDay: 0,
+    },
+    {
+      id: 'premium',
+      name: 'Premium Goods Co.',
+      tier: 'premium',
+      cost: 12.00,
+      quality: 0.95,
+      minOrder: 200,
+      maxOrder: 5000,
+      leadTime: 1,
+      desc: 'High quality, low returns. Customers love it.',
+      unlockDay: 7,
+    },
+    {
+      id: 'wholesale',
+      name: 'Global Wholesale Hub',
+      tier: 'wholesale',
+      cost: 8.00,
+      quality: 0.80,
+      minOrder: 1000,
+      maxOrder: 20000,
+      leadTime: 2,
+      desc: 'Massive volume at lower per-unit cost. Requires scale.',
+      unlockDay: 14,
+    },
+  ];
+
+  const EVENTS = [
+    { text: '📦 Supply chain delay! New inventory arrives 1 day late.', effect: 'delay', good: false },
+    { text: '📈 Trending on social! Demand +30% today.', effect: 'viral', good: true },
+    { text: '🚚 Shipping rates spike! Shipping costs +50% today.', effect: 'shipping', good: false },
+    { text: '⭐ Influencer shoutout! Free visitors today.', effect: 'influencer', good: true },
+    { text: '💳 Payment processor down! 20% of sales lost.', effect: 'processor', good: false },
+    { text: '🎁 Bulk corporate order! +50 units sold instantly.', effect: 'corporate', good: true },
+    { text: '📉 Ad costs jump! CPM +40% today.', effect: 'adcost', good: false },
+    { text: '🌟 Customer love week! Reviews are extra positive.', effect: 'love', good: true },
+  ];
+
+  // ===== STATE =====
+  let state = {
+    day: 1,
+    cash: START_CASH,
+    inventory: 0,
+    inventoryIncoming: [], // { units, arrivesDay }
+    totalProfit: 0,
+    totalRevenue: 0,
+    totalUnitsSold: 0,
+    totalUnitsReturned: 0,
+    rating: 3.0,
+    reviewCount: 0,
+    reputation: 0, // 0-100, unlocks better suppliers
+    streak: 0,
+    bestStreak: 0,
+    dailyLog: [],
+    gameOver: false,
+    won: false,
+    // Current day decisions
+    selectedSupplier: null,
+    orderQty: 0,
+    price: 10,
+    adBudget: 200,
+    // Season
+    season: SEASONS[0],
+    seasonDaysLeft: 0,
+    // Event
+    todayEvent: null,
+  };
+
+  // ===== DOM =====
+  const $ = id => document.getElementById(id);
+  const screens = {
+    start: $('start-screen'),
+    game: $('game-screen'),
+    win: $('win-screen'),
+    loss: $('loss-screen'),
+  };
+  const hud = $('hud');
+
+  function fmtMoney(n) {
+    if (Math.abs(n) >= 1000000) return '
+</body>
+</html>
+ + (n / 1000000).toFixed(1) + 'M';
+    if (Math.abs(n) >= 1000) return '
+</body>
+</html>
+ + (n / 1000).toFixed(1) + 'K';
+    return '
+</body>
+</html>
+ + Math.round(n).toLocaleString();
+  }
+
+  function fmtNum(n) {
+    if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
+    if (n >= 1000) return (n / 1000).toFixed(1) + 'K';
+    return n.toLocaleString();
+  }
+
+  // ===== SCREEN MANAGEMENT =====
+  function showScreen(name) {
+    Object.values(screens).forEach(s => s.classList.remove('active'));
+    screens[name].classList.add('active');
+  }
+
+  // ===== HUD =====
+  function updateHUD() {
+    $('day-val').textContent = state.day;
+    $('streak-val').textContent = state.streak;
+    $('cash-val').textContent = fmtMoney(state.cash);
+    $('inv-val').textContent = fmtNum(state.inventory);
+    $('rev-val').textContent = fmtMoney(state.totalRevenue);
+    $('profit-val').textContent = fmtMoney(state.totalProfit);
+    $('profit-val').className = 'metric-value ' + (state.totalProfit >= 0 ? 'good' : 'danger');
+    $('rating-val').textContent = '⭐ ' + state.rating.toFixed(1);
+  }
+
+  // ===== SEASONS =====
+  function pickSeason() {
+    const roll = Math.random();
+    if (roll < 0.45) return SEASONS[0]; // Normal
+    if (roll < 0.60) return SEASONS[4]; // Summer Slump
+    if (roll < 0.75) return SEASONS[1]; // Back to School
+    if (roll < 0.88) return SEASONS[3]; // Holiday Rush
+    return SEASONS[2]; // Black Friday
+  }
+
+  function updateSeason() {
+    if (state.seasonDaysLeft <= 0) {
+      state.season = pickSeason();
+      state.seasonDaysLeft = 3 + Math.floor(Math.random() * 5); // 3-7 days
+    }
+    state.seasonDaysLeft--;
+  }
+
+  function showSeasonBanner() {
+    const banner = $('event-banner');
+    if (state.season.name !== 'Normal') {
+      banner.textContent = `🌟 ${state.season.name}: Demand ${state.season.multiplier >= 1 ? '+' : ''}${Math.round((state.season.multiplier - 1) * 100)}%`;
+      banner.className = 'event-banner ' + (state.season.color || '');
+      banner.classList.remove('hidden');
+    } else {
+      banner.classList.add('hidden');
+    }
+  }
+
+  // ===== EVENTS =====
+  function rollEvent() {
+    if (Math.random() < 0.25) {
+      state.todayEvent = EVENTS[Math.floor(Math.random() * EVENTS.length)];
+    } else {
+      state.todayEvent = null;
+    }
+  }
+
+  function showEventBanner() {
+    if (!state.todayEvent) return;
+    const banner = $('event-banner');
+    banner.textContent = state.todayEvent.text;
+    banner.className = 'event-banner ' + (state.todayEvent.good ? 'good' : '');
+    banner.classList.remove('hidden');
+  }
+
+  // ===== PHASE: SOURCE =====
+  function renderSuppliers() {
+    const container = $('suppliers-list');
+    container.innerHTML = '';
+
+    SUPPLIERS.forEach(s => {
+      const locked = state.day < s.unlockDay;
+      const card = document.createElement('div');
+      card.className = 'supplier-card' + (locked ? ' locked' : '');
+      card.innerHTML = `
+        <div class="supplier-header">
+          <span class="supplier-tier tier-${s.tier}">${s.tier}</span>
+          <span class="supplier-name">${s.name}</span>
+        </div>
+        <div class="supplier-desc">${s.desc}</div>
+        <div class="supplier-stats">
+          <span class="supplier-stat"><span class="stat-label">Cost:</span><span class="stat-value">${s.cost.toFixed(2)}</span></span>
+          <span class="supplier-stat"><span class="stat-label">Quality:</span><span class="stat-value">${Math.round(s.quality * 100)}%</span></span>
+          <span class="supplier-stat"><span class="stat-label">Min:</span><span class="stat-value">${s.minOrder}</span></span>
+          <span class="supplier-stat"><span class="stat-label">Max:</span><span class="stat-value">${fmtNum(s.maxOrder)}</span></span>
+          ${s.leadTime > 0 ? `<span class="supplier-stat"><span class="stat-label">Lead:</span><span class="stat-value">${s.leadTime}d</span></span>` : ''}
+        </div>
+      `;
+      if (!locked) {
+        card.addEventListener('click', () => selectSupplier(s));
+      }
+      container.appendChild(card);
+    });
+  }
+
+  function selectSupplier(supplier) {
+    state.selectedSupplier = supplier;
+    // Default order: min order or affordable max
+    const maxAfford = Math.floor(state.cash / supplier.cost);
+    state.orderQty = Math.min(supplier.maxOrder, Math.max(supplier.minOrder, Math.min(maxAfford, supplier.minOrder * 2)));
+    if (state.orderQty < supplier.minOrder) {
+      // Can't afford even minimum
+      showToast('Not enough cash for minimum order!');
+      return;
+    }
+    showPhase('price');
+  }
+
+  // ===== PHASE: PRICE =====
+  function initPricePhase() {
+    const s = state.selectedSupplier;
+    const slider = $('price-slider');
+    // Set reasonable default price: 2.5x cost minimum
+    const defaultPrice = Math.max(10, s.cost * 2.5);
+    state.price = Math.round(defaultPrice * 2) / 2;
+    slider.min = Math.max(1, s.cost * 1.2);
+    slider.max = Math.max(50, s.cost * 8);
+    slider.step = 0.5;
+    slider.value = state.price;
+    updatePriceDisplay();
+    slider.oninput = updatePriceDisplay;
+    $('btn-confirm-price').onclick = () => showPhase('ads');
+  }
+
+  function updatePriceDisplay() {
+    state.price = parseFloat($('price-slider').value);
+    const s = state.selectedSupplier;
+    $('unit-cost').textContent = '
+</body>
+</html>
+ + s.cost.toFixed(2);
+    $('your-price').textContent = '
+</body>
+</html>
+ + state.price.toFixed(2);
+    const margin = ((state.price - s.cost) / state.price) * 100;
+    $('margin-pct').textContent = margin.toFixed(1) + '%';
+    $('margin-pct').className = 'price-value ' + (margin > 30 ? 'good' : margin > 10 ? '' : 'danger');
+
+    // Conversion estimate based on price relative to "market" price
+    const marketPrice = s.cost * 3;
+    const ratio = state.price / marketPrice;
+    let conversion = 0.12 / Math.pow(ratio, 1.8);
+    conversion = Math.max(0.005, Math.min(0.25, conversion));
+    // Quality bonus
+    conversion *= (0.7 + s.quality * 0.3);
+    // Rating bonus
+    conversion *= (0.8 + (state.rating / 5) * 0.2);
+
+    $('conversion-rate').textContent = (conversion * 100).toFixed(1) + '%';
+  }
+
+  // ===== PHASE: ADS =====
+  function initAdsPhase() {
+    const slider = $('ad-slider');
+    slider.value = state.adBudget;
+    updateAdsDisplay();
+    slider.oninput = updateAdsDisplay;
+    $('btn-confirm-ads').onclick = runDay;
+  }
+
+  function updateAdsDisplay() {
+    state.adBudget = parseInt($('ad-slider').value);
+    $('ad-budget').textContent = fmtMoney(state.adBudget);
+
+    // Reach = budget * CPM factor (diminishing returns)
+    let cpm = 8; // cost per 1000 impressions
+    if (state.adBudget > 500) cpm = 10;
+    if (state.adBudget > 1000) cpm = 14;
+    if (state.adBudget > 1500) cpm = 20;
+
+    // Event: ad costs jump
+    if (state.todayEvent && state.todayEvent.effect === 'adcost') {
+      cpm *= 1.4;
+    }
+
+    const reach = Math.round((state.adBudget / cpm) * 1000);
+    $('ad-reach').textContent = fmtNum(reach);
+
+    // Visitors = reach * CTR (click-through rate)
+    const ctr = 0.035 + (state.reputation / 1000); // 3.5% base + reputation bonus
+    const visitors = Math.round(reach * ctr);
+    $('ad-visitors').textContent = fmtNum(visitors);
+  }
+
+  // ===== RUN DAY =====
+  function runDay() {
+    const s = state.selectedSupplier;
+    const orderCost = state.orderQty * s.cost;
+
+    // Pay supplier upfront
+    state.cash -= orderCost;
+
+    // Add to inventory (with lead time)
+    if (s.leadTime === 0) {
+      state.inventory += state.orderQty;
+    } else {
+      state.inventoryIncoming.push({
+        units: state.orderQty,
+        arrivesDay: state.day + s.leadTime,
+      });
+    }
+
+    // Calculate visitors
+    let cpm = 8;
+    if (state.adBudget > 500) cpm = 10;
+    if (state.adBudget > 1000) cpm = 14;
+    if (state.adBudget > 1500) cpm = 20;
+    if (state.todayEvent && state.todayEvent.effect === 'adcost') cpm *= 1.4;
+
+    let reach = Math.round((state.adBudget / cpm) * 1000);
+    let visitors = Math.round(reach * (0.035 + state.reputation / 1000));
+
+    // Event effects
+    if (state.todayEvent) {
+      if (state.todayEvent.effect === 'viral') visitors = Math.round(visitors * 1.3);
+      if (state.todayEvent.effect === 'influencer') visitors += 500;
+      if (state.todayEvent.effect === 'processor') visitors = Math.round(visitors * 0.8);
+    }
+
+    // Conversion rate
+    const marketPrice = s.cost * 3;
+    const ratio = state.price / marketPrice;
+    let conversion = 0.12 / Math.pow(ratio, 1.8);
+    conversion = Math.max(0.005, Math.min(0.30, conversion));
+    conversion *= (0.7 + s.quality * 0.3);
+    conversion *= (0.8 + (state.rating / 5) * 0.2);
+    conversion *= state.season.multiplier;
+
+    let orders = Math.min(state.inventory, Math.round(visitors * conversion));
+
+    // Event: corporate bulk order
+    if (state.todayEvent && state.todayEvent.effect === 'corporate') {
+      const extra = Math.min(state.inventory - orders, 50);
+      orders += extra;
+    }
+
+    // Revenue
+    const revenue = orders * state.price;
+    state.cash += revenue;
+    state.totalRevenue += revenue;
+    state.totalUnitsSold += orders;
+    state.inventory -= orders;
+
+    // Shipping costs
+    let shippingCost = orders * SHIPPING_COST_PER_UNIT;
+    if (state.todayEvent && state.todayEvent.effect === 'shipping') shippingCost *= 1.5;
+    state.cash -= shippingCost;
+
+    // Returns
+    let returnRate = BASE_RETURN_RATE * (1.6 - s.quality); // lower quality = more returns
+    if (state.todayEvent && state.todayEvent.effect === 'love') returnRate *= 0.5;
+    const returns = Math.round(orders * returnRate);
+    const returnCost = returns * state.price; // refund full price
+    state.cash -= returnCost;
+    state.totalUnitsReturned += returns;
+    // Returns hurt rating
+    if (returns > 0) {
+      state.rating = Math.max(1, state.rating - (returns / Math.max(1, orders)) * 0.3);
+    }
+
+    // Carrying cost for unsold inventory
+    const carryingCost = state.inventory * CARRYING_COST_PER_UNIT;
+    state.cash -= carryingCost;
+
+    // Ad spend
+    state.cash -= state.adBudget;
+
+    // Reviews from satisfied customers
+    const satisfied = orders - returns;
+    const newReviews = Math.max(0, Math.round(satisfied * 0.05));
+    let reviewDelta = 0;
+    for (let i = 0; i < newReviews; i++) {
+      // Review score depends on quality and price fairness
+      const priceFairness = Math.max(0.3, Math.min(1, marketPrice / state.price));
+      const reviewScore = (s.quality * 0.6 + priceFairness * 0.4) * 5;
+      const clamped = Math.max(1, Math.min(5, reviewScore + (Math.random() - 0.5) * 1.5));
+      reviewDelta += (clamped - state.rating) * REVIEW_WEIGHT;
+    }
+    if (newReviews > 0) {
+      state.rating = Math.max(1, Math.min(5, state.rating + reviewDelta));
+      state.reviewCount += newReviews;
+    }
+
+    // Reputation grows with sales
+    state.reputation = Math.min(100, state.reputation + orders * 0.001);
+
+    // Net profit for the day
+    const netProfit = revenue - orderCost - shippingCost - returnCost - carryingCost - state.adBudget;
+    state.totalProfit += netProfit;
+
+    // Streak
+    if (netProfit > 0) {
+      state.streak++;
+      state.bestStreak = Math.max(state.bestStreak, state.streak);
+    } else {
+      state.streak = 0;
+    }
+
+    // Log
+    state.dailyLog.push({
+      day: state.day,
+      revenue,
+      netProfit,
+      orders,
+      visitors,
+      returns,
+    });
+
+    // Show results
+    showResults({
+      visitors,
+      orders,
+      revenue,
+      adSpend: state.adBudget,
+      shippingCost,
+      returnCost,
+      carryingCost,
+      netProfit,
+      inventory: state.inventory,
+      newReviews,
+    });
+  }
+
+  function showResults(r) {
+    $('res-visitors').textContent = fmtNum(r.visitors);
+    $('res-orders').textContent = fmtNum(r.orders);
+    $('res-revenue').textContent = fmtMoney(r.revenue);
+    $('res-adspend').textContent = '-' + fmtMoney(r.adSpend);
+    $('res-shipping').textContent = '-' + fmtMoney(r.shippingCost);
+    $('res-returns').textContent = '-' + fmtMoney(r.returnCost);
+    $('res-carrying').textContent = '-' + fmtMoney(r.carryingCost);
+    $('res-profit').textContent = (r.netProfit >= 0 ? '+' : '') + fmtMoney(r.netProfit);
+    $('res-profit').className = r.netProfit >= 0 ? 'good' : 'danger';
+    $('res-inventory').textContent = fmtNum(r.inventory);
+    $('res-reviews').textContent = r.newReviews > 0 ? `${r.newReviews} new` : '0';
+
+    const reviewFlash = $('review-flash');
+    if (r.newReviews > 0) {
+      const avgSentiment = state.rating >= 4 ? 'Customers love it!' : state.rating >= 3 ? 'Mixed reviews.' : 'Customers are unhappy.';
+      reviewFlash.textContent = `⭐ Rating: ${state.rating.toFixed(1)} — ${avgSentiment}`;
+      reviewFlash.className = 'review-flash ' + (state.rating >= 3.5 ? 'good' : 'bad');
+      reviewFlash.classList.remove('hidden');
+    } else {
+      reviewFlash.classList.add('hidden');
+    }
+
+    $('btn-next-day').onclick = nextDay;
+    showPhase('results');
+  }
+
+  // ===== NEXT DAY =====
+  function nextDay() {
+    state.day++;
+
+    // Receive incoming inventory
+    state.inventoryIncoming = state.inventoryIncoming.filter(item => {
+      if (item.arrivesDay <= state.day) {
+        state.inventory += item.units;
+        return false;
+      }
+      return true;
+    });
+
+    // Check win/loss
+    if (state.cash <= 0) {
+      endGame(false);
+      return;
+    }
+    if (state.totalProfit >= WIN_PROFIT || state.totalUnitsSold >= WIN_UNITS) {
+      endGame(true);
+      return;
+    }
+
+    updateSeason();
+    rollEvent();
+    updateHUD();
+    showSeasonBanner();
+    if (state.todayEvent) showEventBanner();
+    showPhase('source');
+    renderSuppliers();
+  }
+
+  // ===== PHASE MANAGEMENT =====
+  function showPhase(phase) {
+    ['source', 'price', 'ads', 'results'].forEach(p => {
+      const el = $('phase-' + p);
+      if (el) el.classList.add('hidden');
+    });
+    const active = $('phase-' + phase);
+    if (active) {
+      active.classList.remove('hidden');
+      // Re-trigger animation
+      active.style.animation = 'none';
+      active.offsetHeight; // force reflow
+      active.style.animation = '';
+    }
+
+    if (phase === 'price') initPricePhase();
+    if (phase === 'ads') initAdsPhase();
+  }
+
+  // ===== END GAME =====
+  function endGame(won) {
+    state.gameOver = true;
+    state.won = won;
+    hud.classList.add('hidden');
+
+    const statsHTML = `
+      <div class="final-row"><span>Days</span><span>${state.day}</span></div>
+      <div class="final-row"><span>Total Revenue</span><span>${fmtMoney(state.totalRevenue)}</span></div>
+      <div class="final-row"><span>Total Profit</span><span class="${state.totalProfit >= 0 ? 'good' : 'danger'}">${fmtMoney(state.totalProfit)}</span></div>
+      <div class="final-row"><span>Units Sold</span><span>${fmtNum(state.totalUnitsSold)}</span></div>
+      <div class="final-row"><span>Returns</span><span>${fmtNum(state.totalUnitsReturned)}</span></div>
+      <div class="final-row"><span>Final Rating</span><span>⭐ ${state.rating.toFixed(1)}</span></div>
+      <div class="final-row"><span>Best Streak</span><span>${state.bestStreak} days</span></div>
+    `;
+
+    if (won) {
+      $('win-stats').innerHTML = statsHTML;
+      const tips = [
+        'You mastered the cashflow cycle: buy low, sell smart, advertise wisely.',
+        'Great job balancing inventory risk with growth!',
+        'Your pricing strategy and ad spend were on point.',
+      ];
+      $('win-tip').textContent = tips[Math.floor(Math.random() * tips.length)];
+      showScreen('win');
+    } else {
+      $('loss-stats').innerHTML = statsHTML;
+      const tips = [
+        'You ran out of cash. Try smaller orders and higher margins early on.',
+        'Inventory carrying costs add up. Don\'t overstock!',
+        'Price matters — too low and you bleed cash on shipping and ads.',
+        'Start with Budget Direct, price at 3x cost, and keep ad spend under $300/day until you have cash.',
+      ];
+      $('loss-tip').textContent = tips[Math.floor(Math.random() * tips.length)];
+      showScreen('loss');
+    }
+  }
+
+  // ===== TOAST =====
+  function showToast(msg) {
+    // Simple toast using event banner
+    const banner = $('event-banner');
+    banner.textContent = msg;
+    banner.className = 'event-banner';
+    banner.classList.remove('hidden');
+    setTimeout(() => {
+      if (!state.todayEvent && state.season.name === 'Normal') {
+        banner.classList.add('hidden');
+      }
+    }, 2000);
+  }
+
+  // ===== INIT =====
+  function init() {
+    // Reset state
+    state = {
+      day: 1,
+      cash: START_CASH,
+      inventory: 0,
+      inventoryIncoming: [],
+      totalProfit: 0,
+      totalRevenue: 0,
+      totalUnitsSold: 0,
+      totalUnitsReturned: 0,
+      rating: 3.0,
+      reviewCount: 0,
+      reputation: 0,
+      streak: 0,
+      bestStreak: 0,
+      dailyLog: [],
+      gameOver: false,
+      won: false,
+      selectedSupplier: null,
+      orderQty: 0,
+      price: 10,
+      adBudget: 200,
+      season: SEASONS[0],
+      seasonDaysLeft: 0,
+      todayEvent: null,
+    };
+
+    $('btn-start').onclick = startGame;
+    $('btn-replay-win').onclick = startGame;
+    $('btn-replay-loss').onclick = startGame;
+  }
+
+  function startGame() {
+    init();
+    hud.classList.remove('hidden');
+    updateHUD();
+    updateSeason();
+    rollEvent();
+    showScreen('game');
+    showSeasonBanner();
+    if (state.todayEvent) showEventBanner();
+    showPhase('source');
+    renderSuppliers();
+  }
+
+  // Boot
+  init();
+})();
+</script>
+</body>
+</html>

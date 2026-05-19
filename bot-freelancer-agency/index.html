@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Freelancer to Agency — MoneyBot</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="s.css?v=4">
+</head>
+<body>
+  <div id="game-shell">
+    <!-- START SCREEN -->
+    <div id="screen-start" class="screen active">
+      <div class="start-content">
+        <div class="logo-mark">💼</div>
+        <h1>Freelancer to Agency</h1>
+        <p class="tagline">Start solo. Bill hours. Hire smart. Scale to $1M.</p>
+        <div class="start-stats">
+          <div class="stat-pill"><span class="stat-label">Goal</span><span class="stat-value">$1M Revenue</span></div>
+          <div class="stat-pill"><span class="stat-label">Or</span><span class="stat-value">10 Employees</span></div>
+          <div class="stat-pill"><span class="stat-label">Lose if</span><span class="stat-value red">Cash $0</span></div>
+        </div>
+        <button id="btn-start" class="btn-primary">Start Your Agency</button>
+        <p class="hint">Tap to begin · Week-by-week turns</p>
+      </div>
+    </div>
+
+    <!-- GAMEPLAY SCREEN -->
+    <div id="screen-game" class="screen">
+      <!-- HUD -->
+      <div class="hud">
+        <div class="hud-row">
+          <div class="hud-pill cash-pill">
+            <span class="hud-icon">💵</span>
+            <div class="hud-text">
+              <span class="hud-label">Cash</span>
+              <span id="hud-cash" class="hud-value">$5,000</span>
+            </div>
+          </div>
+          <div class="hud-pill rev-pill">
+            <span class="hud-icon">📈</span>
+            <div class="hud-text">
+              <span class="hud-label">Revenue</span>
+              <span id="hud-revenue" class="hud-value">$0</span>
+            </div>
+          </div>
+        </div>
+        <div class="hud-row">
+          <div class="hud-pill week-pill">
+            <span class="hud-icon">📅</span>
+            <div class="hud-text">
+              <span class="hud-label">Week</span>
+              <span id="hud-week" class="hud-value">1</span>
+            </div>
+          </div>
+          <div class="hud-pill team-pill">
+            <span class="hud-icon">👥</span>
+            <div class="hud-text">
+              <span class="hud-label">Team</span>
+              <span id="hud-team" class="hud-value">1</span>
+            </div>
+          </div>
+        </div>
+        <div class="progress-wrap">
+          <div class="progress-track">
+            <div id="progress-bar" class="progress-fill" style="width:0%"></div>
+          </div>
+          <span id="progress-text" class="progress-label">$0 / $1M</span>
+        </div>
+      </div>
+
+      <!-- MAIN PLAY AREA -->
+      <div class="play-area">
+        <!-- Stage Badge -->
+        <div id="stage-badge" class="stage-badge">Solo Freelancer</div>
+
+        <!-- Client Offers -->
+        <div class="section-title">Client Offers</div>
+        <div id="client-list" class="client-list"></div>
+
+        <!-- Active Projects -->
+        <div class="section-title">Active Projects</div>
+        <div id="active-list" class="active-list"></div>
+
+        <!-- Weekly Summary -->
+        <div id="weekly-summary" class="weekly-summary hidden"></div>
+      </div>
+
+      <!-- CONTROLS -->
+      <div class="controls">
+        <button id="btn-rate" class="btn-secondary">Set Rate</button>
+        <button id="btn-hire" class="btn-secondary">Hire</button>
+        <button id="btn-next" class="btn-primary">Next Week →</button>
+      </div>
+    </div>
+
+    <!-- SET RATE MODAL -->
+    <div id="modal-rate" class="modal hidden">
+      <div class="modal-panel">
+        <h3>Set Your Hourly Rate</h3>
+        <div class="rate-display">$<span id="rate-current">75</span>/hr</div>
+        <input type="range" id="rate-slider" min="25" max="300" step="5" value="75">
+        <div class="rate-hints">
+          <span>Market: $<span id="rate-market">75</span></span>
+          <span id="rate-reaction" class="rate-reaction">Fair</span>
+        </div>
+        <button id="btn-rate-save" class="btn-primary">Save</button>
+      </div>
+    </div>
+
+    <!-- HIRE MODAL -->
+    <div id="modal-hire" class="modal hidden">
+      <div class="modal-panel">
+        <h3>Hire Contractor</h3>
+        <div id="hire-pool" class="hire-pool"></div>
+        <button id="btn-hire-close" class="btn-secondary">Close</button>
+      </div>
+    </div>
+
+    <!-- WIN MODAL -->
+    <div id="modal-win" class="modal hidden">
+      <div class="modal-panel win-panel">
+        <div class="win-emoji">🎉</div>
+        <h2>Agency Empire!</h2>
+        <p id="win-reason" class="win-reason">You hit $1M in revenue!</p>
+        <div class="win-stats">
+          <div class="win-stat"><span class="ws-label">Weeks</span><span id="win-weeks" class="ws-value">0</span></div>
+          <div class="win-stat"><span class="ws-label">Revenue</span><span id="win-revenue" class="ws-value">$0</span></div>
+          <div class="win-stat"><span class="ws-label">Team</span><span id="win-team" class="ws-value">0</span></div>
+          <div class="win-stat"><span class="ws-label">Profit</span><span id="win-profit" class="ws-value">$0</span></div>
+        </div>
+        <button id="btn-restart-win" class="btn-primary">Play Again</button>
+      </div>
+    </div>
+
+    <!-- LOSS MODAL -->
+    <div id="modal-loss" class="modal hidden">
+      <div class="modal-panel loss-panel">
+        <div class="loss-emoji">💸</div>
+        <h2>Cash Ran Out</h2>
+        <p class="loss-tip">Your overhead outran your income. Try raising rates earlier or hiring more carefully.</p>
+        <div class="win-stats">
+          <div class="win-stat"><span class="ws-label">Weeks</span><span id="loss-weeks" class="ws-value">0</span></div>
+          <div class="win-stat"><span class="ws-label">Revenue</span><span id="loss-revenue" class="ws-value">$0</span></div>
+          <div class="win-stat"><span class="ws-label">Peak Cash</span><span id="loss-peak" class="ws-value">$0</span></div>
+        </div>
+        <button id="btn-restart-loss" class="btn-primary">Try Again</button>
+      </div>
+    </div>
+
+    <!-- TOAST -->
+    <div id="toast" class="toast hidden"></div>
+  </div>
+
+  <script src="g.js?v=4"></script>
+</body>
+</html>
