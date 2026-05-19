@@ -1,292 +1,420 @@
 /**
- * Demo Day Dash — Upgraded
- * YC Lesson: Perfect your pitch, handle tough questions
- * Rhythm/pitch game - deliver slides, dodge hard questions
+ * Demo Day Dash — MoneyBot
+ * YC Lesson: A great pitch is specific, metric-driven, and ready for objections.
  */
 
 const Game = {
-  slide: 0,
-  totalSlides: 10,
-  hype: 50,
-  maxHype: 100,
-  investors: 3,
-  questionsDodged: 0,
-  perfectSlides: 0,
-  timeLeft: 180,
+  phaseIndex: 0,
+  hype: 45,
+  clarity: 50,
+  traction: 35,
+  partnerLikes: 0,
+  mistakes: 0,
+  streak: 0,
+  timeLeft: 75,
+  maxTime: 75,
   gameOver: false,
-  won: false,
-  currentPhase: 'pitch', // pitch, question, result
-  activeQuestions: [],
-  slides: []
+  selectedLine: null,
+  currentObjection: null,
+  objectionEvery: new Set([1, 3, 4]),
+  usedObjections: []
 };
 
-const SLIDES = [
-  { title: "The Problem", emoji: "😤", good: "80% of meetings are wasted", bad: "Meetings are annoying" },
-  { title: "Our Solution", emoji: "💡", good: "AI that auto-summarizes calls", bad: "We use AI technology" },
-  { title: "Market Size", emoji: "📈", good: "$50B market, 10% growth", bad: "Market is really big" },
-  { title: "Traction", emoji: "🚀", good: "1,000 users, 40% MoM growth", bad: "We launched last week" },
-  { title: "Business Model", emoji: "💰", good: "$49/mo, 5% churn, 18mo LTV", bad: "We'll figure out monetization later" },
-  { title: "Competition", emoji: "⚔️", good: "Incumbents are slow; we move 10x faster", bad: "We have no competitors" },
-  { title: "Team", emoji: "👥", good: "Ex-Google PM + ex-Stripe engineer", bad: "We're passionate founders" },
-  { title: "The Ask", emoji: "🎯", good: "$500K for 18mo runway to profitability", bad: "We need money to figure things out" },
-  { title: "Vision", emoji: "🔮", good: "Every meeting in the world, summarized", bad: "We want to change the world" },
-  { title: "Thank You", emoji: "🙏", good: "Questions? We're ready.", bad: "That's all we have." }
+const PHASES = [
+  {
+    label: 'Hook',
+    title: 'Open with a sharp hook',
+    prompt: 'You have ten seconds to make partners care.',
+    best: 'Run payroll teams waste 11 hours a week fixing contractor payments. We cut that to 7 minutes.',
+    okay: 'We help companies pay contractors faster with software.',
+    weak: 'Payments are broken and we are using AI to solve it.',
+    lesson: 'Specific pain plus time saved beats generic market language.',
+    metric: 'pain'
+  },
+  {
+    label: 'Problem',
+    title: 'Make the problem undeniable',
+    prompt: 'Show why this is urgent enough to fund.',
+    best: 'Our first 42 interviews all mentioned the same failure: missed filings create penalties and churn.',
+    okay: 'Customers told us compliance is annoying and expensive.',
+    weak: 'Everyone has this problem eventually.',
+    lesson: 'Investor confidence rises when the problem is proven by customer evidence.',
+    metric: 'clarity'
+  },
+  {
+    label: 'Solution',
+    title: 'Explain the wedge',
+    prompt: 'Keep it concrete. No buzzword fog.',
+    best: 'We start with one painful workflow: contractor onboarding, tax forms, and first payment in one link.',
+    okay: 'We are building an all-in-one platform for finance operations.',
+    weak: 'Our AI agent handles everything automatically.',
+    lesson: 'A narrow wedge feels more believable than a giant first product.',
+    metric: 'focus'
+  },
+  {
+    label: 'Traction',
+    title: 'Prove momentum',
+    prompt: 'Numbers beat promises.',
+    best: '$18K MRR, 31% month-over-month growth, and 82% weekly active payroll admins.',
+    okay: 'We have pilots with several companies and strong feedback.',
+    weak: 'People love the idea and our waitlist is growing.',
+    lesson: 'Revenue, retention, and usage are stronger than vibes.',
+    metric: 'traction'
+  },
+  {
+    label: 'Ask',
+    title: 'Close with a crisp ask',
+    prompt: 'Tell them exactly what funding buys.',
+    best: 'We are raising $500K for 18 months to reach $100K MRR and prove repeatable sales.',
+    okay: 'We are raising a seed round to grow faster.',
+    weak: 'We need money for hiring, marketing, and product.',
+    lesson: 'A good ask connects capital to milestones and runway.',
+    metric: 'runway'
+  }
 ];
 
-const QUESTIONS = [
-  { text: "What's your moat?", emoji: "🛡️", damage: 15, answer: "Network effects + proprietary data" },
-  { text: "Why you? Why now?", emoji: "⏰", damage: 12, answer: "10 years ML exp + GPT-4 just enabled this" },
-  { text: "How do you acquire customers?", emoji: "📣", damage: 10, answer: "Product-led growth, $0 CAC so far" },
-  { text: "What's your burn rate?", emoji: "🔥", damage: 8, answer: "$15K/mo, 18mo runway post-raise" },
-  { text: "Will Google crush you?", emoji: "🦕", damage: 14, answer: "They move slow. We're focused + nimble." },
-  { text: "Why not join an incubator?", emoji: "🏢", damage: 10, answer: "We need focus, not networking events." }
+const OBJECTIONS = [
+  {
+    q: 'Why will customers switch from their current payroll provider?',
+    best: 'We are not replacing payroll first. We attach to the painful contractor edge case they already hack around.',
+    weak: 'Our design is better and the market is ready.',
+    lesson: 'Position the wedge before claiming a platform shift.'
+  },
+  {
+    q: 'What is your unfair advantage?',
+    best: 'Our onboarding data improves every tax and compliance check, and our founder sold this workflow for four years.',
+    weak: 'We move faster than big companies.',
+    lesson: 'Moats are earned through data, distribution, workflow depth, or founder-market fit.'
+  },
+  {
+    q: 'How do you get customers without burning cash?',
+    best: 'Payroll consultants refer us because we remove their lowest-margin manual work.',
+    weak: 'We will run ads and post more content.',
+    lesson: 'A believable acquisition channel beats a pile of marketing tactics.'
+  },
+  {
+    q: 'What breaks this business?',
+    best: 'If weekly active admins stay under 60%, we stop expanding and rebuild onboarding before hiring sales.',
+    weak: 'Nothing major, we feel good about the plan.',
+    lesson: 'Strong founders know the kill criteria and the next experiment.'
+  }
 ];
 
 function $(id) { return document.getElementById(id); }
+
+function clamp(value, min = 0, max = 100) {
+  return Math.max(min, Math.min(max, value));
+}
+
+function shuffle(items) {
+  return [...items].sort(() => Math.random() - 0.5);
+}
 
 function init() {
   $('start-btn').onclick = startGame;
   $('replay-btn').onclick = startGame;
   $('try-again-btn').onclick = startGame;
+  $('how-to-btn').onclick = () => $('how-to-screen').classList.add('active');
+  $('how-to-back').onclick = () => $('how-to-screen').classList.remove('active');
   $('start-screen').classList.add('active');
 }
 
 function startGame() {
   Object.assign(Game, {
-    slide: 0, totalSlides: 10, hype: 50, maxHype: 100,
-    investors: 3, questionsDodged: 0, perfectSlides: 0,
-    timeLeft: 180, gameOver: false, won: false,
-    currentPhase: 'pitch', activeQuestions: [],
-    slides: [...SLIDES].sort(() => Math.random() - 0.5)
+    phaseIndex: 0,
+    hype: 45,
+    clarity: 50,
+    traction: 35,
+    partnerLikes: 0,
+    mistakes: 0,
+    streak: 0,
+    timeLeft: 75,
+    maxTime: 75,
+    gameOver: false,
+    selectedLine: null,
+    currentObjection: null,
+    usedObjections: []
   });
-  
+
+  document.body.classList.remove('game-ended');
   $('start-screen').classList.remove('active');
+  $('how-to-screen').classList.remove('active');
   $('win-screen').classList.remove('active');
   $('loss-screen').classList.remove('active');
-  
+  $('investor-reaction').className = 'mascot-bubble';
+  $('investor-reaction').textContent = 'Keep it specific. I am listening.';
+
   updateHUD();
-  renderGame();
+  renderPhase();
   startTimer();
 }
 
 let timerInterval;
 function startTimer() {
-  if (timerInterval) clearInterval(timerInterval);
+  clearInterval(timerInterval);
   timerInterval = setInterval(() => {
-    if (Game.gameOver) { clearInterval(timerInterval); return; }
-    Game.timeLeft--;
+    if (Game.gameOver) {
+      clearInterval(timerInterval);
+      return;
+    }
+    Game.timeLeft -= 1;
     if (Game.timeLeft <= 0) {
-      Game.gameOver = true;
-      showLoss();
+      Game.timeLeft = 0;
+      finishGame();
     }
     updateHUD();
   }, 1000);
 }
 
 function updateHUD() {
-  $('score').textContent = Math.round(Game.hype) + '% hype';
-  $('round').textContent = `Slide ${Game.slide + 1}/${Game.totalSlides}`;
-  
-  const hypeBar = $('hype-bar');
-  if (hypeBar) {
-    hypeBar.style.width = Game.hype + '%';
-    hypeBar.className = 'progress-fill' + (Game.hype < 30 ? ' danger' : Game.hype < 60 ? ' warning' : '');
-  }
-  
+  const score = Math.round((Game.hype * 0.45) + (Game.clarity * 0.35) + (Game.traction * 0.2));
+  $('score').textContent = `${score}% ready`;
+  $('round').textContent = `${Math.min(Game.phaseIndex + 1, PHASES.length)}/${PHASES.length}`;
+  $('phase-label').textContent = Game.phaseIndex < PHASES.length
+    ? `Phase ${Game.phaseIndex + 1}: ${PHASES[Game.phaseIndex].label}`
+    : 'Final decision';
+
   const timeMin = Math.floor(Game.timeLeft / 60);
   const timeSec = Game.timeLeft % 60;
-  const timeDisplay = $('time-display');
-  if (timeDisplay) timeDisplay.textContent = `${timeMin}:${timeSec.toString().padStart(2, '0')}`;
+  $('time-display').textContent = `${timeMin}:${String(timeSec).padStart(2, '0')}`;
+
+  const hypeBar = $('hype-bar');
+  hypeBar.style.width = `${Game.hype}%`;
+  hypeBar.className = `progress-fill ${Game.hype < 35 ? 'danger' : Game.hype < 60 ? 'warning' : ''}`;
+
+  const phaseProgress = $('phase-progress');
+  if (phaseProgress) phaseProgress.style.width = `${(Game.phaseIndex / PHASES.length) * 100}%`;
+
+  const timerFill = $('timer-fill');
+  if (timerFill) timerFill.style.width = `${(Game.timeLeft / Game.maxTime) * 100}%`;
 }
 
-function renderGame() {
-  const container = $('choices');
-  container.innerHTML = '';
-  
-  if (Game.currentPhase === 'pitch') {
-    renderPitch(container);
-  } else if (Game.currentPhase === 'question') {
-    renderQuestion(container);
+function renderPhase() {
+  if (Game.phaseIndex >= PHASES.length) {
+    finishGame();
+    return;
   }
-}
 
-function renderPitch(container) {
-  const slide = Game.slides[Game.slide];
-  
-  const slideCard = document.createElement('div');
-  slideCard.className = 'card animate-fade-in';
-  slideCard.style.textAlign = 'center';
-  slideCard.style.padding = '30px';
-  slideCard.innerHTML = `
-    <div style="font-size:48px;margin-bottom:12px;">${slide.emoji}</div>
-    <div style="font-size:24px;font-weight:700;color:var(--accent);margin-bottom:8px;">${slide.title}</div>
-    <div style="font-size:16px;color:var(--text-dim);margin-bottom:24px;">Choose how to present this slide:</div>
-  `;
-  container.appendChild(slideCard);
-  
-  const choiceGrid = document.createElement('div');
-  choiceGrid.className = 'choice-grid';
-  
-  // Good option
-  const goodBtn = document.createElement('button');
-  goodBtn.className = 'choice-btn';
-  goodBtn.innerHTML = `
-    <div style="font-weight:700;color:var(--success);">✅ Strong Pitch</div>
-    <div style="font-size:13px;margin-top:4px;">${slide.good}</div>
-  `;
-  goodBtn.onclick = () => deliverSlide(true);
-  choiceGrid.appendChild(goodBtn);
-  
-  // Bad option
-  const badBtn = document.createElement('button');
-  badBtn.className = 'choice-btn';
-  badBtn.innerHTML = `
-    <div style="font-weight:700;color:var(--danger);">❌ Weak Pitch</div>
-    <div style="font-size:13px;margin-top:4px;">${slide.bad}</div>
-  `;
-  badBtn.onclick = () => deliverSlide(false);
-  choiceGrid.appendChild(badBtn);
-  
-  container.appendChild(choiceGrid);
-  
-  // Progress
-  const progressDiv = document.createElement('div');
-  progressDiv.style.marginTop = '20px';
-  progressDiv.innerHTML = `
-    <div class="progress-bar">
-      <div class="progress-fill" style="width:${(Game.slide / Game.totalSlides) * 100}%"></div>
+  const phase = PHASES[Game.phaseIndex];
+  Game.selectedLine = null;
+  $('card-category').textContent = phase.label;
+  $('card-question').textContent = phase.prompt;
+
+  const choices = $('choices');
+  choices.innerHTML = '';
+
+  const board = document.createElement('div');
+  board.className = 'pitch-board';
+  board.innerHTML = `
+    <div class="pitch-card">
+      <div class="pitch-kicker">${phase.metric}</div>
+      <h2>${phase.title}</h2>
+      <p>${phase.prompt}</p>
+      <div class="metric-row">
+        <span>Hype ${Math.round(Game.hype)}%</span>
+        <span>Clarity ${Math.round(Game.clarity)}%</span>
+        <span>Traction ${Math.round(Game.traction)}%</span>
+      </div>
     </div>
-    <div style="text-align:center;font-size:12px;color:var(--text-dim);margin-top:4px;">Pitch Progress</div>
   `;
-  container.appendChild(progressDiv);
-}
+  choices.appendChild(board);
 
-function deliverSlide(isGood) {
-  if (isGood) {
-    Game.hype = Math.min(Game.hype + 10, Game.maxHype);
-    Game.perfectSlides++;
-    showFloatingText('+10 HYPE!', 'var(--success)');
-  } else {
-    Game.hype = Math.max(Game.hype - 8, 0);
-    showFloatingText('-8 hype...', 'var(--danger)');
-  }
-  
-  Game.slide++;
-  
-  // Chance of investor question
-  if (Math.random() < 0.4 && Game.slide < Game.totalSlides) {
-    Game.currentPhase = 'question';
-    spawnQuestion();
-  } else if (Game.slide >= Game.totalSlides) {
-    endDemoDay();
-  }
-  
-  updateHUD();
-  renderGame();
-}
+  const lines = shuffle([
+    { level: 'best', text: phase.best, label: 'Sharp', delta: { hype: 12, clarity: 10, traction: phase.metric === 'traction' ? 14 : 5 } },
+    { level: 'okay', text: phase.okay, label: 'Safe', delta: { hype: 4, clarity: 3, traction: phase.metric === 'traction' ? 5 : 1 } },
+    { level: 'weak', text: phase.weak, label: 'Vague', delta: { hype: -10, clarity: -12, traction: -5 } }
+  ]);
 
-function spawnQuestion() {
-  const q = QUESTIONS[Math.floor(Math.random() * QUESTIONS.length)];
-  Game.activeQuestions = [{ ...q, x: 50, y: 0, speed: 2 + Math.random() * 2 }];
-}
-
-function renderQuestion(container) {
-  const q = Game.activeQuestions[0];
-  
-  const questionCard = document.createElement('div');
-  questionCard.className = 'card animate-fade-in';
-  questionCard.style.textAlign = 'center';
-  questionCard.innerHTML = `
-    <div style="font-size:40px;margin-bottom:12px;">🎤</div>
-    <div style="font-size:20px;font-weight:700;color:var(--accent-2);margin-bottom:8px;">INVESTOR QUESTION</div>
-    <div style="font-size:28px;margin:16px 0;">${q.emoji} "${q.text}"</div>
-    <div style="font-size:14px;color:var(--text-dim);">Answer correctly to maintain hype!</div>
-  `;
-  container.appendChild(questionCard);
-  
-  const choiceGrid = document.createElement('div');
-  choiceGrid.className = 'choice-grid';
-  
-  // Correct answer
-  const correctBtn = document.createElement('button');
-  correctBtn.className = 'choice-btn';
-  correctBtn.innerHTML = `
-    <div style="font-weight:700;color:var(--success);">✅ "${q.answer}"</div>
-  `;
-  correctBtn.onclick = () => answerQuestion(true);
-  choiceGrid.appendChild(correctBtn);
-  
-  // Wrong answers
-  const wrongAnswers = [
-    "I'm not sure, we'll figure it out",
-    "That's a great question...",
-    "Our competitors don't have that either",
-    "Can we take this offline?"
-  ];
-  
-  wrongAnswers.slice(0, 1).forEach(wa => {
-    const wrongBtn = document.createElement('button');
-    wrongBtn.className = 'choice-btn';
-    wrongBtn.innerHTML = `<div style="font-weight:700;color:var(--danger);">❌ "${wa}"</div>`;
-    wrongBtn.onclick = () => answerQuestion(false);
-    choiceGrid.appendChild(wrongBtn);
+  const lineGrid = document.createElement('div');
+  lineGrid.className = 'line-grid';
+  lines.forEach(line => {
+    const btn = document.createElement('button');
+    btn.className = `pitch-line ${line.level}`;
+    btn.innerHTML = `<span>${line.label}</span><strong>${line.text}</strong>`;
+    btn.onclick = () => chooseLine(line, phase);
+    lineGrid.appendChild(btn);
   });
-  
-  container.appendChild(choiceGrid);
+  choices.appendChild(lineGrid);
 }
 
-function answerQuestion(isCorrect) {
-  const q = Game.activeQuestions[0];
-  
-  if (isCorrect) {
-    Game.hype = Math.min(Game.hype + 8, Game.maxHype);
-    Game.questionsDodged++;
-    showFloatingText('Great answer! +8 hype', 'var(--success)');
+function chooseLine(line, phase) {
+  if (Game.gameOver) return;
+
+  Game.hype = clamp(Game.hype + line.delta.hype);
+  Game.clarity = clamp(Game.clarity + line.delta.clarity);
+  Game.traction = clamp(Game.traction + line.delta.traction);
+
+  if (line.level === 'best') {
+    Game.streak += 1;
+    Game.partnerLikes += 1;
+    $('investor-reaction').className = 'mascot-bubble liked';
+    $('investor-reaction').textContent = Game.streak >= 2 ? 'Now this sounds fundable.' : phase.lesson;
+    pop(`+${line.delta.hype} hype`, 'var(--mb-green)');
+  } else if (line.level === 'okay') {
+    Game.streak = 0;
+    $('investor-reaction').className = 'mascot-bubble';
+    $('investor-reaction').textContent = 'Good direction. Make it more concrete.';
+    pop('+signal', 'var(--mb-gold)');
   } else {
-    Game.hype = Math.max(Game.hype - q.damage, 0);
-    showFloatingText(`Ouch! -${q.damage} hype`, 'var(--danger)');
+    Game.streak = 0;
+    Game.mistakes += 1;
+    $('investor-reaction').className = 'mascot-bubble disliked';
+    $('investor-reaction').textContent = 'That sounds generic. Give me proof.';
+    pop('-clarity', 'var(--mb-red)');
   }
-  
-  Game.activeQuestions = [];
-  Game.currentPhase = 'pitch';
+
   updateHUD();
-  renderGame();
+  renderFeedback(line, phase);
 }
 
-function endDemoDay() {
+function renderFeedback(line, phase) {
+  const choices = $('choices');
+  choices.innerHTML = `
+    <div class="feedback-card ${line.level}">
+      <div class="feedback-label">${line.level === 'best' ? 'Partner nods' : line.level === 'okay' ? 'Needs sharper proof' : 'Partner checks out'}</div>
+      <h2>${line.text}</h2>
+      <p>${phase.lesson}</p>
+      <button class="btn-primary btn-large" id="continue-btn">${shouldAskObjection() ? 'Handle objection' : 'Next slide'}</button>
+    </div>
+  `;
+  $('continue-btn').onclick = () => {
+    if (shouldAskObjection()) renderObjection();
+    else nextPhase();
+  };
+}
+
+function shouldAskObjection() {
+  return Game.objectionEvery.has(Game.phaseIndex) && !Game.usedObjections.includes(Game.phaseIndex);
+}
+
+function renderObjection() {
+  const pool = OBJECTIONS.filter((_, index) => !Game.usedObjections.includes(`q${index}`));
+  const q = pool[Math.floor(Math.random() * pool.length)] || OBJECTIONS[0];
+  const qIndex = OBJECTIONS.indexOf(q);
+  Game.usedObjections.push(Game.phaseIndex, `q${qIndex}`);
+  Game.currentObjection = q;
+
+  $('card-category').textContent = 'Investor objection';
+  $('card-question').textContent = q.q;
+  $('investor-reaction').className = 'mascot-bubble';
+  $('investor-reaction').textContent = 'Answer fast. Confidence matters.';
+
+  const answers = shuffle([
+    { good: true, text: q.best },
+    { good: false, text: q.weak }
+  ]);
+
+  $('choices').innerHTML = `
+    <div class="objection-card">
+      <div class="objection-icon">Q</div>
+      <h2>${q.q}</h2>
+      <p>Choose the answer that makes the business feel real.</p>
+    </div>
+    <div class="line-grid compact">
+      ${answers.map((answer, index) => `
+        <button class="pitch-line" data-answer="${index}">
+          <span>${answer.good ? 'Prepared' : 'Hand-wave'}</span>
+          <strong>${answer.text}</strong>
+        </button>
+      `).join('')}
+    </div>
+  `;
+
+  document.querySelectorAll('[data-answer]').forEach(btn => {
+    btn.onclick = () => answerObjection(answers[Number(btn.dataset.answer)], q);
+  });
+}
+
+function answerObjection(answer, q) {
+  if (answer.good) {
+    Game.hype = clamp(Game.hype + 9);
+    Game.clarity = clamp(Game.clarity + 8);
+    Game.partnerLikes += 1;
+    $('investor-reaction').className = 'mascot-bubble liked';
+    $('investor-reaction').textContent = q.lesson;
+    pop('Objection handled', 'var(--mb-green)');
+  } else {
+    Game.hype = clamp(Game.hype - 13);
+    Game.clarity = clamp(Game.clarity - 10);
+    Game.mistakes += 1;
+    $('investor-reaction').className = 'mascot-bubble disliked';
+    $('investor-reaction').textContent = 'That answer creates more diligence, not more conviction.';
+    pop('Confidence hit', 'var(--mb-red)');
+  }
+
+  updateHUD();
+  $('choices').innerHTML = `
+    <div class="feedback-card ${answer.good ? 'best' : 'weak'}">
+      <div class="feedback-label">${answer.good ? 'Clean answer' : 'Weak answer'}</div>
+      <h2>${answer.text}</h2>
+      <p>${q.lesson}</p>
+      <button class="btn-primary btn-large" id="continue-btn">Next slide</button>
+    </div>
+  `;
+  $('continue-btn').onclick = nextPhase;
+}
+
+function nextPhase() {
+  Game.phaseIndex += 1;
+  updateHUD();
+  renderPhase();
+}
+
+function finishGame() {
+  if (Game.gameOver) return;
   Game.gameOver = true;
   clearInterval(timerInterval);
-  
-  if (Game.hype >= 70) {
-    Game.won = true;
-    showWin();
-  } else {
-    showLoss();
-  }
+  updateHUD();
+
+  const score = Math.round((Game.hype * 0.45) + (Game.clarity * 0.35) + (Game.traction * 0.2));
+  if (score >= 72 && Game.mistakes <= 3) showWin(score);
+  else showLoss(score);
 }
 
-function showFloatingText(text, color) {
+function showWin(score) {
+  clearPlayArea();
+  const valuation = Math.max(6, Math.round((score / 100) * 22 + Game.partnerLikes * 1.5));
+  $('valuation').textContent = `$${valuation}M`;
+  $('final-score').textContent = `${score}%`;
+  $('final-time').textContent = `${Game.timeLeft}s`;
+  $('final-reactions').textContent = Game.partnerLikes;
+  $('partner-quote').textContent = Game.traction >= 65
+    ? 'The traction slide made the round feel obvious.'
+    : 'The story is crisp. Keep proving repeatable growth.';
+  $('win-reason').textContent = `Fundable pitch: ${score}% readiness, ${Game.partnerLikes} partner conviction moments.`;
+  $('win-screen').classList.add('active');
+}
+
+function showLoss(score) {
+  clearPlayArea();
+  $('loss-reason').textContent = `The pitch landed at ${score}% readiness. Partners need more proof before investing.`;
+  $('loss-tip').textContent = Game.traction < 55
+    ? 'Bring harder traction: revenue, retention, usage, or a clear customer pull signal.'
+    : Game.clarity < 60
+      ? 'Cut vague language. Use specific customers, numbers, and a narrow wedge.'
+      : 'Objections matter. Prepare answers for moat, switching, acquisition, and failure points.';
+  $('loss-screen').classList.add('active');
+}
+
+function clearPlayArea() {
+  document.querySelectorAll('.score-pop').forEach(el => el.remove());
+  document.body.classList.add('game-ended');
+  $('card-category').textContent = 'Final decision';
+  $('card-question').textContent = '';
+  $('choices').innerHTML = '';
+  $('investor-reaction').className = 'mascot-bubble liked';
+  $('investor-reaction').textContent = Game.hype >= 70 ? 'The room is leaning in.' : 'The room needs more proof.';
+}
+
+function pop(text, color) {
   const el = document.createElement('div');
   el.className = 'score-pop';
-  el.style.color = color;
   el.textContent = text;
+  el.style.color = color;
   el.style.left = '50%';
   el.style.top = '30%';
   document.body.appendChild(el);
   setTimeout(() => el.remove(), 1000);
-}
-
-function showWin() {
-  $('win-screen').classList.add('active');
-  $('win-reason').textContent = `Demo day complete! ${Math.round(Game.hype)}% investor hype. ${Game.perfectSlides}/${Game.totalSlides} perfect slides, ${Game.questionsDodged} tough questions handled.`;
-}
-
-function showLoss() {
-  $('loss-screen').classList.add('active');
-  $('loss-reason').textContent = `Demo day ended with only ${Math.round(Game.hype)}% hype. Investors weren't convinced.`;
-  $('loss-tip').textContent = Game.perfectSlides < 5
-    ? "Practice your pitch! Use specific numbers and concrete examples."
-    : "You handled slides well but struggled with questions. Prepare answers for common investor concerns.";
 }
 
 init();
