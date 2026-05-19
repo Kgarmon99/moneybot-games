@@ -217,6 +217,14 @@
       "coins": 75
     },
     {
+      "id": "bot-crypto-trading",
+      "name": "crypto trading sim",
+      "category": "invest",
+      "difficulty": "hard",
+      "xp": 150,
+      "coins": 100
+    },
+    {
       "id": "bot-daily-challenge",
       "name": "daily challenge",
       "category": "multiplayer",
