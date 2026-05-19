@@ -177,27 +177,27 @@
         
         <div class="controls-panel">
             <div class="bot-selector">
-                <button class="bot-btn active" onclick="loadBot('WarmPastel')">
+                <button class="bot-btn active" onclick="loadBot('WarmPastel', this)">
                     <div class="bot-icon">MoneyBot</div>
                     <div class="bot-name">Warm Pastel</div>
                 </button>
-                <button class="bot-btn" onclick="loadBot('PolkaDotBot')">
+                <button class="bot-btn" onclick="loadBot('PolkaDotBot', this)">
                     <div class="bot-icon">⚫</div>
                     <div class="bot-name">Polka Dot</div>
                 </button>
-                <button class="bot-btn" onclick="loadBot('ChromeBot')">
+                <button class="bot-btn" onclick="loadBot('ChromeBot', this)">
                     <div class="bot-icon">🔘</div>
                     <div class="bot-name">Chrome</div>
                 </button>
-                <button class="bot-btn" onclick="loadBot('SalmonBot')">
+                <button class="bot-btn" onclick="loadBot('SalmonBot', this)">
                     <div class="bot-icon">🟠</div>
                     <div class="bot-name">Salmon</div>
                 </button>
-                <button class="bot-btn" onclick="loadBot('WoodBot')">
+                <button class="bot-btn" onclick="loadBot('WoodBot', this)">
                     <div class="bot-icon">🪵</div>
                     <div class="bot-name">Wood</div>
                 </button>
-                <button class="bot-btn" onclick="loadBot('CornyBot')">
+                <button class="bot-btn" onclick="loadBot('CornyBot', this)">
                     <div class="bot-icon">🌽</div>
                     <div class="bot-name">Corny</div>
                 </button>
@@ -276,12 +276,13 @@
             window.addEventListener('resize', onWindowResize);
         }
         
-        function loadBot(botName) {
+        function loadBot(botName, sourceButton) {
             currentBot = botName;
             
             // Update UI
             document.querySelectorAll('.bot-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.closest('.bot-btn').classList.add('active');
+            const activeButton = sourceButton || [...document.querySelectorAll('.bot-btn')].find(btn => btn.getAttribute('onclick')?.includes(botName));
+            if (activeButton) activeButton.classList.add('active');
             
             // Show loading
             document.getElementById('loading').style.display = 'block';

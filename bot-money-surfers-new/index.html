@@ -29,6 +29,15 @@
                 <div class="coin-icon">$</div>
                 <div class="coins-value" id="coins">0</div>
             </div>
+            <button class="pause-btn" id="pauseBtn" aria-label="Pause">II</button>
+            <div class="level-chip" id="level">LVL 1</div>
+            <div class="combo-chip" id="combo"></div>
+            <div class="money-tip" id="moneyTip">Cash flow is king.</div>
+            <div class="powerups">
+                <div class="powerup" id="shieldIndicator">Shield<div class="powerup-timer"></div></div>
+                <div class="powerup" id="multiplierIndicator">2x<div class="powerup-timer"></div></div>
+                <div class="powerup" id="magnetIndicator">Magnet<div class="powerup-timer"></div></div>
+            </div>
         </div>
     </div>
     
@@ -40,6 +49,17 @@
         <button class="btn" onclick="game.start()">PLAY</button>
     </div>
     
+    <div class="overlay hidden" id="pauseScreen">
+        <div class="title">Paused</div>
+        <button class="btn" onclick="game.resume()">RESUME</button>
+    </div>
+
+    <div class="overlay hidden" id="tutorialScreen">
+        <div class="title">How to Play</div>
+        <div class="subtitle">Swipe lanes, collect income, dodge expenses, and protect runway.</div>
+        <button class="btn" onclick="hideTutorial()">GOT IT</button>
+    </div>
+
     <!-- Game Over Screen -->
     <div class="overlay hidden" id="gameOverScreen">
         <div class="game-over-title">Runway Depleted</div>
@@ -66,6 +86,7 @@
             <div class="tip-title">Money Tip</div>
             <div class="tip-text" id="gameOverTip">Collect more income to extend your runway!</div>
         </div>
+        <div class="achievements-earned" id="achievementsEarned"></div>
         
         <button class="btn" onclick="game.restart()">TRY AGAIN</button>
     </div>
