@@ -319,5 +319,7 @@
   $('restart-btn').addEventListener('click', initGame);
   $('win-restart-btn').addEventListener('click', initGame);
 
+  window.initGame = initGame;
+  window.nextDay = nextDay;
   showScreen('start-screen');
 })();

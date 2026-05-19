@@ -300,5 +300,6 @@
   $('next-deal-btn').addEventListener('click', nextDeal);
   $('restart-btn').addEventListener('click', initGame);
 
+  window.initGame = initGame;
   showScreen('start-screen');
 })();
