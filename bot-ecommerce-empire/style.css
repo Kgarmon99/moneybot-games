@@ -254,10 +254,14 @@ h1.danger { color: var(--mb-red); }
   opacity: 0;
   transition: opacity 0.15s;
 }
-.supplier-card:hover::before, .supplier-card:active::before { opacity: 1; }
-.supplier-card:hover {
+.supplier-card:hover::before, .supplier-card:active::before, .supplier-card:focus-visible::before { opacity: 1; }
+.supplier-card:hover, .supplier-card:focus-visible {
   border-color: rgba(105, 240, 174, 0.5);
   transform: translateX(4px);
+  outline: none;
+}
+.supplier-card:focus-visible {
+  box-shadow: 0 0 0 3px rgba(0, 230, 118, 0.3);
 }
 .supplier-card:active { transform: scale(0.98); }
 .supplier-card.locked {

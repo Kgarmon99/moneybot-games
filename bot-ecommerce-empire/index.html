@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>E-commerce Empire</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="s.css?v=4">
@@ -77,6 +77,31 @@
                     <span class="phase-title">Source Products</span>
                 </div>
                 <div class="suppliers-grid" id="suppliers-list"></div>
+            </div>
+
+            <!-- Phase: Quantity -->
+            <div id="phase-quantity" class="phase-panel hidden">
+                <div class="phase-header">
+                    <span class="phase-icon">📦</span>
+                    <span class="phase-title">Order Quantity</span>
+                </div>
+                <div class="price-card">
+                    <div class="price-info">
+                        <div class="price-row"><span>Supplier</span><span id="qty-supplier" class="price-value">Budget Direct</span></div>
+                        <div class="price-row"><span>Unit Cost</span><span id="qty-unit-cost" class="price-value">$3.00</span></div>
+                        <div class="price-row"><span>Order Qty</span><span id="qty-value" class="price-value good">100</span></div>
+                        <div class="price-row"><span>Total Cost</span><span id="qty-total" class="price-value">$300</span></div>
+                        <div class="price-row"><span>Cash After</span><span id="qty-cash-after" class="price-value">$9,700</span></div>
+                    </div>
+                    <div class="slider-wrap">
+                        <input type="range" id="qty-slider" min="50" max="500" step="10" value="100">
+                        <div class="slider-labels"><span id="qty-min">50</span><span id="qty-max">500</span></div>
+                    </div>
+                    <div class="conversion-est">
+                        <span id="qty-tip">Order enough to cover expected sales</span>
+                    </div>
+                </div>
+                <button id="btn-confirm-qty" class="btn-primary">Confirm Order</button>
             </div>
 
             <!-- Phase: Price -->

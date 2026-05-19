@@ -220,7 +220,15 @@
         </div>
       `;
       if (!locked) {
+        card.setAttribute('tabindex', '0');
+        card.setAttribute('role', 'button');
         card.addEventListener('click', () => selectSupplier(s));
+        card.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            selectSupplier(s);
+          }
+        });
       }
       container.appendChild(card);
     });
@@ -228,15 +236,61 @@
 
   function selectSupplier(supplier) {
     state.selectedSupplier = supplier;
-    // Default order: min order or affordable max
-    const maxAfford = Math.floor(state.cash / supplier.cost);
-    state.orderQty = Math.min(supplier.maxOrder, Math.max(supplier.minOrder, Math.min(maxAfford, supplier.minOrder * 2)));
-    if (state.orderQty < supplier.minOrder) {
-      // Can't afford even minimum
-      showToast('Not enough cash for minimum order!');
-      return;
+    showPhase('quantity');
+  }
+
+  // ===== PHASE: QUANTITY =====
+  function initQuantityPhase() {
+    const s = state.selectedSupplier;
+    const slider = $('qty-slider');
+    const maxAfford = Math.floor(state.cash / s.cost);
+    const maxQty = Math.min(s.maxOrder, maxAfford);
+    const minQty = s.minOrder;
+    const defaultQty = Math.min(maxQty, Math.max(minQty, minQty * 2));
+
+    slider.min = minQty;
+    slider.max = maxQty;
+    slider.step = Math.max(1, Math.floor((maxQty - minQty) / 20));
+    slider.value = defaultQty;
+    state.orderQty = defaultQty;
+
+    $('qty-min').textContent = minQty;
+    $('qty-max').textContent = fmtNum(maxQty);
+
+    updateQuantityDisplay();
+    slider.oninput = updateQuantityDisplay;
+    $('btn-confirm-qty').onclick = () => {
+      if (state.orderQty < state.selectedSupplier.minOrder) {
+        showToast('Minimum order is ' + state.selectedSupplier.minOrder + ' units');
+        return;
+      }
+      showPhase('price');
+    };
+  }
+
+  function updateQuantityDisplay() {
+    state.orderQty = parseInt($('qty-slider').value);
+    const s = state.selectedSupplier;
+    const totalCost = state.orderQty * s.cost;
+    const cashAfter = state.cash - totalCost;
+
+    $('qty-supplier').textContent = s.name;
+    $('qty-unit-cost').textContent = '$' + s.cost.toFixed(2);
+    $('qty-value').textContent = fmtNum(state.orderQty);
+    $('qty-total').textContent = fmtMoney(totalCost);
+    $('qty-cash-after').textContent = fmtMoney(cashAfter);
+    $('qty-cash-after').className = 'price-value ' + (cashAfter >= 0 ? 'good' : 'danger');
+
+    if (cashAfter < 0) {
+      $('qty-tip').textContent = '⚠️ Not enough cash for this order!';
+      $('qty-tip').className = 'conversion-est danger';
+    } else if (state.orderQty > state.orderQty * 3) {
+      $('qty-tip').textContent = 'Large order — watch carrying costs!';
+      $('qty-tip').className = 'conversion-est';
+    } else {
+      $('qty-tip').textContent = 'Order enough to cover expected sales';
+      $('qty-tip').className = 'conversion-est';
     }
-    showPhase('price');
   }
 
   // ===== PHASE: PRICE =====
@@ -318,13 +372,15 @@
     // Pay supplier upfront
     state.cash -= orderCost;
 
-    // Add to inventory (with lead time)
-    if (s.leadTime === 0) {
+    // Add to inventory (with lead time + possible delay event)
+    const extraLeadTime = (state.todayEvent && state.todayEvent.effect === 'delay') ? 1 : 0;
+    const totalLeadTime = s.leadTime + extraLeadTime;
+    if (totalLeadTime === 0) {
       state.inventory += state.orderQty;
     } else {
       state.inventoryIncoming.push({
         units: state.orderQty,
-        arrivesDay: state.day + s.leadTime,
+        arrivesDay: state.day + totalLeadTime,
       });
     }
 
@@ -339,10 +395,11 @@
     let visitors = Math.round(reach * (0.035 + state.reputation / 1000));
 
     // Event effects
+    let processorOrderLoss = 1.0;
     if (state.todayEvent) {
       if (state.todayEvent.effect === 'viral') visitors = Math.round(visitors * 1.3);
       if (state.todayEvent.effect === 'influencer') visitors += 500;
-      if (state.todayEvent.effect === 'processor') visitors = Math.round(visitors * 0.8);
+      if (state.todayEvent.effect === 'processor') processorOrderLoss = 0.8;
     }
 
     // Conversion rate
@@ -354,7 +411,7 @@
     conversion *= (0.8 + (state.rating / 5) * 0.2);
     conversion *= state.season.multiplier;
 
-    let orders = Math.min(state.inventory, Math.round(visitors * conversion));
+    let orders = Math.min(state.inventory, Math.round(visitors * conversion * processorOrderLoss));
 
     // Event: corporate bulk order
     if (state.todayEvent && state.todayEvent.effect === 'corporate') {
@@ -450,6 +507,9 @@
   }
 
   function showResults(r) {
+    // Update HUD immediately so player sees new cash/profit
+    updateHUD();
+
     $('res-visitors').textContent = fmtNum(r.visitors);
     $('res-orders').textContent = fmtNum(r.orders);
     $('res-revenue').textContent = fmtMoney(r.revenue);
@@ -472,7 +532,18 @@
       reviewFlash.classList.add('hidden');
     }
 
-    $('btn-next-day').onclick = nextDay;
+    // Check win/loss immediately — don't make player click "Next Day" if game is over
+    if (state.cash <= 0) {
+      $('btn-next-day').textContent = 'View Results →';
+      $('btn-next-day').onclick = () => endGame(false);
+    } else if (state.totalProfit >= WIN_PROFIT || state.totalUnitsSold >= WIN_UNITS) {
+      $('btn-next-day').textContent = 'Claim Victory! →';
+      $('btn-next-day').onclick = () => endGame(true);
+    } else {
+      $('btn-next-day').textContent = 'Next Day →';
+      $('btn-next-day').onclick = nextDay;
+    }
+
     showPhase('results');
   }
 
@@ -510,7 +581,7 @@
 
   // ===== PHASE MANAGEMENT =====
   function showPhase(phase) {
-    ['source', 'price', 'ads', 'results'].forEach(p => {
+    ['source', 'quantity', 'price', 'ads', 'results'].forEach(p => {
       const el = $('phase-' + p);
       if (el) el.classList.add('hidden');
     });
@@ -523,6 +594,7 @@
       active.style.animation = '';
     }
 
+    if (phase === 'quantity') initQuantityPhase();
     if (phase === 'price') initPricePhase();
     if (phase === 'ads') initAdsPhase();
   }
