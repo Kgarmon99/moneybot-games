@@ -1,6 +1,5 @@
 (function() {
   'use strict';
-  console.log('Property Flipper JS loading');
 
   // ===== STATE =====
   let state = {
@@ -303,5 +302,4 @@
 
   window.initGame = initGame;
   showScreen('start-screen');
-  console.log('Property Flipper JS loaded');
 })();
