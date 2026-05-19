@@ -1,5 +1,6 @@
 (function() {
   'use strict';
+  console.log('Restaurant Tycoon JS loading');
 
   let state = {
     day: 1,
@@ -322,4 +323,5 @@
   window.initGame = initGame;
   window.nextDay = nextDay;
   showScreen('start-screen');
+  console.log('Restaurant Tycoon JS loaded');
 })();
