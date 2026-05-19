@@ -1199,6 +1199,14 @@
       "difficulty": "medium",
       "xp": 150,
       "coins": 100
+    },
+    {
+      "id": "bot-ecommerce-empire",
+      "name": "ecommerce empire",
+      "category": "career",
+      "difficulty": "medium",
+      "xp": 150,
+      "coins": 100
     }
   ]
 }
