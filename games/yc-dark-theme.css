@@ -1,0 +1,542 @@
+/* YC Startup School — Insurance Defender Dark Theme
+   Shared dark theme with neon green accents for all YC games
+   Dark navy background, neon green (#00ff88), Orbitron font, glow effects
+*/
+
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&display=swap');
+
+:root {
+  --neon: #00ff88;
+  --neon-dim: rgba(0, 255, 136, 0.3);
+  --neon-glow: rgba(0, 255, 136, 0.15);
+  --bg: #0f0f1a;
+  --bg-panel: #1a1a2e;
+  --bg-hud: rgba(15, 15, 26, 0.95);
+  --text: #e0e0e0;
+  --text-dim: #8899aa;
+  --danger: #ff4444;
+  --warning: #ffaa00;
+  --yc-orange: #ff6600;
+  --radius: 12px;
+  --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Rajdhani', -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: none;
+}
+
+#game-shell {
+  max-width: 480px;
+  margin: 0 auto;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+/* ===== HUD ===== */
+.hud {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: var(--bg-hud);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--neon-dim);
+  z-index: 100;
+}
+
+.hud-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--neon), #00cc6a);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  box-shadow: 0 0 12px rgba(0, 255, 136, 0.4);
+}
+
+.title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: 1px;
+}
+
+.hud-stats {
+  display: flex;
+  gap: 12px;
+}
+
+.stat-pill {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 6px 14px;
+  background: var(--bg-panel);
+  border: 1px solid rgba(0, 255, 136, 0.15);
+  border-radius: var(--radius);
+  min-width: 64px;
+  position: relative;
+}
+
+.stat-pill.danger {
+  border-color: var(--danger);
+  box-shadow: 0 0 16px rgba(255, 68, 68, 0.2);
+}
+
+.stat-pill.warning {
+  border-color: var(--warning);
+  box-shadow: 0 0 16px rgba(255, 170, 0, 0.2);
+}
+
+.stat-label {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--text-dim);
+  font-weight: 600;
+}
+
+.stat-value {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--neon);
+  line-height: 1.2;
+  text-shadow: 0 0 10px var(--neon-glow);
+}
+
+/* ===== Play Area ===== */
+.play-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+/* ===== Decision Panel ===== */
+.decision-panel {
+  background: var(--bg-panel);
+  border: 1px solid rgba(0, 255, 136, 0.15);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-bottom: 16px;
+}
+
+.panel-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--neon);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.scenario-text {
+  font-size: 18px;
+  color: var(--text);
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+
+/* ===== Choice Grid ===== */
+.choice-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.choice-card {
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  background: rgba(0, 255, 136, 0.05);
+  border: 1px solid rgba(0, 255, 136, 0.15);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+  color: var(--text);
+}
+
+.choice-card:hover {
+  background: rgba(0, 255, 136, 0.1);
+  border-color: var(--neon);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(0, 255, 136, 0.15);
+}
+
+.choice-card:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.choice-text {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 4px;
+  letter-spacing: 0.5px;
+}
+
+.choice-preview {
+  font-size: 13px;
+  color: var(--text-dim);
+}
+
+/* ===== Modal Overlay ===== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 15, 26, 0.95);
+  backdrop-filter: blur(30px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 300;
+  padding: 20px;
+}
+
+.modal-overlay.hidden { display: none !important; }
+
+.modal-card {
+  background: var(--bg-panel);
+  border: 1px solid var(--neon-dim);
+  border-radius: var(--radius);
+  padding: 48px 32px;
+  text-align: center;
+  max-width: 400px;
+  width: 100%;
+  animation: popIn 0.5s var(--spring);
+  position: relative;
+  overflow: hidden;
+}
+
+.modal-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--neon), transparent);
+}
+
+.modal-mascot {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--neon), #00cc6a);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+  margin: 0 auto 24px;
+  box-shadow: 0 0 30px rgba(0, 255, 136, 0.4);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.modal-card h1 {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 32px;
+  font-weight: 900;
+  margin-bottom: 12px;
+  color: var(--text);
+  text-shadow: 0 0 20px var(--neon-glow);
+}
+
+.modal-subtitle {
+  font-size: 16px;
+  color: var(--text-dim);
+  margin-bottom: 24px;
+  line-height: 1.5;
+}
+
+/* ===== Lesson Badge ===== */
+.lesson-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 12px;
+  background: rgba(0, 255, 136, 0.05);
+  border: 1px solid var(--neon-dim);
+  border-radius: var(--radius);
+  margin-bottom: 20px;
+}
+
+.lesson-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--neon);
+}
+
+.lesson-text {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+/* ===== Tip Box ===== */
+.tip-box {
+  background: rgba(0, 255, 136, 0.05);
+  border: 1px solid var(--neon-dim);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 20px;
+  text-align: left;
+  position: relative;
+  overflow: hidden;
+}
+
+.tip-box::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 3px;
+  height: 100%;
+  background: linear-gradient(180deg, var(--neon), transparent);
+}
+
+.tip-box strong {
+  font-family: 'Orbitron', sans-serif;
+  color: var(--neon);
+  display: block;
+  margin-bottom: 8px;
+  font-size: 12px;
+  letter-spacing: 1px;
+}
+
+.tip-box p {
+  color: var(--text-dim);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* ===== Buttons ===== */
+.btn-primary {
+  display: block;
+  width: 240px;
+  padding: 16px 24px;
+  background: linear-gradient(135deg, var(--neon), #00cc6a);
+  color: var(--bg);
+  font-family: 'Orbitron', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin: 0 auto 16px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(0, 255, 136, 0.4);
+}
+
+.btn-primary:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.btn-secondary {
+  display: block;
+  width: 240px;
+  padding: 14px 24px;
+  background: transparent;
+  color: var(--neon);
+  font-family: 'Orbitron', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  border: 2px solid var(--neon);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin: 0 auto;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.btn-secondary:hover {
+  background: rgba(0, 255, 136, 0.1);
+  box-shadow: 0 0 20px rgba(0, 255, 136, 0.2);
+}
+
+/* ===== Investor Panel (Demo Day Dash) ===== */
+.investor-panel {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--bg-panel);
+  border: 1px solid rgba(0, 255, 136, 0.1);
+  border-radius: var(--radius);
+  margin-bottom: 16px;
+}
+
+.investor-face {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--neon), #00cc6a);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  box-shadow: 0 0 16px rgba(0, 255, 136, 0.3);
+}
+
+.investor-bubble {
+  flex: 1;
+  padding: 12px 16px;
+  background: rgba(0, 255, 136, 0.05);
+  border: 1px solid var(--neon-dim);
+  border-radius: 12px;
+  font-size: 14px;
+  color: var(--text);
+}
+
+.investor-bubble.liked {
+  border-color: var(--neon);
+  background: rgba(0, 255, 136, 0.1);
+}
+
+.investor-bubble.disliked {
+  border-color: var(--danger);
+  background: rgba(255, 68, 68, 0.1);
+}
+
+/* ===== Timer Bar ===== */
+.timer-bar {
+  height: 4px;
+  background: rgba(0, 255, 136, 0.1);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.timer-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--neon), #00cc6a);
+  border-radius: 2px;
+  transition: width 1s linear;
+  box-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
+}
+
+/* ===== Phase Progress ===== */
+.phase-progress {
+  height: 3px;
+  background: rgba(0, 255, 136, 0.1);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.phase-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--neon), #00cc6a);
+  border-radius: 2px;
+  transition: width 0.5s ease;
+}
+
+/* ===== Final Stats Grid ===== */
+.final-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.final-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  background: rgba(0, 255, 136, 0.05);
+  border: 1px solid var(--neon-dim);
+  border-radius: var(--radius);
+  position: relative;
+  overflow: hidden;
+}
+
+.final-stat::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--neon), transparent);
+}
+
+.final-value {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--neon);
+  text-shadow: 0 0 20px var(--neon-glow);
+}
+
+.final-label {
+  font-size: 11px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-top: 6px;
+  font-weight: 600;
+}
+
+/* ===== Animations ===== */
+@keyframes popIn {
+  from { opacity: 0; transform: scale(0.95) translateY(20px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 30px rgba(0, 255, 136, 0.3); }
+  50% { box-shadow: 0 0 50px rgba(0, 255, 136, 0.5); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 390px) {
+  .hud { padding: 10px 12px; }
+  .hud-stats { gap: 8px; }
+  .stat-pill { padding: 5px 10px; min-width: 56px; }
+  .stat-value { font-size: 18px; }
+  .modal-card { padding: 36px 24px; }
+  .modal-card h1 { font-size: 24px; }
+  .scenario-text { font-size: 16px; }
+  .choice-card { padding: 14px; }
+}

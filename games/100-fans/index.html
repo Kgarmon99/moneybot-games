@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>100 Fans — YC Startup School</title>
+  <link rel="stylesheet" href="../yc-dark-theme.css">
+</head>
+<body>
+  <div id="game-shell">
+    <header class="hud">
+      <div class="hud-brand">
+        <span class="logo">♥</span>
+        <span class="title">100 Fans</span>
+      </div>
+      <div class="hud-stats">
+        <div class="stat-pill">
+          <span class="stat-label">Fans</span>
+          <span class="stat-value" id="score">0</span>
+        </div>
+        <div class="stat-pill">
+          <span class="stat-label">Iter</span>
+          <span class="stat-value" id="round">1</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="play-area">
+      <div class="decision-panel">
+        <div class="panel-title" id="card-category">Iteration 1</div>
+        <div class="scenario-text" id="card-question">Loading...</div>
+        <div class="choice-grid" id="choices"></div>
+      </div>
+    </main>
+
+    <div class="modal-overlay" id="start-screen">
+      <div class="modal-card">
+        <div class="modal-mascot">♥</div>
+        <h1>100 Fans</h1>
+        <p class="modal-subtitle">Find product-market fit</p>
+        <div class="lesson-badge">
+          <span class="lesson-label">YC Lesson</span>
+          <span class="lesson-text">Find product-market fit</span>
+        </div>
+        <button class="btn-primary" id="start-btn">Start</button>
+      </div>
+    </div>
+
+    <div class="modal-overlay hidden" id="win-screen">
+      <div class="modal-card">
+        <div class="modal-mascot">✓</div>
+        <h1>PMF Found!</h1>
+        <p class="modal-subtitle" id="win-reason">You found product-market fit!</p>
+        <button class="btn-primary" id="replay-btn">Play Again</button>
+      </div>
+    </div>
+
+    <div class="modal-overlay hidden" id="loss-screen">
+      <div class="modal-card">
+        <div class="modal-mascot">◯</div>
+        <h1>Keep Iterating</h1>
+        <p class="modal-subtitle" id="loss-reason">Not enough fans yet.</p>
+        <div class="tip-box">
+          <strong>YC Lesson:</strong>
+          <p id="loss-tip">100 fans who love you beats 10,000 who like you.</p>
+        </div>
+        <button class="btn-primary" id="try-again-btn">Try Again</button>
+      </div>
+    </div>
+  </div>
+  <script src="game.js"></script>
+</body>
+</html>

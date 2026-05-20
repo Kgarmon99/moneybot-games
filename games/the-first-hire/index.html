@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>The First Hire — YC Startup School</title>
+  <link rel="stylesheet" href="../yc-dark-theme.css">
+</head>
+<body>
+  <div id="game-shell">
+    <header class="hud">
+      <div class="hud-brand">
+        <span class="logo">+</span>
+        <span class="title">First Hire</span>
+      </div>
+      <div class="hud-stats">
+        <div class="stat-pill">
+          <span class="stat-label">Quality</span>
+          <span class="stat-value" id="score">0</span>
+        </div>
+        <div class="stat-pill">
+          <span class="stat-label">Candidate</span>
+          <span class="stat-value" id="round">1</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="play-area">
+      <div class="decision-panel">
+        <div class="panel-title" id="card-category">Engineer Candidate</div>
+        <div class="scenario-text" id="card-question">Loading...</div>
+        <div class="choice-grid" id="choices"></div>
+      </div>
+    </main>
+
+    <div class="modal-overlay" id="start-screen">
+      <div class="modal-card">
+        <div class="modal-mascot">+</div>
+        <h1>The First Hire</h1>
+        <p class="modal-subtitle">Hire slow, fire fast</p>
+        <div class="lesson-badge">
+          <span class="lesson-label">YC Lesson</span>
+          <span class="lesson-text">Hire slow</span>
+        </div>
+        <button class="btn-primary" id="start-btn">Start</button>
+      </div>
+    </div>
+
+    <div class="modal-overlay hidden" id="win-screen">
+      <div class="modal-card">
+        <div class="modal-mascot">✓</div>
+        <h1>Success!</h1>
+        <p class="modal-subtitle" id="win-reason">You built a great team.</p>
+        <button class="btn-primary" id="replay-btn">Play Again</button>
+      </div>
+    </div>
+
+    <div class="modal-overlay hidden" id="loss-screen">
+      <div class="modal-card">
+        <div class="modal-mascot">◯</div>
+        <h1>Lesson Learned</h1>
+        <p class="modal-subtitle" id="loss-reason">Not quite.</p>
+        <div class="tip-box">
+          <strong>YC Lesson:</strong>
+          <p id="loss-tip">Culture fit beats raw skill early on.</p>
+        </div>
+        <button class="btn-primary" id="try-again-btn">Try Again</button>
+      </div>
+    </div>
+  </div>
+  <script src="game.js"></script>
+</body>
+</html>

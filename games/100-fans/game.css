@@ -1,0 +1,47 @@
+/* 100 Fans — MoneyBot Design Extensions */
+
+.lesson-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 12px;
+  background: rgba(0, 230, 118, 0.08);
+  border: 1px solid var(--mb-line);
+  border-radius: var(--mb-radius-sm);
+  margin-bottom: 20px;
+}
+
+.lesson-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--mb-green);
+}
+
+.lesson-text {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--mb-white);
+}
+
+.tip-box {
+  background: rgba(0, 230, 118, 0.06);
+  border: 1px solid var(--mb-line);
+  border-radius: var(--mb-radius-sm);
+  padding: 16px;
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.tip-box strong {
+  color: var(--mb-green);
+  display: block;
+  margin-bottom: 6px;
+}
+
+.tip-box p {
+  color: var(--mb-muted);
+  font-size: 14px;
+  line-height: 1.5;
+}
