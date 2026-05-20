@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Budget Simulator — MoneyBot</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'JetBrains Mono',monospace;background:#000;color:#0f0;min-height:100vh;line-height:1.6}
+.matrix-bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;opacity:0.05;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,255,0,0.03) 2px,rgba(0,255,0,0.03) 4px)}
+.container{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:40px 20px}
+.nav{display:flex;align-items:center;gap:12px;margin-bottom:40px;text-decoration:none;color:#0f0}
+.nav img{width:32px;height:32px;border-radius:4px;border:1px solid #0f0}
+.nav span{font-size:18px;font-weight:700}
+.card{background:#000;border:1px solid #0f0;padding:30px;margin-bottom:20px}
+.card h1{font-size:28px;margin-bottom:8px;text-shadow:0 0 10px #0f0}
+.card .subtitle{font-size:13px;opacity:0.7;margin-bottom:25px}
+.income-row{display:flex;gap:15px;align-items:flex-end;margin-bottom:30px}
+.income-row input{flex:1;background:#000;border:1px solid #0f0;color:#0f0;padding:12px;font-family:inherit;font-size:18px;outline:none}
+.income-row input:focus{box-shadow:0 0 10px rgba(0,255,0,0.3)}
+.income-row button{background:#0f0;color:#000;border:none;padding:12px 24px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;text-transform:uppercase}
+.income-row button:hover{box-shadow:0 0 15px #0f0}
+.budget-bar{height:32px;border:1px solid #0f0;margin-bottom:8px;position:relative;background:#050505}
+.budget-bar .fill{height:100%;transition:width 0.3s}
+.budget-row{display:grid;grid-template-columns:1fr 80px 100px 60px;gap:12px;align-items:center;margin-bottom:18px}
+@media(max-width:600px){.budget-row{grid-template-columns:1fr 70px 80px 50px}}
+label{display:block;font-size:12px;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;opacity:0.8}
+.budget-row input[type="range"]{width:100%}
+.budget-row .pct{font-size:13px;text-align:right;font-weight:700}
+.budget-row .amt{font-size:13px;text-align:right;opacity:0.9}
+.remain-box{border:1px solid #0f0;padding:20px;text-align:center;margin-top:20px}
+.remain-box .num{font-size:36px;font-weight:700;text-shadow:0 0 15px #0f0}
+.remain-box .lbl{font-size:12px;text-transform:uppercase;opacity:0.7;margin-top:5px}
+.remain-box.negative{border-color:#f00;color:#f00}
+.remain-box.negative .num{text-shadow:0 0 15px #f00}
+.preset-btns{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:25px}
+.preset-btns button{background:transparent;color:#0f0;border:1px solid #0f0;padding:6px 14px;font-family:inherit;font-size:11px;cursor:pointer;text-transform:uppercase}
+.preset-btns button:hover{background:rgba(0,255,0,0.1)}
+.back-link{display:inline-block;margin-top:20px;color:#0f0;text-decoration:none;border:1px solid #0f0;padding:10px 20px;font-size:13px;text-transform:uppercase}
+.back-link:hover{box-shadow:0 0 10px #0f0}
+</style>
+</head>
+<body>
+<div class="matrix-bg"></div>
+<div class="container">
+<a href="../moneybot-official/" class="nav"><img src="../moneybot-official/assets/moneybot-logo-1.jpg" alt="MoneyBot"><span>MoneyBot</span></a>
+<div class="card">
+<h1>Budget Simulator</h1>
+<p class="subtitle">Every dollar has a job. Give them one before they disappear.</p>
+<div class="income-row">
+<div style="flex:1"><label>Monthly Take-Home Income ($)</label><input type="number" id="income" value="4000" min="0" step="100"></div>
+<button onclick="resetBudget()">Reset</button>
+</div>
+<div class="preset-btns">
+<button onclick="loadPreset('needs')">50/30/20 Rule</button>
+<button onclick="loadPreset('aggressive')">Aggressive Save</button>
+<button onclick="loadPreset('minimal')">Bare Bones</button>
+</div>
+<div id="categories"></div>
+<div class="remain-box" id="remainBox">
+<div class="num" id="remainAmt">$0</div>
+<div class="lbl" id="remainLbl">Remaining Unbudgeted</div>
+</div>
+</div>
+<a href="../moneybot-official/" class="back-link">← Back to Games</a>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+const fmt=n=>'$'+Math.round(n).toLocaleString();
+const cats=[
+{id:'housing',name:'Housing (Rent/Mortgage)',color:'#0f0',pct:30},
+{id:'food',name:'Food & Groceries',color:'#0f0',pct:12},
+{id:'transport',name:'Transportation',color:'#0f0',pct:10},
+{id:'utilities',name:'Utilities & Phone',color:'#0f0',pct:8},
+{id:'savings',name:'Savings & Investments',color:'#0f0',pct:10},
+{id:'debt',name:'Debt Payments',color:'#0f0',pct:5},
+{id:'fun',name:'Fun & Entertainment',color:'#0f0',pct:8},
+{id:'misc',name:'Misc & Emergency',color:'#0f0',pct:5},
+];
+const presets={
+needs:{housing:30,food:12,transport:10,utilities:8,savings:10,debt:5,fun:15,misc:10},
+aggressive:{housing:25,food:10,transport:8,utilities:6,savings:30,debt:10,fun:5,misc:6},
+minimal:{housing:35,food:15,transport:8,utilities:8,savings:5,debt:15,fun:5,misc:9}
+};
+function render(){
+const inc=parseFloat($('income').value)||0;
+let html='';
+let total=0;
+cats.forEach(c=>{
+const val=Math.round(inc*(c.pct/100));
+total+=c.pct;
+html+=`<div style="margin-bottom:8px">
+<div class="budget-row">
+<div><label>${c.name}</label><input type="range" min="0" max="60" value="${c.pct}" step="1" oninput="updatePct('${c.id}',this.value)"></div>
+<div class="pct" id="pct-${c.id}">${c.pct}%</div>
+<div class="amt" id="amt-${c.id}">${fmt(val)}</div>
+<div><input type="number" value="${val}" style="width:100%;background:#000;border:1px solid #0f0;color:#0f0;padding:6px;font-family:inherit;font-size:12px" oninput="updateAmt('${c.id}',this.value)"></div>
+</div>
+<div class="budget-bar"><div class="fill" id="bar-${c.id}" style="width:${c.pct*1.5}%;background:${c.color};opacity:0.6"></div></div>
+</div>`;
+});
+$('categories').innerHTML=html;
+updateRemain();
+}
+function updatePct(id,val){
+const c=cats.find(x=>x.id===id);
+c.pct=parseFloat(val);
+const inc=parseFloat($('income').value)||0;
+$(`pct-${id}`).textContent=c.pct+'%';
+$(`amt-${id}`).textContent=fmt(Math.round(inc*c.pct/100));
+$(`bar-${id}`).style.width=(c.pct*1.5)+'%';
+updateRemain();
+}
+function updateAmt(id,val){
+const c=cats.find(x=>x.id===id);
+const inc=parseFloat($('income').value)||0;
+c.pct=inc>0?Math.min(60,Math.round((parseFloat(val)||0)/inc*100)):0;
+$(`pct-${id}`).textContent=c.pct+'%';
+$(`amt-${id}`).textContent=fmt(Math.round(inc*c.pct/100));
+$(`bar-${id}`).style.width=(c.pct*1.5)+'%';
+updateRemain();
+}
+function updateRemain(){
+const inc=parseFloat($('income').value)||0;
+const total=cats.reduce((s,c)=>s+c.pct,0);
+const remain=inc*(1-total/100);
+$('remainAmt').textContent=fmt(remain);
+$('remainLbl').textContent=total>100?'Over Budget by':'Remaining Unbudgeted';
+$('remainBox').classList.toggle('negative',total>100||remain<0);
+}
+function loadPreset(name){
+const p=presets[name];
+if(!p)return;
+Object.keys(p).forEach(k=>{const c=cats.find(x=>x.id===k);if(c)c.pct=p[k];});
+render();
+}
+function resetBudget(){
+cats.forEach(c=>c.pct=0);
+render();
+}
+$('income').oninput=render;
+render();
+</script>
+</body>
+</html>

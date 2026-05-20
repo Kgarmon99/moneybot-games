@@ -9,42 +9,79 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'JetBrains Mono', monospace; background: #000; color: #0f0; min-height: 100vh; line-height: 1.6; }
-        .matrix-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; opacity: 0.03; }
+        .matrix-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; opacity: 0.05; background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,255,0,0.03) 2px, rgba(0,255,0,0.03) 4px); }
         .nav { position: fixed; top: 0; left: 0; right: 0; background: rgba(0,0,0,0.95); border-bottom: 1px solid #0f0; z-index: 100; padding: 0 40px; }
-        .nav-inner { max-width: 1400px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 60px; }
-        .nav-logo { display: flex; align-items: center; gap: 12px; text-decoration: none; color: #0f0; }
+        .nav-inner { max-width: 1400px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 60px; gap: 20px; }
+        .nav-logo { display: flex; align-items: center; gap: 12px; text-decoration: none; color: #0f0; flex-shrink: 0; }
         .nav-logo img { width: 32px; height: 32px; border-radius: 4px; border: 1px solid #0f0; }
         .nav-logo span { font-size: 18px; font-weight: 700; }
-        .nav-links { display: flex; gap: 30px; }
-        .nav-links a { color: #0f0; text-decoration: none; font-size: 14px; opacity: 0.7; transition: all 0.2s; text-transform: uppercase; letter-spacing: 1px; }
+        .nav-links { display: flex; gap: 25px; }
+        .nav-links a { color: #0f0; text-decoration: none; font-size: 13px; opacity: 0.7; transition: all 0.2s; text-transform: uppercase; letter-spacing: 1px; white-space: nowrap; }
         .nav-links a:hover, .nav-links a.active { opacity: 1; text-shadow: 0 0 10px #0f0; }
+        .nav-progress { display: flex; align-items: center; gap: 15px; font-size: 12px; }
+        .xp-bar { width: 120px; height: 8px; border: 1px solid #0f0; background: #000; position: relative; }
+        .xp-bar .fill { height: 100%; background: #0f0; transition: width 0.3s; }
         .container { position: relative; z-index: 1; max-width: 1400px; margin: 0 auto; padding: 100px 40px 60px; }
-        .hero { text-align: center; padding: 60px 0; border: 1px solid #0f0; margin-bottom: 60px; box-shadow: 0 0 20px rgba(0,255,0,0.2), inset 0 0 20px rgba(0,255,0,0.05); }
+        .hero { text-align: center; padding: 60px 0; border: 1px solid #0f0; margin-bottom: 40px; box-shadow: 0 0 20px rgba(0,255,0,0.2), inset 0 0 20px rgba(0,255,0,0.05); }
         .hero h1 { font-size: 48px; font-weight: 700; margin-bottom: 10px; text-shadow: 0 0 20px #0f0; }
         .hero p { font-size: 14px; opacity: 0.7; text-transform: uppercase; letter-spacing: 3px; }
+
+        .controls { display: flex; gap: 15px; margin-bottom: 40px; flex-wrap: wrap; align-items: center; }
+        .search-box { flex: 1; min-width: 250px; position: relative; }
+        .search-box input { width: 100%; background: #000; border: 1px solid #0f0; color: #0f0; padding: 12px 40px 12px 15px; font-family: inherit; font-size: 14px; outline: none; }
+        .search-box input:focus { box-shadow: 0 0 10px rgba(0,255,0,0.3); }
+        .search-box .clear { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; opacity: 0.6; font-size: 18px; }
+        .filter-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+        .filter-btn { background: transparent; color: #0f0; border: 1px solid #0f0; padding: 8px 16px; font-family: inherit; font-size: 12px; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; }
+        .filter-btn:hover, .filter-btn.active { background: #0f0; color: #000; }
+        .results-count { font-size: 12px; opacity: 0.7; margin-bottom: 20px; text-transform: uppercase; }
+
         .section { margin-bottom: 80px; }
         .section-header { display: flex; align-items: center; gap: 15px; margin-bottom: 30px; padding-bottom: 15px; border-bottom: 1px solid #0f0; }
         .section-header img { width: 28px; height: 28px; border-radius: 4px; border: 1px solid #0f0; }
         .section-title { font-size: 20px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; }
-        .games-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
-        .game-card { background: #000; border: 1px solid #0f0; text-decoration: none; color: #0f0; transition: all 0.2s; display: block; }
+        .games-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+        .game-card { background: #000; border: 1px solid #0f0; text-decoration: none; color: #0f0; transition: all 0.2s; display: block; position: relative; }
         .game-card:hover { box-shadow: 0 0 20px rgba(0,255,0,0.4), inset 0 0 10px rgba(0,255,0,0.1); transform: translateY(-2px); }
+        .game-card.hidden-card { display: none; }
         .game-image { aspect-ratio: 16/10; background: #050505; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid #0f0; overflow: hidden; }
         .game-image img { width: 100%; height: 100%; object-fit: cover; }
         .game-emoji { font-size: 60px; filter: drop-shadow(0 0 10px #0f0); }
         .game-info { padding: 20px; }
         .game-title { font-size: 16px; font-weight: 700; margin-bottom: 8px; text-transform: uppercase; }
-        .game-tag { font-size: 11px; opacity: 0.7; margin-bottom: 12px; display: inline-block; border: 1px solid #0f0; padding: 2px 8px; }
+        .game-meta { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; }
+        .game-tag { font-size: 10px; opacity: 0.8; border: 1px solid #0f0; padding: 2px 8px; text-transform: uppercase; }
+        .game-diff { font-size: 10px; padding: 2px 8px; text-transform: uppercase; }
+        .diff-easy { border: 1px solid #0f0; color: #0f0; }
+        .diff-medium { border: 1px solid #ff0; color: #ff0; }
+        .diff-hard { border: 1px solid #f00; color: #f00; }
         .game-desc { font-size: 13px; opacity: 0.8; line-height: 1.5; }
-        .new-badge { position: absolute; top: 10px; right: 10px; background: #0f0; color: #000; font-size: 10px; font-weight: 700; padding: 4px 8px; text-transform: uppercase; }
+        .new-badge { position: absolute; top: 10px; right: 10px; background: #0f0; color: #000; font-size: 10px; font-weight: 700; padding: 4px 8px; text-transform: uppercase; z-index: 2; }
         .game-card-wrap { position: relative; }
         .game-card.soon { opacity: 0.5; cursor: default; }
         .game-card.soon:hover { box-shadow: none; transform: none; }
-        @media (max-width: 768px) { .nav { padding: 0 20px; } .nav-links { gap: 15px; } .nav-links a { font-size: 12px; } .container { padding: 80px 20px 40px; } .hero h1 { font-size: 32px; } .games-grid { grid-template-columns: 1fr; } }
+        .recent-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; }
+        .recent-card { background: #000; border: 1px solid #0f0; padding: 15px; text-decoration: none; color: #0f0; display: flex; align-items: center; gap: 12px; transition: all 0.2s; }
+        .recent-card:hover { box-shadow: 0 0 15px rgba(0,255,0,0.3); }
+        .recent-emoji { font-size: 32px; }
+        .recent-title { font-size: 13px; font-weight: 700; text-transform: uppercase; }
+        .recent-tag { font-size: 10px; opacity: 0.6; margin-top: 2px; }
+
+        @media (max-width: 768px) {
+            .nav { padding: 0 15px; }
+            .nav-inner { height: auto; flex-wrap: wrap; padding: 10px 0; gap: 10px; }
+            .nav-links { gap: 12px; width: 100%; justify-content: center; }
+            .nav-links a { font-size: 11px; }
+            .nav-progress { width: 100%; justify-content: center; }
+            .container { padding: 140px 15px 40px; }
+            .hero h1 { font-size: 28px; }
+            .games-grid { grid-template-columns: 1fr; }
+            .controls { flex-direction: column; align-items: stretch; }
+        }
     </style>
 </head>
 <body>
-    <canvas class="matrix-bg" id="matrix"></canvas>
+    <div class="matrix-bg"></div>
     <nav class="nav">
         <div class="nav-inner">
             <a href="index.html" class="nav-logo">
@@ -52,10 +89,16 @@
                 <span>MoneyBot</span>
             </a>
             <div class="nav-links">
-                <a href="#games" class="active">Games</a>
+                <a href="#yc" class="active">YC School</a>
+                <a href="#featured">Featured</a>
+                <a href="#games">All Games</a>
                 <a href="#classics">Classics</a>
-                <a href="#sims">Sims</a>
-                <a href="#calc">Tools</a>
+                <a href="#tools">Tools</a>
+            </div>
+            <div class="nav-progress" id="navProgress" style="display:none">
+                <span>Lvl <b id="playerLvl">1</b></span>
+                <div class="xp-bar"><div class="fill" id="xpFill" style="width:0%"></div></div>
+                <span id="playerXP">0 XP</span>
             </div>
         </div>
     </nav>
@@ -64,1543 +107,258 @@
             <h1>MONEYBOT GAMING</h1>
             <p>Financial Education Through Play</p>
         </div>
-        
-        <!-- FEATURED GAMES - TOP 16 -->
-        <section class="section" id="games">
+
+        <div class="controls">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Search games, tags, descriptions...">
+                <span class="clear" onclick="clearSearch()">×</span>
+            </div>
+            <div class="filter-btns">
+                <button class="filter-btn active" onclick="setFilter('all')">All</button>
+                <button class="filter-btn" onclick="setFilter('arcade')">Arcade</button>
+                <button class="filter-btn" onclick="setFilter('simulation')">Sim</button>
+                <button class="filter-btn" onclick="setFilter('strategy')">Strategy</button>
+                <button class="filter-btn" onclick="setFilter('puzzle')">Puzzle</button>
+                <button class="filter-btn" onclick="setFilter('education')">Edu</button>
+            </div>
+        </div>
+        <div class="results-count" id="resultsCount"></div>
+
+        <!-- RECENTLY PLAYED -->
+        <section class="section" id="recent" style="display:none">
+            <div class="section-header">
+                <span class="section-title">Recently Played</span>
+            </div>
+            <div class="recent-grid" id="recentGrid"></div>
+        </section>
+
+        <!-- YC STARTUP SCHOOL -->
+        <section class="section" id="yc">
+            <div class="section-header">
+                <img src="assets/moneybot-logo-1.jpg" alt="">
+                <span class="section-title">YC Startup School</span>
+            </div>
+            <div class="games-grid" data-section="yc">
+                <div class="game-card-wrap"><a href="../runway-rush/" class="game-card" data-tags="simulation strategy" data-diff="hard" onclick="trackPlay('Burn Rate','../runway-rush/','🔥','YC Lesson','hard')"><span class="new-badge">YC</span><div class="game-image"><span class="game-emoji">🔥</span></div><div class="game-info"><div class="game-title">Burn Rate</div><div class="game-meta"><span class="game-tag">YC Lesson: Don't Die</span><span class="game-diff diff-hard">Hard</span></div><p class="game-desc">Manage monthly cashflow to extend your startup runway. Survive 12 months.</p></div></a></div>
+                <div class="game-card-wrap"><a href="../the-pivot/" class="game-card" data-tags="simulation strategy" data-diff="medium" onclick="trackPlay('The Pivot','../the-pivot/','🎯','YC Lesson','medium')"><span class="new-badge">YC</span><div class="game-image"><span class="game-emoji">🎯</span></div><div class="game-info"><div class="game-title">The Pivot</div><div class="game-meta"><span class="game-tag">YC Lesson: Talk to Users</span><span class="game-diff diff-medium">Medium</span></div><p class="game-desc">Interview customers, gather signals, decide: kill, pivot, or persevere.</p></div></a></div>
+                <div class="game-card-wrap"><a href="../do-things-that-dont-scale/" class="game-card" data-tags="simulation strategy" data-diff="medium" onclick="trackPlay('Do Things That Don\'t Scale','../do-things-that-dont-scale/','🚀','YC Lesson','medium')"><span class="new-badge">YC</span><div class="game-image"><span class="game-emoji">🚀</span></div><div class="game-info"><div class="game-title">Do Things That Don't Scale</div><div class="game-meta"><span class="game-tag">YC Lesson: Manual First</span><span class="game-diff diff-medium">Medium</span></div><p class="game-desc">Handle tasks manually, automate only when it hurts. Grow to 100 users.</p></div></a></div>
+                <div class="game-card-wrap"><a href="../demo-day-dash/" class="game-card" data-tags="simulation arcade" data-diff="medium" onclick="trackPlay('Demo Day Dash','../demo-day-dash/','🎤','YC Lesson','medium')"><span class="new-badge">YC</span><div class="game-image"><span class="game-emoji">🎤</span></div><div class="game-info"><div class="game-title">Demo Day Dash</div><div class="game-meta"><span class="game-tag">YC Lesson: Sell the Dream</span><span class="game-diff diff-medium">Medium</span></div><p class="game-desc">60-second pitch simulation. Hook, problem, solution, traction, ask.</p></div></a></div>
+                <div class="game-card-wrap"><a href="../the-first-hire/" class="game-card" data-tags="simulation strategy" data-diff="hard" onclick="trackPlay('The First Hire','../the-first-hire/','👥','YC Lesson','hard')"><span class="new-badge">YC</span><div class="game-image"><span class="game-emoji">👥</span></div><div class="game-info"><div class="game-title">The First Hire</div><div class="game-meta"><span class="game-tag">YC Lesson: Hire Slow</span><span class="game-diff diff-hard">Hard</span></div><p class="game-desc">Interview candidates, evaluate culture fit vs skill. Build your team.</p></div></a></div>
+                <div class="game-card-wrap"><a href="../ramen-profitability/" class="game-card" data-tags="simulation strategy" data-diff="medium" onclick="trackPlay('Ramen Profitability','../ramen-profitability/','🍜','YC Lesson','medium')"><span class="new-badge">YC</span><div class="game-image"><span class="game-emoji">🍜</span></div><div class="game-info"><div class="game-title">Ramen Profitability</div><div class="game-meta"><span class="game-tag">YC Lesson: Default Alive</span><span class="game-diff diff-medium">Medium</span></div><p class="game-desc">Minimize burn, maximize revenue. Reach ramen profitability before runway ends.</p></div></a></div>
+                <div class="game-card-wrap"><a href="../100-fans/" class="game-card" data-tags="simulation strategy" data-diff="medium" onclick="trackPlay('100 Fans','../100-fans/','💯','YC Lesson','medium')"><span class="new-badge">YC</span><div class="game-image"><span class="game-emoji">💯</span></div><div class="game-info"><div class="game-title">100 Fans</div><div class="game-meta"><span class="game-tag">YC Lesson: Find PMF</span><span class="game-diff diff-medium">Medium</span></div><p class="game-desc">Acquire users, measure retention, iterate. Find 100 true fans.</p></div></a></div>
+                <div class="game-card-wrap"><a href="../the-term-sheet/" class="game-card" data-tags="simulation strategy education" data-diff="hard" onclick="trackPlay('The Term Sheet','../the-term-sheet/','📊','YC Lesson','hard')"><span class="new-badge">YC</span><div class="game-image"><span class="game-emoji">📊</span></div><div class="game-info"><div class="game-title">The Term Sheet</div><div class="game-meta"><span class="game-tag">YC Lesson: Know Your Numbers</span><span class="game-diff diff-hard">Hard</span></div><p class="game-desc">Negotiate valuation, dilution, control. Keep your company.</p></div></a></div>
+                <div class="game-card-wrap"><a href="../growth-loops/" class="game-card" data-tags="simulation strategy" data-diff="medium" onclick="trackPlay('Growth Loops','../growth-loops/','📈','YC Lesson','medium')"><span class="new-badge">YC</span><div class="game-image"><span class="game-emoji">📈</span></div><div class="game-info"><div class="game-title">Growth Loops</div><div class="game-meta"><span class="game-tag">YC Lesson: Build Growth In</span><span class="game-diff diff-medium">Medium</span></div><p class="game-desc">Design viral loops, retention mechanics, referral systems. Compound users.</p></div></a></div>
+            </div>
+        </section>
+
+        <!-- FEATURED -->
+        <section class="section" id="featured">
             <div class="section-header">
                 <img src="assets/moneybot-logo-1.jpg" alt="">
                 <span class="section-title">Featured Games</span>
             </div>
-            <div class="games-grid">
-                <!-- 1. Insurance Tower Defense -->
-                <div class="game-card-wrap">
-                    <a href="../bot-insurance-defender/" class="game-card">
-                        <div class="game-image"><img src="../bot-insurance-defender/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Insurance Tower Defense</div>
-                            <span class="game-tag">Tower Defense</span>
-                            <p class="game-desc">Defend against life events with proper coverage. Health, life, home, auto!</p>
-                        </div>
-                    </a>
-                </div>
-                
-                <!-- 2. FlappyBot -->
-                <div class="game-card-wrap">
-                    <a href="../flappybot/" class="game-card">
-                        <div class="game-image"><img src="../flappybot/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">FlappyBot</div>
-                            <span class="game-tag">Arcade</span>
-                            <p class="game-desc">Navigate through financial barriers in this addictive arcade classic.</p>
-                        </div>
-                    </a>
-                </div>
-                
-                <!-- 3. Compound Climb -->
-                <div class="game-card-wrap">
-                    <a href="../bot-compound-climb/" class="game-card">
-                        <div class="game-image"><img src="../bot-compound-climb/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Compound Climb</div>
-                            <span class="game-tag">Puzzle</span>
-                            <p class="game-desc">Stack investments and watch them grow with compound interest.</p>
-                        </div>
-                    </a>
-                </div>
-                
-                <!-- 4. Buy The Dip -->
-                <div class="game-card-wrap">
-                    <a href="../bot-buy-the-dip/" class="game-card">
-                        <div class="game-image"><img src="../bot-buy-the-dip/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Buy The Dip</div>
-                            <span class="game-tag">Arcade</span>
-                            <p class="game-desc">Catch falling prices before they bounce. Timing is everything.</p>
-                        </div>
-                    </a>
-                </div>
-                
-                <!-- 5. CashFlow Cruiser -->
-                <div class="game-card-wrap">
-                    <a href="../cashflow-cruiser/" class="game-card">
-                        <div class="game-image"><img src="../cashflow-cruiser/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">CashFlow Cruiser</div>
-                            <span class="game-tag">Endless Runner</span>
-                            <p class="game-desc">Jetpack through financial obstacles. Collect coins, avoid debt.</p>
-                        </div>
-                    </a>
-                </div>
-                
-                <!-- 6. Market Survivor -->
-                <div class="game-card-wrap">
-                    <a href="../bull-market-survivor/" class="game-card">
-                        <div class="game-image"><img src="../bull-market-survivor/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Market Survivor</div>
-                            <span class="game-tag">Strategy</span>
-                            <p class="game-desc">Survive market crashes and bull runs. Time your trades.</p>
-                        </div>
-                    </a>
-                </div>
-                
-                <!-- 7. MoneyBot Printer -->
-                <div class="game-card-wrap">
-                    <a href="../money-printer-go/" class="game-card">
-                        <div class="game-image"><img src="../money-printer-go/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">MoneyBot Printer</div>
-                            <span class="game-tag">Idle</span>
-                            <p class="game-desc">Print money, manage inflation, balance the economy.</p>
-                        </div>
-                    </a>
-                </div>
-                
-                <!-- 8. Compound Cookout -->
-                <div class="game-card-wrap">
-                    <a href="../compound-cookoff/" class="game-card">
-                        <div class="game-image"><img src="../compound-cookoff/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Compound Cookout</div>
-                            <span class="game-tag">Strategy</span>
-                            <p class="game-desc">Cook and serve while learning compound interest.</p>
-                        </div>
-                    </a>
-                </div>
-                
-                <!-- 9. Inflation Eater -->
-                <div class="game-card-wrap">
-                    <a href="../bot-inflation-eater/" class="game-card">
-                        <div class="game-image"><img src="../bot-inflation-eater/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Inflation Eater</div>
-                            <span class="game-tag">Defense</span>
-                            <p class="game-desc">Defend your savings from inflation monsters. Invest to preserve purchasing power!</p>
-                        </div>
-                    </a>
-                </div>
-                
-                <!-- 10. Deal Master -->
-                <div class="game-card-wrap">
-                    <a href="../bot-deal-master/" class="game-card">
-                        <div class="game-image"><img src="../bot-deal-master/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Deal Master</div>
-                            <span class="game-tag">Negotiation</span>
-                            <p class="game-desc">Multi-scenario deal-making. Real estate, acquisitions, contracts. Master the art of the deal!</p>
-                        </div>
-                    </a>
-                </div>
-                
-                <!-- 11. Negotiation Nation -->
-                <div class="game-card-wrap">
-                    <a href="../bot-negotiation-nation/" class="game-card">
-                        <div class="game-image"><img src="../bot-negotiation-nation/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Negotiation Nation</div>
-                            <span class="game-tag">Dialogue</span>
-                            <p class="game-desc">Practice salary, rent, and purchase negotiations. Learn tactics that save thousands!</p>
-                        </div>
-                    </a>
-                </div>
-                
-                <!-- 12. Lemonade Empire -->
-                <div class="game-card-wrap">
-                    <a href="../bot-lemonade-empire/" class="game-card">
-                        <div class="game-image"><img src="../bot-lemonade-empire/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Lemonade Empire</div>
-                            <span class="game-tag">Business Sim</span>
-                            <p class="game-desc">Build a lemonade empire from a single stand. Master pricing, inventory, and expansion!</p>
-                        </div>
-                    </a>
-                </div>
-                
-                <!-- 13. College Quest -->
-                <div class="game-card-wrap">
-                    <a href="../bot-college-quest/" class="game-card">
-                        <div class="game-image"><img src="../bot-college-quest/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">College Quest</div>
-                            <span class="game-tag">Simulation</span>
-                            <p class="game-desc">Navigate college financial decisions. Tuition, loans, jobs, and outcomes.</p>
-                        </div>
-                    </a>
-                </div>
-                
-                <!-- 14. MoneyHangMan -->
-                <div class="game-card-wrap">
-                    <a href="../bot-financial-hangman/" class="game-card">
-                        <div class="game-image"><img src="../bot-financial-hangman/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">MoneyHangMan</div>
-                            <span class="game-tag">Puzzle</span>
-                            <p class="game-desc">Guess financial terms before time runs out. Learn vocabulary the fun way!</p>
-                        </div>
-                    </a>
-                </div>
-                
-                <!-- 15. Galactic Loan Sharks -->
-                <div class="game-card-wrap">
-                    <a href="../bot-galactic-loan-sharks/" class="game-card">
-                        <div class="game-image"><img src="../bot-galactic-loan-sharks/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Galactic Loan Sharks</div>
-                            <span class="game-tag">Arcade</span>
-                            <p class="game-desc">Dodge predatory lenders across the galaxy. Learn to spot loan traps!</p>
-                        </div>
-                    </a>
-                </div>
-                
-                <!-- 16. Money Surfers -->
-                <div class="game-card-wrap">
-                    <a href="../bot-market-surfers/" class="game-card">
-                        <div class="game-image"><img src="../bot-market-surfers/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Money Surfers</div>
-                            <span class="game-tag">Arcade</span>
-                            <p class="game-desc">Surf the waves of market volatility. Ride the trends to victory!</p>
-                        </div>
-                    </a>
-                </div>
-                
-                <!-- 17. Freelancer to Agency -->
-                <div class="game-card-wrap">
-                    <a href="../bot-freelancer-agency/" class="game-card">
-                        <div class="game-image"><span class="game-emoji">💼</span></div>
-                        <div class="game-info">
-                            <div class="game-title">Freelancer to Agency</div>
-                            <span class="game-tag">Business Sim</span>
-                            <p class="game-desc">Start solo, take gigs, hire contractors, scale to $1M. Master cashflow and leverage!</p>
-                        </div>
-                    </a>
-                </div>
+            <div class="games-grid" data-section="featured">
+                <div class="game-card-wrap"><a href="../bot-real-estate-sim/" class="game-card" data-tags="simulation education" data-diff="medium" onclick="trackPlay('Real Estate Simulator','../bot-real-estate-sim/','🏠','Simulation','medium')"><span class="new-badge">NEW</span><div class="game-image"><img src="../bot-real-estate-sim/assets/thumb.png" alt=""></div><div class="game-info"><div class="game-title">Real Estate Simulator</div><div class="game-meta"><span class="game-tag">Simulation</span><span class="game-diff diff-medium">Medium</span></div><p class="game-desc">Rent vs Buy: The Ultimate Showdown. See the 30-year impact of homeownership.</p></div></a></div>
+                <div class="game-card-wrap"><a href="../bot-shot/" class="game-card" data-tags="arcade" data-diff="easy" onclick="trackPlay('Bot Shot','../bot-shot/','🏀','Arcade','easy')"><span class="new-badge">NEW</span><div class="game-image"><img src="../bot-shot/assets/thumb.png" alt=""></div><div class="game-info"><div class="game-title">Bot Shot</div><div class="game-meta"><span class="game-tag">Arcade</span><span class="game-diff diff-easy">Easy</span></div><p class="game-desc">Space basketball. Drag to shoot, score to advance. The hoop moves further each level.</p></div></a></div>
+                <div class="game-card-wrap"><a href="../bot-smart-borrower/" class="game-card" data-tags="education simulation" data-diff="medium" onclick="trackPlay('Smart Borrower','../bot-smart-borrower/','🧠','Education','medium')"><span class="new-badge">NEW</span><div class="game-image"><img src="../bot-smart-borrower/assets/thumb.png" alt=""></div><div class="game-info"><div class="game-title">Smart Borrower</div><div class="game-meta"><span class="game-tag">Education</span><span class="game-diff diff-medium">Medium</span></div><p class="game-desc">Learn to spot predatory loans and make informed financial decisions.</p></div></a></div>
+                <div class="game-card-wrap"><a href="../bot-financial-simulator/" class="game-card" data-tags="simulation education" data-diff="medium" onclick="trackPlay('Financial Life Simulator','../bot-financial-simulator/','💰','Simulation','medium')"><span class="new-badge">NEW</span><div class="game-image"><img src="../bot-financial-simulator/assets/thumb.png" alt=""></div><div class="game-info"><div class="game-title">Financial Life Simulator</div><div class="game-meta"><span class="game-tag">Simulation</span><span class="game-diff diff-medium">Medium</span></div><p class="game-desc">Live a full financial life from 18 to retirement. Every decision shapes your wealth.</p></div></a></div>
+                <div class="game-card-wrap"><a href="../bot-college-quest/" class="game-card" data-tags="simulation education" data-diff="medium" onclick="trackPlay('College Quest','../bot-college-quest/','🎓','Simulation','medium')"><div class="game-image"><img src="../bot-college-quest/assets/thumb.png" alt=""></div><div class="game-info"><div class="game-title">College Quest</div><div class="game-meta"><span class="game-tag">Simulation</span><span class="game-diff diff-medium">Medium</span></div><p class="game-desc">Navigate college financial decisions. Tuition, loans, jobs, and outcomes.</p></div></a></div>
+                <div class="game-card-wrap"><a href="../cashflow-cruiser/" class="game-card" data-tags="arcade runner" data-diff="easy" onclick="trackPlay('Cashflow Cruiser','../cashflow-cruiser/','🚀','Endless Runner','easy')"><div class="game-image"><img src="../cashflow-cruiser/assets/thumb.png" alt=""></div><div class="game-info"><div class="game-title">Cashflow Cruiser</div><div class="game-meta"><span class="game-tag">Endless Runner</span><span class="game-diff diff-easy">Easy</span></div><p class="game-desc">Jetpack through financial obstacles. Collect coins, avoid debt.</p></div></a></div>
+                <div class="game-card-wrap"><a href="../compound-cookoff/" class="game-card" data-tags="strategy arcade" data-diff="medium" onclick="trackPlay('Compound Cookoff','../compound-cookoff/','🍳','Strategy','medium')"><div class="game-image"><img src="../compound-cookoff/assets/thumb.png" alt=""></div><div class="game-info"><div class="game-title">Compound Cookoff</div><div class="game-meta"><span class="game-tag">Strategy</span><span class="game-diff diff-medium">Medium</span></div><p class="game-desc">Cook and serve while learning compound interest.</p></div></a></div>
+                <div class="game-card-wrap"><a href="../money-printer-go/" class="game-card" data-tags="arcade idle" data-diff="easy" onclick="trackPlay('Money Printer GO','../money-printer-go/','💵','Idle','easy')"><div class="game-image"><img src="../money-printer-go/assets/thumb.png" alt=""></div><div class="game-info"><div class="game-title">Money Printer GO</div><div class="game-meta"><span class="game-tag">Idle</span><span class="game-diff diff-easy">Easy</span></div><p class="game-desc">Print money, manage inflation, balance the economy.</p></div></a></div>
+                <div class="game-card-wrap"><a href="../flappybot/" class="game-card" data-tags="arcade" data-diff="easy" onclick="trackPlay('FlappyBot','../flappybot/','🐦','Arcade','easy')"><div class="game-image"><img src="../flappybot/assets/thumb.png" alt=""></div><div class="game-info"><div class="game-title">FlappyBot</div><div class="game-meta"><span class="game-tag">Arcade</span><span class="game-diff diff-easy">Easy</span></div><p class="game-desc">Navigate through financial barriers in this addictive arcade classic.</p></div></a></div>
+                <div class="game-card-wrap"><a href="../bot-financial-hangman/" class="game-card" data-tags="puzzle education" data-diff="easy" onclick="trackPlay('Financial Hangman','../bot-financial-hangman/','🎯','Puzzle','easy')"><div class="game-image"><img src="../bot-financial-hangman/assets/thumb.png" alt=""></div><div class="game-info"><div class="game-title">Financial Hangman</div><div class="game-meta"><span class="game-tag">Puzzle</span><span class="game-diff diff-easy">Easy</span></div><p class="game-desc">Guess financial terms before time runs out. 60+ terms across categories.</p></div></a></div>
             </div>
         </section>
-        
-        <!-- YC STARTUP SCHOOL -->
-        <section class="section" id="yc-school">
+
+        <!-- ALL GAMES -->
+        <section class="section" id="games">
             <div class="section-header">
-                <img src="assets/moneybot-logo-1.jpg" alt="" style="filter: hue-rotate(45deg);">
-                <span class="section-title">YC Startup School</span>
+                <img src="assets/moneybot-logo-1.jpg" alt="">
+                <span class="section-title">All MoneyBot Games</span>
             </div>
-            <div class="games-grid">
-                <div class="game-card-wrap">
-                    <a href="../the-pivot/" class="game-card">
-                        <div class="game-image"><img src="assets/yc-thumbnails/the-pivot.png" alt="The Pivot thumbnail"></div>
-                        <div class="game-info">
-                            <div class="game-title">The Pivot</div>
-                            <span class="game-tag">Strategy</span>
-                            <p class="game-desc">Know when to pivot. Read the market signals and change direction before it's too late.</p>
-                        </div>
-                    </a>
-                </div>
-                
-                <div class="game-card-wrap">
-                    <a href="../do-things-that-dont-scale/" class="game-card">
-                        <div class="game-image"><img src="assets/yc-thumbnails/do-things-that-dont-scale.png" alt="Do Things That Don't Scale thumbnail"></div>
-                        <div class="game-info">
-                            <div class="game-title">Do Things That Don't Scale</div>
-                            <span class="game-tag">Simulation</span>
-                            <p class="game-desc">Manual growth hacks vs automation. Find the right balance.</p>
-                        </div>
-                    </a>
-                </div>
-                
-                <div class="game-card-wrap">
-                    <a href="../demo-day-dash/" class="game-card">
-                        <div class="game-image"><img src="assets/yc-thumbnails/demo-day-dash.png" alt="Demo Day Dash thumbnail"></div>
-                        <div class="game-info">
-                            <div class="game-title">Demo Day Dash</div>
-                            <span class="game-tag">Arcade</span>
-                            <p class="game-desc">Pitch your startup in 2 minutes. Capture investor attention.</p>
-                        </div>
-                    </a>
-                </div>
-                
-                <div class="game-card-wrap">
-                    <a href="../the-first-hire/" class="game-card">
-                        <div class="game-image"><img src="assets/yc-thumbnails/the-first-hire.png" alt="The First Hire thumbnail"></div>
-                        <div class="game-info">
-                            <div class="game-title">The First Hire</div>
-                            <span class="game-tag">Simulation</span>
-                            <p class="game-desc">Hire your first employee. Balance skills, culture, and runway.</p>
-                        </div>
-                    </a>
-                </div>
-                
-                <div class="game-card-wrap">
-                    <a href="../ramen-profitability/" class="game-card">
-                        <div class="game-image"><img src="assets/yc-thumbnails/ramen-profitability.png" alt="Ramen Profitability thumbnail"></div>
-                        <div class="game-info">
-                            <div class="game-title">Ramen Profitability</div>
-                            <span class="game-tag">Strategy</span>
-                            <p class="game-desc">Survive on minimal burn. Cut costs without killing growth.</p>
-                        </div>
-                    </a>
-                </div>
-                
-                <div class="game-card-wrap">
-                    <a href="../100-fans/" class="game-card">
-                        <div class="game-image"><img src="assets/yc-thumbnails/100-fans.png" alt="100 Fans thumbnail"></div>
-                        <div class="game-info">
-                            <div class="game-title">100 Fans</div>
-                            <span class="game-tag">Simulation</span>
-                            <p class="game-desc">Find your first 100 true fans. Product-market fit through retention.</p>
-                        </div>
-                    </a>
-                </div>
-                
-                <div class="game-card-wrap">
-                    <a href="../the-term-sheet/" class="game-card">
-                        <div class="game-image"><img src="assets/yc-thumbnails/the-term-sheet.png" alt="The Term Sheet thumbnail"></div>
-                        <div class="game-info">
-                            <div class="game-title">The Term Sheet</div>
-                            <span class="game-tag">Education</span>
-                            <p class="game-desc">Negotiate valuation and dilution. Understand term sheet mechanics.</p>
-                        </div>
-                    </a>
-                </div>
-                
-                <div class="game-card-wrap">
-                    <a href="../growth-loops/" class="game-card">
-                        <div class="game-image"><img src="assets/yc-thumbnails/growth-loops.png" alt="Growth Loops thumbnail"></div>
-                        <div class="game-info">
-                            <div class="game-title">Growth Loops</div>
-                            <span class="game-tag">Strategy</span>
-                            <p class="game-desc">Design viral growth loops. Compound your user acquisition.</p>
-                        </div>
-                    </a>
-                </div>
+            <div class="games-grid" data-section="all">
+                <div class="game-card-wrap"><a href="../bull-market-survivor/" class="game-card" data-tags="strategy" data-diff="medium" onclick="trackPlay('Bull Market Survivor','../bull-market-survivor/','📈','Strategy','medium')"><div class="game-image"><img src="../bull-market-survivor/assets/thumb.png" alt=""></div><div class="game-info"><div class="game-title">Bull Market Survivor</div><div class="game-meta"><span class="game-tag">Strategy</span><span class="game-diff diff-medium">Medium</span></div><p class="game-desc">Survive market crashes and bull runs. Time your trades.</p></div></a></div>
+                <div class="game-card-wrap"><a href="../bot-savings-sprint/" class="game-card" data-tags="arcade runner" data-diff="easy" onclick="trackPlay('Savings Sprint','../bot-savings-sprint/','🏃','Runner','easy')"><div class="game-image"><img src="../bot-savings-sprint/assets/thumb.png" alt=""></div><div class="game-info"><div class="game-title">Savings Sprint</div><div class="game-meta"><span class="game-tag">Runner</span><span class="game-diff diff-easy">Easy</span></div><p class="game-desc">3-lane endless runner. Dodge expenses, collect savings.</p></div></a></div>
+                <div class="game-card-wrap"><a href="../capital-command/" class="game-card" data-tags="strategy" data-diff="medium" onclick="trackPlay('Capital Command','../capital-command/','⚔️','Strategy','medium')"><div class="game-image"><img src="../capital-command/assets/thumb.png" alt=""></div><div class="game-info"><div class="game-title">Capital Command</div><div class="game-meta"><span class="game-tag">Strategy</span><span class="game-diff diff-medium">Medium</span></div><p class="game-desc">Command your capital. Invest, grow, dominate markets.</p></div></a></div>
+                <div class="game-card-wrap"><a href="../yield-merge/" class="game-card" data-tags="puzzle" data-diff="easy" onclick="trackPlay('Yield Merge','../yield-merge/','🔀','Puzzle','easy')"><div class="game-image"><img src="../yield-merge/assets/thumb.png" alt=""></div><div class="game-info"><div class="game-title">Yield Merge</div><div class="game-meta"><span class="game-tag">Puzzle</span><span class="game-diff diff-easy">Easy</span></div><p class="game-desc">Merge investments to create higher yielding assets.</p></div></a></div>
+                <div class="game-card-wrap"><a href="../bot-budget-builder/" class="game-card" data-tags="simulation education" data-diff="easy" onclick="trackPlay('Budget Builder','../bot-budget-builder/','📊','Simulation','easy')"><div class="game-image"><img src="../bot-budget-builder/assets/thumb.png" alt=""></div><div class="game-info"><div class="game-title">Budget Builder</div><div class="game-meta"><span class="game-tag">Simulation</span><span class="game-diff diff-easy">Easy</span></div><p class="game-desc">Build and manage your monthly budget. Balance needs vs wants.</p></div></a></div>
+                <div class="game-card-wrap"><a href="../bot-achievement-hunt/" class="game-card" data-tags="arcade adventure" data-diff="easy" onclick="trackPlay('Achievement Hunt','../bot-achievement-hunt/','🏆','Adventure','easy')"><div class="game-image"><img src="../bot-achievement-hunt/assets/thumb.png" alt=""></div><div class="game-info"><div class="game-title">Achievement Hunt</div><div class="game-meta"><span class="game-tag">Adventure</span><span class="game-diff diff-easy">Easy</span></div><p class="game-desc">Unlock financial milestones and collect achievements.</p></div></a></div>
+                <div class="game-card-wrap"><a href="../bot-buy-the-dip/" class="game-card" data-tags="arcade" data-diff="easy" onclick="trackPlay('Buy The Dip','../bot-buy-the-dip/','📉','Arcade','easy')"><div class="game-image"><img src="../bot-buy-the-dip/assets/thumb.png" alt=""></div><div class="game-info"><div class="game-title">Buy The Dip</div><div class="game-meta"><span class="game-tag">Arcade</span><span class="game-diff diff-easy">Easy</span></div><p class="game-desc">Catch falling prices before they bounce. Timing is everything.</p></div></a></div>
+                <div class="game-card-wrap"><a href="../bot-asset-allocator/" class="game-card" data-tags="strategy" data-diff="medium" onclick="trackPlay('Asset Allocator','../bot-asset-allocator/','📊','Strategy','medium')"><div class="game-image"><img src="../bot-asset-allocator/assets/thumb.png" alt=""></div><div class="game-info"><div class="game-title">Asset Allocator</div><div class="game-meta"><span class="game-tag">Strategy</span><span class="game-diff diff-medium">Medium</span></div><p class="game-desc">Balance your portfolio across different asset classes.</p></div></a></div>
+                <div class="game-card-wrap"><a href="../bot-debt-destroyer/" class="game-card" data-tags="arcade action" data-diff="easy" onclick="trackPlay('Debt Destroyer','../bot-debt-destroyer/','💥','Action','easy')"><div class="game-image"><img src="../bot-debt-destroyer/assets/thumb.png" alt=""></div><div class="game-info"><div class="game-title">Debt Destroyer</div><div class="game-meta"><span class="game-tag">Action</span><span class="game-diff diff-easy">Easy</span></div><p class="game-desc">Blast through debt and achieve financial freedom.</p></div></a></div>
+                <div class="game-card-wrap"><a href="../bot-crypto-climb/" class="game-card" data-tags="arcade" data-diff="easy" onclick="trackPlay('Crypto Climb','../bot-crypto-climb/','🪙','Arcade','easy')"><div class="game-image"><img src="../bot-crypto-climb/assets/thumb.png" alt=""></div><div class="game-info"><div class="game-title">Crypto Climb</div><div class="game-meta"><span class="game-tag">Arcade</span><span class="game-diff diff-easy">Easy</span></div><p class="game-desc">Climb the volatile crypto markets. Buy low, sell high.</p></div></a></div>
+                <div class="game-card-wrap"><a href="../bot-compound-climb/" class="game-card" data-tags="puzzle" data-diff="easy" onclick="trackPlay('Compound Climb','../bot-compound-climb/','📈','Puzzle','easy')"><div class="game-image"><img src="../bot-compound-climb/assets/thumb.png" alt=""></div><div class="game-info"><div class="game-title">Compound Climb</div><div class="game-meta"><span class="game-tag">Puzzle</span><span class="game-diff diff-easy">Easy</span></div><p class="game-desc">Stack investments and watch them grow with compound interest.</p></div></a></div>
+                <div class="game-card-wrap"><a href="../bot-stock-stack/" class="game-card" data-tags="puzzle" data-diff="easy" onclick="trackPlay('Stock Stack','../bot-stock-stack/','🏗️','Puzzle','easy')"><div class="game-image"><img src="../bot-stock-stack/assets/thumb.png" alt=""></div><div class="game-info"><div class="game-title">Stock Stack</div><div class="game-meta"><span class="game-tag">Puzzle</span><span class="game-diff diff-easy">Easy</span></div><p class="game-desc">Stack stocks strategically. Build your portfolio tower.</p></div></a></div>
+                <div class="game-card-wrap"><a href="../bot-risk-tetris/" class="game-card" data-tags="arcade puzzle" data-diff="easy" onclick="trackPlay('Risk Tetris','../bot-risk-tetris/','🎮','Arcade','easy')"><div class="game-image"><img src="../bot-risk-tetris/assets/thumb.png" alt=""></div><div class="game-info"><div class="game-title">Risk Tetris</div><div class="game-meta"><span class="game-tag">Arcade</span><span class="game-diff diff-easy">Easy</span></div><p class="game-desc">Balance risk and reward in this Tetris-inspired game.</p></div></a></div>
+                <div class="game-card-wrap"><a href="../bot-wealth-tower/" class="game-card" data-tags="strategy" data-diff="medium" onclick="trackPlay('Wealth Tower','../bot-wealth-tower/','🏢','Strategy','medium')"><div class="game-image"><img src="../bot-wealth-tower/assets/thumb.png" alt=""></div><div class="game-info"><div class="game-title">Wealth Tower</div><div class="game-meta"><span class="game-tag">Strategy</span><span class="game-diff diff-medium">Medium</span></div><p class="game-desc">Build a tower of wealth. Careful - it might topple!</p></div></a></div>
+                <div class="game-card-wrap"><a href="../bot-dividend-defense/" class="game-card" data-tags="strategy tower-defense" data-diff="medium" onclick="trackPlay('Dividend Defense','../bot-dividend-defense/','🛡️','Tower Defense','medium')"><div class="game-image"><img src="../bot-dividend-defense/assets/thumb.png" alt=""></div><div class="game-info"><div class="game-title">Dividend Defense</div><div class="game-meta"><span class="game-tag">Tower Defense</span><span class="game-diff diff-medium">Medium</span></div><p class="game-desc">Defend your dividend empire from market crashes.</p></div></a></div>
+                <div class="game-card-wrap"><a href="../bot-invest-island/" class="game-card" data-tags="simulation" data-diff="medium" onclick="trackPlay('Invest Island','../bot-invest-island/','🏝️','Simulation','medium')"><div class="game-image"><img src="../bot-invest-island/assets/thumb.png" alt=""></div><div class="game-info"><div class="game-title">Invest Island</div><div class="game-meta"><span class="game-tag">Simulation</span><span class="game-diff diff-medium">Medium</span></div><p class="game-desc">Build an investment portfolio on your own island.</p></div></a></div>
+                <div class="game-card-wrap"><a href="../bot-cash-craze/" class="game-card" data-tags="arcade match-3" data-diff="easy" onclick="trackPlay('Cash Craze','../bot-cash-craze/','💎','Match-3','easy')"><div class="game-image"><img src="../bot-cash-craze/assets/thumb.png" alt=""></div><div class="game-info"><div class="game-title">Cash Craze</div><div class="game-meta"><span class="game-tag">Match-3</span><span class="game-diff diff-easy">Easy</span></div><p class="game-desc">Match cash symbols and build your fortune.</p></div></a></div>
+                <div class="game-card-wrap"><a href="../bot-coin-pong/" class="game-card" data-tags="arcade" data-diff="easy" onclick="trackPlay('Coin Pong','../bot-coin-pong/','🏓','Arcade','easy')"><div class="game-image"><img src="../bot-coin-pong/assets/thumb.png" alt=""></div><div class="game-info"><div class="game-title">Coin Pong</div><div class="game-meta"><span class="game-tag">Arcade</span><span class="game-diff diff-easy">Easy</span></div><p class="game-desc">Classic pong with a crypto twist. Collect coins as you play.</p></div></a></div>
+                <div class="game-card-wrap"><a href="../bot-budget-blaster/" class="game-card" data-tags="arcade action" data-diff="easy" onclick="trackPlay('Budget Blaster','../bot-budget-blaster/','🔫','Action','easy')"><div class="game-image"><img src="../bot-budget-blaster/assets/thumb.png" alt=""></div><div class="game-info"><div class="game-title">Budget Blaster</div><div class="game-meta"><span class="game-tag">Action</span><span class="game-diff diff-easy">Easy</span></div><p class="game-desc">Blast through expenses and protect your savings.</p></div></a></div>
+                <div class="game-card-wrap"><a href="../bot-bull-bear-battle/" class="game-card" data-tags="arcade fighting" data-diff="easy" onclick="trackPlay('Bull Bear Battle','../bot-bull-bear-battle/','🐂','Fighting','easy')"><div class="game-image"><img src="../bot-bull-bear-battle/assets/thumb.png" alt=""></div><div class="game-info"><div class="game-title">Bull Bear Battle</div><div class="game-meta"><span class="game-tag">Fighting</span><span class="game-diff diff-easy">Easy</span></div><p class="game-desc">Battle between market bulls and bears.</p></div></a></div>
+                <div class="game-card-wrap"><a href="../bot-budget-breakout/" class="game-card" data-tags="arcade" data-diff="easy" onclick="trackPlay('Budget Breakout','../bot-budget-breakout/','🧱','Arcade','easy')"><div class="game-image"><img src="../bot-budget-breakout/assets/thumb.png" alt=""></div><div class="game-info"><div class="game-title">Budget Breakout</div><div class="game-meta"><span class="game-tag">Arcade</span><span class="game-diff diff-easy">Easy</span></div><p class="game-desc">Break through budget barriers brick by brick.</p></div></a></div>
+                <div class="game-card-wrap"><a href="../bot-budget-slice/" class="game-card" data-tags="puzzle" data-diff="easy" onclick="trackPlay('Budget Slice','../bot-budget-slice/','🍕','Puzzle','easy')"><div class="game-image"><img src="../bot-budget-slice/assets/thumb.png" alt=""></div><div class="game-info"><div class="game-title">Budget Slice</div><div class="game-meta"><span class="game-tag">Puzzle</span><span class="game-diff diff-easy">Easy</span></div><p class="game-desc">Slice your budget into perfect portions.</p></div></a></div>
+                <div class="game-card-wrap"><a href="../bot-dollar-drop/" class="game-card" data-tags="arcade" data-diff="easy" onclick="trackPlay('Dollar Drop','../bot-dollar-drop/','💵','Arcade','easy')"><div class="game-image"><img src="../bot-dollar-drop/assets/thumb.png" alt=""></div><div class="game-info"><div class="game-title">Dollar Drop</div><div class="game-meta"><span class="game-tag">Arcade</span><span class="game-diff diff-easy">Easy</span></div><p class="game-desc">Drop dollars strategically to maximize returns.</p></div></a></div>
+                <div class="game-card-wrap"><a href="../bot-galactic-loan-sharks/" class="game-card" data-tags="adventure" data-diff="hard" onclick="trackPlay('Galactic Loan Sharks','../bot-galactic-loan-sharks/','🦈','Adventure','hard')"><div class="game-image"><img src="../bot-galactic-loan-sharks/assets/thumb.png" alt=""></div><div class="game-info"><div class="game-title">Galactic Loan Sharks</div><div class="game-meta"><span class="game-tag">Adventure</span><span class="game-diff diff-hard">Hard</span></div><p class="game-desc">Space adventure where you navigate predatory lenders.</p></div></a></div>
+                <div class="game-card-wrap"><a href="../bot-history-of-money/" class="game-card" data-tags="education" data-diff="easy" onclick="trackPlay('History of Money','../bot-history-of-money/','📜','Educational','easy')"><div class="game-image"><img src="../bot-history-of-money/assets/thumb.png" alt=""></div><div class="game-info"><div class="game-title">History of Money</div><div class="game-meta"><span class="game-tag">Educational</span><span class="game-diff diff-easy">Easy</span></div><p class="game-desc">Journey through the evolution of currency and finance.</p></div></a></div>
+                <div class="game-card-wrap"><a href="../bot-ipo-launch/" class="game-card" data-tags="simulation" data-diff="medium" onclick="trackPlay('IPO Launch','../bot-ipo-launch/','🚀','Simulation','medium')"><div class="game-image"><img src="../bot-ipo-launch/assets/thumb.png" alt=""></div><div class="game-info"><div class="game-title">IPO Launch</div><div class="game-meta"><span class="game-tag">Simulation</span><span class="game-diff diff-medium">Medium</span></div><p class="game-desc">Take your company public. Navigate the IPO process.</p></div></a></div>
+                <div class="game-card-wrap"><a href="../bot-lemonade-empire/" class="game-card" data-tags="simulation tycoon" data-diff="easy" onclick="trackPlay('Lemonade Empire','../bot-lemonade-empire/','🍋','Tycoon','easy')"><div class="game-image"><img src="../bot-lemonade-empire/assets/thumb.png" alt=""></div><div class="game-info"><div class="game-title">Lemonade Empire</div><div class="game-meta"><span class="game-tag">Tycoon</span><span class="game-diff diff-easy">Easy</span></div><p class="game-desc">Start with a lemonade stand, build a beverage empire.</p></div></a></div>
+                <div class="game-card-wrap"><a href="../bot-market-racer/" class="game-card" data-tags="arcade racing" data-diff="easy" onclick="trackPlay('Market Racer','../bot-market-racer/','🏎️','Racing','easy')"><div class="game-image"><img src="../bot-market-racer/assets/thumb.png" alt=""></div><div class="game-info"><div class="game-title">Market Racer</div><div class="game-meta"><span class="game-tag">Racing</span><span class="game-diff diff-easy">Easy</span></div><p class="game-desc">Race through market trends. Speed equals profit.</p></div></a></div>
+                <div class="game-card-wrap"><a href="../bot-diversification-drop/" class="game-card" data-tags="puzzle" data-diff="easy" onclick="trackPlay('Diversification Drop','../bot-diversification-drop/','📦','Puzzle','easy')"><div class="game-image"><img src="../bot-diversification-drop/assets/thumb.png" alt=""></div><div class="game-info"><div class="game-title">Diversification Drop</div><div class="game-meta"><span class="game-tag">Puzzle</span><span class="game-diff diff-easy">Easy</span></div><p class="game-desc">Drop pieces to build a diversified portfolio.</p></div></a></div>
+                <div class="game-card-wrap"><a href="../bot-wealth-wheel/" class="game-card" data-tags="arcade chance" data-diff="easy" onclick="trackPlay('Wealth Wheel','../bot-wealth-wheel/','🎡','Chance','easy')"><div class="game-image"><img src="../bot-wealth-wheel/assets/thumb.png" alt=""></div><div class="game-info"><div class="game-title">Wealth Wheel</div><div class="game-meta"><span class="game-tag">Chance</span><span class="game-diff diff-easy">Easy</span></div><p class="game-desc">Spin the wheel of fortune. Test your financial luck.</p></div></a></div>
+                <div class="game-card-wrap"><a href="../bot-profit-pinball/" class="game-card" data-tags="arcade" data-diff="easy" onclick="trackPlay('Profit Pinball','../bot-profit-pinball/','🔮','Arcade','easy')"><div class="game-image"><img src="../bot-profit-pinball/assets/thumb.png" alt=""></div><div class="game-info"><div class="game-title">Profit Pinball</div><div class="game-meta"><span class="game-tag">Arcade</span><span class="game-diff diff-easy">Easy</span></div><p class="game-desc">Classic pinball with a profit twist. Rack up points.</p></div></a></div>
+                <div class="game-card-wrap"><a href="../bot-fiscal-frogger/" class="game-card" data-tags="arcade" data-diff="easy" onclick="trackPlay('Fiscal Frogger','../bot-fiscal-frogger/','🐸','Arcade','easy')"><div class="game-image"><img src="../bot-fiscal-frogger/assets/thumb.png" alt=""></div><div class="game-info"><div class="game-title">Fiscal Frogger</div><div class="game-meta"><span class="game-tag">Arcade</span><span class="game-diff diff-easy">Easy</span></div><p class="game-desc">Cross the financial highway. Dodge debt collectors.</p></div></a></div>
+                <div class="game-card-wrap"><a href="../bot-savings-snake/" class="game-card" data-tags="arcade" data-diff="easy" onclick="trackPlay('Savings Snake','../bot-savings-snake/','🐍','Arcade','easy')"><div class="game-image"><img src="../bot-savings-snake/assets/thumb.png" alt=""></div><div class="game-info"><div class="game-title">Savings Snake</div><div class="game-meta"><span class="game-tag">Arcade</span><span class="game-diff diff-easy">Easy</span></div><p class="game-desc">Grow your savings snake. Don't run into expenses!</p></div></a></div>
+                <div class="game-card-wrap"><a href="../bot-tax-tetris/" class="game-card" data-tags="puzzle" data-diff="easy" onclick="trackPlay('Tax Tetris','../bot-tax-tetris/','🧩','Puzzle','easy')"><div class="game-image"><img src="../bot-tax-tetris/assets/thumb.png" alt=""></div><div class="game-info"><div class="game-title">Tax Tetris</div><div class="game-meta"><span class="game-tag">Puzzle</span><span class="game-diff diff-easy">Easy</span></div><p class="game-desc">Fit deductions together before time runs out.</p></div></a></div>
+                <div class="game-card-wrap"><a href="../bot-stock-tycoon/" class="game-card" data-tags="simulation tycoon" data-diff="medium" onclick="trackPlay('Stock Tycoon','../bot-stock-tycoon/','📈','Tycoon','medium')"><div class="game-image"><img src="../bot-stock-tycoon/assets/thumb.png" alt=""></div><div class="game-info"><div class="game-title">Stock Tycoon</div><div class="game-meta"><span class="game-tag">Tycoon</span><span class="game-diff diff-medium">Medium</span></div><p class="game-desc">Build a stock trading empire from the ground up.</p></div></a></div>
+                <div class="game-card-wrap"><a href="../bot-cash-dash/" class="game-card" data-tags="arcade racing" data-diff="easy" onclick="trackPlay('Cash Dash','../bot-cash-dash/','💨','Racing','easy')"><div class="game-image"><img src="../bot-cash-dash/assets/thumb.png" alt=""></div><div class="game-info"><div class="game-title">Cash Dash</div><div class="game-meta"><span class="game-tag">Racing</span><span class="game-diff diff-easy">Easy</span></div><p class="game-desc">Race to collect cash before time runs out.</p></div></a></div>
+                <div class="game-card-wrap"><a href="../bot-market-surfers/" class="game-card" data-tags="arcade" data-diff="easy" onclick="trackPlay('Market Surfers','../bot-market-surfers/','🏄','Arcade','easy')"><div class="game-image"><img src="../bot-market-surfers/assets/thumb.png" alt=""></div><div class="game-info"><div class="game-title">Market Surfers</div><div class="game-meta"><span class="game-tag">Arcade</span><span class="game-diff diff-easy">Easy</span></div><p class="game-desc">Surf the waves of market volatility.</p></div></a></div>
+                <!-- Additional games that exist but weren't linked -->
+                <div class="game-card-wrap"><a href="../bot-burn-rate/" class="game-card" data-tags="arcade" data-diff="hard" onclick="trackPlay('Burn Rate Drifter','../bot-burn-rate/','🔥','Arcade','hard')"><div class="game-image"><span class="game-emoji">🔥</span></div><div class="game-info"><div class="game-title">Burn Rate Drifter</div><div class="game-meta"><span class="game-tag">Arcade</span><span class="game-diff diff-hard">Hard</span></div><p class="game-desc">Drift through startup burn scenarios. Don't run out of cash.</p></div></a></div>
+                <div class="game-card-wrap"><a href="../money-invaders/" class="game-card" data-tags="arcade" data-diff="easy" onclick="trackPlay('Money Invaders','../money-invaders/','👾','Arcade','easy')"><div class="game-image"><span class="game-emoji">👾</span></div><div class="game-info"><div class="game-title">Money Invaders</div><div class="game-meta"><span class="game-tag">Arcade</span><span class="game-diff diff-easy">Easy</span></div><p class="game-desc">Space invaders with a financial twist. Blast the debt away.</p></div></a></div>
+                <div class="game-card-wrap"><a href="../money-jump/" class="game-card" data-tags="arcade" data-diff="easy" onclick="trackPlay('Money Jump','../money-jump/','🦘','Arcade','easy')"><div class="game-image"><span class="game-emoji">🦘</span></div><div class="game-info"><div class="game-title">Money Jump</div><div class="game-meta"><span class="game-tag">Arcade</span><span class="game-diff diff-easy">Easy</span></div><p class="game-desc">Jump to collect coins and avoid falling into debt pits.</p></div></a></div>
+                <div class="game-card-wrap"><a href="../stockbot/" class="game-card" data-tags="simulation" data-diff="medium" onclick="trackPlay('StockBot','../stockbot/','📊','Simulation','medium')"><div class="game-image"><span class="game-emoji">🤖</span></div><div class="game-info"><div class="game-title">StockBot</div><div class="game-meta"><span class="game-tag">Simulation</span><span class="game-diff diff-medium">Medium</span></div><p class="game-desc">AI-powered stock market simulation. Beat the algorithm.</p></div></a></div>
+                <div class="game-card-wrap"><a href="../cryptobot/" class="game-card" data-tags="arcade" data-diff="easy" onclick="trackPlay('CryptoBot','../cryptobot/','₿','Arcade','easy')"><div class="game-image"><span class="game-emoji">₿</span></div><div class="game-info"><div class="game-title">CryptoBot</div><div class="game-meta"><span class="game-tag">Arcade</span><span class="game-diff diff-easy">Easy</span></div><p class="game-desc">Trade crypto in real-time. Watch the charts, time your moves.</p></div></a></div>
+                <div class="game-card-wrap"><a href="../botbalance/" class="game-card" data-tags="puzzle" data-diff="easy" onclick="trackPlay('BotBalance','../botbalance/','⚖️','Puzzle','easy')"><div class="game-image"><span class="game-emoji">⚖️</span></div><div class="game-info"><div class="game-title">BotBalance</div><div class="game-meta"><span class="game-tag">Puzzle</span><span class="game-diff diff-easy">Easy</span></div><p class="game-desc">Balance the books before time runs out.</p></div></a></div>
+                <div class="game-card-wrap"><a href="../viralquizbot/" class="game-card" data-tags="education" data-diff="easy" onclick="trackPlay('ViralQuizBot','../viralquizbot/','❓','Education','easy')"><div class="game-image"><span class="game-emoji">❓</span></div><div class="game-info"><div class="game-title">ViralQuizBot</div><div class="game-meta"><span class="game-tag">Education</span><span class="game-diff diff-easy">Easy</span></div><p class="game-desc">Test your financial literacy with viral-style quizzes.</p></div></a></div>
+                <div class="game-card-wrap"><a href="../moneymatch/" class="game-card" data-tags="puzzle" data-diff="easy" onclick="trackPlay('MoneyMatch','../moneymatch/','🎯','Puzzle','easy')"><div class="game-image"><span class="game-emoji">🎯</span></div><div class="game-info"><div class="game-title">MoneyMatch</div><div class="game-meta"><span class="game-tag">Puzzle</span><span class="game-diff diff-easy">Easy</span></div><p class="game-desc">Match financial symbols in this memory game.</p></div></a></div>
+                <div class="game-card-wrap"><a href="../money-bank-heist/" class="game-card" data-tags="arcade" data-diff="medium" onclick="trackPlay('Bank Heist','../money-bank-heist/','🏦','Arcade','medium')"><div class="game-image"><span class="game-emoji">🏦</span></div><div class="game-info"><div class="game-title">Bank Heist</div><div class="game-meta"><span class="game-tag">Arcade</span><span class="game-diff diff-medium">Medium</span></div><p class="game-desc">Plan the perfect heist. Stealth, strategy, and split-second decisions.</p></div></a></div>
+                <div class="game-card-wrap"><a href="../runway-rush/" class="game-card" data-tags="arcade" data-diff="easy" onclick="trackPlay('Runway Rush','../runway-rush/','✈️','Arcade','easy')"><div class="game-image"><span class="game-emoji">✈️</span></div><div class="game-info"><div class="game-title">Runway Rush</div><div class="game-meta"><span class="game-tag">Arcade</span><span class="game-diff diff-easy">Easy</span></div><p class="game-desc">Rush to manage runway before your startup crashes.</p></div></a></div>
+                <div class="game-card-wrap"><a href="../botbiztycoon/" class="game-card" data-tags="simulation tycoon" data-diff="medium" onclick="trackPlay('BotBizTycoon','../botbiztycoon/','🏢','Tycoon','medium')"><div class="game-image"><span class="game-emoji">🏢</span></div><div class="game-info"><div class="game-title">BotBizTycoon</div><div class="game-meta"><span class="game-tag">Tycoon</span><span class="game-diff diff-medium">Medium</span></div><p class="game-desc">Build a business empire from scratch. Hire, expand, dominate.</p></div></a></div>
             </div>
         </section>
-        
+
         <!-- WEB CLASSICS -->
         <section class="section" id="classics">
             <div class="section-header">
                 <img src="assets/moneybot-logo-1.jpg" alt="" style="filter: grayscale(100%) brightness(1.2);">
                 <span class="section-title">Web Classics</span>
             </div>
-            <div class="games-grid">
-                <div class="game-card-wrap">
-                    <a href="https://www.coolmathgames.com/0-lemonade-stand" target="_blank" class="game-card">
-                        <div class="game-image"><span class="game-emoji">🍋</span></div>
-                        <div class="game-info">
-                            <div class="game-title">Lemonade Stand</div>
-                            <span class="game-tag">Classic</span>
-                            <p class="game-desc">The OG business simulation. Manage inventory, pricing, and demand.</p>
-                        </div>
-                    </a>
-                </div>
-                
-                <div class="game-card-wrap">
-                    <a href="https://ngpf.org/arcade/shady-sam/" target="_blank" class="game-card">
-                        <div class="game-image"><span class="game-emoji">🦈</span></div>
-                        <div class="game-info">
-                            <div class="game-title">Shady Sam</div>
-                            <span class="game-tag">NGPF</span>
-                            <p class="game-desc">Learn how predatory lenders trick borrowers. Don't get scammed.</p>
-                        </div>
-                    </a>
-                </div>
-                
-                <div class="game-card-wrap">
-                    <a href="https://playspent.org/" target="_blank" class="game-card">
-                        <div class="game-image"><span class="game-emoji">💸</span></div>
-                        <div class="game-info">
-                            <div class="game-title">Spent</div>
-                            <span class="game-tag">Urban Ministries</span>
-                            <p class="game-desc">Experience living on minimum wage. Survive 30 days.</p>
-                        </div>
-                    </a>
-                </div>
-                
-                <div class="game-card-wrap">
-                    <a href="https://www.practicalmoneyskills.com/play/financial_football/" target="_blank" class="game-card">
-                        <div class="game-image"><span class="game-emoji">🏈</span></div>
-                        <div class="game-info">
-                            <div class="game-title">Financial Football</div>
-                            <span class="game-tag">Visa</span>
-                            <p class="game-desc">Answer financial questions to advance down the field.</p>
-                        </div>
-                    </a>
-                </div>
+            <div class="games-grid" data-section="classics">
+                <div class="game-card-wrap"><a href="https://www.coolmathgames.com/0-lemonade-stand" target="_blank" class="game-card" data-tags="classic simulation" data-diff="easy"><div class="game-image"><span class="game-emoji">🍋</span></div><div class="game-info"><div class="game-title">Lemonade Stand</div><div class="game-meta"><span class="game-tag">Classic</span><span class="game-diff diff-easy">Easy</span></div><p class="game-desc">The OG business simulation. Manage inventory, pricing, and demand.</p></div></a></div>
+                <div class="game-card-wrap"><a href="https://ngpf.org/arcade/shady-sam/" target="_blank" class="game-card" data-tags="classic education" data-diff="easy"><div class="game-image"><span class="game-emoji">🦈</span></div><div class="game-info"><div class="game-title">Shady Sam</div><div class="game-meta"><span class="game-tag">NGPF</span><span class="game-diff diff-easy">Easy</span></div><p class="game-desc">Learn how predatory lenders trick borrowers. Don't get scammed.</p></div></a></div>
+                <div class="game-card-wrap"><a href="https://playspent.org/" target="_blank" class="game-card" data-tags="classic simulation" data-diff="medium"><div class="game-image"><span class="game-emoji">💸</span></div><div class="game-info"><div class="game-title">Spent</div><div class="game-meta"><span class="game-tag">Urban Ministries</span><span class="game-diff diff-medium">Medium</span></div><p class="game-desc">Experience living on minimum wage. Survive 30 days.</p></div></a></div>
+                <div class="game-card-wrap"><a href="https://www.practicalmoneyskills.com/play/financial_football/" target="_blank" class="game-card" data-tags="classic education" data-diff="easy"><div class="game-image"><span class="game-emoji">🏈</span></div><div class="game-info"><div class="game-title">Financial Football</div><div class="game-meta"><span class="game-tag">Visa</span><span class="game-diff diff-easy">Easy</span></div><p class="game-desc">Answer financial questions to advance down the field.</p></div></a></div>
+                <div class="game-card-wrap"><a href="https://www.coolmathgames.com/0-idle-startup-tycoon" target="_blank" class="game-card" data-tags="classic simulation" data-diff="easy"><div class="game-image"><span class="game-emoji">🚀</span></div><div class="game-info"><div class="game-title">Idle Startup Tycoon</div><div class="game-meta"><span class="game-tag">CoolMath</span><span class="game-diff diff-easy">Easy</span></div><p class="game-desc">Build a startup empire from garage to unicorn.</p></div></a></div>
+                <div class="game-card-wrap"><a href="https://www.coolmathgames.com/0-coffee-shop" target="_blank" class="game-card" data-tags="classic simulation" data-diff="easy"><div class="game-image"><span class="game-emoji">☕</span></div><div class="game-info"><div class="game-title">Coffee Shop</div><div class="game-meta"><span class="game-tag">CoolMath</span><span class="game-diff diff-easy">Easy</span></div><p class="game-desc">Run a coffee shop. Balance quality, price, and demand.</p></div></a></div>
             </div>
         </section>
-        
-        <!-- SIMULATORS -->
-        <section class="section" id="sims">
-            <div class="section-header">
-                <img src="assets/moneybot-logo-1.jpg" alt="" style="filter: hue-rotate(270deg);">
-                <span class="section-title">Simulators</span>
-            </div>
-            <div class="games-grid">
-                <div class="game-card-wrap">
-                    <a href="../bot-startup-tycoon/" class="game-card">
-                        <div class="game-image"><span class="game-emoji">🚀</span></div>
-                        <div class="game-info">
-                            <div class="game-title">Startup Tycoon</div>
-                            <span class="game-tag">Business Sim</span>
-                            <p class="game-desc">Manage runway, hire smart, and grow MRR. Build from seed to profitability.</p>
-                        </div>
-                    </a>
-                </div>
-                
-                <div class="game-card-wrap">
-                    <a href="../bot-saas-empire/" class="game-card">
-                        <div class="game-image"><span class="game-emoji">☁️</span></div>
-                        <div class="game-info">
-                            <div class="game-title">SaaS Empire</div>
-                            <span class="game-tag">Idle Sim</span>
-                            <p class="game-desc">Tap to acquire customers, buy upgrades, scale to $1M ARR.</p>
-                        </div>
-                    </a>
-                </div>
-                
-                <div class="game-card-wrap">
-                    <a href="../bot-property-flipper/" class="game-card">
-                        <div class="game-image"><span class="game-emoji">🏠</span></div>
-                        <div class="game-info">
-                            <div class="game-title">Property Flipper</div>
-                            <span class="game-tag">Business Sim</span>
-                            <p class="game-desc">Buy distressed properties, renovate, and sell for profit. Time the market.</p>
-                        </div>
-                    </a>
-                </div>
-                
-                <div class="game-card-wrap">
-                    <a href="../bot-restaurant-tycoon/" class="game-card">
-                        <div class="game-image"><span class="game-emoji">🍽️</span></div>
-                        <div class="game-info">
-                            <div class="game-title">Restaurant Tycoon</div>
-                            <span class="game-tag">Business Sim</span>
-                            <p class="game-desc">Manage menu, staff, and costs. Keep ratings high and cash flow positive.</p>
-                        </div>
-                    </a>
-                </div>
-                
-                <div class="game-card-wrap">
-                    <a href="../bot-freelancer-agency/" class="game-card">
-                        <div class="game-image"><span class="game-emoji">💼</span></div>
-                        <div class="game-info">
-                            <div class="game-title">Freelancer to Agency</div>
-                            <span class="game-tag">Business Sim</span>
-                            <p class="game-desc">Start solo, take gigs, hire contractors, scale to $1M. Master cashflow and leverage!</p>
-                        </div>
-                    </a>
-                </div>
-                
-                <div class="game-card-wrap">
-                    <a href="../bot-ecommerce-empire/" class="game-card">
-                        <div class="game-image"><img src="../bot-ecommerce-empire/assets/thumb.png" alt="E-commerce Empire thumbnail"></div>
-                        <div class="game-info">
-                            <div class="game-title">E-commerce Empire</div>
-                            <span class="game-tag">Business Sim</span>
-                            <p class="game-desc">Source products, set prices, run ads, manage inventory. Build a profitable online store.</p>
-                        </div>
-                    </a>
-                </div>
-                
-                <div class="game-card soon">
-                    <div class="game-image"><span class="game-emoji">💰</span></div>
-                    <div class="game-info">
-                        <div class="game-title">Budget Simulator</div>
-                        <span class="game-tag">Coming Soon</span>
-                        <p class="game-desc">Simulate real monthly budgeting scenarios.</p>
-                    </div>
-                </div>
-                
-                <div class="game-card soon">
-                    <div class="game-image"><span class="game-emoji">🏦</span></div>
-                    <div class="game-info">
-                        <div class="game-title">Loan Simulator</div>
-                        <span class="game-tag">Coming Soon</span>
-                        <p class="game-desc">Explore loan types, interest rates, repayment terms.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-        
-        <!-- CALCULATORS -->
-        <section class="section" id="calc">
+
+        <!-- TOOLS & CALCULATORS -->
+        <section class="section" id="tools">
             <div class="section-header">
                 <img src="assets/moneybot-logo-1.jpg" alt="" style="filter: hue-rotate(180deg);">
-                <span class="section-title">Calculators</span>
+                <span class="section-title">Tools & Calculators</span>
             </div>
-            <div class="games-grid">
-                <div class="game-card soon">
-                    <div class="game-image"><span class="game-emoji">📈</span></div>
-                    <div class="game-info">
-                        <div class="game-title">Compound Interest</div>
-                        <span class="game-tag">Coming Soon</span>
-                        <p class="game-desc">See how compound interest grows your investments.</p>
-                    </div>
-                </div>
-                
-                <div class="game-card soon">
-                    <div class="game-image"><span class="game-emoji">🏡</span></div>
-                    <div class="game-info">
-                        <div class="game-title">Mortgage Calculator</div>
-                        <span class="game-tag">Coming Soon</span>
-                        <p class="game-desc">Calculate payments, interest, amortization.</p>
-                    </div>
-                </div>
-                
-                <div class="game-card soon">
-                    <div class="game-image"><span class="game-emoji">💳</span></div>
-                    <div class="game-info">
-                        <div class="game-title">Debt Payoff</div>
-                        <span class="game-tag">Coming Soon</span>
-                        <p class="game-desc">Compare avalanche vs snowball methods.</p>
-                    </div>
-                </div>
+            <div class="games-grid" data-section="tools">
+                <div class="game-card-wrap"><a href="../calculator-compound/" class="game-card" data-tags="tool calculator education" data-diff="easy" onclick="trackPlay('Compound Interest Calc','../calculator-compound/','📈','Calculator','easy')"><span class="new-badge">TOOL</span><div class="game-image"><span class="game-emoji">📈</span></div><div class="game-info"><div class="game-title">Compound Interest Calculator</div><div class="game-meta"><span class="game-tag">Calculator</span><span class="game-diff diff-easy">Easy</span></div><p class="game-desc">See how time and returns grow your money. Interactive chart + yearly breakdown.</p></div></a></div>
+                <div class="game-card-wrap"><a href="../calculator-mortgage/" class="game-card" data-tags="tool calculator education" data-diff="easy" onclick="trackPlay('Mortgage Calc','../calculator-mortgage/','🏡','Calculator','easy')"><span class="new-badge">TOOL</span><div class="game-image"><span class="game-emoji">🏡</span></div><div class="game-info"><div class="game-title">Mortgage Calculator</div><div class="game-meta"><span class="game-tag">Calculator</span><span class="game-diff diff-easy">Easy</span></div><p class="game-desc">Full PITI breakdown. Amortization table. Know your numbers before you sign.</p></div></a></div>
+                <div class="game-card-wrap"><a href="../calculator-debt/" class="game-card" data-tags="tool calculator education" data-diff="easy" onclick="trackPlay('Debt Payoff Calc','../calculator-debt/','💳','Calculator','easy')"><span class="new-badge">TOOL</span><div class="game-image"><span class="game-emoji">💳</span></div><div class="game-info"><div class="game-title">Debt Payoff Calculator</div><div class="game-meta"><span class="game-tag">Calculator</span><span class="game-diff diff-easy">Easy</span></div><p class="game-desc">Avalanche vs Snowball side-by-side. Add multiple debts, compare strategies.</p></div></a></div>
+                <div class="game-card-wrap"><a href="../simulator-budget/" class="game-card" data-tags="tool simulator education" data-diff="easy" onclick="trackPlay('Budget Simulator','../simulator-budget/','💰','Simulator','easy')"><span class="new-badge">TOOL</span><div class="game-image"><span class="game-emoji">💰</span></div><div class="game-info"><div class="game-title">Budget Simulator</div><div class="game-meta"><span class="game-tag">Simulator</span><span class="game-diff diff-easy">Easy</span></div><p class="game-desc">Interactive monthly budget with 50/30/20 presets. See where every dollar goes.</p></div></a></div>
             </div>
         </section>
     </div>
-    
+
     <script>
-        const canvas = document.getElementById('matrix');
-        const ctx = canvas.getContext('2d');
-        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-        window.addEventListener('resize', resize);
-        resize();
-        const chars = '01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
-        const fontSize = 14;
-        const columns = Math.floor(canvas.width / fontSize);
-        const drops = [];
-        for (let i = 0; i < columns; i++) drops[i] = Math.random() * -100;
-        function drawMatrix() {
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = '#0f0';
-            ctx.font = fontSize + 'px monospace';
-            for (let i = 0; i < drops.length; i++) {
-                const char = chars[Math.floor(Math.random() * chars.length)];
-                ctx.fillText(char, i * fontSize, drops[i] * fontSize);
-                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
-                drops[i]++;
-            }
+        // ===== PLAYER PROGRESS =====
+        const PROGRESS_KEY = 'mb_player_progress_v1';
+        function loadProgress() {
+            try { return JSON.parse(localStorage.getItem(PROGRESS_KEY)) || {xp:0,level:1,games:{}}; } catch { return {xp:0,level:1,games:{}}; }
         }
-        setInterval(drawMatrix, 50);
+        function saveProgress(p) { localStorage.setItem(PROGRESS_KEY, JSON.stringify(p)); }
+        function addXP(amount) {
+            let p = loadProgress();
+            p.xp += amount;
+            const next = p.level * 200;
+            if (p.xp >= next) { p.level++; p.xp = p.xp - next; }
+            saveProgress(p); renderProgress();
+        }
+        function renderProgress() {
+            const p = loadProgress();
+            document.getElementById('playerLvl').textContent = p.level;
+            document.getElementById('playerXP').textContent = p.xp + ' XP';
+            const next = p.level * 200;
+            document.getElementById('xpFill').style.width = (p.xp / next * 100) + '%';
+            document.getElementById('navProgress').style.display = 'flex';
+        }
+        function trackPlay(name, url, emoji, tag, diff) {
+            let p = loadProgress();
+            if (!p.games[name]) { p.games[name] = {plays:0,first:Date.now()}; addXP(diff==='hard'?50:diff==='medium'?30:15); }
+            p.games[name].plays++;
+            p.games[name].last = Date.now();
+            saveProgress(p);
+            // recently played
+            let recent = JSON.parse(localStorage.getItem('mb_recent_v1')||'[]');
+            recent = recent.filter(r=>r.name!==name);
+            recent.unshift({name,url,emoji,tag});
+            if(recent.length>6)recent=recent.slice(0,6);
+            localStorage.setItem('mb_recent_v1', JSON.stringify(recent));
+        }
+        function renderRecent() {
+            const recent = JSON.parse(localStorage.getItem('mb_recent_v1')||'[]');
+            if(!recent.length)return;
+            document.getElementById('recent').style.display='block';
+            document.getElementById('recentGrid').innerHTML = recent.map(r=>`
+                <a href="${r.url}" class="recent-card" onclick="trackPlay('${r.name.replace(/'/g,"\\'")}','${r.url}','${r.emoji}','${r.tag}','easy')">
+                    <span class="recent-emoji">${r.emoji}</span>
+                    <div><div class="recent-title">${r.name}</div><div class="recent-tag">${r.tag}</div></div>
+                </a>`).join('');
+        }
+        renderProgress(); renderRecent();
+
+        // ===== SEARCH & FILTER =====
+        let currentFilter = 'all';
+        const searchInput = document.getElementById('searchInput');
+        const resultsCount = document.getElementById('resultsCount');
+
+        function clearSearch() { searchInput.value=''; applyFilters(); }
+        function setFilter(f) {
+            currentFilter = f;
+            document.querySelectorAll('.filter-btn').forEach(b=>b.classList.toggle('active', b.textContent.toLowerCase().includes(f==='all'?'all':f)));
+            applyFilters();
+        }
+        function applyFilters() {
+            const q = searchInput.value.toLowerCase().trim();
+            let total = 0, visible = 0;
+            document.querySelectorAll('.games-grid').forEach(grid=>{
+                let sectionVisible = 0;
+                grid.querySelectorAll('.game-card-wrap').forEach(wrap=>{
+                    const card = wrap.querySelector('.game-card');
+                    const tags = (card.dataset.tags||'').toLowerCase();
+                    const title = card.querySelector('.game-title')?.textContent.toLowerCase()||'';
+                    const desc = card.querySelector('.game-desc')?.textContent.toLowerCase()||'';
+                    const tagText = card.querySelector('.game-tag')?.textContent.toLowerCase()||'';
+                    const matchesSearch = !q || title.includes(q) || desc.includes(q) || tags.includes(q) || tagText.includes(q);
+                    const matchesFilter = currentFilter==='all' || tags.includes(currentFilter);
+                    const show = matchesSearch && matchesFilter;
+                    wrap.style.display = show ? '' : 'none';
+                    if(show)sectionVisible++;
+                    total++;
+                    if(show)visible++;
+                });
+                // hide empty sections
+                const section = grid.closest('.section');
+                if(section) section.style.display = sectionVisible>0 ? '' : 'none';
+            });
+            resultsCount.textContent = q ? `${visible} result${visible!==1?'s':''} for "${q}"` : `${visible} games`;
+        }
+        searchInput.addEventListener('input', applyFilters);
+
+        // ===== NAV SCROLL =====
         document.querySelectorAll('.nav-links a').forEach(link => {
             link.addEventListener('click', (e) => {
                 const href = link.getAttribute('href');
                 if (href.startsWith('#')) {
                     e.preventDefault();
-                    document.querySelector(href).scrollIntoView({ behavior: 'smooth' });
+                    const el = document.querySelector(href);
+                    if(el) el.scrollIntoView({ behavior: 'smooth' });
+                    document.querySelectorAll('.nav-links a').forEach(l=>l.classList.remove('active'));
+                    link.classList.add('active');
                 }
             });
         });
     </script>
-
-        <!-- ALL GAMES -->
-        <section class="section" id="all-games">
-            <div class="section-header">
-                <img src="assets/moneybot-logo-1.jpg" alt="" style="filter: hue-rotate(90deg);">
-                <span class="section-title">All Games</span>
-            </div>
-            <div class="games-grid">
-                <div class="game-card-wrap">
-                    <a href="../100-fans/" class="game-card">
-                        <div class="game-image"><span class="game-emoji">🎮</span></div>
-                        <div class="game-info">
-                            <div class="game-title">100 Fans</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play 100 Fans and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../bot-401k-match/" class="game-card">
-                        <div class="game-image"><img src="../bot-401k-match/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">401K Match</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play 401K Match and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../bot-achievement-hunt/" class="game-card">
-                        <div class="game-image"><img src="../bot-achievement-hunt/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Achievement Hunt</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Achievement Hunt and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../bot-active-passive-income/" class="game-card">
-                        <div class="game-image"><img src="../bot-active-passive-income/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Active Passive Income</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Active Passive Income and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../bot-appreciating-depreciating/" class="game-card">
-                        <div class="game-image"><img src="../bot-appreciating-depreciating/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Appreciating Depreciating</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Appreciating Depreciating and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../bot-asset-allocator/" class="game-card">
-                        <div class="game-image"><img src="../bot-asset-allocator/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Asset Allocator</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Asset Allocator and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../bot-budget-blaster/" class="game-card">
-                        <div class="game-image"><img src="../bot-budget-blaster/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Budget Blaster</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Budget Blaster and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../bot-budget-breakout/" class="game-card">
-                        <div class="game-image"><img src="../bot-budget-breakout/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Budget Breakout</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Budget Breakout and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../bot-budget-builder/" class="game-card">
-                        <div class="game-image"><img src="../bot-budget-builder/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Budget Builder</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Budget Builder and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../bot-budget-builder-v2/" class="game-card">
-                        <div class="game-image"><img src="../bot-budget-builder-v2/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Budget Builder V2</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Budget Builder V2 and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../bot-budget-slice/" class="game-card">
-                        <div class="game-image"><img src="../bot-budget-slice/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Budget Slice</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Budget Slice and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../bot-bull-bear-battle/" class="game-card">
-                        <div class="game-image"><img src="../bot-bull-bear-battle/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Bull Bear Battle</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Bull Bear Battle and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../bot-burn-rate/" class="game-card">
-                        <div class="game-image"><img src="../bot-burn-rate/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Burn Rate</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Burn Rate and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../bot-cash-craze/" class="game-card">
-                        <div class="game-image"><img src="../bot-cash-craze/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Cash Craze</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Cash Craze and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../bot-cash-dash/" class="game-card">
-                        <div class="game-image"><img src="../bot-cash-dash/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Cash Dash</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Cash Dash and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../bot-charitable-giving/" class="game-card">
-                        <div class="game-image"><img src="../bot-charitable-giving/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Charitable Giving</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Charitable Giving and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../bot-coin-pong/" class="game-card">
-                        <div class="game-image"><img src="../bot-coin-pong/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Coin Pong</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Coin Pong and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../bot-credit-score-climb/" class="game-card">
-                        <div class="game-image"><img src="../bot-credit-score-climb/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Credit Score Climb</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Credit Score Climb and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../bot-crypto-climb/" class="game-card">
-                        <div class="game-image"><img src="../bot-crypto-climb/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Crypto Climb</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Crypto Climb and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../bot-crypto-cold-storage/" class="game-card">
-                        <div class="game-image"><img src="../bot-crypto-cold-storage/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Crypto Cold Storage</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Crypto Cold Storage and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../bot-crypto-trading/" class="game-card">
-                        <div class="game-image"><img src="../bot-crypto-trading/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Crypto Trading Sim</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Simulated crypto spot trading with realistic volatility. Learn risk management and position sizing!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../bot-dca-game/" class="game-card">
-                        <div class="game-image"><img src="../bot-dca-game/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Dca Game</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Dca Game and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../bot-debt-destroyer/" class="game-card">
-                        <div class="game-image"><img src="../bot-debt-destroyer/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Debt Destroyer</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Debt Destroyer and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../bot-diversification-drop/" class="game-card">
-                        <div class="game-image"><img src="../bot-diversification-drop/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Diversification Drop</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Diversification Drop and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../bot-dividend-defense/" class="game-card">
-                        <div class="game-image"><img src="../bot-dividend-defense/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Dividend Defense</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Dividend Defense and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../bot-dividend-drip/" class="game-card">
-                        <div class="game-image"><img src="../bot-dividend-drip/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Dividend Drip</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Dividend Drip and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../bot-dollar-drop/" class="game-card">
-                        <div class="game-image"><img src="../bot-dollar-drop/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Dollar Drop</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Dollar Drop and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../bot-emergency-fund-escape/" class="game-card">
-                        <div class="game-image"><img src="../bot-emergency-fund-escape/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Emergency Fund Escape</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Emergency Fund Escape and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../bot-estate-escape/" class="game-card">
-                        <div class="game-image"><img src="../bot-estate-escape/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Estate Escape</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Estate Escape and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../bot-expense-ratio-hunter/" class="game-card">
-                        <div class="game-image"><img src="../bot-expense-ratio-hunter/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Expense Ratio Hunter</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Expense Ratio Hunter and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../bot-financial-simulator/" class="game-card">
-                        <div class="game-image"><img src="../bot-financial-simulator/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Financial Simulator</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Financial Simulator and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../bot-fire-calculator/" class="game-card">
-                        <div class="game-image"><img src="../bot-fire-calculator/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Fire Calculator</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Fire Calculator and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../bot-fiscal-frogger/" class="game-card">
-                        <div class="game-image"><img src="../bot-fiscal-frogger/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Fiscal Frogger</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Fiscal Frogger and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../bot-fixed-variable/" class="game-card">
-                        <div class="game-image"><img src="../bot-fixed-variable/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Fixed Variable</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Fixed Variable and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../bot-good-bad-debt/" class="game-card">
-                        <div class="game-image"><img src="../bot-good-bad-debt/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Good Bad Debt</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Good Bad Debt and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../bot-history-of-money/" class="game-card">
-                        <div class="game-image"><img src="../bot-history-of-money/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">History Of Money</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play History Of Money and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../bot-hsa-health-hero/" class="game-card">
-                        <div class="game-image"><img src="../bot-hsa-health-hero/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Hsa Health Hero</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Hsa Health Hero and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../bot-invest-island/" class="game-card">
-                        <div class="game-image"><img src="../bot-invest-island/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Invest Island</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Invest Island and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../bot-ipo-launch/" class="game-card">
-                        <div class="game-image"><img src="../bot-ipo-launch/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Ipo Launch</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Ipo Launch and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../bot-liquid-illiquid/" class="game-card">
-                        <div class="game-image"><img src="../bot-liquid-illiquid/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Liquid Illiquid</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Liquid Illiquid and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../bot-market-racer/" class="game-card">
-                        <div class="game-image"><img src="../bot-market-racer/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Market Racer</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Market Racer and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../bot-money-surfers/" class="game-card">
-                        <div class="game-image"><img src="../bot-money-surfers/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Money Surfers</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Money Surfers and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../bot-money-surfers-new/" class="game-card">
-                        <div class="game-image"><img src="../bot-money-surfers-new/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Money Surfers New</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Money Surfers New and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../bot-needs-wants/" class="game-card">
-                        <div class="game-image"><img src="../bot-needs-wants/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Needs Wants</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Needs Wants and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../bot-net-worth-tracker/" class="game-card">
-                        <div class="game-image"><img src="../bot-net-worth-tracker/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Net Worth Tracker</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Net Worth Tracker and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../bot-profit-pinball/" class="game-card">
-                        <div class="game-image"><img src="../bot-profit-pinball/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Profit Pinball</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Profit Pinball and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../bot-property-flipper/" class="game-card">
-                        <div class="game-image"><span class="game-emoji">🎮</span></div>
-                        <div class="game-info">
-                            <div class="game-title">Property Flipper</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Property Flipper and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../bot-real-estate-sim/" class="game-card">
-                        <div class="game-image"><img src="../bot-real-estate-sim/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Real Estate Sim</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Real Estate Sim and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../bot-refinance-racer/" class="game-card">
-                        <div class="game-image"><img src="../bot-refinance-racer/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Refinance Racer</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Refinance Racer and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../bot-restaurant-tycoon/" class="game-card">
-                        <div class="game-image"><span class="game-emoji">🎮</span></div>
-                        <div class="game-info">
-                            <div class="game-title">Restaurant Tycoon</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Restaurant Tycoon and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../bot-risk-roulette/" class="game-card">
-                        <div class="game-image"><img src="../bot-risk-roulette/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Risk Roulette</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Risk Roulette and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../bot-risk-tetris/" class="game-card">
-                        <div class="game-image"><img src="../bot-risk-tetris/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Risk Tetris</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Risk Tetris and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../bot-roth-vs-traditional/" class="game-card">
-                        <div class="game-image"><img src="../bot-roth-vs-traditional/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Roth Vs Traditional</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Roth Vs Traditional and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../bot-saas-empire/" class="game-card">
-                        <div class="game-image"><span class="game-emoji">🎮</span></div>
-                        <div class="game-info">
-                            <div class="game-title">Saas Empire</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Saas Empire and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../bot-savings-snake/" class="game-card">
-                        <div class="game-image"><img src="../bot-savings-snake/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Savings Snake</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Savings Snake and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../bot-savings-sprint/" class="game-card">
-                        <div class="game-image"><img src="../bot-savings-sprint/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Savings Sprint</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Savings Sprint and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../bot-shot/" class="game-card">
-                        <div class="game-image"><img src="../bot-shot/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Shot</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Shot and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../bot-side-hustle-sprint/" class="game-card">
-                        <div class="game-image"><img src="../bot-side-hustle-sprint/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Side Hustle Sprint</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Side Hustle Sprint and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../bot-smart-borrower/" class="game-card">
-                        <div class="game-image"><img src="../bot-smart-borrower/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Smart Borrower</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Smart Borrower and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../bot-startup-tycoon/" class="game-card">
-                        <div class="game-image"><span class="game-emoji">🎮</span></div>
-                        <div class="game-info">
-                            <div class="game-title">Startup Tycoon</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Startup Tycoon and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../bot-stock-stack/" class="game-card">
-                        <div class="game-image"><img src="../bot-stock-stack/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Stock Stack</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Stock Stack and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../bot-stock-tycoon/" class="game-card">
-                        <div class="game-image"><img src="../bot-stock-tycoon/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Stock Tycoon</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Stock Tycoon and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../bot-subway-surfer/" class="game-card">
-                        <div class="game-image"><img src="../bot-subway-surfer/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Subway Surfer</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Subway Surfer and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../bot-tax-tetris/" class="game-card">
-                        <div class="game-image"><img src="../bot-tax-tetris/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Tax Tetris</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Tax Tetris and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../bot-tax-trail/" class="game-card">
-                        <div class="game-image"><img src="../bot-tax-trail/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Tax Trail</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Tax Trail and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../bot-taxable-tax-advantaged/" class="game-card">
-                        <div class="game-image"><img src="../bot-taxable-tax-advantaged/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Taxable Tax Advantaged</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Taxable Tax Advantaged and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../bot-wealth-tower/" class="game-card">
-                        <div class="game-image"><img src="../bot-wealth-tower/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Wealth Tower</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Wealth Tower and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../bot-wealth-wheel/" class="game-card">
-                        <div class="game-image"><img src="../bot-wealth-wheel/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Wealth Wheel</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Wealth Wheel and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../botbalance/" class="game-card">
-                        <div class="game-image"><span class="game-emoji">🎮</span></div>
-                        <div class="game-info">
-                            <div class="game-title">Botbalance</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Botbalance and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../botbiztycoon/" class="game-card">
-                        <div class="game-image"><span class="game-emoji">🎮</span></div>
-                        <div class="game-info">
-                            <div class="game-title">Botbiztycoon</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Botbiztycoon and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../botbuilder/" class="game-card">
-                        <div class="game-image"><span class="game-emoji">🎮</span></div>
-                        <div class="game-info">
-                            <div class="game-title">Botbuilder</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Botbuilder and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../botcitybuilder/" class="game-card">
-                        <div class="game-image"><span class="game-emoji">🎮</span></div>
-                        <div class="game-info">
-                            <div class="game-title">Botcitybuilder</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Botcitybuilder and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../botdash/" class="game-card">
-                        <div class="game-image"><span class="game-emoji">🎮</span></div>
-                        <div class="game-info">
-                            <div class="game-title">Botdash</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Botdash and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../botfundmanager/" class="game-card">
-                        <div class="game-image"><span class="game-emoji">🎮</span></div>
-                        <div class="game-info">
-                            <div class="game-title">Botfundmanager</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Botfundmanager and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../bothouse/" class="game-card">
-                        <div class="game-image"><span class="game-emoji">🎮</span></div>
-                        <div class="game-info">
-                            <div class="game-title">Bothouse</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Bothouse and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../botreactiontest/" class="game-card">
-                        <div class="game-image"><span class="game-emoji">🎮</span></div>
-                        <div class="game-info">
-                            <div class="game-title">Botreactiontest</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Botreactiontest and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../botrunner/" class="game-card">
-                        <div class="game-image"><span class="game-emoji">🎮</span></div>
-                        <div class="game-info">
-                            <div class="game-title">Botrunner</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Botrunner and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../botsquadmissions/" class="game-card">
-                        <div class="game-image"><span class="game-emoji">🎮</span></div>
-                        <div class="game-info">
-                            <div class="game-title">Botsquadmissions</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Botsquadmissions and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../botvsbot/" class="game-card">
-                        <div class="game-image"><span class="game-emoji">🎮</span></div>
-                        <div class="game-info">
-                            <div class="game-title">Botvsbot</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Botvsbot and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../budgetbot/" class="game-card">
-                        <div class="game-image"><span class="game-emoji">🎮</span></div>
-                        <div class="game-info">
-                            <div class="game-title">Budgetbot</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Budgetbot and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../capital-command/" class="game-card">
-                        <div class="game-image"><img src="../capital-command/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Capital Command</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Capital Command and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../cryptobot/" class="game-card">
-                        <div class="game-image"><img src="../cryptobot/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Cryptobot</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Cryptobot and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../demo-day-dash/" class="game-card">
-                        <div class="game-image"><span class="game-emoji">🎮</span></div>
-                        <div class="game-info">
-                            <div class="game-title">Demo Day Dash</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Demo Day Dash and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../do-things-that-dont-scale/" class="game-card">
-                        <div class="game-image"><span class="game-emoji">🎮</span></div>
-                        <div class="game-info">
-                            <div class="game-title">Do Things That Dont Scale</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Do Things That Dont Scale and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../growth-loops/" class="game-card">
-                        <div class="game-image"><span class="game-emoji">🎮</span></div>
-                        <div class="game-info">
-                            <div class="game-title">Growth Loops</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Growth Loops and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../money-bank-heist/" class="game-card">
-                        <div class="game-image"><img src="../money-bank-heist/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Money Bank Heist</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Money Bank Heist and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../money-invaders/" class="game-card">
-                        <div class="game-image"><img src="../money-invaders/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Money Invaders</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Money Invaders and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../money-jump/" class="game-card">
-                        <div class="game-image"><img src="../money-jump/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Money Jump</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Money Jump and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../moneybot-3d-showcase/" class="game-card">
-                        <div class="game-image"><img src="../moneybot-3d-showcase/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Money3D Showcase</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Money3D Showcase and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../moneybot-rush-pro/" class="game-card">
-                        <div class="game-image"><img src="../moneybot-rush-pro/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Moneyrush Pro</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Moneyrush Pro and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../moneymatch/" class="game-card">
-                        <div class="game-image"><img src="../moneymatch/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Moneymatch</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Moneymatch and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../moneyolympics/" class="game-card">
-                        <div class="game-image"><img src="../moneyolympics/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Moneyolympics</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Moneyolympics and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../moneyverse-games/" class="game-card">
-                        <div class="game-image"><img src="../moneyverse-games/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Moneyverse Games</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Moneyverse Games and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../ramen-profitability/" class="game-card">
-                        <div class="game-image"><span class="game-emoji">🎮</span></div>
-                        <div class="game-info">
-                            <div class="game-title">Ramen Profitability</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Ramen Profitability and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../stockbot/" class="game-card">
-                        <div class="game-image"><img src="../stockbot/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Stockbot</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Stockbot and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../the-first-hire/" class="game-card">
-                        <div class="game-image"><span class="game-emoji">🎮</span></div>
-                        <div class="game-info">
-                            <div class="game-title">The First Hire</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play The First Hire and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../the-pivot/" class="game-card">
-                        <div class="game-image"><span class="game-emoji">🎮</span></div>
-                        <div class="game-info">
-                            <div class="game-title">The Pivot</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play The Pivot and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../the-term-sheet/" class="game-card">
-                        <div class="game-image"><span class="game-emoji">🎮</span></div>
-                        <div class="game-info">
-                            <div class="game-title">The Term Sheet</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play The Term Sheet and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../viralquizbot/" class="game-card">
-                        <div class="game-image"><span class="game-emoji">🎮</span></div>
-                        <div class="game-info">
-                            <div class="game-title">Viralquizbot</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Viralquizbot and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="game-card-wrap">
-                    <a href="../yield-merge/" class="game-card">
-                        <div class="game-image"><img src="../yield-merge/assets/thumb.png" alt=""></div>
-                        <div class="game-info">
-                            <div class="game-title">Yield Merge</div>
-                            <span class="game-tag">Game</span>
-                            <p class="game-desc">Play Yield Merge and learn about finance!</p>
-                        </div>
-                    </a>
-                </div>
-            </div>
-        </section>
 </body>
 </html>

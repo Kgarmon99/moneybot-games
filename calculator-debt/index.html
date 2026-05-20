@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Debt Payoff Calculator — MoneyBot</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'JetBrains Mono',monospace;background:#000;color:#0f0;min-height:100vh;line-height:1.6}
+.matrix-bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;opacity:0.05;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,255,0,0.03) 2px,rgba(0,255,0,0.03) 4px)}
+.container{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:40px 20px}
+.nav{display:flex;align-items:center;gap:12px;margin-bottom:40px;text-decoration:none;color:#0f0}
+.nav img{width:32px;height:32px;border-radius:4px;border:1px solid #0f0}
+.nav span{font-size:18px;font-weight:700}
+.card{background:#000;border:1px solid #0f0;padding:30px;margin-bottom:20px}
+.card h1{font-size:28px;margin-bottom:8px;text-shadow:0 0 10px #0f0}
+.card .subtitle{font-size:13px;opacity:0.7;margin-bottom:30px}
+.debt-row{display:grid;grid-template-columns:2fr 1fr 1fr 1fr auto;gap:10px;align-items:end;margin-bottom:10px}
+@media(max-width:700px){.debt-row{grid-template-columns:1fr 1fr;gap:8px}}
+label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;opacity:0.8}
+input{width:100%;background:#000;border:1px solid #0f0;color:#0f0;padding:10px;font-family:inherit;font-size:14px;outline:none}
+input:focus{box-shadow:0 0 8px rgba(0,255,0,0.3)}
+button{background:#0f0;color:#000;border:none;padding:12px 20px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;text-transform:uppercase;letter-spacing:1px}
+button:hover{box-shadow:0 0 15px #0f0}
+.btn-ghost{background:transparent;color:#0f0;border:1px solid #0f0}
+.btn-ghost:hover{background:rgba(0,255,0,0.1)}
+.btn-danger{background:#f00;color:#000;border:none}
+.btn-danger:hover{box-shadow:0 0 15px #f00}
+.actions{display:flex;gap:10px;margin:20px 0;flex-wrap:wrap}
+.results{margin-top:30px;padding-top:30px;border-top:1px solid #0f0;display:none}
+.results.active{display:block}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:25px}
+@media(max-width:600px){.compare{grid-template-columns:1fr}}
+.method-box{border:1px solid #0f0;padding:20px}
+.method-box h3{font-size:16px;text-transform:uppercase;margin-bottom:15px;text-shadow:0 0 8px #0f0}
+.method-box .num{font-size:28px;font-weight:700;margin-bottom:4px}
+.method-box .lbl{font-size:11px;text-transform:uppercase;opacity:0.7}
+.winner{border-color:#0f0;box-shadow:0 0 15px rgba(0,255,0,0.2);background:rgba(0,255,0,0.03)}
+.winner h3::after{content:" ★";color:#0f0}
+table{width:100%;border-collapse:collapse;margin-top:15px;font-size:12px}
+th,td{border:1px solid #0f0;padding:6px;text-align:right}
+th{text-align:center;text-transform:uppercase;font-size:10px;opacity:0.8}
+tr:nth-child(even){background:rgba(0,255,0,0.05)}
+.back-link{display:inline-block;margin-top:20px;color:#0f0;text-decoration:none;border:1px solid #0f0;padding:10px 20px;font-size:13px;text-transform:uppercase}
+.back-link:hover{box-shadow:0 0 10px #0f0}
+</style>
+</head>
+<body>
+<div class="matrix-bg"></div>
+<div class="container">
+<a href="../moneybot-official/" class="nav"><img src="../moneybot-official/assets/moneybot-logo-1.jpg" alt="MoneyBot"><span>MoneyBot</span></a>
+<div class="card">
+<h1>Debt Payoff Calculator</h1>
+<p class="subtitle">Avalanche vs Snowball. Math vs Momentum. Pick your weapon.</p>
+<div id="debts"></div>
+<div class="actions">
+<button class="btn-ghost" onclick="addDebt()">+ Add Debt</button>
+<button onclick="calculate()">Compare Strategies</button>
+</div>
+<div class="results" id="results">
+<div class="compare">
+<div class="method-box" id="avalancheBox">
+<h3>Avalanche Method</h3>
+<div style="margin-bottom:15px">
+<div class="num" id="avaMonths">0</div>
+<div class="lbl">Months to Payoff</div>
+</div>
+<div style="margin-bottom:15px">
+<div class="num" id="avaInterest">$0</div>
+<div class="lbl">Total Interest Paid</div>
+</div>
+<div>
+<div class="num" id="avaTotal">$0</div>
+<div class="lbl">Total Paid</div>
+</div>
+</div>
+<div class="method-box" id="snowballBox">
+<h3>Snowball Method</h3>
+<div style="margin-bottom:15px">
+<div class="num" id="snowMonths">0</div>
+<div class="lbl">Months to Payoff</div>
+</div>
+<div style="margin-bottom:15px">
+<div class="num" id="snowInterest">$0</div>
+<div class="lbl">Total Interest Paid</div>
+</div>
+<div>
+<div class="num" id="snowTotal">$0</div>
+<div class="lbl">Total Paid</div>
+</div>
+</div>
+</div>
+<table id="table"><thead><tr><th>Month</th><th>Method</th><th>Paid To</th><th>Payment</th><th>Remaining</th></tr></thead><tbody id="tbody"></tbody></table>
+</div>
+</div>
+<a href="../moneybot-official/" class="back-link">← Back to Games</a>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+let debtCount=0;
+function addDebt(name='',bal='',rate='',min=''){
+debtCount++;
+const div=document.createElement('div');div.className='debt-row';div.id='debt-'+debtCount;
+div.innerHTML=`<div><label>Debt Name</label><input type="text" class="d-name" value="${name||'Debt '+debtCount}" placeholder="Credit Card"></div>
+<div><label>Balance ($)</label><input type="number" class="d-bal" value="${bal}" placeholder="5000"></div>
+<div><label>APR (%)</label><input type="number" class="d-rate" value="${rate}" placeholder="18.99" step="0.01"></div>
+<div><label>Min Payment ($)</label><input type="number" class="d-min" value="${min}" placeholder="150"></div>
+<div><button class="btn-danger" onclick="document.getElementById('debt-'+${debtCount}).remove()">×</button></div>`;
+$('debts').appendChild(div);
+}
+addDebt('Credit Card',5000,18.99,150);
+addDebt('Car Loan',12000,5.5,350);
+addDebt('Student Loan',25000,4.5,280);
+
+function fmt(n){return '$'+Math.round(n).toLocaleString();}
+function getDebts(){
+return Array.from(document.querySelectorAll('.debt-row')).map(row=>{
+const n=row.querySelector('.d-name').value||'Debt';
+const b=parseFloat(row.querySelector('.d-bal').value)||0;
+const r=(parseFloat(row.querySelector('.d-rate').value)||0)/100/12;
+const m=parseFloat(row.querySelector('.d-min').value)||0;
+return{name:n,balance:b,rate:r,min:m,orig:b};
+}).filter(d=>d.balance>0);
+}
+function simulate(debts,sortFn){
+let d=debts.map(x=>({...x})).sort(sortFn);
+let month=0,totalInt=0,totalPaid=0,log=[];
+while(d.some(x=>x.balance>0.01)&&month<600){
+month++;
+let avail=d.reduce((s,x)=>s+x.min,0);
+let minTotal=avail;
+// pay mins
+for(let i=0;i<d.length;i++){
+if(d[i].balance<=0)continue;
+let pay=Math.min(d[i].min,d[i].balance);
+d[i].balance-=pay;totalPaid+=pay;avail-=pay;
+}
+// apply extra to first non-zero
+for(let i=0;i<d.length;i++){
+if(d[i].balance<=0)continue;
+let extra=Math.min(avail,d[i].balance);
+d[i].balance-=extra;totalPaid+=extra;avail-=extra;
+if(avail<=0)break;
+}
+// accrue interest
+for(let i=0;i<d.length;i++){
+if(d[i].balance>0){let intr=d[i].balance*d[i].rate;d[i].balance+=intr;totalInt+=intr;}
+}
+let active=d.find(x=>x.balance>0.01);
+log.push({month,method:sortFn.name||'custom',paidTo:active?active.name:'Done',payment:minTotal,remaining:d.reduce((s,x)=>s+x.balance,0)});
+}
+return{months:month,interest:totalInt,total:totalPaid,log};
+}
+function calculate(){
+const debts=getDebts();if(debts.length===0)return;
+const ava=simulate(debts,(a,b)=>b.rate-a.rate);
+const snow=simulate(debts,(a,b)=>a.orig-b.orig);
+$('avaMonths').textContent=ava.months;
+$('avaInterest').textContent=fmt(ava.interest);
+$('avaTotal').textContent=fmt(ava.total);
+$('snowMonths').textContent=snow.months;
+$('snowInterest').textContent=fmt(snow.interest);
+$('snowTotal').textContent=fmt(snow.total);
+$('avalancheBox').classList.toggle('winner',ava.interest<=snow.interest);
+$('snowballBox').classList.toggle('winner',snow.interest<ava.interest);
+const combined=[...ava.log.map(x=>({...x,method:'Avalanche'})),...snow.log.map(x=>({...x,method:'Snowball'}))];
+combined.sort((a,b)=>a.month-b.month||a.method.localeCompare(b.method));
+$('tbody').innerHTML=combined.slice(0,120).map(r=>`<tr><td>${r.month}</td><td>${r.method}</td><td>${r.paidTo}</td><td>${fmt(r.payment)}</td><td>${fmt(r.remaining)}</td></tr>`).join('');
+$('results').classList.add('active');
+}
+</script>
+</body>
+</html>
