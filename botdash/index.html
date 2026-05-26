@@ -221,11 +221,20 @@
             player.dy += 0.6;
             player.y += player.dy;
             
+            console.log('Player position:', player.x, player.y, 'groundY:', groundY);
+            
             // Ground collision
             if (player.y + player.height >= groundY) {
                 player.y = groundY - player.height;
                 player.dy = 0;
                 player.grounded = true;
+            }
+            
+            // Check if player fell off screen
+            if (player.y > canvas.height) {
+                console.log('Player fell off screen!');
+                gameOver();
+                return;
             }
             
             // Update obstacles
