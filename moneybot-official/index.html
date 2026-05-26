@@ -373,8 +373,8 @@
             });
         });
         
-        // Hide "Coming Soon" stub games
-        const stubGames = ['stockbot','cryptobot','viralquizbot','moneymatch','botbiztycoon','botbuilder','botcitybuilder','botfundmanager','bothouse','botreactiontest','botrunner','botsquadmissions','botvsbot','budgetbot','moneyolympics'];
+        // Hide "Coming Soon" stub games (keep stockbot, cryptobot, moneymatch as they're now real)
+        const stubGames = ['viralquizbot','botbiztycoon','botbuilder','botcitybuilder','botfundmanager','bothouse','botreactiontest','botrunner','botsquadmissions','botvsbot','budgetbot','moneyolympics'];
         document.querySelectorAll('.game-card').forEach(card => {
             const href = card.getAttribute('href') || '';
             if (stubGames.some(stub => href.includes(stub))) {
