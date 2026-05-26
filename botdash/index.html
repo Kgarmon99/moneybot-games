@@ -3,9 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
     <title>BotDash - MoneyBot</title>
     <link rel="icon" type="image/svg+xml" href="../assets/moneybot-idle.svg">
     <style>
@@ -18,6 +15,7 @@
             --mb-panel: #131b2e;
             --mb-red: #FF5252;
             --mb-gold: #FFD700;
+            --mb-blue: #448AFF;
         }
         
         body { font-family: 'Inter', sans-serif; background: var(--mb-dark); min-height: 100vh; color: #fff; overflow: hidden; }
@@ -37,10 +35,10 @@
         
         .game-area { flex: 1; display: flex; flex-direction: column; padding: 16px; gap: 12px; position: relative; }
         
-        #gameCanvas { background: var(--mb-panel); border-radius: 16px; border: 2px solid rgba(0, 230, 118, 0.3); width: 100%; height: 400px; }
+        #gameCanvas { background: var(--mb-panel); border-radius: 16px; border: 2px solid rgba(0, 230, 118, 0.3); width: 100%; height: 500px; }
         
         .controls { display: flex; gap: 10px; padding: 8px 0; }
-        .control-btn { flex: 1; padding: 16px; border: 2px solid var(--mb-green); background: transparent; color: var(--mb-green); border-radius: 12px; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+        .control-btn { flex: 1; padding: 18px; border: 2px solid var(--mb-green); background: transparent; color: var(--mb-green); border-radius: 12px; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
         .control-btn:active { background: var(--mb-green); color: var(--mb-dark); }
         .control-btn.jump { border-color: var(--mb-gold); color: var(--mb-gold); }
         .control-btn.jump:active { background: var(--mb-gold); color: var(--mb-dark); }
@@ -56,6 +54,9 @@
         .instructions-list { text-align: left; margin: 20px 0; max-width: 300px; }
         .instructions-list li { color: rgba(255,255,255,0.7); font-size: 14px; margin-bottom: 10px; list-style: none; padding-left: 24px; position: relative; }
         .instructions-list li::before { content: '✓'; position: absolute; left: 0; color: var(--mb-green); font-weight: 700; }
+        
+        .powerup-indicator { position: absolute; top: 80px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); padding: 8px 16px; border-radius: 20px; font-size: 12px; font-weight: 700; color: var(--mb-gold); display: none; }
+        .powerup-indicator.active { display: block; }
     </style>
 </head>
 <body>
@@ -84,7 +85,10 @@
         </div>
         
         <div class="game-area">
-            <canvas id="gameCanvas" width="390" height="400"></canvas>
+            <div style="position: relative;">
+                <canvas id="gameCanvas" width="390" height="500"></canvas>
+                <div class="powerup-indicator" id="powerupIndicator">⚡ SPEED BOOST!</div>
+            </div>
             <div class="controls">
                 <button class="control-btn" id="leftBtn">← LEFT</button>
                 <button class="control-btn jump" id="jumpBtn">↑ JUMP</button>
@@ -103,6 +107,7 @@
             <li>Use arrow keys or buttons to move</li>
             <li>Jump over red debt blocks</li>
             <li>Collect gold coins for points</li>
+            <li>Grab blue orbs for speed boost</li>
             <li>Survive as long as possible!</li>
         </ul>
         <button class="primary-btn" id="startBtn">Start Running</button>
@@ -115,6 +120,7 @@
         <div class="game-title" style="color: var(--mb-red);">Game Over!</div>
         <div class="game-subtitle">Score: <span id="finalScore" style="color: var(--mb-green); font-weight: 800;">0</span></div>
         <div class="game-subtitle">Coins: <span id="finalCoins" style="color: var(--mb-gold); font-weight: 800;">0</span></div>
+        <div class="game-subtitle">Best: <span id="finalBest" style="color: var(--mb-blue); font-weight: 800;">0</span></div>
         <button class="primary-btn" id="restartBtn">Run Again</button>
     </div>
     
@@ -129,6 +135,9 @@
         let best = localStorage.getItem('botdash_best') || 0;
         let speed = 3;
         let frameCount = 0;
+        let gameSpeed = 1;
+        let powerupActive = false;
+        let powerupTimer = 0;
         
         // Player
         let player = {
@@ -137,14 +146,18 @@
             width: 30,
             height: 30,
             dy: 0,
-            grounded: false
+            grounded: false,
+            invincible: false,
+            invincibleTimer: 0
         };
         
         // Game objects
         let obstacles = [];
         let coinItems = [];
+        let powerups = [];
         let particles = [];
-        const groundY = 340;
+        let floatingTexts = [];
+        const groundY = 420;
         
         // Update UI
         document.getElementById('best').textContent = best;
@@ -164,6 +177,7 @@
         function startGame() {
             document.getElementById('startScreen').classList.add('hidden');
             document.getElementById('gameOverScreen').classList.add('hidden');
+            document.getElementById('powerupIndicator').classList.remove('active');
             
             // Reset game state
             gameRunning = true;
@@ -171,17 +185,24 @@
             coins = 0;
             speed = 3;
             frameCount = 0;
+            gameSpeed = 1;
+            powerupActive = false;
+            powerupTimer = 0;
             
             // Reset player - place on ground
             player.x = 50;
             player.y = groundY - player.height;
             player.dy = 0;
             player.grounded = true;
+            player.invincible = false;
+            player.invincibleTimer = 0;
             
             // Clear arrays
             obstacles = [];
             coinItems = [];
+            powerups = [];
             particles = [];
+            floatingTexts = [];
             
             updateUI();
             gameLoop();
@@ -190,19 +211,43 @@
         function jump() {
             if (!gameRunning) return;
             if (player.grounded) {
-                player.dy = -12;
+                player.dy = -14;
                 player.grounded = false;
+                createParticles(player.x + player.width/2, player.y + player.height, '#00E676', 8);
             }
         }
         
         function moveLeft() {
             if (!gameRunning) return;
-            player.x = Math.max(0, player.x - 15);
+            player.x = Math.max(0, player.x - 20);
         }
         
         function moveRight() {
             if (!gameRunning) return;
-            player.x = Math.min(canvas.width - player.width, player.x + 15);
+            player.x = Math.min(canvas.width - player.width, player.x + 20);
+        }
+        
+        function createParticles(x, y, color, count) {
+            for (let i = 0; i < count; i++) {
+                particles.push({
+                    x, y,
+                    dx: (Math.random() - 0.5) * 6,
+                    dy: (Math.random() - 0.5) * 6,
+                    life: 1,
+                    color,
+                    size: Math.random() * 4 + 2
+                });
+            }
+        }
+        
+        function createFloatingText(x, y, text, color) {
+            floatingTexts.push({
+                x, y,
+                text,
+                color,
+                life: 1,
+                dy: -2
+            });
         }
         
         function gameLoop() {
@@ -215,8 +260,26 @@
         }
         
         function update() {
+            // Powerup timer
+            if (powerupActive) {
+                powerupTimer--;
+                if (powerupTimer <= 0) {
+                    powerupActive = false;
+                    gameSpeed = 1;
+                    document.getElementById('powerupIndicator').classList.remove('active');
+                }
+            }
+            
+            // Invincibility timer
+            if (player.invincible) {
+                player.invincibleTimer--;
+                if (player.invincibleTimer <= 0) {
+                    player.invincible = false;
+                }
+            }
+            
             // Gravity
-            player.dy += 0.6;
+            player.dy += 0.7;
             player.y += player.dy;
             
             // Ground collision
@@ -234,7 +297,7 @@
             
             // Update obstacles
             for (let i = obstacles.length - 1; i >= 0; i--) {
-                obstacles[i].x -= speed;
+                obstacles[i].x -= speed * gameSpeed;
                 
                 // Remove if off screen
                 if (obstacles[i].x + obstacles[i].width < 0) {
@@ -243,8 +306,9 @@
                     continue;
                 }
                 
-                // Collision check
-                if (checkCollision(player, obstacles[i])) {
+                // Collision check (only if not invincible)
+                if (!player.invincible && checkCollision(player, obstacles[i])) {
+                    createParticles(player.x + player.width/2, player.y + player.height/2, '#FF5252', 15);
                     gameOver();
                     return;
                 }
@@ -252,7 +316,7 @@
             
             // Update coins
             for (let i = coinItems.length - 1; i >= 0; i--) {
-                coinItems[i].x -= speed;
+                coinItems[i].x -= speed * gameSpeed;
                 
                 // Remove if off screen
                 if (coinItems[i].x + coinItems[i].size < 0) {
@@ -264,33 +328,93 @@
                 if (checkCoinCollision(player, coinItems[i])) {
                     coins++;
                     score += 50;
+                    createParticles(coinItems[i].x, coinItems[i].y, '#FFD700', 6);
+                    createFloatingText(coinItems[i].x, coinItems[i].y, '+50', '#FFD700');
                     coinItems.splice(i, 1);
                 }
             }
             
+            // Update powerups
+            for (let i = powerups.length - 1; i >= 0; i--) {
+                powerups[i].x -= speed * gameSpeed;
+                
+                // Remove if off screen
+                if (powerups[i].x + powerups[i].size < 0) {
+                    powerups.splice(i, 1);
+                    continue;
+                }
+                
+                // Collection check
+                if (checkCoinCollision(player, powerups[i])) {
+                    activatePowerup();
+                    createParticles(powerups[i].x, powerups[i].y, '#448AFF', 10);
+                    createFloatingText(powerups[i].x, powerups[i].y, 'SPEED!', '#448AFF');
+                    powerups.splice(i, 1);
+                }
+            }
+            
+            // Update particles
+            for (let i = particles.length - 1; i >= 0; i--) {
+                particles[i].x += particles[i].dx;
+                particles[i].y += particles[i].dy;
+                particles[i].life -= 0.03;
+                if (particles[i].life <= 0) {
+                    particles.splice(i, 1);
+                }
+            }
+            
+            // Update floating texts
+            for (let i = floatingTexts.length - 1; i >= 0; i--) {
+                floatingTexts[i].y += floatingTexts[i].dy;
+                floatingTexts[i].life -= 0.02;
+                if (floatingTexts[i].life <= 0) {
+                    floatingTexts.splice(i, 1);
+                }
+            }
+            
             // Spawn obstacles (after 2 seconds)
-            if (frameCount > 120 && Math.random() < 0.02) {
+            if (frameCount > 120 && Math.random() < 0.025) {
+                const obstacleHeight = 25 + Math.random() * 25;
                 obstacles.push({
                     x: canvas.width,
-                    y: groundY - 80,
+                    y: groundY - obstacleHeight,
                     width: 30,
-                    height: 30
+                    height: obstacleHeight,
+                    type: Math.random() > 0.7 ? 'moving' : 'static'
                 });
             }
             
             // Spawn coins
-            if (frameCount > 60 && Math.random() < 0.03) {
+            if (frameCount > 60 && Math.random() < 0.04) {
                 coinItems.push({
                     x: canvas.width,
+                    y: groundY - 60 - Math.random() * 120,
+                    size: 18
+                });
+            }
+            
+            // Spawn powerups (rare)
+            if (frameCount > 300 && Math.random() < 0.005) {
+                powerups.push({
+                    x: canvas.width,
                     y: groundY - 80 - Math.random() * 100,
-                    size: 20
+                    size: 22
                 });
             }
             
             // Increase speed gradually
-            speed = 3 + Math.floor(score / 500);
+            speed = 3 + Math.floor(score / 800);
             
             updateUI();
+        }
+        
+        function activatePowerup() {
+            powerupActive = true;
+            powerupTimer = 300; // 5 seconds at 60fps
+            gameSpeed = 2;
+            player.invincible = true;
+            player.invincibleTimer = 300;
+            document.getElementById('powerupIndicator').classList.add('active');
         }
         
         function checkCollision(rect1, rect2) {
@@ -304,7 +428,7 @@
             const dx = (player.x + player.width/2) - coin.x;
             const dy = (player.y + player.height/2) - coin.y;
             const distance = Math.sqrt(dx * dx + dy * dy);
-            return distance < 25;
+            return distance < 28;
         }
         
         function draw() {
@@ -312,15 +436,8 @@
             ctx.fillStyle = '#0a0e1a';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
-            // Draw grid background
-            ctx.strokeStyle = 'rgba(0, 230, 118, 0.05)';
-            ctx.lineWidth = 1;
-            for (let i = 0; i < canvas.width; i += 40) {
-                ctx.beginPath();
-                ctx.moveTo(i, 0);
-                ctx.lineTo(i, canvas.height);
-                ctx.stroke();
-            }
+            // Draw background layers (parallax)
+            drawBackground();
             
             // Draw ground
             ctx.fillStyle = '#131b2e';
@@ -328,39 +445,55 @@
             ctx.fillStyle = '#00E676';
             ctx.fillRect(0, groundY, canvas.width, 3);
             
+            // Draw grid on ground
+            ctx.strokeStyle = 'rgba(0, 230, 118, 0.1)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < canvas.width; i += 40) {
+                ctx.beginPath();
+                ctx.moveTo(i, groundY);
+                ctx.lineTo(i - 20, canvas.height);
+                ctx.stroke();
+            }
+            
             // Draw player (MoneyBot)
-            ctx.fillStyle = '#00E676';
-            ctx.fillRect(player.x, player.y, player.width, player.height);
-            
-            // Player eyes
-            ctx.fillStyle = '#0a0e1a';
-            ctx.fillRect(player.x + 5, player.y + 8, 6, 8);
-            ctx.fillRect(player.x + 19, player.y + 8, 6, 8);
-            
-            // Player smile
-            ctx.fillStyle = '#0a0e1a';
-            ctx.fillRect(player.x + 8, player.y + 22, 14, 3);
+            drawPlayer();
             
             // Draw obstacles
             obstacles.forEach(obs => {
-                ctx.fillStyle = '#FF5252';
-                ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
-                ctx.fillStyle = '#FF1744';
-                ctx.fillRect(obs.x + 5, obs.y + 5, obs.width - 10, obs.height - 10);
+                if (obs.type === 'moving') {
+                    // Moving obstacle - draw with animation
+                    const offset = Math.sin(frameCount * 0.1) * 5;
+                    ctx.fillStyle = '#FF1744';
+                    ctx.fillRect(obs.x, obs.y + offset, obs.width, obs.height);
+                    ctx.fillStyle = '#FF5252';
+                    ctx.fillRect(obs.x + 3, obs.y + offset + 3, obs.width - 6, obs.height - 6);
+                } else {
+                    // Static obstacle
+                    ctx.fillStyle = '#FF5252';
+                    ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
+                    ctx.fillStyle = '#FF1744';
+                    ctx.fillRect(obs.x + 3, obs.y + 3, obs.width - 6, obs.height - 6);
+                }
                 
                 // X mark
                 ctx.strokeStyle = '#fff';
                 ctx.lineWidth = 2;
                 ctx.beginPath();
-                ctx.moveTo(obs.x + 8, obs.y + 8);
-                ctx.lineTo(obs.x + obs.width - 8, obs.y + obs.height - 8);
-                ctx.moveTo(obs.x + obs.width - 8, obs.y + 8);
-                ctx.lineTo(obs.x + 8, obs.y + obs.height - 8);
+                ctx.moveTo(obs.x + 6, obs.y + 6);
+                ctx.lineTo(obs.x + obs.width - 6, obs.y + obs.height - 6);
+                ctx.moveTo(obs.x + obs.width - 6, obs.y + 6);
+                ctx.lineTo(obs.x + 6, obs.y + obs.height - 6);
                 ctx.stroke();
             });
             
             // Draw coins
             coinItems.forEach(coin => {
+                // Glow effect
+                ctx.fillStyle = 'rgba(255, 215, 0, 0.3)';
+                ctx.beginPath();
+                ctx.arc(coin.x, coin.y, coin.size/2 + 4, 0, Math.PI * 2);
+                ctx.fill();
+                
                 ctx.fillStyle = '#FFD700';
                 ctx.beginPath();
                 ctx.arc(coin.x, coin.y, coin.size/2, 0, Math.PI * 2);
@@ -370,11 +503,133 @@
                 ctx.arc(coin.x, coin.y, coin.size/2 - 3, 0, Math.PI * 2);
                 ctx.fill();
                 ctx.fillStyle = '#FFD700';
-                ctx.font = 'bold 14px Inter';
+                ctx.font = 'bold 12px Inter';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
                 ctx.fillText('$', coin.x, coin.y);
             });
+            
+            // Draw powerups
+            powerups.forEach(powerup => {
+                // Glow effect
+                ctx.fillStyle = 'rgba(68, 138, 255, 0.4)';
+                ctx.beginPath();
+                ctx.arc(powerup.x, powerup.y, powerup.size/2 + 6, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.fillStyle = '#448AFF';
+                ctx.beginPath();
+                ctx.arc(powerup.x, powerup.y, powerup.size/2, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#fff';
+                ctx.font = 'bold 14px Inter';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('⚡', powerup.x, powerup.y);
+            });
+            
+            // Draw particles
+            particles.forEach(p => {
+                ctx.globalAlpha = p.life;
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.globalAlpha = 1;
+            });
+            
+            // Draw floating texts
+            floatingTexts.forEach(ft => {
+                ctx.globalAlpha = ft.life;
+                ctx.fillStyle = ft.color;
+                ctx.font = 'bold 16px Inter';
+                ctx.textAlign = 'center';
+                ctx.fillText(ft.text, ft.x, ft.y);
+                ctx.globalAlpha = 1;
+            });
+            
+            // Draw speed lines when powerup active
+            if (powerupActive) {
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+                ctx.lineWidth = 2;
+                for (let i = 0; i < 5; i++) {
+                    const y = Math.random() * canvas.height;
+                    ctx.beginPath();
+                    ctx.moveTo(canvas.width, y);
+                    ctx.lineTo(canvas.width - 50 - Math.random() * 100, y);
+                    ctx.stroke();
+                }
+            }
+        }
+        
+        function drawBackground() {
+            // Draw distant cityscape
+            ctx.fillStyle = '#0d1220';
+            for (let i = 0; i < canvas.width; i += 60) {
+                const height = 50 + Math.sin(i * 0.1) * 30;
+                ctx.fillRect(i - (frameCount * 0.5) % 60, groundY - height, 55, height);
+            }
+            
+            // Draw stars
+            ctx.fillStyle = '#fff';
+            for (let i = 0; i < 20; i++) {
+                const x = (i * 37 + frameCount * 0.1) % canvas.width;
+                const y = 30 + (i * 23) % 150;
+                ctx.globalAlpha = 0.3 + Math.sin(frameCount * 0.05 + i) * 0.2;
+                ctx.fillRect(x, y, 2, 2);
+            }
+            ctx.globalAlpha = 1;
+        }
+        
+        function drawPlayer() {
+            // Invincibility flash
+            if (player.invincible && Math.floor(frameCount / 4) % 2 === 0) {
+                ctx.globalAlpha = 0.5;
+            }
+            
+            // Player body
+            ctx.fillStyle = '#00E676';
+            ctx.fillRect(player.x, player.y, player.width, player.height);
+            
+            // Player border
+            ctx.strokeStyle = '#00C853';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(player.x, player.y, player.width, player.height);
+            
+            // Player eyes
+            ctx.fillStyle = '#0a0e1a';
+            ctx.fillRect(player.x + 5, player.y + 6, 7, 9);
+            ctx.fillRect(player.x + 18, player.y + 6, 7, 9);
+            
+            // Eye shine
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(player.x + 7, player.y + 8, 3, 3);
+            ctx.fillRect(player.x + 20, player.y + 8, 3, 3);
+            
+            // Player smile
+            ctx.fillStyle = '#0a0e1a';
+            ctx.fillRect(player.x + 8, player.y + 20, 14, 3);
+            
+            // Antenna
+            ctx.strokeStyle = '#00E676';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(player.x + 15, player.y);
+            ctx.lineTo(player.x + 15, player.y - 8);
+            ctx.stroke();
+            ctx.fillStyle = '#FFD700';
+            ctx.beginPath();
+            ctx.arc(player.x + 15, player.y - 10, 3, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Powerup glow
+            if (powerupActive) {
+                ctx.strokeStyle = 'rgba(68, 138, 255, 0.5)';
+                ctx.lineWidth = 3;
+                ctx.strokeRect(player.x - 3, player.y - 3, player.width + 6, player.height + 6);
+            }
+            
+            ctx.globalAlpha = 1;
         }
         
         function updateUI() {
@@ -393,6 +648,7 @@
             
             document.getElementById('finalScore').textContent = score;
             document.getElementById('finalCoins').textContent = coins;
+            document.getElementById('finalBest').textContent = best;
             
             // Show game over screen
             const gameOverScreen = document.getElementById('gameOverScreen');
@@ -402,9 +658,18 @@
         
         // Keyboard controls
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowUp' || e.key === ' ') jump();
-            if (e.key === 'ArrowLeft') moveLeft();
-            if (e.key === 'ArrowRight') moveRight();
+            if (e.key === 'ArrowUp' || e.key === ' ') {
+                e.preventDefault();
+                jump();
+            }
+            if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                moveLeft();
+            }
+            if (e.key === 'ArrowRight') {
+                e.preventDefault();
+                moveRight();
+            }
         });
     </script>
 </body>
