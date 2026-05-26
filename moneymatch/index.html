@@ -2,60 +2,299 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MoneyBot - moneymatch</title>
-    <link rel="icon" type="image/svg+xml" href="assets/moneybot-logo-1.jpg">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MoneyMatch — MoneyBot</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: manipulation; user-select: none; }
-        body { font-family: 'Inter', sans-serif; background: #FFFFFF; min-height: 100vh; color: #0F172A; }
-        .app { max-width: 430px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; }
-        .header { background: #FFFFFF; padding: 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #22C55E; }
-        .header-logo { display: flex; align-items: center; gap: 12px; }
-        .moneybot-icon { width: 40px; height: 40px; border-radius: 8px; overflow: hidden; }
-        .moneybot-icon img { width: 100%; height: 100%; object-fit: cover; }
-        .header-title { font-weight: 800; font-size: 20px; color: #0F172A; }
-        .back-btn { width: 44px; height: 44px; border-radius: 12px; background: #22C55E; border: none; color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 20px; text-decoration: none; }
-        .game-area { flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px; }
-        .overlay-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #FFFFFF; z-index: 200; padding: 40px; }
-        .overlay-screen.hidden { display: none; }
-        .game-icon { width: 120px; height: 120px; background: #22C55E; border-radius: 24px; display: flex; align-items: center; justify-content: center; font-size: 60px; margin-bottom: 30px; }
-        .game-title { font-size: 36px; font-weight: 800; color: #0F172A; margin-bottom: 12px; text-transform: capitalize; }
-        .game-subtitle { color: #64748B; font-size: 17px; margin-bottom: 40px; text-align: center; }
-        .primary-btn { background: #22C55E; color: white; border: none; padding: 20px 60px; font-size: 18px; font-weight: 700; border-radius: 12px; cursor: pointer; width: 100%; max-width: 280px; }
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@400;600;800&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #050505; color: #00ff88; min-height: 100vh; overflow-x: hidden; }
+        .back-btn { position: fixed; top: 15px; left: 15px; z-index: 100; background: #000; border: 1px solid #00ff88; color: #00ff88; padding: 8px 16px; text-decoration: none; font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+        .container { max-width: 600px; margin: 0 auto; padding: 60px 15px 40px; }
+        header { text-align: center; margin-bottom: 25px; }
+        header h1 { font-size: 28px; font-weight: 800; text-shadow: 0 0 20px #00ff88; }
+        header p { font-size: 13px; opacity: 0.7; margin-top: 8px; }
+        
+        .stats { display: flex; justify-content: center; gap: 30px; margin-bottom: 25px; }
+        .stat { text-align: center; }
+        .stat .value { font-size: 28px; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+        .stat .label { font-size: 11px; text-transform: uppercase; opacity: 0.7; }
+        
+        .timer-bar { width: 100%; height: 4px; background: #0a1a0f; margin-bottom: 25px; }
+        .timer-bar .fill { height: 100%; background: #00ff88; transition: width 0.1s linear; }
+        
+        .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 25px; }
+        .card { aspect-ratio: 1; background: #0a1a0f; border: 2px solid #00ff88; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 28px; transition: all 0.3s; position: relative; }
+        .card:hover:not(.flipped):not(.matched) { box-shadow: 0 0 15px rgba(0,255,136,0.4); }
+        .card.flipped { background: #00ff88; color: #000; }
+        .card.matched { background: #004411; border-color: #00ff88; opacity: 0.7; cursor: default; }
+        .card .front { display: none; }
+        .card.flipped .front, .card.matched .front { display: block; }
+        .card.flipped .back, .card.matched .back { display: none; }
+        .card .term { font-size: 10px; text-align: center; padding: 5px; font-weight: 600; line-height: 1.2; }
+        
+        .combo { text-align: center; font-size: 20px; font-weight: 700; margin-bottom: 15px; min-height: 30px; }
+        .combo.show { animation: pop 0.5s ease; }
+        @keyframes pop { 0% { transform: scale(1); } 50% { transform: scale(1.3); } 100% { transform: scale(1); } }
+        
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 200; display: flex; align-items: center; justify-content: center; }
+        .modal-overlay.hidden { display: none; }
+        .modal { background: #0a1a0f; border: 2px solid #00ff88; padding: 40px; text-align: center; max-width: 350px; }
+        .modal h2 { font-size: 24px; margin-bottom: 15px; }
+        .modal p { font-size: 14px; opacity: 0.8; margin-bottom: 10px; line-height: 1.6; }
+        .modal .btn { background: #00ff88; color: #000; border: none; padding: 15px 30px; font-family: 'JetBrains Mono', monospace; font-weight: 700; cursor: pointer; margin-top: 15px; }
+        
+        .definition { background: #0a1a0f; border: 1px solid #00ff88; padding: 15px; margin-bottom: 20px; font-size: 13px; line-height: 1.5; min-height: 60px; }
+        .definition strong { color: #fbbf24; }
+        
+        @media (max-width: 400px) {
+            .grid { gap: 6px; }
+            .card { font-size: 22px; }
+            .card .term { font-size: 9px; }
+        }
     </style>
 </head>
 <body>
-    <div class="app">
-        <header class="header">
-            <div class="header-logo">
-                <a href="../moneybot-official/" class="back-btn">←</a>
-                <div class="moneybot-icon"><img src="assets/moneybot-logo-1.jpg" /></div>
-                <span class="header-title">moneymatch</span>
-            </div>
+    <a href="../moneybot-official/" class="back-btn">← HUB</a>
+    <div class="container">
+        <header>
+            <h1>🧠 MONEYMATCH</h1>
+            <p>Match the financial term with its definition. Train your money memory!</p>
         </header>
-        <div class="game-area">
-            <canvas id="gameCanvas" width="350" height="500"></canvas>
+        
+        <div class="stats">
+            <div class="stat">
+                <div class="value" id="score">0</div>
+                <div class="label">Score</div>
+            </div>
+            <div class="stat">
+                <div class="value" id="moves">0</div>
+                <div class="label">Moves</div>
+            </div>
+            <div class="stat">
+                <div class="value" id="time">60</div>
+                <div class="label">Seconds</div>
+            </div>
+        </div>
+        
+        <div class="timer-bar"><div class="fill" id="timerFill" style="width:100%"></div></div>
+        
+        <div class="combo" id="combo"></div>
+        
+        <div class="definition" id="definition">
+            Flip cards to find matching pairs. Each match reveals a money concept!
+        </div>
+        
+        <div class="grid" id="grid"></div>
+    </div>
+    
+    <div class="modal-overlay hidden" id="startModal">
+        <div class="modal">
+            <h2>🧠 MoneyMatch</h2>
+            <p>Match 8 financial terms with their definitions.</p>
+            <p>You have 60 seconds. Faster matches = more points!</p>
+            <button class="btn" onclick="startGame()">START</button>
         </div>
     </div>
-    <div class="overlay-screen" id="startScreen">
-        <div class="game-icon">🎮</div>
-        <div class="game-title">moneymatch</div>
-        <div class="game-subtitle">Master your money skills!<br>Coming soon to MoneyBot</div>
-        <button class="primary-btn" onclick="startGame()">Start Game</button>
+    
+    <div class="modal-overlay hidden" id="gameOverModal">
+        <div class="modal">
+            <h2 id="gameOverTitle">Time's Up!</h2>
+            <p id="gameOverText">You scored 0 points.</p>
+            <p id="gameOverDetail">Keep practicing!</p>
+            <button class="btn" onclick="restartGame()">PLAY AGAIN</button>
+        </div>
     </div>
+
     <script>
-        function startGame() {
-            document.getElementById('startScreen').classList.add('hidden');
-            const canvas = document.getElementById('gameCanvas');
-            const ctx = canvas.getContext('2d');
-            ctx.fillStyle = '#FFFFFF';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = '#22C55E';
-            ctx.font = '24px Inter';
-            ctx.textAlign = 'center';
-            ctx.fillText('moneymatch Coming Soon!', canvas.width/2, canvas.height/2);
+        const pairs = [
+            { term: '💰 Asset', def: 'Something you OWN that has value', icon: '💰' },
+            { term: '💳 Liability', def: 'Money you OWE to others', icon: '💳' },
+            { term: '📈 Bull Market', def: 'Market trending UP, prices rising', icon: '📈' },
+            { term: '📉 Bear Market', def: 'Market trending DOWN, prices falling', icon: '📉' },
+            { term: '💵 Dividend', def: 'Cash payment from company to shareholders', icon: '💵' },
+            { term: '🏦 Compound Interest', def: 'Interest earning interest over time', icon: '🏦' },
+            { term: '🛡️ Insurance', def: 'Protection against financial loss', icon: '🛡️' },
+            { term: '📊 Diversification', def: 'Spreading investments to reduce risk', icon: '📊' }
+        ];
+        
+        let cards = [];
+        let flipped = [];
+        let matched = 0;
+        let score = 0;
+        let moves = 0;
+        let timeLeft = 60;
+        let timerInterval;
+        let combo = 0;
+        let gameActive = false;
+        
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
         }
+        
+        function createBoard() {
+            const grid = document.getElementById('grid');
+            grid.innerHTML = '';
+            cards = [];
+            
+            // Create pairs
+            const cardData = [];
+            pairs.forEach((pair, idx) => {
+                cardData.push({ id: idx, type: 'term', content: pair.term, icon: pair.icon, def: pair.def });
+                cardData.push({ id: idx, type: 'def', content: pair.def, icon: pair.icon, def: pair.def });
+            });
+            
+            shuffle(cardData);
+            
+            cardData.forEach((data, i) => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.dataset.id = data.id;
+                card.dataset.index = i;
+                card.innerHTML = `
+                    <div class="back">?</div>
+                    <div class="front">
+                        <div class="term">${data.content}</div>
+                    </div>
+                `;
+                card.onclick = () => flipCard(i);
+                grid.appendChild(card);
+                cards.push({ element: card, data });
+            });
+        }
+        
+        function flipCard(index) {
+            if (!gameActive) return;
+            const card = cards[index];
+            if (card.element.classList.contains('flipped') || card.element.classList.contains('matched')) return;
+            if (flipped.length >= 2) return;
+            
+            card.element.classList.add('flipped');
+            flipped.push(card);
+            
+            if (flipped.length === 2) {
+                moves++;
+                document.getElementById('moves').textContent = moves;
+                checkMatch();
+            }
+        }
+        
+        function checkMatch() {
+            const [a, b] = flipped;
+            const match = a.data.id === b.data.id;
+            
+            if (match) {
+                combo++;
+                matched++;
+                const points = 100 + (combo * 25) + (timeLeft > 30 ? 50 : 0);
+                score += points;
+                
+                document.getElementById('score').textContent = score;
+                document.getElementById('definition').innerHTML = `<strong>✅ ${a.data.icon} ${a.data.term}:</strong> ${a.data.def}`;
+                
+                if (combo >= 2) {
+                    const comboEl = document.getElementById('combo');
+                    comboEl.textContent = `${combo}x COMBO! +${points} pts`;
+                    comboEl.classList.add('show');
+                    setTimeout(() => comboEl.classList.remove('show'), 500);
+                }
+                
+                setTimeout(() => {
+                    a.element.classList.add('matched');
+                    b.element.classList.add('matched');
+                    flipped = [];
+                    
+                    if (matched >= pairs.length) {
+                        endGame(true);
+                    }
+                }, 600);
+            } else {
+                combo = 0;
+                setTimeout(() => {
+                    a.element.classList.remove('flipped');
+                    b.element.classList.remove('flipped');
+                    flipped = [];
+                }, 800);
+            }
+        }
+        
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                document.getElementById('time').textContent = timeLeft;
+                document.getElementById('timerFill').style.width = (timeLeft / 60 * 100) + '%';
+                
+                if (timeLeft <= 10) {
+                    document.getElementById('timerFill').style.background = '#ff4444';
+                }
+                
+                if (timeLeft <= 0) {
+                    endGame(false);
+                }
+            }, 1000);
+        }
+        
+        function endGame(won) {
+            gameActive = false;
+            clearInterval(timerInterval);
+            
+            let title, text, detail;
+            if (won) {
+                const bonus = timeLeft * 10;
+                score += bonus;
+                if (score >= 1500) {
+                    title = '🏆 Memory Master!';
+                    text = `You scored ${score} points!`;
+                    detail = `Matched all pairs with ${timeLeft}s to spare (+${bonus} bonus)!`;
+                } else {
+                    title = '✅ Complete!';
+                    text = `You scored ${score} points.`;
+                    detail = 'All pairs found! Keep practicing for higher combos.';
+                }
+            } else {
+                title = '⏰ Time\'s Up!';
+                text = `You scored ${score} points.`;
+                detail = `Found ${matched}/${pairs.length} pairs. Try again!`;
+            }
+            
+            document.getElementById('gameOverTitle').textContent = title;
+            document.getElementById('gameOverText').textContent = text;
+            document.getElementById('gameOverDetail').textContent = detail;
+            document.getElementById('gameOverModal').classList.remove('hidden');
+        }
+        
+        function startGame() {
+            document.getElementById('startModal').classList.add('hidden');
+            score = 0;
+            moves = 0;
+            matched = 0;
+            timeLeft = 60;
+            combo = 0;
+            flipped = [];
+            gameActive = true;
+            
+            document.getElementById('score').textContent = '0';
+            document.getElementById('moves').textContent = '0';
+            document.getElementById('time').textContent = '60';
+            document.getElementById('timerFill').style.width = '100%';
+            document.getElementById('timerFill').style.background = '#00ff88';
+            document.getElementById('combo').textContent = '';
+            document.getElementById('definition').textContent = 'Flip cards to find matching pairs. Each match reveals a money concept!';
+            
+            createBoard();
+            startTimer();
+        }
+        
+        function restartGame() {
+            document.getElementById('gameOverModal').classList.add('hidden');
+            startGame();
+        }
+        
+        // Show start modal
+        document.getElementById('startModal').classList.remove('hidden');
     </script>
 </body>
 </html>

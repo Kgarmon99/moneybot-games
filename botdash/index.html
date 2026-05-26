@@ -162,6 +162,7 @@
         document.getElementById('jumpBtn').addEventListener('mousedown', jump);
         
         function startGame() {
+            console.log('Starting game...');
             document.getElementById('startScreen').classList.add('hidden');
             document.getElementById('gameOverScreen').classList.add('hidden');
             
@@ -184,6 +185,7 @@
             particles = [];
             
             updateUI();
+            console.log('Game started, player at:', player.x, player.y);
             gameLoop();
         }
         
@@ -377,6 +379,7 @@
         }
         
         function gameOver() {
+            console.log('Game over! Score:', score);
             gameRunning = false;
             
             if (score > best) {
