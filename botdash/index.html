@@ -137,7 +137,7 @@
             width: 30,
             height: 40,
             dy: 0,
-            grounded: true
+            grounded: false
         };
         
         // Game objects
@@ -175,7 +175,7 @@
             
             // Reset player - place on ground
             player.x = 50;
-            player.y = groundY - 40;
+            player.y = groundY - player.height;
             player.dy = 0;
             player.grounded = true;
             
