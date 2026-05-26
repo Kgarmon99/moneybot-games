@@ -2,27 +2,348 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MoneyBot - botbalance</title>
-    <link rel="icon" type="image/svg+xml" href="assets/moneybot-logo-1.jpg">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>BotBalance - MoneyBot</title>
+    <link rel="icon" type="image/svg+xml" href="../assets/moneybot-idle.svg">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: manipulation; user-select: none; }
-        body { font-family: 'Inter', sans-serif; background: #FFFFFF; min-height: 100vh; color: #0F172A; }
+        
+        :root {
+            --mb-green: #00E676;
+            --mb-green-dark: #00C853;
+            --mb-dark: #1A1A2E;
+            --mb-panel: rgba(26, 26, 46, 0.95);
+            --mb-gold: #FFD700;
+            --mb-red: #FF5252;
+        }
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: var(--mb-dark); 
+            min-height: 100vh; 
+            color: #fff;
+            overflow: hidden;
+        }
+        
         .app { max-width: 430px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; }
-        .header { background: #FFFFFF; padding: 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #22C55E; }
-        .header-logo { display: flex; align-items: center; gap: 12px; }
-        .moneybot-icon { width: 40px; height: 40px; border-radius: 8px; overflow: hidden; }
+        
+        .header { 
+            background: var(--mb-panel); 
+            padding: 12px 16px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            border-bottom: 2px solid var(--mb-green);
+        }
+        
+        .header-logo { display: flex; align-items: center; gap: 10px; }
+        .moneybot-icon { width: 36px; height: 36px; border-radius: 8px; overflow: hidden; background: var(--mb-green); }
         .moneybot-icon img { width: 100%; height: 100%; object-fit: cover; }
-        .header-title { font-weight: 800; font-size: 20px; color: #0F172A; }
-        .back-btn { width: 44px; height: 44px; border-radius: 12px; background: #22C55E; border: none; color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 20px; text-decoration: none; }
-        .game-area { flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px; }
-        .overlay-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #FFFFFF; z-index: 200; padding: 40px; }
+        .header-title { font-weight: 800; font-size: 18px; color: #fff; }
+        
+        .back-btn { 
+            width: 40px; height: 40px; border-radius: 10px; 
+            background: var(--mb-green); border: none; color: var(--mb-dark); 
+            display: flex; align-items: center; justify-content: center; 
+            cursor: pointer; font-size: 18px; text-decoration: none; 
+            font-weight: 700;
+        }
+        
+        .stats-bar {
+            display: flex;
+            justify-content: space-around;
+            padding: 12px;
+            background: rgba(0, 230, 118, 0.1);
+        }
+        
+        .stat {
+            text-align: center;
+        }
+        
+        .stat-label {
+            font-size: 10px;
+            color: rgba(255,255,255,0.6);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .stat-value {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--mb-green);
+        }
+        
+        .game-area { 
+            flex: 1; 
+            display: flex; 
+            flex-direction: column;
+            padding: 16px;
+            gap: 12px;
+        }
+        
+        .balance-scale {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            padding: 20px;
+            background: var(--mb-panel);
+            border-radius: 16px;
+            border: 2px solid rgba(0, 230, 118, 0.3);
+        }
+        
+        .scale-side {
+            flex: 1;
+            text-align: center;
+        }
+        
+        .scale-label {
+            font-size: 12px;
+            color: rgba(255,255,255,0.5);
+            margin-bottom: 8px;
+        }
+        
+        .scale-amount {
+            font-size: 28px;
+            font-weight: 800;
+        }
+        
+        .scale-amount.income { color: var(--mb-green); }
+        .scale-amount.expense { color: var(--mb-red); }
+        
+        .scale-indicator {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            transition: all 0.3s;
+        }
+        
+        .scale-indicator.balanced {
+            background: var(--mb-green);
+            color: var(--mb-dark);
+            animation: pulse 1s ease-in-out infinite;
+        }
+        
+        .scale-indicator.unbalanced {
+            background: var(--mb-red);
+            color: #fff;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        .items-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+        
+        .item-card {
+            background: var(--mb-panel);
+            border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 12px 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .item-card:hover {
+            border-color: var(--mb-green);
+            transform: translateY(-2px);
+        }
+        
+        .item-card.selected {
+            border-color: var(--mb-green);
+            background: rgba(0, 230, 118, 0.2);
+        }
+        
+        .item-card.income-item {
+            border-color: rgba(0, 230, 118, 0.3);
+        }
+        
+        .item-card.expense-item {
+            border-color: rgba(255, 82, 82, 0.3);
+        }
+        
+        .item-icon {
+            font-size: 28px;
+            margin-bottom: 6px;
+        }
+        
+        .item-name {
+            font-size: 11px;
+            color: rgba(255,255,255,0.7);
+            margin-bottom: 4px;
+        }
+        
+        .item-value {
+            font-size: 16px;
+            font-weight: 700;
+        }
+        
+        .item-value.income { color: var(--mb-green); }
+        .item-value.expense { color: var(--mb-red); }
+        
+        .action-bar {
+            display: flex;
+            gap: 10px;
+            padding: 12px 0;
+        }
+        
+        .action-btn {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .action-btn.add-income {
+            background: var(--mb-green);
+            color: var(--mb-dark);
+        }
+        
+        .action-btn.add-expense {
+            background: var(--mb-red);
+            color: #fff;
+        }
+        
+        .action-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+        
+        .level-info {
+            text-align: center;
+            padding: 8px;
+        }
+        
+        .level-info h3 {
+            font-size: 14px;
+            color: var(--mb-gold);
+            margin-bottom: 4px;
+        }
+        
+        .level-info p {
+            font-size: 12px;
+            color: rgba(255,255,255,0.5);
+        }
+        
+        .overlay-screen { 
+            position: fixed; 
+            top: 0; left: 0; 
+            width: 100%; height: 100%; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            background: var(--mb-dark); 
+            z-index: 200; 
+            padding: 40px; 
+        }
+        
         .overlay-screen.hidden { display: none; }
-        .game-icon { width: 120px; height: 120px; background: #22C55E; border-radius: 24px; display: flex; align-items: center; justify-content: center; font-size: 60px; margin-bottom: 30px; }
-        .game-title { font-size: 36px; font-weight: 800; color: #0F172A; margin-bottom: 12px; text-transform: capitalize; }
-        .game-subtitle { color: #64748B; font-size: 17px; margin-bottom: 40px; text-align: center; }
-        .primary-btn { background: #22C55E; color: white; border: none; padding: 20px 60px; font-size: 18px; font-weight: 700; border-radius: 12px; cursor: pointer; width: 100%; max-width: 280px; }
+        
+        .game-icon { 
+            width: 120px; height: 120px; 
+            background: var(--mb-green); 
+            border-radius: 24px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            margin-bottom: 24px;
+            overflow: hidden;
+        }
+        
+        .game-icon img {
+            width: 80%;
+            height: 80%;
+            object-fit: contain;
+        }
+        
+        .game-title { 
+            font-size: 32px; 
+            font-weight: 800; 
+            color: #fff; 
+            margin-bottom: 12px; 
+        }
+        
+        .game-subtitle { 
+            color: rgba(255,255,255,0.6); 
+            font-size: 16px; 
+            margin-bottom: 32px; 
+            text-align: center; 
+            line-height: 1.5;
+        }
+        
+        .primary-btn { 
+            background: var(--mb-green); 
+            color: var(--mb-dark); 
+            border: none; 
+            padding: 18px 48px; 
+            font-size: 16px; 
+            font-weight: 700; 
+            border-radius: 12px; 
+            cursor: pointer; 
+            width: 100%; 
+            max-width: 280px;
+            transition: transform 0.2s;
+        }
+        
+        .primary-btn:active {
+            transform: scale(0.98);
+        }
+        
+        .instructions-list {
+            text-align: left;
+            margin: 20px 0;
+            max-width: 300px;
+        }
+        
+        .instructions-list li {
+            color: rgba(255,255,255,0.7);
+            font-size: 14px;
+            margin-bottom: 10px;
+            list-style: none;
+            padding-left: 24px;
+            position: relative;
+        }
+        
+        .instructions-list li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--mb-green);
+            font-weight: 700;
+        }
+        
+        .star-display {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin: 16px 0;
+        }
+        
+        .star {
+            font-size: 32px;
+            color: rgba(255,255,255,0.2);
+            transition: color 0.3s;
+        }
+        
+        .star.earned {
+            color: var(--mb-gold);
+        }
     </style>
 </head>
 <body>
@@ -30,31 +351,325 @@
         <header class="header">
             <div class="header-logo">
                 <a href="../moneybot-official/" class="back-btn">←</a>
-                <div class="moneybot-icon"><img src="assets/moneybot-logo-1.jpg" /></div>
-                <span class="header-title">botbalance</span>
+                <div class="moneybot-icon"><img src="../assets/moneybot-idle.svg" /></div>
+                <span class="header-title">BotBalance</span>
             </div>
         </header>
+        
+        <div class="stats-bar">
+            <div class="stat">
+                <div class="stat-label">Level</div>
+                <div class="stat-value" id="level">1</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Score</div>
+                <div class="stat-value" id="score">0</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Streak</div>
+                <div class="stat-value" id="streak">0</div>
+            </div>
+        </div>
+        
         <div class="game-area">
-            <canvas id="gameCanvas" width="350" height="500"></canvas>
+            <div class="level-info">
+                <h3 id="level-title">Level 1: First Budget</h3>
+                <p id="level-desc">Balance your income and expenses!</p>
+            </div>
+            
+            <div class="balance-scale">
+                <div class="scale-side">
+                    <div class="scale-label">INCOME</div>
+                    <div class="scale-amount income" id="income-total">$0</div>
+                </div>
+                <div class="scale-indicator unbalanced" id="balance-indicator">⚖</div>
+                <div class="scale-side">
+                    <div class="scale-label">EXPENSES</div>
+                    <div class="scale-amount expense" id="expense-total">$0</div>
+                </div>
+            </div>
+            
+            <div class="items-grid" id="items-grid">
+                <!-- Items generated by JS -->
+            </div>
+            
+            <div class="action-bar">
+                <button class="action-btn add-income" id="add-income-btn" onclick="addRandomIncome()">+ Income</button>
+                <button class="action-btn add-expense" id="add-expense-btn" onclick="addRandomExpense()">+ Expense</button>
+            </div>
         </div>
     </div>
+    
+    <!-- Start Screen -->
     <div class="overlay-screen" id="startScreen">
-        <div class="game-icon">🎮</div>
-        <div class="game-title">botbalance</div>
-        <div class="game-subtitle">Master your money skills!<br>Coming soon to MoneyBot</div>
+        <div class="game-icon">
+            <img src="../assets/moneybot-idle.svg" alt="MoneyBot">
+        </div>
+        <div class="game-title">BotBalance</div>
+        <div class="game-subtitle">Master the art of balancing<br>income and expenses!</div>
+        <ul class="instructions-list">
+            <li>Add income items to increase earnings</li>
+            <li>Add expense items to spend wisely</li>
+            <li>Balance both sides to win!</li>
+            <li>Higher levels = harder challenges</li>
+        </ul>
         <button class="primary-btn" onclick="startGame()">Start Game</button>
     </div>
+    
+    <!-- Level Complete Screen -->
+    <div class="overlay-screen hidden" id="levelCompleteScreen">
+        <div class="game-icon">
+            <img src="../assets/moneybot-celebrating.svg" alt="MoneyBot">
+        </div>
+        <div class="game-title">Level Complete!</div>
+        <div class="star-display">
+            <span class="star" id="star1">★</span>
+            <span class="star" id="star2">★</span>
+            <span class="star" id="star3">★</span>
+        </div>
+        <div class="game-subtitle" id="level-score">Score: 0</div>
+        <button class="primary-btn" onclick="nextLevel()">Next Level</button>
+    </div>
+    
+    <!-- Game Over Screen -->
+    <div class="overlay-screen hidden" id="gameOverScreen">
+        <div class="game-title" style="color: var(--mb-red);">Budget Busted!</div>
+        <div class="game-subtitle" id="game-over-reason">Your expenses exceeded your income!</div>
+        <div class="game-subtitle" id="final-score">Final Score: 0</div>
+        <button class="primary-btn" onclick="restartGame()">Try Again</button>
+    </div>
+    
     <script>
+        // Game State
+        let gameState = {
+            level: 1,
+            score: 0,
+            streak: 0,
+            income: [],
+            expenses: [],
+            targetBalance: 0,
+            movesLeft: 0,
+            gameActive: false
+        };
+        
+        // Level configurations
+        const levels = [
+            { title: "First Budget", desc: "Balance $1000 income with $1000 expenses", targetDiff: 0, maxMoves: 8 },
+            { title: "Side Hustle", desc: "Balance $2000 with some extra income sources", targetDiff: 0, maxMoves: 10 },
+            { title: "Tight Budget", desc: "You need $1500 but only have $1200. Find extra income!", targetDiff: 0, maxMoves: 12 },
+            { title: "Savings Goal", desc: "Balance so you have $500 left for savings", targetDiff: 500, maxMoves: 12 },
+            { title: "Debt Crisis", desc: "Pay off $2000 debt while covering expenses", targetDiff: 0, maxMoves: 15 },
+            { title: "Investment Plan", desc: "Balance to invest $1000 monthly", targetDiff: 1000, maxMoves: 15 },
+            { title: "Family Budget", desc: "Support a family on $4000/month", targetDiff: 0, maxMoves: 18 },
+            { title: "Business Owner", desc: "Balance variable business income", targetDiff: 0, maxMoves: 20 },
+            { title: "Retirement Plan", desc: "Save $2000/month for retirement", targetDiff: 2000, maxMoves: 20 },
+            { title: "Financial Freedom", desc: "The ultimate balancing challenge!", targetDiff: 0, maxMoves: 25 }
+        ];
+        
+        // Income items
+        const incomeItems = [
+            { name: "Salary", value: 3000, icon: "💼" },
+            { name: "Freelance", value: 500, icon: "💻" },
+            { name: "Dividends", value: 200, icon: "📈" },
+            { name: "Side Hustle", value: 400, icon: "🚀" },
+            { name: "Rental Income", value: 800, icon: "🏠" },
+            { name: "Bonus", value: 1000, icon: "🎉" },
+            { name: "Interest", value: 100, icon: "🏦" },
+            { name: "Gifts", value: 200, icon: "🎁" },
+            { name: "Investments", value: 600, icon: "💰" },
+            { name: "Royalties", value: 300, icon: "📚" }
+        ];
+        
+        // Expense items
+        const expenseItems = [
+            { name: "Rent", value: 1200, icon: "🏠" },
+            { name: "Food", value: 400, icon: "🍽️" },
+            { name: "Transport", value: 200, icon: "🚗" },
+            { name: "Utilities", value: 150, icon: "⚡" },
+            { name: "Phone", value: 80, icon: "📱" },
+            { name: "Insurance", value: 200, icon: "🛡️" },
+            { name: "Entertainment", value: 150, icon: "🎬" },
+            { name: "Shopping", value: 300, icon: "🛍️" },
+            { name: "Debt Payment", value: 500, icon: "💳" },
+            { name: "Savings", value: 400, icon: "🏦" },
+            { name: "Healthcare", value: 250, icon: "⚕️" },
+            { name: "Education", value: 300, icon: "📚" }
+        ];
+        
         function startGame() {
             document.getElementById('startScreen').classList.add('hidden');
-            const canvas = document.getElementById('gameCanvas');
-            const ctx = canvas.getContext('2d');
-            ctx.fillStyle = '#FFFFFF';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = '#22C55E';
-            ctx.font = '24px Inter';
-            ctx.textAlign = 'center';
-            ctx.fillText('botbalance Coming Soon!', canvas.width/2, canvas.height/2);
+            gameState.level = 1;
+            gameState.score = 0;
+            gameState.streak = 0;
+            loadLevel(1);
+        }
+        
+        function loadLevel(levelNum) {
+            const level = levels[(levelNum - 1) % levels.length];
+            gameState.level = levelNum;
+            gameState.income = [];
+            gameState.expenses = [];
+            gameState.targetBalance = level.targetDiff;
+            gameState.movesLeft = level.maxMoves;
+            gameState.gameActive = true;
+            
+            // Add starting items
+            addRandomIncome();
+            addRandomIncome();
+            addRandomExpense();
+            addRandomExpense();
+            
+            updateUI();
+            document.getElementById('level-title').textContent = `Level ${levelNum}: ${level.title}`;
+            document.getElementById('level-desc').textContent = level.desc;
+        }
+        
+        function addRandomIncome() {
+            if (!gameState.gameActive || gameState.movesLeft <= 0) return;
+            
+            const item = incomeItems[Math.floor(Math.random() * incomeItems.length)];
+            gameState.income.push({ ...item, id: Date.now() });
+            gameState.movesLeft--;
+            updateUI();
+            checkWinCondition();
+        }
+        
+        function addRandomExpense() {
+            if (!gameState.gameActive || gameState.movesLeft <= 0) return;
+            
+            const item = expenseItems[Math.floor(Math.random() * expenseItems.length)];
+            gameState.expenses.push({ ...item, id: Date.now() + 1 });
+            gameState.movesLeft--;
+            updateUI();
+            checkWinCondition();
+        }
+        
+        function removeItem(type, index) {
+            if (!gameState.gameActive) return;
+            
+            if (type === 'income') {
+                gameState.income.splice(index, 1);
+            } else {
+                gameState.expenses.splice(index, 1);
+            }
+            updateUI();
+        }
+        
+        function getTotalIncome() {
+            return gameState.income.reduce((sum, item) => sum + item.value, 0);
+        }
+        
+        function getTotalExpenses() {
+            return gameState.expenses.reduce((sum, item) => sum + item.value, 0);
+        }
+        
+        function updateUI() {
+            const income = getTotalIncome();
+            const expenses = getTotalExpenses();
+            const diff = income - expenses;
+            
+            document.getElementById('level').textContent = gameState.level;
+            document.getElementById('score').textContent = gameState.score;
+            document.getElementById('streak').textContent = gameState.streak;
+            document.getElementById('income-total').textContent = `$${income.toLocaleString()}`;
+            document.getElementById('expense-total').textContent = `$${expenses.toLocaleString()}`;
+            
+            const indicator = document.getElementById('balance-indicator');
+            if (Math.abs(diff - gameState.targetBalance) <= 50) {
+                indicator.textContent = '✓';
+                indicator.className = 'scale-indicator balanced';
+            } else if (diff < gameState.targetBalance) {
+                indicator.textContent = '↓';
+                indicator.className = 'scale-indicator unbalanced';
+            } else {
+                indicator.textContent = '↑';
+                indicator.className = 'scale-indicator unbalanced';
+            }
+            
+            // Update items grid
+            const grid = document.getElementById('items-grid');
+            grid.innerHTML = '';
+            
+            gameState.income.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = 'item-card income-item';
+                div.innerHTML = `
+                    <div class="item-icon">${item.icon}</div>
+                    <div class="item-name">${item.name}</div>
+                    <div class="item-value income">+$${item.value}</div>
+                `;
+                div.onclick = () => removeItem('income', index);
+                grid.appendChild(div);
+            });
+            
+            gameState.expenses.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = 'item-card expense-item';
+                div.innerHTML = `
+                    <div class="item-icon">${item.icon}</div>
+                    <div class="item-name">${item.name}</div>
+                    <div class="item-value expense">-$${item.value}</div>
+                `;
+                div.onclick = () => removeItem('expense', index);
+                grid.appendChild(div);
+            });
+            
+            // Update button states
+            document.getElementById('add-income-btn').disabled = gameState.movesLeft <= 0;
+            document.getElementById('add-expense-btn').disabled = gameState.movesLeft <= 0;
+        }
+        
+        function checkWinCondition() {
+            const income = getTotalIncome();
+            const expenses = getTotalExpenses();
+            const diff = income - expenses;
+            
+            // Win: balanced within $50 of target
+            if (Math.abs(diff - gameState.targetBalance) <= 50 && gameState.income.length > 0 && gameState.expenses.length > 0) {
+                gameState.gameActive = false;
+                gameState.streak++;
+                
+                // Calculate score
+                const baseScore = 100 * gameState.level;
+                const streakBonus = gameState.streak * 50;
+                const moveBonus = gameState.movesLeft * 10;
+                const totalScore = baseScore + streakBonus + moveBonus;
+                gameState.score += totalScore;
+                
+                // Show level complete
+                document.getElementById('level-score').textContent = `Score: ${totalScore} (Total: ${gameState.score})`;
+                
+                // Stars based on performance
+                const stars = gameState.movesLeft >= 3 ? 3 : gameState.movesLeft >= 1 ? 2 : 1;
+                document.getElementById('star1').className = stars >= 1 ? 'star earned' : 'star';
+                document.getElementById('star2').className = stars >= 2 ? 'star earned' : 'star';
+                document.getElementById('star3').className = stars >= 3 ? 'star earned' : 'star';
+                
+                document.getElementById('levelCompleteScreen').classList.remove('hidden');
+            }
+            
+            // Lose: out of moves and not balanced
+            else if (gameState.movesLeft <= 0) {
+                gameState.gameActive = false;
+                gameState.streak = 0;
+                document.getElementById('game-over-reason').textContent = 
+                    `Income: $${income} vs Expenses: $${expenses}. Target surplus: $${gameState.targetBalance}`;
+                document.getElementById('final-score').textContent = `Final Score: ${gameState.score}`;
+                document.getElementById('gameOverScreen').classList.remove('hidden');
+            }
+        }
+        
+        function nextLevel() {
+            document.getElementById('levelCompleteScreen').classList.add('hidden');
+            loadLevel(gameState.level + 1);
+        }
+        
+        function restartGame() {
+            document.getElementById('gameOverScreen').classList.add('hidden');
+            gameState.level = 1;
+            gameState.score = 0;
+            gameState.streak = 0;
+            loadLevel(1);
         }
     </script>
 </body>
