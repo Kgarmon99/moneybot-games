@@ -44,6 +44,7 @@
         .game-card { background: #000; border: 1px solid #0f0; text-decoration: none; color: #0f0; transition: all 0.2s; display: block; position: relative; }
         .game-card:hover { box-shadow: 0 0 20px rgba(0,255,0,0.4), inset 0 0 10px rgba(0,255,0,0.1); transform: translateY(-2px); }
         .game-card.hidden-card { display: none; }
+        .game-card.soon { display: none; }
         .game-image { aspect-ratio: 16/10; background: #050505; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid #0f0; overflow: hidden; }
         .game-image img { width: 100%; height: 100%; object-fit: cover; }
         .game-emoji { font-size: 60px; filter: drop-shadow(0 0 10px #0f0); }
@@ -370,6 +371,15 @@
                     this.style.objectFit = 'contain';
                 }
             });
+        });
+        
+        // Hide "Coming Soon" stub games
+        const stubGames = ['stockbot','cryptobot','viralquizbot','moneymatch','botbiztycoon','botbuilder','botcitybuilder','botfundmanager','bothouse','botreactiontest','botrunner','botsquadmissions','botvsbot','budgetbot','moneyolympics'];
+        document.querySelectorAll('.game-card').forEach(card => {
+            const href = card.getAttribute('href') || '';
+            if (stubGames.some(stub => href.includes(stub))) {
+                card.classList.add('soon');
+            }
         });
     </script>
 </body>
