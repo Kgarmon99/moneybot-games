@@ -83,9 +83,9 @@
         <div class="game-area">
             <canvas id="gameCanvas" width="390" height="400"></canvas>
             <div class="controls">
-                <button class="control-btn" id="leftBtn" ontouchstart="moveLeft()" onmousedown="moveLeft()">← LEFT</button>
-                <button class="control-btn jump" id="jumpBtn" ontouchstart="jump()" onmousedown="jump()">↑ JUMP</button>
-                <button class="control-btn" id="rightBtn" ontouchstart="moveRight()" onmousedown="moveRight()">RIGHT →</button>
+                <button class="control-btn" id="leftBtn">← LEFT</button>
+                <button class="control-btn jump" id="jumpBtn">↑ JUMP</button>
+                <button class="control-btn" id="rightBtn">RIGHT →</button>
             </div>
         </div>
     </div>
@@ -102,7 +102,7 @@
             <li>Collect gold coins for points</li>
             <li>Survive as long as possible!</li>
         </ul>
-        <button class="primary-btn" onclick="startGame()">Start Running</button>
+        <button class="primary-btn" id="startBtn">Start Running</button>
     </div>
     
     <div class="overlay-screen hidden" id="gameOverScreen">
@@ -112,179 +112,194 @@
         <div class="game-title" style="color: var(--mb-red);">Game Over!</div>
         <div class="game-subtitle">Score: <span id="finalScore" style="color: var(--mb-green); font-weight: 800;">0</span></div>
         <div class="game-subtitle">Coins: <span id="finalCoins" style="color: var(--mb-gold); font-weight: 800;">0</span></div>
-        <button class="primary-btn" onclick="restartGame()">Run Again</button>
+        <button class="primary-btn" id="restartBtn">Run Again</button>
     </div>
     
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         
-        let gameState = {
-            running: false,
-            score: 0,
-            coins: 0,
-            best: localStorage.getItem('botdash_best') || 0,
-            speed: 3,
-            player: { x: 50, y: 300, width: 30, height: 40, dy: 0, grounded: false },
-            obstacles: [],
-            coinItems: [],
-            particles: [],
-            groundY: 340,
-            frameCount: 0
+        // Game state
+        let gameRunning = false;
+        let score = 0;
+        let coins = 0;
+        let best = localStorage.getItem('botdash_best') || 0;
+        let speed = 3;
+        let frameCount = 0;
+        
+        // Player
+        let player = {
+            x: 50,
+            y: 300,
+            width: 30,
+            height: 40,
+            dy: 0,
+            grounded: true
         };
         
-        document.getElementById('best').textContent = gameState.best;
+        // Game objects
+        let obstacles = [];
+        let coinItems = [];
+        let particles = [];
+        const groundY = 340;
+        
+        // Update UI
+        document.getElementById('best').textContent = best;
+        
+        // Button event listeners
+        document.getElementById('startBtn').addEventListener('click', startGame);
+        document.getElementById('restartBtn').addEventListener('click', startGame);
+        
+        // Control buttons
+        document.getElementById('leftBtn').addEventListener('touchstart', (e) => { e.preventDefault(); moveLeft(); });
+        document.getElementById('leftBtn').addEventListener('mousedown', moveLeft);
+        document.getElementById('rightBtn').addEventListener('touchstart', (e) => { e.preventDefault(); moveRight(); });
+        document.getElementById('rightBtn').addEventListener('mousedown', moveRight);
+        document.getElementById('jumpBtn').addEventListener('touchstart', (e) => { e.preventDefault(); jump(); });
+        document.getElementById('jumpBtn').addEventListener('mousedown', jump);
         
         function startGame() {
             document.getElementById('startScreen').classList.add('hidden');
             document.getElementById('gameOverScreen').classList.add('hidden');
-            gameState.running = true;
-            gameState.score = 0;
-            gameState.coins = 0;
-            gameState.speed = 3;
-            gameState.player = { x: 50, y: 250, width: 30, height: 40, dy: 0, grounded: true };
-            gameState.obstacles = [];
-            gameState.coinItems = [];
-            gameState.particles = [];
-            gameState.frameCount = 0;
+            
+            // Reset game state
+            gameRunning = true;
+            score = 0;
+            coins = 0;
+            speed = 3;
+            frameCount = 0;
+            
+            // Reset player - place on ground
+            player.x = 50;
+            player.y = groundY - 40;
+            player.dy = 0;
+            player.grounded = true;
+            
+            // Clear arrays
+            obstacles = [];
+            coinItems = [];
+            particles = [];
+            
             updateUI();
             gameLoop();
         }
         
-        function restartGame() {
-            startGame();
-        }
-        
         function jump() {
-            if (!gameState.running) return;
-            if (gameState.player.grounded) {
-                gameState.player.dy = -12;
-                gameState.player.grounded = false;
-                createParticles(gameState.player.x + 15, gameState.player.y + 40, '#00E676', 5);
+            if (!gameRunning) return;
+            if (player.grounded) {
+                player.dy = -12;
+                player.grounded = false;
             }
         }
         
         function moveLeft() {
-            if (!gameState.running) return;
-            gameState.player.x = Math.max(0, gameState.player.x - 15);
+            if (!gameRunning) return;
+            player.x = Math.max(0, player.x - 15);
         }
         
         function moveRight() {
-            if (!gameState.running) return;
-            gameState.player.x = Math.min(canvas.width - gameState.player.width, gameState.player.x + 15);
-        }
-        
-        function createParticles(x, y, color, count) {
-            for (let i = 0; i < count; i++) {
-                gameState.particles.push({
-                    x, y,
-                    dx: (Math.random() - 0.5) * 4,
-                    dy: (Math.random() - 0.5) * 4,
-                    life: 1,
-                    color
-                });
-            }
+            if (!gameRunning) return;
+            player.x = Math.min(canvas.width - player.width, player.x + 15);
         }
         
         function gameLoop() {
-            if (!gameState.running) return;
+            if (!gameRunning) return;
             
-            gameState.frameCount++;
+            frameCount++;
             update();
             draw();
             requestAnimationFrame(gameLoop);
         }
         
         function update() {
-            const player = gameState.player;
-            
             // Gravity
             player.dy += 0.6;
             player.y += player.dy;
             
             // Ground collision
-            if (player.y + player.height > gameState.groundY) {
-                player.y = gameState.groundY - player.height;
+            if (player.y + player.height >= groundY) {
+                player.y = groundY - player.height;
                 player.dy = 0;
                 player.grounded = true;
             }
             
             // Update obstacles
-            for (let i = gameState.obstacles.length - 1; i >= 0; i--) {
-                const obs = gameState.obstacles[i];
-                obs.x -= gameState.speed;
-                if (obs.x + obs.width < 0) {
-                    gameState.obstacles.splice(i, 1);
-                    gameState.score += 10;
+            for (let i = obstacles.length - 1; i >= 0; i--) {
+                obstacles[i].x -= speed;
+                
+                // Remove if off screen
+                if (obstacles[i].x + obstacles[i].width < 0) {
+                    obstacles.splice(i, 1);
+                    score += 10;
                     continue;
                 }
                 
-                // Collision - only check if player is not invincible
-                if (player.x < obs.x + obs.width &&
-                    player.x + player.width > obs.x &&
-                    player.y < obs.y + obs.height &&
-                    player.y + player.height > obs.y) {
+                // Collision check
+                if (checkCollision(player, obstacles[i])) {
                     gameOver();
                     return;
                 }
             }
             
             // Update coins
-            for (let i = gameState.coinItems.length - 1; i >= 0; i--) {
-                const coin = gameState.coinItems[i];
-                coin.x -= gameState.speed;
-                if (coin.x + coin.size < 0) {
-                    gameState.coinItems.splice(i, 1);
+            for (let i = coinItems.length - 1; i >= 0; i--) {
+                coinItems[i].x -= speed;
+                
+                // Remove if off screen
+                if (coinItems[i].x + coinItems[i].size < 0) {
+                    coinItems.splice(i, 1);
                     continue;
                 }
                 
-                // Collection
-                if (Math.abs(player.x + player.width/2 - coin.x) < 25 &&
-                    Math.abs(player.y + player.height/2 - coin.y) < 25) {
-                    gameState.coins++;
-                    gameState.score += 50;
-                    gameState.coinItems.splice(i, 1);
-                    createParticles(coin.x, coin.y, '#FFD700', 8);
+                // Collection check
+                if (checkCoinCollision(player, coinItems[i])) {
+                    coins++;
+                    score += 50;
+                    coinItems.splice(i, 1);
                 }
             }
             
-            // Update particles
-            for (let i = gameState.particles.length - 1; i >= 0; i--) {
-                const p = gameState.particles[i];
-                p.x += p.dx;
-                p.y += p.dy;
-                p.life -= 0.05;
-                if (p.life <= 0) gameState.particles.splice(i, 1);
-            }
-            
-            // Spawn obstacles - only after 60 frames (1 second)
-            if (gameState.frameCount > 60 && Math.random() < 0.02 + gameState.score * 0.00001) {
-                gameState.obstacles.push({
+            // Spawn obstacles (after 2 seconds)
+            if (frameCount > 120 && Math.random() < 0.02) {
+                obstacles.push({
                     x: canvas.width,
-                    y: gameState.groundY - 30,
+                    y: groundY - 30,
                     width: 30,
-                    height: 30,
-                    type: 'debt'
+                    height: 30
                 });
             }
             
             // Spawn coins
-            if (gameState.frameCount > 30 && Math.random() < 0.03) {
-                gameState.coinItems.push({
+            if (frameCount > 60 && Math.random() < 0.03) {
+                coinItems.push({
                     x: canvas.width,
-                    y: gameState.groundY - 80 - Math.random() * 100,
+                    y: groundY - 80 - Math.random() * 100,
                     size: 20
                 });
             }
             
-            // Increase speed
-            gameState.speed = 3 + gameState.score * 0.001;
+            // Increase speed gradually
+            speed = 3 + Math.floor(score / 500);
             
             updateUI();
         }
         
+        function checkCollision(rect1, rect2) {
+            return rect1.x < rect2.x + rect2.width &&
+                   rect1.x + rect1.width > rect2.x &&
+                   rect1.y < rect2.y + rect2.height &&
+                   rect1.y + rect1.height > rect2.y;
+        }
+        
+        function checkCoinCollision(player, coin) {
+            const dx = (player.x + player.width/2) - coin.x;
+            const dy = (player.y + player.height/2) - coin.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            return distance < 25;
+        }
+        
         function draw() {
-            // Clear
+            // Clear canvas
             ctx.fillStyle = '#0a0e1a';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
@@ -300,12 +315,11 @@
             
             // Draw ground
             ctx.fillStyle = '#131b2e';
-            ctx.fillRect(0, gameState.groundY, canvas.width, canvas.height - gameState.groundY);
+            ctx.fillRect(0, groundY, canvas.width, canvas.height - groundY);
             ctx.fillStyle = '#00E676';
-            ctx.fillRect(0, gameState.groundY, canvas.width, 3);
+            ctx.fillRect(0, groundY, canvas.width, 3);
             
             // Draw player (MoneyBot)
-            const player = gameState.player;
             ctx.fillStyle = '#00E676';
             ctx.fillRect(player.x, player.y, player.width, player.height);
             
@@ -318,8 +332,8 @@
             ctx.fillStyle = '#0a0e1a';
             ctx.fillRect(player.x + 8, player.y + 22, 14, 3);
             
-            // Draw obstacles (debt blocks)
-            gameState.obstacles.forEach(obs => {
+            // Draw obstacles
+            obstacles.forEach(obs => {
                 ctx.fillStyle = '#FF5252';
                 ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
                 ctx.fillStyle = '#FF1744';
@@ -337,7 +351,7 @@
             });
             
             // Draw coins
-            gameState.coinItems.forEach(coin => {
+            coinItems.forEach(coin => {
                 ctx.fillStyle = '#FFD700';
                 ctx.beginPath();
                 ctx.arc(coin.x, coin.y, coin.size/2, 0, Math.PI * 2);
@@ -352,31 +366,24 @@
                 ctx.textBaseline = 'middle';
                 ctx.fillText('$', coin.x, coin.y);
             });
-            
-            // Draw particles
-            gameState.particles.forEach(p => {
-                ctx.globalAlpha = p.life;
-                ctx.fillStyle = p.color;
-                ctx.fillRect(p.x, p.y, 4, 4);
-            });
-            ctx.globalAlpha = 1;
         }
         
         function updateUI() {
-            document.getElementById('score').textContent = gameState.score;
-            document.getElementById('coins').textContent = gameState.coins;
+            document.getElementById('score').textContent = score;
+            document.getElementById('coins').textContent = coins;
         }
         
         function gameOver() {
-            gameState.running = false;
-            if (gameState.score > gameState.best) {
-                gameState.best = gameState.score;
-                localStorage.setItem('botdash_best', gameState.best);
-                document.getElementById('best').textContent = gameState.best;
+            gameRunning = false;
+            
+            if (score > best) {
+                best = score;
+                localStorage.setItem('botdash_best', best);
+                document.getElementById('best').textContent = best;
             }
-            document.getElementById('finalScore').textContent = gameState.score;
-            document.getElementById('finalCoins').textContent = gameState.coins;
-            document.getElementById('gameOverScreen').classList.add('hidden');
+            
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('finalCoins').textContent = coins;
             document.getElementById('gameOverScreen').classList.remove('hidden');
         }
         
