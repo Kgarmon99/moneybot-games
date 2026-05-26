@@ -148,7 +148,7 @@
         // Player - lane-based system
         let player = {
             lane: 1, // 0, 1, 2
-            x: 0,
+            x: LANE_WIDTH + (LANE_WIDTH - PLAYER_SIZE) / 2,
             y: GROUND_Y - PLAYER_SIZE,
             width: PLAYER_SIZE,
             height: PLAYER_SIZE,
@@ -157,7 +157,7 @@
             jumping: false,
             invincible: false,
             invincibleTimer: 0,
-            targetX: 0
+            targetX: LANE_WIDTH + (LANE_WIDTH - PLAYER_SIZE) / 2
         };
         
         // Game objects
