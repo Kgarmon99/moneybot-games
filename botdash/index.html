@@ -129,7 +129,8 @@
             obstacles: [],
             coinItems: [],
             particles: [],
-            groundY: 340
+            groundY: 340,
+            frameCount: 0
         };
         
         document.getElementById('best').textContent = gameState.best;
@@ -145,6 +146,7 @@
             gameState.obstacles = [];
             gameState.coinItems = [];
             gameState.particles = [];
+            gameState.frameCount = 0;
             updateUI();
             gameLoop();
         }
@@ -187,6 +189,7 @@
         function gameLoop() {
             if (!gameState.running) return;
             
+            gameState.frameCount++;
             update();
             draw();
             requestAnimationFrame(gameLoop);
@@ -207,27 +210,32 @@
             }
             
             // Update obstacles
-            gameState.obstacles.forEach((obs, i) => {
+            for (let i = gameState.obstacles.length - 1; i >= 0; i--) {
+                const obs = gameState.obstacles[i];
                 obs.x -= gameState.speed;
                 if (obs.x + obs.width < 0) {
                     gameState.obstacles.splice(i, 1);
                     gameState.score += 10;
+                    continue;
                 }
                 
-                // Collision
+                // Collision - only check if player is not invincible
                 if (player.x < obs.x + obs.width &&
                     player.x + player.width > obs.x &&
                     player.y < obs.y + obs.height &&
                     player.y + player.height > obs.y) {
                     gameOver();
+                    return;
                 }
-            });
+            }
             
             // Update coins
-            gameState.coinItems.forEach((coin, i) => {
+            for (let i = gameState.coinItems.length - 1; i >= 0; i--) {
+                const coin = gameState.coinItems[i];
                 coin.x -= gameState.speed;
                 if (coin.x + coin.size < 0) {
                     gameState.coinItems.splice(i, 1);
+                    continue;
                 }
                 
                 // Collection
@@ -238,18 +246,19 @@
                     gameState.coinItems.splice(i, 1);
                     createParticles(coin.x, coin.y, '#FFD700', 8);
                 }
-            });
+            }
             
             // Update particles
-            gameState.particles.forEach((p, i) => {
+            for (let i = gameState.particles.length - 1; i >= 0; i--) {
+                const p = gameState.particles[i];
                 p.x += p.dx;
                 p.y += p.dy;
                 p.life -= 0.05;
                 if (p.life <= 0) gameState.particles.splice(i, 1);
-            });
+            }
             
-            // Spawn obstacles
-            if (Math.random() < 0.02 + gameState.score * 0.00001) {
+            // Spawn obstacles - only after 60 frames (1 second)
+            if (gameState.frameCount > 60 && Math.random() < 0.02 + gameState.score * 0.00001) {
                 gameState.obstacles.push({
                     x: canvas.width,
                     y: gameState.groundY - 30,
@@ -260,7 +269,7 @@
             }
             
             // Spawn coins
-            if (Math.random() < 0.03) {
+            if (gameState.frameCount > 30 && Math.random() < 0.03) {
                 gameState.coinItems.push({
                     x: canvas.width,
                     y: gameState.groundY - 80 - Math.random() * 100,
