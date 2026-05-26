@@ -359,6 +359,18 @@
                 }
             });
         });
+        
+        // Fallback for broken thumbnail images
+        document.querySelectorAll('.game-image img').forEach(img => {
+            img.addEventListener('error', function() {
+                if (!this.src.includes('moneybot-idle.svg')) {
+                    this.src = 'assets/moneybot-idle.svg';
+                    this.style.width = '80px';
+                    this.style.height = '80px';
+                    this.style.objectFit = 'contain';
+                }
+            });
+        });
     </script>
 </body>
 </html>
