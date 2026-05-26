@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Speaker body -->
+  <path d="M16 24 L28 24 L40 14 L40 50 L28 40 L16 40 Z" 
+        fill="#00E676"/>
+  
+  <!-- Sound waves -->
+  <path d="M46 20 Q52 32 46 44" 
+        fill="none" 
+        stroke="#00E676" 
+        stroke-width="3" 
+        stroke-linecap="round"/>
+  <path d="M52 14 Q62 32 52 50" 
+        fill="none" 
+        stroke="#00E676" 
+        stroke-width="3" 
+        stroke-linecap="round"/>
+</svg>

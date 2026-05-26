@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- X mark -->
+  <line x1="16" y1="16" x2="48" y2="48" 
+        stroke="#FF5252" 
+        stroke-width="6" 
+        stroke-linecap="round"/>
+  <line x1="48" y1="16" x2="16" y2="48" 
+        stroke="#FF5252" 
+        stroke-width="6" 
+        stroke-linecap="round"/>
+  
+  <!-- Circle background -->
+  <circle cx="32" cy="32" r="28" 
+          fill="none" 
+          stroke="#FF5252" 
+          stroke-width="3" 
+          opacity="0.3"/>
+  
+  <!-- Pulse animation -->
+  <circle cx="32" cy="32" r="28" 
+          fill="none" 
+          stroke="#FF5252" 
+          stroke-width="2" 
+          opacity="0.6">
+    <animate attributeName="r" values="28;32;28" dur="2s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.6;0;0.6" dur="2s" repeatCount="indefinite"/>
+  </circle>
+</svg>
