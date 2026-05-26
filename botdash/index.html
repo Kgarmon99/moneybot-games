@@ -6,7 +6,7 @@
     <title>BotDash - MoneyBot</title>
     <link rel="icon" type="image/svg+xml" href="../assets/moneybot-idle.svg">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: manipulation; user-select: none; }
         
         :root {
@@ -35,7 +35,7 @@
         
         .game-area { flex: 1; display: flex; flex-direction: column; padding: 16px; gap: 12px; position: relative; }
         
-        #gameCanvas { background: var(--mb-panel); border-radius: 16px; border: 2px solid rgba(0, 230, 118, 0.3); width: 100%; height: 500px; }
+        #gameCanvas { background: var(--mb-panel); border-radius: 16px; border: 2px solid rgba(0, 230, 118, 0.3); width: 100%; height: 550px; }
         
         .controls { display: flex; gap: 10px; padding: 8px 0; }
         .control-btn { flex: 1; padding: 18px; border: 2px solid var(--mb-green); background: transparent; color: var(--mb-green); border-radius: 12px; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
@@ -86,7 +86,7 @@
         
         <div class="game-area">
             <div style="position: relative;">
-                <canvas id="gameCanvas" width="390" height="500"></canvas>
+                <canvas id="gameCanvas" width="390" height="550"></canvas>
                 <div class="powerup-indicator" id="powerupIndicator">⚡ SPEED BOOST!</div>
             </div>
             <div class="controls">
@@ -102,12 +102,12 @@
             <img src="../assets/moneybot-running.svg" alt="MoneyBot">
         </div>
         <div class="game-title">BotDash</div>
-        <div class="game-subtitle">Run, jump, collect coins!<br>Avoid debt obstacles!</div>
+        <div class="game-subtitle">3-Lane Endless Runner!<br>Dodge debt, collect coins!</div>
         <ul class="instructions-list">
-            <li>Use arrow keys or buttons to move</li>
-            <li>Jump over red debt blocks</li>
-            <li>Collect gold coins for points</li>
-            <li>Grab blue orbs for speed boost</li>
+            <li>Swipe or use arrows to switch lanes</li>
+            <li>Jump over obstacles</li>
+            <li>Collect gold coins</li>
+            <li>Grab blue orbs for invincibility</li>
             <li>Survive as long as possible!</li>
         </ul>
         <button class="primary-btn" id="startBtn">Start Running</button>
@@ -128,27 +128,36 @@
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         
+        // Game constants
+        const LANES = 3;
+        const LANE_WIDTH = canvas.width / LANES;
+        const GROUND_Y = 480;
+        const PLAYER_SIZE = 40;
+        
         // Game state
         let gameRunning = false;
         let score = 0;
         let coins = 0;
         let best = localStorage.getItem('botdash_best') || 0;
-        let speed = 3;
+        let speed = 4;
         let frameCount = 0;
         let gameSpeed = 1;
         let powerupActive = false;
         let powerupTimer = 0;
         
-        // Player
+        // Player - lane-based system
         let player = {
-            x: 50,
-            y: 300,
-            width: 30,
-            height: 30,
+            lane: 1, // 0, 1, 2
+            x: 0,
+            y: GROUND_Y - PLAYER_SIZE,
+            width: PLAYER_SIZE,
+            height: PLAYER_SIZE,
             dy: 0,
-            grounded: false,
+            grounded: true,
+            jumping: false,
             invincible: false,
-            invincibleTimer: 0
+            invincibleTimer: 0,
+            targetX: 0
         };
         
         // Game objects
@@ -157,7 +166,14 @@
         let powerups = [];
         let particles = [];
         let floatingTexts = [];
-        const groundY = 420;
+        let laneLines = [];
+        
+        // Initialize player position
+        function updatePlayerX() {
+            player.targetX = player.lane * LANE_WIDTH + (LANE_WIDTH - PLAYER_SIZE) / 2;
+            // Smooth transition
+            player.x += (player.targetX - player.x) * 0.2;
+        }
         
         // Update UI
         document.getElementById('best').textContent = best;
@@ -183,19 +199,21 @@
             gameRunning = true;
             score = 0;
             coins = 0;
-            speed = 3;
+            speed = 4;
             frameCount = 0;
             gameSpeed = 1;
             powerupActive = false;
             powerupTimer = 0;
             
-            // Reset player - place on ground
-            player.x = 50;
-            player.y = groundY - player.height;
+            // Reset player
+            player.lane = 1;
+            player.y = GROUND_Y - PLAYER_SIZE;
             player.dy = 0;
             player.grounded = true;
+            player.jumping = false;
             player.invincible = false;
             player.invincibleTimer = 0;
+            updatePlayerX();
             
             // Clear arrays
             obstacles = [];
@@ -208,34 +226,39 @@
             gameLoop();
         }
         
-        function jump() {
-            if (!gameRunning) return;
-            if (player.grounded) {
-                player.dy = -14;
-                player.grounded = false;
-                createParticles(player.x + player.width/2, player.y + player.height, '#00E676', 8);
-            }
-        }
-        
         function moveLeft() {
             if (!gameRunning) return;
-            player.x = Math.max(0, player.x - 20);
+            if (player.lane > 0) {
+                player.lane--;
+            }
         }
         
         function moveRight() {
             if (!gameRunning) return;
-            player.x = Math.min(canvas.width - player.width, player.x + 20);
+            if (player.lane < LANES - 1) {
+                player.lane++;
+            }
+        }
+        
+        function jump() {
+            if (!gameRunning) return;
+            if (player.grounded && !player.jumping) {
+                player.dy = -16;
+                player.grounded = false;
+                player.jumping = true;
+                createParticles(player.x + PLAYER_SIZE/2, player.y + PLAYER_SIZE, '#00E676', 10);
+            }
         }
         
         function createParticles(x, y, color, count) {
             for (let i = 0; i < count; i++) {
                 particles.push({
                     x, y,
-                    dx: (Math.random() - 0.5) * 6,
-                    dy: (Math.random() - 0.5) * 6,
+                    dx: (Math.random() - 0.5) * 8,
+                    dy: (Math.random() - 0.5) * 8,
                     life: 1,
                     color,
-                    size: Math.random() * 4 + 2
+                    size: Math.random() * 5 + 2
                 });
             }
         }
@@ -260,6 +283,9 @@
         }
         
         function update() {
+            // Update player X position (smooth lane transition)
+            updatePlayerX();
+            
             // Powerup timer
             if (powerupActive) {
                 powerupTimer--;
@@ -279,36 +305,33 @@
             }
             
             // Gravity
-            player.dy += 0.7;
-            player.y += player.dy;
-            
-            // Ground collision
-            if (player.y + player.height >= groundY) {
-                player.y = groundY - player.height;
-                player.dy = 0;
-                player.grounded = true;
-            }
-            
-            // Check if player fell off screen
-            if (player.y > canvas.height) {
-                gameOver();
-                return;
+            if (!player.grounded) {
+                player.dy += 0.8;
+                player.y += player.dy;
+                
+                // Ground collision
+                if (player.y + PLAYER_SIZE >= GROUND_Y) {
+                    player.y = GROUND_Y - PLAYER_SIZE;
+                    player.dy = 0;
+                    player.grounded = true;
+                    player.jumping = false;
+                }
             }
             
             // Update obstacles
             for (let i = obstacles.length - 1; i >= 0; i--) {
-                obstacles[i].x -= speed * gameSpeed;
+                obstacles[i].y += speed * gameSpeed;
                 
                 // Remove if off screen
-                if (obstacles[i].x + obstacles[i].width < 0) {
+                if (obstacles[i].y > canvas.height) {
                     obstacles.splice(i, 1);
-                    score += 10;
+                    score += 15;
                     continue;
                 }
                 
                 // Collision check (only if not invincible)
                 if (!player.invincible && checkCollision(player, obstacles[i])) {
-                    createParticles(player.x + player.width/2, player.y + player.height/2, '#FF5252', 15);
+                    createParticles(player.x + PLAYER_SIZE/2, player.y + PLAYER_SIZE/2, '#FF5252', 20);
                     gameOver();
                     return;
                 }
@@ -316,10 +339,10 @@
             
             // Update coins
             for (let i = coinItems.length - 1; i >= 0; i--) {
-                coinItems[i].x -= speed * gameSpeed;
+                coinItems[i].y += speed * gameSpeed;
                 
                 // Remove if off screen
-                if (coinItems[i].x + coinItems[i].size < 0) {
+                if (coinItems[i].y > canvas.height) {
                     coinItems.splice(i, 1);
                     continue;
                 }
@@ -328,7 +351,7 @@
                 if (checkCoinCollision(player, coinItems[i])) {
                     coins++;
                     score += 50;
-                    createParticles(coinItems[i].x, coinItems[i].y, '#FFD700', 6);
+                    createParticles(coinItems[i].x, coinItems[i].y, '#FFD700', 8);
                     createFloatingText(coinItems[i].x, coinItems[i].y, '+50', '#FFD700');
                     coinItems.splice(i, 1);
                 }
@@ -336,10 +359,10 @@
             
             // Update powerups
             for (let i = powerups.length - 1; i >= 0; i--) {
-                powerups[i].x -= speed * gameSpeed;
+                powerups[i].y += speed * gameSpeed;
                 
                 // Remove if off screen
-                if (powerups[i].x + powerups[i].size < 0) {
+                if (powerups[i].y > canvas.height) {
                     powerups.splice(i, 1);
                     continue;
                 }
@@ -347,8 +370,8 @@
                 // Collection check
                 if (checkCoinCollision(player, powerups[i])) {
                     activatePowerup();
-                    createParticles(powerups[i].x, powerups[i].y, '#448AFF', 10);
-                    createFloatingText(powerups[i].x, powerups[i].y, 'SPEED!', '#448AFF');
+                    createParticles(powerups[i].x, powerups[i].y, '#448AFF', 12);
+                    createFloatingText(powerups[i].x, powerups[i].y, 'INVINCIBLE!', '#448AFF');
                     powerups.splice(i, 1);
                 }
             }
@@ -372,63 +395,111 @@
                 }
             }
             
-            // Spawn obstacles (after 2 seconds)
-            if (frameCount > 120 && Math.random() < 0.025) {
-                const obstacleHeight = 25 + Math.random() * 25;
+            // Spawn obstacles
+            if (frameCount > 60 && Math.random() < 0.03) {
+                const lane = Math.floor(Math.random() * LANES);
+                const laneX = lane * LANE_WIDTH + (LANE_WIDTH - 35) / 2;
                 obstacles.push({
-                    x: canvas.width,
-                    y: groundY - obstacleHeight,
-                    width: 30,
-                    height: obstacleHeight,
-                    type: Math.random() > 0.7 ? 'moving' : 'static'
+                    x: laneX,
+                    y: -50,
+                    width: 35,
+                    height: 35,
+                    lane: lane
                 });
             }
             
-            // Spawn coins
-            if (frameCount > 60 && Math.random() < 0.04) {
-                coinItems.push({
-                    x: canvas.width,
-                    y: groundY - 60 - Math.random() * 120,
-                    size: 18
-                });
+            // Spawn coins (in rows or patterns)
+            if (frameCount > 30 && Math.random() < 0.05) {
+                const pattern = Math.random();
+                if (pattern < 0.4) {
+                    // Single coin in random lane
+                    const lane = Math.floor(Math.random() * LANES);
+                    const laneX = lane * LANE_WIDTH + LANE_WIDTH / 2;
+                    coinItems.push({
+                        x: laneX,
+                        y: -30,
+                        size: 20
+                    });
+                } else if (pattern < 0.7) {
+                    // Row of coins across all lanes
+                    for (let lane = 0; lane < LANES; lane++) {
+                        const laneX = lane * LANE_WIDTH + LANE_WIDTH / 2;
+                        coinItems.push({
+                            x: laneX,
+                            y: -30,
+                            size: 18
+                        });
+                    }
+                } else {
+                    // V pattern
+                    const centerLane = 1;
+                    const laneX = centerLane * LANE_WIDTH + LANE_WIDTH / 2;
+                    coinItems.push({
+                        x: laneX,
+                        y: -30,
+                        size: 20
+                    });
+                    // Side coins slightly lower
+                    setTimeout(() => {
+                        if (gameRunning) {
+                            coinItems.push({
+                                x: 0 * LANE_WIDTH + LANE_WIDTH / 2,
+                                y: -20,
+                                size: 18
+                            });
+                            coinItems.push({
+                                x: 2 * LANE_WIDTH + LANE_WIDTH / 2,
+                                y: -20,
+                                size: 18
+                            });
+                        }
+                    }, 100);
+                }
             }
             
-            // Spawn powerups (rare)
-            if (frameCount > 300 && Math.random() < 0.005) {
+            // Spawn powerups (very rare)
+            if (frameCount > 200 && Math.random() < 0.003) {
+                const lane = Math.floor(Math.random() * LANES);
+                const laneX = lane * LANE_WIDTH + LANE_WIDTH / 2;
                 powerups.push({
-                    x: canvas.width,
-                    y: groundY - 80 - Math.random() * 100,
-                    size: 22
+                    x: laneX,
+                    y: -30,
+                    size: 24
                 });
             }
             
             // Increase speed gradually
-            speed = 3 + Math.floor(score / 800);
+            if (frameCount % 600 === 0) {
+                speed += 0.5;
+            }
             
             updateUI();
         }
         
         function activatePowerup() {
             powerupActive = true;
-            powerupTimer = 300; // 5 seconds at 60fps
-            gameSpeed = 2;
+            powerupTimer = 360; // 6 seconds at 60fps
             player.invincible = true;
-            player.invincibleTimer = 300;
+            player.invincibleTimer = 360;
             document.getElementById('powerupIndicator').classList.add('active');
         }
         
         function checkCollision(rect1, rect2) {
-            return rect1.x < rect2.x + rect2.width &&
-                   rect1.x + rect1.width > rect2.x &&
-                   rect1.y < rect2.y + rect2.height &&
-                   rect1.y + rect1.height > rect2.y;
+            // More forgiving collision for gameplay feel
+            const padding = 8;
+            return rect1.x + padding < rect2.x + rect2.width - padding &&
+                   rect1.x + rect1.width - padding > rect2.x + padding &&
+                   rect1.y + padding < rect2.y + rect2.height - padding &&
+                   rect1.y + rect1.height - padding > rect2.y + padding;
         }
         
         function checkCoinCollision(player, coin) {
-            const dx = (player.x + player.width/2) - coin.x;
-            const dy = (player.y + player.height/2) - coin.y;
+            const playerCenterX = player.x + player.width / 2;
+            const playerCenterY = player.y + player.height / 2;
+            const dx = playerCenterX - coin.x;
+            const dy = playerCenterY - coin.y;
             const distance = Math.sqrt(dx * dx + dy * dy);
-            return distance < 28;
+            return distance < 30;
         }
         
         function draw() {
@@ -436,97 +507,39 @@
             ctx.fillStyle = '#0a0e1a';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
-            // Draw background layers (parallax)
+            // Draw lane markings
+            drawLanes();
+            
+            // Draw background elements
             drawBackground();
             
             // Draw ground
             ctx.fillStyle = '#131b2e';
-            ctx.fillRect(0, groundY, canvas.width, canvas.height - groundY);
+            ctx.fillRect(0, GROUND_Y, canvas.width, canvas.height - GROUND_Y);
             ctx.fillStyle = '#00E676';
-            ctx.fillRect(0, groundY, canvas.width, 3);
+            ctx.fillRect(0, GROUND_Y, canvas.width, 3);
             
-            // Draw grid on ground
-            ctx.strokeStyle = 'rgba(0, 230, 118, 0.1)';
-            ctx.lineWidth = 1;
-            for (let i = 0; i < canvas.width; i += 40) {
-                ctx.beginPath();
-                ctx.moveTo(i, groundY);
-                ctx.lineTo(i - 20, canvas.height);
-                ctx.stroke();
-            }
+            // Draw game objects (sorted by Y for depth)
+            const allObjects = [
+                ...obstacles.map(o => ({...o, type: 'obstacle'})),
+                ...coinItems.map(c => ({...c, type: 'coin'})),
+                ...powerups.map(p => ({...p, type: 'powerup'}))
+            ];
             
-            // Draw player (MoneyBot)
-            drawPlayer();
+            allObjects.sort((a, b) => a.y - b.y);
             
-            // Draw obstacles
-            obstacles.forEach(obs => {
-                if (obs.type === 'moving') {
-                    // Moving obstacle - draw with animation
-                    const offset = Math.sin(frameCount * 0.1) * 5;
-                    ctx.fillStyle = '#FF1744';
-                    ctx.fillRect(obs.x, obs.y + offset, obs.width, obs.height);
-                    ctx.fillStyle = '#FF5252';
-                    ctx.fillRect(obs.x + 3, obs.y + offset + 3, obs.width - 6, obs.height - 6);
-                } else {
-                    // Static obstacle
-                    ctx.fillStyle = '#FF5252';
-                    ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
-                    ctx.fillStyle = '#FF1744';
-                    ctx.fillRect(obs.x + 3, obs.y + 3, obs.width - 6, obs.height - 6);
+            allObjects.forEach(obj => {
+                if (obj.type === 'obstacle') {
+                    drawObstacle(obj);
+                } else if (obj.type === 'coin') {
+                    drawCoin(obj);
+                } else if (obj.type === 'powerup') {
+                    drawPowerup(obj);
                 }
-                
-                // X mark
-                ctx.strokeStyle = '#fff';
-                ctx.lineWidth = 2;
-                ctx.beginPath();
-                ctx.moveTo(obs.x + 6, obs.y + 6);
-                ctx.lineTo(obs.x + obs.width - 6, obs.y + obs.height - 6);
-                ctx.moveTo(obs.x + obs.width - 6, obs.y + 6);
-                ctx.lineTo(obs.x + 6, obs.y + obs.height - 6);
-                ctx.stroke();
             });
             
-            // Draw coins
-            coinItems.forEach(coin => {
-                // Glow effect
-                ctx.fillStyle = 'rgba(255, 215, 0, 0.3)';
-                ctx.beginPath();
-                ctx.arc(coin.x, coin.y, coin.size/2 + 4, 0, Math.PI * 2);
-                ctx.fill();
-                
-                ctx.fillStyle = '#FFD700';
-                ctx.beginPath();
-                ctx.arc(coin.x, coin.y, coin.size/2, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.fillStyle = '#FFA500';
-                ctx.beginPath();
-                ctx.arc(coin.x, coin.y, coin.size/2 - 3, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.fillStyle = '#FFD700';
-                ctx.font = 'bold 12px Inter';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillText('$', coin.x, coin.y);
-            });
-            
-            // Draw powerups
-            powerups.forEach(powerup => {
-                // Glow effect
-                ctx.fillStyle = 'rgba(68, 138, 255, 0.4)';
-                ctx.beginPath();
-                ctx.arc(powerup.x, powerup.y, powerup.size/2 + 6, 0, Math.PI * 2);
-                ctx.fill();
-                
-                ctx.fillStyle = '#448AFF';
-                ctx.beginPath();
-                ctx.arc(powerup.x, powerup.y, powerup.size/2, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.fillStyle = '#fff';
-                ctx.font = 'bold 14px Inter';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillText('⚡', powerup.x, powerup.y);
-            });
+            // Draw player
+            drawPlayer();
             
             // Draw particles
             particles.forEach(p => {
@@ -550,32 +563,50 @@
             
             // Draw speed lines when powerup active
             if (powerupActive) {
-                ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
                 ctx.lineWidth = 2;
-                for (let i = 0; i < 5; i++) {
-                    const y = Math.random() * canvas.height;
+                for (let i = 0; i < 8; i++) {
+                    const x = Math.random() * canvas.width;
                     ctx.beginPath();
-                    ctx.moveTo(canvas.width, y);
-                    ctx.lineTo(canvas.width - 50 - Math.random() * 100, y);
+                    ctx.moveTo(x, 0);
+                    ctx.lineTo(x, canvas.height);
                     ctx.stroke();
                 }
             }
         }
         
+        function drawLanes() {
+            // Draw lane dividers
+            ctx.strokeStyle = 'rgba(0, 230, 118, 0.1)';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([10, 10]);
+            
+            for (let i = 1; i < LANES; i++) {
+                const x = i * LANE_WIDTH;
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, GROUND_Y);
+                ctx.stroke();
+            }
+            
+            ctx.setLineDash([]);
+        }
+        
         function drawBackground() {
-            // Draw distant cityscape
+            // Draw distant buildings
             ctx.fillStyle = '#0d1220';
-            for (let i = 0; i < canvas.width; i += 60) {
-                const height = 50 + Math.sin(i * 0.1) * 30;
-                ctx.fillRect(i - (frameCount * 0.5) % 60, groundY - height, 55, height);
+            const buildingOffset = (frameCount * speed * 0.1) % 100;
+            for (let i = -1; i < canvas.width / 60 + 1; i++) {
+                const height = 40 + Math.sin(i * 1.5) * 25 + Math.cos(i * 0.7) * 15;
+                ctx.fillRect(i * 60 - buildingOffset, GROUND_Y - height, 55, height);
             }
             
             // Draw stars
             ctx.fillStyle = '#fff';
-            for (let i = 0; i < 20; i++) {
-                const x = (i * 37 + frameCount * 0.1) % canvas.width;
-                const y = 30 + (i * 23) % 150;
-                ctx.globalAlpha = 0.3 + Math.sin(frameCount * 0.05 + i) * 0.2;
+            for (let i = 0; i < 30; i++) {
+                const x = (i * 47 + frameCount * 0.05) % canvas.width;
+                const y = 20 + (i * 31) % 120;
+                ctx.globalAlpha = 0.2 + Math.sin(frameCount * 0.03 + i) * 0.15;
                 ctx.fillRect(x, y, 2, 2);
             }
             ctx.globalAlpha = 1;
@@ -583,53 +614,156 @@
         
         function drawPlayer() {
             // Invincibility flash
-            if (player.invincible && Math.floor(frameCount / 4) % 2 === 0) {
-                ctx.globalAlpha = 0.5;
+            if (player.invincible && Math.floor(frameCount / 3) % 2 === 0) {
+                ctx.globalAlpha = 0.4;
             }
+            
+            // Shadow
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+            ctx.beginPath();
+            ctx.ellipse(player.x + PLAYER_SIZE/2, GROUND_Y - 5, PLAYER_SIZE/2, 6, 0, 0, Math.PI * 2);
+            ctx.fill();
             
             // Player body
             ctx.fillStyle = '#00E676';
-            ctx.fillRect(player.x, player.y, player.width, player.height);
+            ctx.fillRect(player.x, player.y, PLAYER_SIZE, PLAYER_SIZE);
             
             // Player border
             ctx.strokeStyle = '#00C853';
             ctx.lineWidth = 2;
-            ctx.strokeRect(player.x, player.y, player.width, player.height);
+            ctx.strokeRect(player.x, player.y, PLAYER_SIZE, PLAYER_SIZE);
             
             // Player eyes
             ctx.fillStyle = '#0a0e1a';
-            ctx.fillRect(player.x + 5, player.y + 6, 7, 9);
-            ctx.fillRect(player.x + 18, player.y + 6, 7, 9);
+            ctx.fillRect(player.x + 7, player.y + 8, 9, 11);
+            ctx.fillRect(player.x + 24, player.y + 8, 9, 11);
             
             // Eye shine
             ctx.fillStyle = '#fff';
-            ctx.fillRect(player.x + 7, player.y + 8, 3, 3);
-            ctx.fillRect(player.x + 20, player.y + 8, 3, 3);
+            ctx.fillRect(player.x + 10, player.y + 10, 4, 4);
+            ctx.fillRect(player.x + 27, player.y + 10, 4, 4);
             
             // Player smile
             ctx.fillStyle = '#0a0e1a';
-            ctx.fillRect(player.x + 8, player.y + 20, 14, 3);
+            ctx.fillRect(player.x + 12, player.y + 24, 16, 4);
             
             // Antenna
             ctx.strokeStyle = '#00E676';
             ctx.lineWidth = 2;
             ctx.beginPath();
-            ctx.moveTo(player.x + 15, player.y);
-            ctx.lineTo(player.x + 15, player.y - 8);
+            ctx.moveTo(player.x + PLAYER_SIZE/2, player.y);
+            ctx.lineTo(player.x + PLAYER_SIZE/2, player.y - 10);
             ctx.stroke();
+            
+            // Antenna ball
             ctx.fillStyle = '#FFD700';
             ctx.beginPath();
-            ctx.arc(player.x + 15, player.y - 10, 3, 0, Math.PI * 2);
+            ctx.arc(player.x + PLAYER_SIZE/2, player.y - 12, 4, 0, Math.PI * 2);
             ctx.fill();
             
             // Powerup glow
             if (powerupActive) {
-                ctx.strokeStyle = 'rgba(68, 138, 255, 0.5)';
+                ctx.strokeStyle = 'rgba(68, 138, 255, 0.6)';
                 ctx.lineWidth = 3;
-                ctx.strokeRect(player.x - 3, player.y - 3, player.width + 6, player.height + 6);
+                ctx.strokeRect(player.x - 4, player.y - 4, PLAYER_SIZE + 8, PLAYER_SIZE + 8);
+                
+                // Inner glow
+                ctx.fillStyle = 'rgba(68, 138, 255, 0.15)';
+                ctx.fillRect(player.x - 2, player.y - 2, PLAYER_SIZE + 4, PLAYER_SIZE + 4);
             }
             
             ctx.globalAlpha = 1;
+        }
+        
+        function drawObstacle(obs) {
+            // Shadow
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+            ctx.beginPath();
+            ctx.ellipse(obs.x + obs.width/2, GROUND_Y - 3, obs.width/2, 5, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Obstacle body
+            ctx.fillStyle = '#FF5252';
+            ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
+            
+            // Inner
+            ctx.fillStyle = '#FF1744';
+            ctx.fillRect(obs.x + 4, obs.y + 4, obs.width - 8, obs.height - 8);
+            
+            // X mark
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(obs.x + 8, obs.y + 8);
+            ctx.lineTo(obs.x + obs.width - 8, obs.y + obs.height - 8);
+            ctx.moveTo(obs.x + obs.width - 8, obs.y + 8);
+            ctx.lineTo(obs.x + 8, obs.y + obs.height - 8);
+            ctx.stroke();
+            
+            // Warning border
+            ctx.strokeStyle = 'rgba(255, 82, 82, 0.5)';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(obs.x - 2, obs.y - 2, obs.width + 4, obs.height + 4);
+        }
+        
+        function drawCoin(coin) {
+            // Glow
+            ctx.fillStyle = 'rgba(255, 215, 0, 0.25)';
+            ctx.beginPath();
+            ctx.arc(coin.x, coin.y, coin.size/2 + 6, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Outer
+            ctx.fillStyle = '#FFD700';
+            ctx.beginPath();
+            ctx.arc(coin.x, coin.y, coin.size/2, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Inner
+            ctx.fillStyle = '#FFA000';
+            ctx.beginPath();
+            ctx.arc(coin.x, coin.y, coin.size/2 - 4, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // $ symbol
+            ctx.fillStyle = '#FFD700';
+            ctx.font = 'bold 13px Inter';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('$', coin.x, coin.y);
+            
+            // Shine
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+            ctx.beginPath();
+            ctx.arc(coin.x - 3, coin.y - 3, 3, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        
+        function drawPowerup(powerup) {
+            // Glow
+            ctx.fillStyle = 'rgba(68, 138, 255, 0.35)';
+            ctx.beginPath();
+            ctx.arc(powerup.x, powerup.y, powerup.size/2 + 8, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Outer
+            ctx.fillStyle = '#448AFF';
+            ctx.beginPath();
+            ctx.arc(powerup.x, powerup.y, powerup.size/2, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Inner
+            ctx.fillStyle = '#2962FF';
+            ctx.beginPath();
+            ctx.arc(powerup.x, powerup.y, powerup.size/2 - 5, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Lightning bolt
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 16px Inter';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('⚡', powerup.x, powerup.y);
         }
         
         function updateUI() {
@@ -650,7 +784,6 @@
             document.getElementById('finalCoins').textContent = coins;
             document.getElementById('finalBest').textContent = best;
             
-            // Show game over screen
             const gameOverScreen = document.getElementById('gameOverScreen');
             gameOverScreen.classList.remove('hidden');
             gameOverScreen.style.display = 'flex';
@@ -669,6 +802,32 @@
             if (e.key === 'ArrowRight') {
                 e.preventDefault();
                 moveRight();
+            }
+        });
+        
+        // Touch swipe controls
+        let touchStartX = 0;
+        let touchStartY = 0;
+        
+        canvas.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+        });
+        
+        canvas.addEventListener('touchend', (e) => {
+            const touchEndX = e.changedTouches[0].clientX;
+            const touchEndY = e.changedTouches[0].clientY;
+            
+            const dx = touchEndX - touchStartX;
+            const dy = touchEndY - touchStartY;
+            
+            if (Math.abs(dx) > Math.abs(dy)) {
+                // Horizontal swipe
+                if (dx > 30) moveRight();
+                else if (dx < -30) moveLeft();
+            } else {
+                // Vertical swipe
+                if (dy < -30) jump();
             }
         });
     </script>
