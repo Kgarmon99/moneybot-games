@@ -387,7 +387,11 @@
             
             document.getElementById('finalScore').textContent = score;
             document.getElementById('finalCoins').textContent = coins;
-            document.getElementById('gameOverScreen').classList.remove('hidden');
+            
+            // Show game over screen
+            const gameOverScreen = document.getElementById('gameOverScreen');
+            gameOverScreen.classList.remove('hidden');
+            gameOverScreen.style.display = 'flex';
         }
         
         // Keyboard controls
