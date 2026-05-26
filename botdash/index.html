@@ -241,6 +241,7 @@
                 
                 // Collision check
                 if (checkCollision(player, obstacles[i])) {
+                    console.log('Collision detected! Player:', player, 'Obstacle:', obstacles[i]);
                     gameOver();
                     return;
                 }
@@ -266,6 +267,7 @@
             
             // Spawn obstacles (after 2 seconds)
             if (frameCount > 120 && Math.random() < 0.02) {
+                console.log('Spawning obstacle at frame:', frameCount);
                 obstacles.push({
                     x: canvas.width,
                     y: groundY - 30,
