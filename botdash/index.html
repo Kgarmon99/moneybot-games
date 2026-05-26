@@ -135,7 +135,7 @@
             x: 50,
             y: 300,
             width: 30,
-            height: 40,
+            height: 30,
             dy: 0,
             grounded: false
         };
@@ -162,7 +162,6 @@
         document.getElementById('jumpBtn').addEventListener('mousedown', jump);
         
         function startGame() {
-            console.log('Starting game...');
             document.getElementById('startScreen').classList.add('hidden');
             document.getElementById('gameOverScreen').classList.add('hidden');
             
@@ -185,7 +184,6 @@
             particles = [];
             
             updateUI();
-            console.log('Game started, player at:', player.x, player.y);
             gameLoop();
         }
         
@@ -221,8 +219,6 @@
             player.dy += 0.6;
             player.y += player.dy;
             
-            console.log('Player position:', player.x, player.y, 'groundY:', groundY);
-            
             // Ground collision
             if (player.y + player.height >= groundY) {
                 player.y = groundY - player.height;
@@ -232,7 +228,6 @@
             
             // Check if player fell off screen
             if (player.y > canvas.height) {
-                console.log('Player fell off screen!');
                 gameOver();
                 return;
             }
@@ -250,7 +245,6 @@
                 
                 // Collision check
                 if (checkCollision(player, obstacles[i])) {
-                    console.log('Collision detected! Player:', player, 'Obstacle:', obstacles[i]);
                     gameOver();
                     return;
                 }
@@ -276,7 +270,6 @@
             
             // Spawn obstacles (after 2 seconds)
             if (frameCount > 120 && Math.random() < 0.02) {
-                console.log('Spawning obstacle at frame:', frameCount);
                 obstacles.push({
                     x: canvas.width,
                     y: groundY - 30,
@@ -390,7 +383,6 @@
         }
         
         function gameOver() {
-            console.log('Game over! Score:', score);
             gameRunning = false;
             
             if (score > best) {
