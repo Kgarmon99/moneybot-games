@@ -266,7 +266,7 @@
             player.dy = 0;
             player.hp = 100;
             player.maxHp = 100;
-            player.damage = 25;
+            player.damage = 40;
             player.speed = 5;
             player.facing = 1;
             player.grounded = true;
@@ -274,7 +274,7 @@
             player.attackTimer = 0;
             player.attackCooldown = 0;
             player.invincible = true;
-            player.invincibleTimer = 120;
+            player.invincibleTimer = 180;
             player.xp = 0;
             player.xpToNext = 100;
             
@@ -325,9 +325,10 @@
         
         function spawnEnemy() {
             const side = Math.random() > 0.5 ? 'left' : 'right';
-            const x = side === 'left' ? -60 : canvas.width + 60;
-            const hp = 30 + level * 15;
-            const speed = 1 + level * 0.3;
+            const x = side === 'left' ? -80 : canvas.width + 80;
+            const isTank = Math.random() > 0.8;
+            const hp = isTank ? 60 + level * 20 : 25 + level * 8;
+            const speed = isTank ? 0.8 : 1.5 + level * 0.2;
             
             enemies.push({
                 x: x,
@@ -338,8 +339,8 @@
                 maxHp: hp,
                 speed: speed,
                 facing: side === 'left' ? 1 : -1,
-                attackCooldown: 0,
-                type: Math.random() > 0.7 ? 'tank' : 'normal'
+                attackCooldown: 60,
+                type: isTank ? 'tank' : 'normal'
             });
         }
         
@@ -586,10 +587,10 @@
                 // Attack player
                 if (Math.abs(dist) < 40 && enemy.attackCooldown <= 0) {
                     if (!player.invincible) {
-                        const dmg = 5 + level;
+                        const dmg = enemy.type === 'tank' ? 8 + level : 5 + Math.floor(level / 2);
                         player.hp -= dmg;
                         player.invincible = true;
-                        player.invincibleTimer = 60;
+                        player.invincibleTimer = 90;
                         createFloatingText(player.x + player.width / 2, player.y, `-${dmg}`, '#FF5252');
                         createParticles(player.x + player.width / 2, player.y + player.height / 2, '#FF5252', 8);
                         
@@ -599,7 +600,7 @@
                             return;
                         }
                     }
-                    enemy.attackCooldown = 60;
+                    enemy.attackCooldown = 90;
                 }
                 if (enemy.attackCooldown > 0) enemy.attackCooldown--;
             }
