@@ -573,7 +573,8 @@
             }
             
             // Update enemies
-            enemies.forEach(enemy => {
+            for (let i = 0; i < enemies.length; i++) {
+                const enemy = enemies[i];
                 // Move toward player
                 const dist = player.x - enemy.x;
                 if (Math.abs(dist) > 30) {
@@ -598,7 +599,7 @@
                     enemy.attackCooldown = 60;
                 }
                 if (enemy.attackCooldown > 0) enemy.attackCooldown--;
-            });
+            }
             
             // Update coins
             for (let i = coinItems.length - 1; i >= 0; i--) {
