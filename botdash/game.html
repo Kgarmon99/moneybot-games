@@ -274,7 +274,7 @@
             player.attackTimer = 0;
             player.attackCooldown = 0;
             player.invincible = true;
-            player.invincibleTimer = 180;
+            player.invincibleTimer = 120;
             player.xp = 0;
             player.xpToNext = 100;
             
@@ -586,10 +586,10 @@
                 // Attack player
                 if (Math.abs(dist) < 40 && enemy.attackCooldown <= 0) {
                     if (!player.invincible) {
-                        const dmg = 10 + level * 2;
+                        const dmg = 5 + level;
                         player.hp -= dmg;
                         player.invincible = true;
-                        player.invincibleTimer = 30;
+                        player.invincibleTimer = 60;
                         createFloatingText(player.x + player.width / 2, player.y, `-${dmg}`, '#FF5252');
                         createParticles(player.x + player.width / 2, player.y + player.height / 2, '#FF5252', 8);
                         
