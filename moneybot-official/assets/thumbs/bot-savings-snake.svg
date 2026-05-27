@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 200" width="320" height="200">
+  <defs>
+    <linearGradient id="gbot-savings-snake" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#050505"/>
+      <stop offset="100%" style="stop-color:#0a1a0f"/>
+    </linearGradient>
+    <filter id="glowbot-savings-snake">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <rect width="320" height="200" fill="url(#gbot-savings-snake)"/>
+  <rect x="10" y="10" width="300" height="180" fill="none" stroke="#00ff88" stroke-width="1" opacity="0.3"/>
+  <rect x="15" y="15" width="290" height="170" fill="none" stroke="#00ff88" stroke-width="0.5" opacity="0.15"/>
+  <text x="160" y="90" font-family="Arial, sans-serif" font-size="72" font-weight="bold" text-anchor="middle" fill="#00ff88" filter="url(#glowbot-savings-snake)" opacity="0.9">🐍</text>
+  <text x="160" y="140" font-family="'JetBrains Mono', monospace" font-size="14" font-weight="bold" text-anchor="middle" fill="#ffffff" letter-spacing="2">bot savings snake</text>
+  <text x="160" y="165" font-family="'JetBrains Mono', monospace" font-size="10" text-anchor="middle" fill="#00ff88" opacity="0.7" letter-spacing="1">GROW SAVINGS</text>
+  <line x1="60" y1="175" x2="260" y2="175" stroke="#00ff88" stroke-width="0.5" opacity="0.3"/>
+</svg>
