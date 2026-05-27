@@ -582,8 +582,14 @@
         
         // Show reward screen
         function showRewardScreen() {
+            const rewardScreen = document.getElementById('rewardScreen');
             const rewardArea = document.getElementById('cardReward');
             rewardArea.innerHTML = '';
+            
+            // Reset title and subtitle
+            document.querySelector('#rewardScreen .game-title').textContent = 'Victory!';
+            document.querySelector('#rewardScreen .game-subtitle').textContent = 'Choose a card to add:';
+            document.getElementById('skipRewardBtn').style.display = 'block';
             
             // Generate 3 random cards
             const cardKeys = Object.keys(CARD_TYPES);
@@ -604,18 +610,20 @@
                 `;
                 cardEl.addEventListener('click', () => {
                     deck.push(card);
-                    document.getElementById('rewardScreen').classList.add('hidden');
+                    rewardScreen.classList.add('hidden');
+                    rewardScreen.style.display = 'none';
                     nextFloor();
                 });
                 rewardArea.appendChild(cardEl);
             });
             
-            document.getElementById('rewardScreen').classList.remove('hidden');
-            document.getElementById('rewardScreen').style.display = 'flex';
+            rewardScreen.classList.remove('hidden');
+            rewardScreen.style.display = 'flex';
         }
         
         // Show relic screen
         function showRelicScreen() {
+            const relicScreen = document.getElementById('relicScreen');
             const relicArea = document.getElementById('relicReward');
             relicArea.innerHTML = '';
             
@@ -647,20 +655,23 @@
                         maxPotions++;
                     }
                     
-                    document.getElementById('relicScreen').classList.add('hidden');
+                    relicScreen.classList.add('hidden');
+                    relicScreen.style.display = 'none';
                     showRewardScreen();
                 });
                 relicArea.appendChild(relicEl);
             });
             
-            document.getElementById('relicScreen').classList.remove('hidden');
-            document.getElementById('relicScreen').style.display = 'flex';
+            relicScreen.classList.remove('hidden');
+            relicScreen.style.display = 'flex';
         }
         
         // Skip reward
         function skipReward() {
             gold += 15;
-            document.getElementById('rewardScreen').classList.add('hidden');
+            const rewardScreen = document.getElementById('rewardScreen');
+            rewardScreen.classList.add('hidden');
+            rewardScreen.style.display = 'none';
             nextFloor();
         }
         
@@ -671,12 +682,13 @@
             // Heal player a bit between floors
             player.hp = Math.min(player.hp + 10, player.maxHp);
             
+            updateUI();
+            
             // Chance for shop (every 3 floors)
             if (floor % 3 === 0) {
                 showShop();
             } else {
                 spawnEnemy();
-                updateUI();
                 startPlayerTurn();
             }
         }
@@ -841,7 +853,9 @@
         
         // Leave shop
         function leaveShop() {
-            document.getElementById('shopScreen').classList.add('hidden');
+            const shopScreen = document.getElementById('shopScreen');
+            shopScreen.classList.add('hidden');
+            shopScreen.style.display = 'none';
             spawnEnemy();
             updateUI();
             startPlayerTurn();
