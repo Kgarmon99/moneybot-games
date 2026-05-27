@@ -37,20 +37,21 @@
         
         .game-area { flex: 1; display: flex; flex-direction: column; padding: 16px; gap: 12px; position: relative; }
         
-        #gameCanvas { background: var(--mb-panel); border-radius: 16px; border: 2px solid rgba(0, 230, 118, 0.3); width: 100%; height: 400px; }
+        #gameCanvas { background: var(--mb-panel); border-radius: 16px; border: 2px solid rgba(0, 230, 118, 0.3); width: 100%; height: 380px; }
         
-        .hand-area { display: flex; gap: 8px; padding: 8px 0; justify-content: center; flex-wrap: wrap; }
-        .card { width: 100px; height: 140px; background: #1a2332; border: 2px solid #2a3a4a; border-radius: 12px; padding: 8px; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: space-between; }
+        .hand-area { display: flex; gap: 6px; padding: 4px 0; justify-content: center; flex-wrap: wrap; }
+        .card { width: 90px; height: 120px; background: #1a2332; border: 2px solid #2a3a4a; border-radius: 10px; padding: 6px; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: space-between; }
         .card:hover { transform: translateY(-5px); border-color: var(--mb-green); }
         .card:active { transform: scale(0.95); }
-        .card-cost { font-size: 14px; font-weight: 800; color: var(--mb-blue); }
-        .card-icon { font-size: 32px; }
-        .card-name { font-size: 11px; font-weight: 700; text-align: center; }
-        .card-desc { font-size: 9px; color: rgba(255,255,255,0.6); text-align: center; }
+        .card-cost { font-size: 12px; font-weight: 800; color: var(--mb-blue); }
+        .card-icon { font-size: 28px; }
+        .card-name { font-size: 10px; font-weight: 700; text-align: center; }
+        .card-desc { font-size: 8px; color: rgba(255,255,255,0.6); text-align: center; }
         .card.attack { border-color: var(--mb-red); }
         .card.defend { border-color: var(--mb-blue); }
         .card.heal { border-color: var(--mb-green); }
         .card.special { border-color: var(--mb-gold); }
+        .card.upgraded { border-color: var(--mb-purple); box-shadow: 0 0 10px rgba(224, 64, 251, 0.3); }
         
         .energy-bar { display: flex; align-items: center; gap: 8px; padding: 8px 16px; background: rgba(68, 138, 255, 0.1); border-radius: 8px; }
         .energy-label { font-size: 12px; font-weight: 700; color: var(--mb-blue); }
@@ -71,10 +72,25 @@
         .instructions-list li { color: rgba(255,255,255,0.7); font-size: 14px; margin-bottom: 10px; list-style: none; padding-left: 24px; position: relative; }
         .instructions-list li::before { content: '✓'; position: absolute; left: 0; color: var(--mb-green); font-weight: 700; }
         
-        .card-reward { display: flex; gap: 16px; justify-content: center; margin: 20px 0; }
-        .reward-card { width: 120px; height: 160px; background: #1a2332; border: 2px solid var(--mb-gold); border-radius: 12px; padding: 12px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: space-between; transition: all 0.2s; }
+        .card-reward { display: flex; gap: 12px; justify-content: center; margin: 20px 0; flex-wrap: wrap; }
+        .reward-card { width: 100px; height: 130px; background: #1a2332; border: 2px solid var(--mb-gold); border-radius: 10px; padding: 8px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: space-between; transition: all 0.2s; }
         .reward-card:hover { transform: scale(1.05); }
         .reward-card.selected { border-color: var(--mb-green); background: rgba(0, 230, 118, 0.1); }
+        
+        .relic-display { display: flex; gap: 8px; justify-content: center; margin: 12px 0; flex-wrap: wrap; }
+        .relic { width: 50px; height: 50px; background: #1a2332; border: 2px solid var(--mb-gold); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; position: relative; }
+        .relic-tooltip { position: absolute; bottom: 60px; left: 50%; transform: translateX(-50%); background: #1a2332; border: 1px solid var(--mb-gold); border-radius: 8px; padding: 8px; font-size: 11px; white-space: nowrap; z-index: 100; display: none; }
+        .relic:hover .relic-tooltip { display: block; }
+        
+        .potion-bar { display: flex; gap: 8px; justify-content: center; margin: 8px 0; }
+        .potion { width: 40px; height: 40px; background: #1a2332; border: 2px solid var(--mb-purple); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; }
+        .potion:hover { transform: scale(1.1); }
+        
+        .shop-item { display: flex; align-items: center; gap: 12px; padding: 12px; background: #1a2332; border-radius: 8px; margin-bottom: 8px; cursor: pointer; }
+        .shop-item:hover { background: #2a3a4a; }
+        .shop-item-cost { color: var(--mb-gold); font-weight: 700; }
+        
+        .enemy-intent { position: absolute; top: 60px; right: 40px; background: rgba(255, 82, 82, 0.2); border: 1px solid var(--mb-red); border-radius: 8px; padding: 4px 8px; font-size: 11px; color: var(--mb-red); }
     </style>
 </head>
 <body>
@@ -97,13 +113,15 @@
                 <div class="stat-value" id="gold">0</div>
             </div>
             <div class="stat">
-                <div class="stat-label">Wins</div>
-                <div class="stat-value" id="wins">0</div>
+                <div class="stat-label">HP</div>
+                <div class="stat-value" id="hp">80</div>
             </div>
         </div>
         
         <div class="game-area">
-            <canvas id="gameCanvas" width="390" height="400"></canvas>
+            <canvas id="gameCanvas" width="390" height="380"></canvas>
+            <div class="relic-display" id="relicDisplay"></div>
+            <div class="potion-bar" id="potionBar"></div>
             <div class="energy-bar">
                 <span class="energy-label">ENERGY</span>
                 <span class="energy-value" id="energy">3/3</span>
@@ -118,13 +136,13 @@
             <img src="../assets/moneybot-idle.svg" alt="MoneyBot">
         </div>
         <div class="game-title">BotBattle</div>
-        <div class="game-subtitle">Card-based battles!<br>Build your deck, defeat enemies!</div>
+        <div class="game-subtitle">Card-based battles!<br>Build your deck, collect relics!</div>
         <ul class="instructions-list">
             <li>Play cards using energy</li>
-            <li>Attack to deal damage</li>
             <li>Block to reduce damage</li>
-            <li>Heal to restore HP</li>
-            <li>Build your deck after each win</li>
+            <li>Collect relics for bonuses</li>
+            <li>Use potions in emergencies</li>
+            <li>Defeat elites for better rewards</li>
         </ul>
         <button class="primary-btn" id="startBtn">Start Adventure</button>
     </div>
@@ -135,7 +153,7 @@
         </div>
         <div class="game-title" style="color: var(--mb-red);">Defeated!</div>
         <div class="game-subtitle">Floor: <span id="finalFloor" style="color: var(--mb-green); font-weight: 800;">1</span></div>
-        <div class="game-subtitle">Wins: <span id="finalWins" style="color: var(--mb-blue); font-weight: 800;">0</span></div>
+        <div class="game-subtitle">Relics: <span id="finalRelics" style="color: var(--mb-gold); font-weight: 800;">0</span></div>
         <button class="primary-btn" id="restartBtn">Try Again</button>
     </div>
     
@@ -146,7 +164,23 @@
         <div class="game-title" style="color: var(--mb-green);">Victory!</div>
         <div class="game-subtitle">Choose a card to add:</div>
         <div class="card-reward" id="cardReward"></div>
-        <button class="primary-btn" id="skipRewardBtn">Skip (+10 Gold)</button>
+        <button class="primary-btn" id="skipRewardBtn">Skip (+15 Gold)</button>
+    </div>
+    
+    <div class="overlay-screen hidden" id="relicScreen">
+        <div class="game-icon">
+            <img src="../assets/moneybot-celebrating.svg" alt="MoneyBot">
+        </div>
+        <div class="game-title" style="color: var(--mb-gold);">Relic Found!</div>
+        <div class="game-subtitle">Choose a relic:</div>
+        <div class="card-reward" id="relicReward"></div>
+    </div>
+    
+    <div class="overlay-screen hidden" id="shopScreen">
+        <div class="game-title" style="color: var(--mb-gold);">Shop</div>
+        <div class="game-subtitle">Spend your gold wisely:</div>
+        <div id="shopItems"></div>
+        <button class="primary-btn" id="leaveShopBtn" style="margin-top: 20px;">Leave Shop</button>
     </div>
     
     <script>
@@ -163,7 +197,30 @@
             fortify: { name: 'Fortify', cost: 2, block: 15, icon: '🏰', type: 'defend', desc: 'Gain 15 block' },
             recover: { name: 'Recover', cost: 2, heal: 15, icon: '💊', type: 'heal', desc: 'Heal 15 HP' },
             coinCard: { name: 'Coin Toss', cost: 0, damage: 5, gold: 5, icon: '🪙', type: 'special', desc: '5 dmg + 5 gold' },
-            bigStrike: { name: 'Big Strike', cost: 3, damage: 30, icon: '💥', type: 'attack', desc: 'Deal 30 dmg' }
+            bigStrike: { name: 'Big Strike', cost: 3, damage: 30, icon: '💥', type: 'attack', desc: 'Deal 30 dmg' },
+            poison: { name: 'Poison', cost: 1, damage: 3, poison: 4, icon: '☠', type: 'attack', desc: '3 dmg + 4 poison' },
+            draw: { name: 'Draw', cost: 1, draw: 2, icon: '📜', type: 'special', desc: 'Draw 2 cards' },
+            energy: { name: 'Energy+', cost: 0, energy: 2, icon: '⚡', type: 'special', desc: '+2 Energy' }
+        };
+        
+        // Relic definitions
+        const RELICS = {
+            ring: { name: 'Ring of Power', icon: '💍', desc: '+2 Attack dmg', effect: 'attack+2' },
+            armor: { name: 'Iron Armor', icon: '🛡', desc: '+3 Block', effect: 'block+3' },
+            amulet: { name: 'Healing Amulet', icon: '📿', desc: 'Heal 2/turn', effect: 'heal2' },
+            coin: { name: 'Golden Coin', icon: '🪙', desc: '+10% Gold', effect: 'gold+10%' },
+            sword: { name: 'Sharp Sword', icon: '🗡', desc: 'Crit +20%', effect: 'crit+20' },
+            shield: { name: 'Tower Shield', icon: '🏰', desc: 'Start +5 Block', effect: 'startBlock' },
+            potion: { name: 'Potion Belt', icon: '🧪', desc: '+1 Potion slot', effect: 'potionSlot' },
+            energy: { name: 'Energy Core', icon: '🔋', desc: '+1 Max Energy', effect: 'energy+1' }
+        };
+        
+        // Potion definitions
+        const POTIONS = {
+            heal: { name: 'Health Potion', icon: '❤', heal: 20, desc: 'Heal 20 HP' },
+            block: { name: 'Block Potion', icon: '🛡', block: 15, desc: 'Gain 15 Block' },
+            energy: { name: 'Energy Potion', icon: '⚡', energy: 2, desc: '+2 Energy' },
+            damage: { name: 'Damage Potion', icon: '💥', damage: 25, desc: 'Deal 25 dmg' }
         };
         
         // Game state
@@ -179,7 +236,8 @@
         let player = {
             hp: 80,
             maxHp: 80,
-            block: 0
+            block: 0,
+            poison: 0
         };
         
         // Enemy
@@ -189,6 +247,13 @@
         let deck = [];
         let hand = [];
         let discard = [];
+        
+        // Relics
+        let relics = [];
+        
+        // Potions
+        let potions = [];
+        let maxPotions = 2;
         
         // Animation
         let particles = [];
@@ -239,7 +304,7 @@
             handArea.innerHTML = '';
             hand.forEach((card, index) => {
                 const cardEl = document.createElement('div');
-                cardEl.className = `card ${card.type}`;
+                cardEl.className = `card ${card.type} ${card.upgraded ? 'upgraded' : ''}`;
                 cardEl.innerHTML = `
                     <div class="card-cost">${card.cost}</div>
                     <div class="card-icon">${card.icon}</div>
@@ -249,6 +314,85 @@
                 cardEl.addEventListener('click', () => playCard(index));
                 handArea.appendChild(cardEl);
             });
+        }
+        
+        // Render relics
+        function renderRelics() {
+            const relicDisplay = document.getElementById('relicDisplay');
+            relicDisplay.innerHTML = '';
+            relics.forEach(relic => {
+                const relicEl = document.createElement('div');
+                relicEl.className = 'relic';
+                relicEl.innerHTML = `
+                    ${relic.icon}
+                    <div class="relic-tooltip">${relic.name}: ${relic.desc}</div>
+                `;
+                relicDisplay.appendChild(relicEl);
+            });
+        }
+        
+        // Render potions
+        function renderPotions() {
+            const potionBar = document.getElementById('potionBar');
+            potionBar.innerHTML = '';
+            potions.forEach((potion, index) => {
+                const potionEl = document.createElement('div');
+                potionEl.className = 'potion';
+                potionEl.textContent = potion.icon;
+                potionEl.addEventListener('click', () => usePotion(index));
+                potionBar.appendChild(potionEl);
+            });
+        }
+        
+        // Use potion
+        function usePotion(index) {
+            if (!gameRunning || !playerTurn || animating || index >= potions.length) return;
+            
+            const potion = potions[index];
+            
+            if (potion.heal) {
+                player.hp = Math.min(player.hp + potion.heal, player.maxHp);
+                createFloatingText(100, 120, `+${potion.heal} HP`, '#00E676');
+            }
+            if (potion.block) {
+                player.block += potion.block;
+                createFloatingText(100, 120, `+${potion.block} Block`, '#448AFF');
+            }
+            if (potion.energy) {
+                energy += potion.energy;
+                updateEnergy();
+                createFloatingText(100, 120, `+${potion.energy} Energy`, '#448AFF');
+            }
+            if (potion.damage && enemy) {
+                enemy.hp -= potion.damage;
+                createFloatingText(280, 120, `-${potion.damage}`, '#FF5252');
+            }
+            
+            potions.splice(index, 1);
+            renderPotions();
+            
+            if (enemy && enemy.hp <= 0) {
+                enemyDefeated();
+            }
+        }
+        
+        // Apply relic effects
+        function applyRelicEffect(effect, value) {
+            switch(effect) {
+                case 'attack+2':
+                    return value + 2;
+                case 'block+3':
+                    return value + 3;
+                case 'crit+20':
+                    return Math.random() < 0.2 ? value * 2 : value;
+                default:
+                    return value;
+            }
+        }
+        
+        // Check if has relic
+        function hasRelic(effect) {
+            return relics.some(r => r.effect === effect);
         }
         
         // Play card
@@ -264,14 +408,21 @@
             
             // Apply card effects
             if (card.damage) {
-                enemy.hp -= card.damage;
+                let dmg = card.damage;
+                if (hasRelic('attack+2')) dmg = applyRelicEffect('attack+2', dmg);
+                if (hasRelic('crit+20')) dmg = applyRelicEffect('crit+20', dmg);
+                
+                enemy.hp -= dmg;
                 createParticles(280, 150, '#FF5252', 15);
-                createFloatingText(280, 120, `-${card.damage}`, '#FF5252');
+                createFloatingText(280, 120, `-${dmg}`, '#FF5252');
             }
             if (card.block) {
-                player.block += card.block;
+                let block = card.block;
+                if (hasRelic('block+3')) block = applyRelicEffect('block+3', block);
+                
+                player.block += block;
                 createParticles(100, 150, '#448AFF', 12);
-                createFloatingText(100, 120, `+${card.block} Block`, '#448AFF');
+                createFloatingText(100, 120, `+${block} Block`, '#448AFF');
             }
             if (card.heal) {
                 player.hp = Math.min(player.hp + card.heal, player.maxHp);
@@ -279,8 +430,31 @@
                 createFloatingText(100, 120, `+${card.heal} HP`, '#00E676');
             }
             if (card.gold) {
-                gold += card.gold;
+                let g = card.gold;
+                if (hasRelic('gold+10%')) g = Math.floor(g * 1.1);
+                gold += g;
                 updateUI();
+            }
+            if (card.poison) {
+                enemy.poison = (enemy.poison || 0) + card.poison;
+                createFloatingText(280, 100, `+${card.poison} Poison`, '#E040FB');
+            }
+            if (card.draw) {
+                for (let i = 0; i < card.draw; i++) {
+                    if (deck.length === 0) {
+                        deck = [...discard];
+                        discard = [];
+                        shuffle(deck);
+                    }
+                    if (deck.length > 0) {
+                        hand.push(deck.pop());
+                    }
+                }
+            }
+            if (card.energy) {
+                energy += card.energy;
+                updateEnergy();
+                createFloatingText(100, 100, `+${card.energy} Energy`, '#448AFF');
             }
             
             // Move to discard
@@ -306,13 +480,24 @@
             animating = true;
             updateButtons();
             
+            // Apply poison to enemy
+            if (enemy.poison > 0) {
+                enemy.hp -= enemy.poison;
+                createFloatingText(280, 100, `-${enemy.poison} Poison`, '#E040FB');
+                enemy.poison--;
+            }
+            
             // Discard hand
             discard.push(...hand);
             hand = [];
             renderHand();
             
             setTimeout(() => {
-                enemyTurn();
+                if (enemy.hp <= 0) {
+                    enemyDefeated();
+                } else {
+                    enemyTurn();
+                }
             }, 500);
         }
         
@@ -333,6 +518,12 @@
                 createFloatingText(100, 120, 'Blocked!', '#448AFF');
             }
             
+            // Apply enemy poison to player
+            if (enemy.playerPoison > 0) {
+                player.poison += enemy.playerPoison;
+                createFloatingText(100, 100, `+${enemy.playerPoison} Poison`, '#E040FB');
+            }
+            
             setTimeout(() => {
                 if (player.hp <= 0) {
                     gameOver();
@@ -347,6 +538,19 @@
             playerTurn = true;
             energy = maxEnergy;
             player.block = 0;
+            
+            // Apply relic heal
+            if (hasRelic('heal2')) {
+                player.hp = Math.min(player.hp + 2, player.maxHp);
+                createFloatingText(100, 100, '+2 Relic', '#00E676');
+            }
+            
+            // Apply relic start block
+            if (hasRelic('startBlock')) {
+                player.block += 5;
+                createFloatingText(100, 100, '+5 Block', '#448AFF');
+            }
+            
             drawHand();
             updateEnergy();
             updateButtons();
@@ -356,13 +560,23 @@
         // Enemy defeated
         function enemyDefeated() {
             wins++;
-            const goldReward = 15 + floor * 5;
+            let goldReward = 15 + floor * 5;
+            if (enemy.isElite) goldReward *= 2;
+            if (enemy.isBoss) goldReward *= 3;
+            if (hasRelic('gold+10%')) goldReward = Math.floor(goldReward * 1.1);
+            
             gold += goldReward;
             
             createParticles(280, 150, '#FFD700', 30);
             
             setTimeout(() => {
-                showRewardScreen();
+                // Chance for relic drop (30% for normal, 60% for elite, 100% for boss)
+                const relicChance = enemy.isBoss ? 1 : enemy.isElite ? 0.6 : 0.3;
+                if (Math.random() < relicChance) {
+                    showRelicScreen();
+                } else {
+                    showRewardScreen();
+                }
             }, 800);
         }
         
@@ -400,9 +614,52 @@
             document.getElementById('rewardScreen').style.display = 'flex';
         }
         
+        // Show relic screen
+        function showRelicScreen() {
+            const relicArea = document.getElementById('relicReward');
+            relicArea.innerHTML = '';
+            
+            // Generate 3 random relics
+            const relicKeys = Object.keys(RELICS);
+            const rewards = [];
+            for (let i = 0; i < 3; i++) {
+                const key = relicKeys[Math.floor(Math.random() * relicKeys.length)];
+                rewards.push({ ...RELICS[key], id: Date.now() + i });
+            }
+            
+            rewards.forEach((relic, index) => {
+                const relicEl = document.createElement('div');
+                relicEl.className = 'reward-card';
+                relicEl.innerHTML = `
+                    <div class="card-icon">${relic.icon}</div>
+                    <div class="card-name">${relic.name}</div>
+                    <div class="card-desc">${relic.desc}</div>
+                `;
+                relicEl.addEventListener('click', () => {
+                    relics.push(relic);
+                    renderRelics();
+                    
+                    // Apply energy relic immediately
+                    if (relic.effect === 'energy+1') {
+                        maxEnergy++;
+                    }
+                    if (relic.effect === 'potionSlot') {
+                        maxPotions++;
+                    }
+                    
+                    document.getElementById('relicScreen').classList.add('hidden');
+                    showRewardScreen();
+                });
+                relicArea.appendChild(relicEl);
+            });
+            
+            document.getElementById('relicScreen').classList.remove('hidden');
+            document.getElementById('relicScreen').style.display = 'flex';
+        }
+        
         // Skip reward
         function skipReward() {
-            gold += 10;
+            gold += 15;
             document.getElementById('rewardScreen').classList.add('hidden');
             nextFloor();
         }
@@ -411,9 +668,180 @@
         function nextFloor() {
             floor++;
             
-            // Heal player a bit
+            // Heal player a bit between floors
             player.hp = Math.min(player.hp + 10, player.maxHp);
             
+            // Chance for shop (every 3 floors)
+            if (floor % 3 === 0) {
+                showShop();
+            } else {
+                spawnEnemy();
+                updateUI();
+                startPlayerTurn();
+            }
+        }
+        
+        // Show shop
+        function showShop() {
+            const shopItems = document.getElementById('shopItems');
+            shopItems.innerHTML = '';
+            
+            // Generate shop items
+            const items = [];
+            
+            // Card removal
+            items.push({
+                type: 'remove',
+                name: 'Remove Card',
+                cost: 75,
+                desc: 'Remove a card from your deck'
+            });
+            
+            // Card upgrade
+            items.push({
+                type: 'upgrade',
+                name: 'Upgrade Card',
+                cost: 50,
+                desc: 'Upgrade a card (+50% effect)'
+            });
+            
+            // Potion
+            const potionKeys = Object.keys(POTIONS);
+            const potionKey = potionKeys[Math.floor(Math.random() * potionKeys.length)];
+            items.push({
+                type: 'potion',
+                potion: { ...POTIONS[potionKey] },
+                name: POTIONS[potionKey].name,
+                cost: 30,
+                desc: POTIONS[potionKey].desc
+            });
+            
+            // Random card
+            const cardKeys = Object.keys(CARD_TYPES);
+            const cardKey = cardKeys[Math.floor(Math.random() * cardKeys.length)];
+            items.push({
+                type: 'card',
+                card: { ...CARD_TYPES[cardKey], id: Date.now() },
+                name: CARD_TYPES[cardKey].name,
+                cost: 40 + CARD_TYPES[cardKey].cost * 10,
+                desc: CARD_TYPES[cardKey].desc
+            });
+            
+            items.forEach(item => {
+                const itemEl = document.createElement('div');
+                itemEl.className = 'shop-item';
+                itemEl.innerHTML = `
+                    <div style="font-size: 24px;">${item.type === 'potion' ? item.potion.icon : item.type === 'card' ? item.card.icon : '🛠'}</div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 700;">${item.name}</div>
+                        <div style="font-size: 11px; color: rgba(255,255,255,0.6);">${item.desc}</div>
+                    </div>
+                    <div class="shop-item-cost">${item.cost}g</div>
+                `;
+                itemEl.addEventListener('click', () => buyItem(item));
+                shopItems.appendChild(itemEl);
+            });
+            
+            document.getElementById('shopScreen').classList.remove('hidden');
+            document.getElementById('shopScreen').style.display = 'flex';
+        }
+        
+        // Buy item
+        function buyItem(item) {
+            if (gold < item.cost) return;
+            
+            gold -= item.cost;
+            updateUI();
+            
+            if (item.type === 'card') {
+                deck.push(item.card);
+            } else if (item.type === 'potion') {
+                if (potions.length < maxPotions) {
+                    potions.push(item.potion);
+                    renderPotions();
+                }
+            } else if (item.type === 'remove') {
+                // Show card removal UI
+                showCardRemoval();
+                return;
+            } else if (item.type === 'upgrade') {
+                // Show card upgrade UI
+                showCardUpgrade();
+                return;
+            }
+            
+            // Refresh shop
+            showShop();
+        }
+        
+        // Show card removal
+        function showCardRemoval() {
+            const rewardArea = document.getElementById('cardReward');
+            rewardArea.innerHTML = '';
+            
+            deck.forEach((card, index) => {
+                const cardEl = document.createElement('div');
+                cardEl.className = 'reward-card';
+                cardEl.innerHTML = `
+                    <div class="card-cost">${card.cost}</div>
+                    <div class="card-icon">${card.icon}</div>
+                    <div class="card-name">${card.name}</div>
+                    <div class="card-desc">${card.desc}</div>
+                `;
+                cardEl.addEventListener('click', () => {
+                    deck.splice(index, 1);
+                    document.getElementById('rewardScreen').classList.add('hidden');
+                    nextFloor();
+                });
+                rewardArea.appendChild(cardEl);
+            });
+            
+            document.querySelector('#rewardScreen .game-title').textContent = 'Remove Card';
+            document.querySelector('#rewardScreen .game-subtitle').textContent = 'Choose a card to remove:';
+            document.getElementById('skipRewardBtn').style.display = 'none';
+            document.getElementById('rewardScreen').classList.remove('hidden');
+            document.getElementById('rewardScreen').style.display = 'flex';
+        }
+        
+        // Show card upgrade
+        function showCardUpgrade() {
+            const rewardArea = document.getElementById('cardReward');
+            rewardArea.innerHTML = '';
+            
+            deck.forEach((card, index) => {
+                if (card.upgraded) return;
+                
+                const cardEl = document.createElement('div');
+                cardEl.className = 'reward-card';
+                cardEl.innerHTML = `
+                    <div class="card-cost">${card.cost}</div>
+                    <div class="card-icon">${card.icon}</div>
+                    <div class="card-name">${card.name}</div>
+                    <div class="card-desc">${card.desc}</div>
+                `;
+                cardEl.addEventListener('click', () => {
+                    card.upgraded = true;
+                    if (card.damage) card.damage = Math.floor(card.damage * 1.5);
+                    if (card.block) card.block = Math.floor(card.block * 1.5);
+                    if (card.heal) card.heal = Math.floor(card.heal * 1.5);
+                    card.desc = card.desc.replace(/\d+/, match => Math.floor(parseInt(match) * 1.5));
+                    
+                    document.getElementById('rewardScreen').classList.add('hidden');
+                    nextFloor();
+                });
+                rewardArea.appendChild(cardEl);
+            });
+            
+            document.querySelector('#rewardScreen .game-title').textContent = 'Upgrade Card';
+            document.querySelector('#rewardScreen .game-subtitle').textContent = 'Choose a card to upgrade:';
+            document.getElementById('skipRewardBtn').style.display = 'none';
+            document.getElementById('rewardScreen').classList.remove('hidden');
+            document.getElementById('rewardScreen').style.display = 'flex';
+        }
+        
+        // Leave shop
+        function leaveShop() {
+            document.getElementById('shopScreen').classList.add('hidden');
             spawnEnemy();
             updateUI();
             startPlayerTurn();
@@ -422,8 +850,9 @@
         // Spawn enemy
         function spawnEnemy() {
             const isBoss = floor % 5 === 0;
-            const hpMult = isBoss ? 2.5 : 1;
-            const dmgMult = isBoss ? 1.5 : 1;
+            const isElite = !isBoss && floor % 3 === 0;
+            const hpMult = isBoss ? 3 : isElite ? 1.8 : 1;
+            const dmgMult = isBoss ? 2 : isElite ? 1.4 : 1;
             
             enemy = {
                 x: 250,
@@ -434,7 +863,10 @@
                 maxHp: Math.floor((25 + floor * 8) * hpMult),
                 attack: Math.floor((6 + floor * 2) * dmgMult),
                 isBoss: isBoss,
-                name: isBoss ? 'Debt Boss' : 'Debt Minion'
+                isElite: isElite,
+                name: isBoss ? 'Debt Boss' : isElite ? 'Debt Elite' : 'Debt Minion',
+                poison: 0,
+                playerPoison: isElite ? 2 : 0
             };
         }
         
@@ -443,7 +875,7 @@
             gameRunning = false;
             
             document.getElementById('finalFloor').textContent = floor;
-            document.getElementById('finalWins').textContent = wins;
+            document.getElementById('finalRelics').textContent = relics.length;
             
             document.getElementById('gameOverScreen').classList.remove('hidden');
             document.getElementById('gameOverScreen').style.display = 'flex';
@@ -453,7 +885,7 @@
         function updateUI() {
             document.getElementById('floor').textContent = floor;
             document.getElementById('gold').textContent = gold;
-            document.getElementById('wins').textContent = wins;
+            document.getElementById('hp').textContent = Math.max(0, player.hp);
         }
         
         function updateEnergy() {
@@ -493,6 +925,8 @@
             document.getElementById('startScreen').classList.add('hidden');
             document.getElementById('gameOverScreen').classList.add('hidden');
             document.getElementById('rewardScreen').classList.add('hidden');
+            document.getElementById('relicScreen').classList.add('hidden');
+            document.getElementById('shopScreen').classList.add('hidden');
             
             gameRunning = true;
             floor = 1;
@@ -504,8 +938,13 @@
             player = {
                 hp: 80,
                 maxHp: 80,
-                block: 0
+                block: 0,
+                poison: 0
             };
+            
+            relics = [];
+            potions = [];
+            maxPotions = 2;
             
             particles = [];
             floatingTexts = [];
@@ -515,6 +954,8 @@
             spawnEnemy();
             updateUI();
             updateEnergy();
+            renderRelics();
+            renderPotions();
             startPlayerTurn();
             gameLoop();
         }
@@ -591,7 +1032,15 @@
                 ctx.fillStyle = '#448AFF';
                 ctx.font = '12px Inter';
                 ctx.textAlign = 'center';
-                ctx.fillText(`🛡 ${player.block}`, 100, 200);
+                ctx.fillText(`Block: ${player.block}`, 100, 200);
+            }
+            
+            // Draw poison indicators
+            if (enemy && enemy.poison > 0) {
+                ctx.fillStyle = '#E040FB';
+                ctx.font = '12px Inter';
+                ctx.textAlign = 'center';
+                ctx.fillText(`Poison: ${enemy.poison}`, 280, 100);
             }
             
             // Draw turn indicator
@@ -621,7 +1070,7 @@
             
             // Ground
             ctx.fillStyle = '#131b2e';
-            ctx.fillRect(0, 280, canvas.width, 120);
+            ctx.fillRect(0, 280, canvas.width, 100);
             ctx.fillStyle = '#00E676';
             ctx.fillRect(0, 280, canvas.width, 3);
         }
@@ -686,11 +1135,11 @@
             ctx.fill();
             
             // Body
-            ctx.fillStyle = enemy.isBoss ? '#FF6D00' : '#FF5252';
+            ctx.fillStyle = enemy.isBoss ? '#FF6D00' : enemy.isElite ? '#E040FB' : '#FF5252';
             ctx.fillRect(x, y, size, size);
             
             // Border
-            ctx.strokeStyle = enemy.isBoss ? '#E65100' : '#FF1744';
+            ctx.strokeStyle = enemy.isBoss ? '#E65100' : enemy.isElite ? '#D500F9' : '#FF1744';
             ctx.lineWidth = 2;
             ctx.strokeRect(x, y, size, size);
             
@@ -712,6 +1161,14 @@
             // Mouth
             ctx.fillStyle = '#fff';
             ctx.fillRect(x + 20, y + 40, 20, 4);
+            
+            // Elite/Boss indicator
+            if (enemy.isElite || enemy.isBoss) {
+                ctx.fillStyle = '#FFD700';
+                ctx.font = '10px Inter';
+                ctx.textAlign = 'center';
+                ctx.fillText(enemy.isBoss ? 'BOSS' : 'ELITE', x + size/2, y - 10);
+            }
         }
         
         function drawHPBars() {
@@ -765,6 +1222,7 @@
         document.getElementById('restartBtn').addEventListener('click', startGame);
         document.getElementById('endTurnBtn').addEventListener('click', endTurn);
         document.getElementById('skipRewardBtn').addEventListener('click', skipReward);
+        document.getElementById('leaveShopBtn').addEventListener('click', leaveShop);
     </script>
 </body>
 </html>
