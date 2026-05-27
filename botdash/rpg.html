@@ -274,7 +274,7 @@
             player.attackTimer = 0;
             player.attackCooldown = 0;
             player.invincible = true;
-            player.invincibleTimer = 180;
+            player.invincibleTimer = 300;
             player.xp = 0;
             player.xpToNext = 100;
             
@@ -296,7 +296,7 @@
             setTimeout(() => {
                 debugLog('Spawning wave...');
                 if (gameRunning) spawnWave();
-            }, 2000);
+            }, 4000);
             
             updateUI();
             updateUpgradeCosts();
