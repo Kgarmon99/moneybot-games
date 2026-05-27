@@ -259,7 +259,7 @@
             gamePhase = 'combat';
             
             // Reset player
-            player.x = 100;
+            player.x = canvas.width / 2 - PLAYER_SIZE / 2;
             player.y = GROUND_Y - PLAYER_SIZE;
             player.dx = 0;
             player.dy = 0;
@@ -272,8 +272,8 @@
             player.attacking = false;
             player.attackTimer = 0;
             player.attackCooldown = 0;
-            player.invincible = false;
-            player.invincibleTimer = 0;
+            player.invincible = true;
+            player.invincibleTimer = 120;
             player.xp = 0;
             player.xpToNext = 100;
             
@@ -321,7 +321,7 @@
         
         function spawnEnemy() {
             const side = Math.random() > 0.5 ? 'left' : 'right';
-            const x = side === 'left' ? -40 : canvas.width + 40;
+            const x = side === 'left' ? -60 : canvas.width + 60;
             const hp = 30 + level * 15;
             const speed = 1 + level * 0.3;
             
