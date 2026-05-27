@@ -58,16 +58,13 @@
         /* ===== GAME CARD ===== */
         .game-card { flex-shrink: 0; width: 200px; text-decoration: none; color: #fff; transition: transform 0.2s; }
         .game-card:hover { transform: scale(1.05); }
-        .game-thumb { width: 200px; height: 120px; border-radius: 12px; overflow: hidden; position: relative; background: #1a1a1a; }
+        .game-card:hover .game-title { color: #00ff88; }
+        .game-thumb { width: 200px; height: 130px; border-radius: 12px; overflow: hidden; position: relative; background: linear-gradient(135deg, #1a1a2e, #0d1f0d); }
         .game-thumb img { width: 100%; height: 100%; object-fit: cover; }
-        .game-thumb .badge { position: absolute; top: 8px; left: 8px; background: #00ff88; color: #000; font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 4px; text-transform: uppercase; }
-        .game-thumb .diff { position: absolute; top: 8px; right: 8px; font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 4px; text-transform: uppercase; }
-        .game-thumb .diff.easy { background: #00ff88; color: #000; }
-        .game-thumb .diff.medium { background: #ffcc00; color: #000; }
-        .game-thumb .diff.hard { background: #ff4444; color: #fff; }
-        .game-info { padding: 10px 5px; }
-        .game-title { font-size: 13px; font-weight: 700; line-height: 1.3; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .game-tag { font-size: 11px; color: #888; text-transform: capitalize; }
+        .game-thumb .diff { position: absolute; bottom: 0; left: 0; right: 0; font-size: 10px; font-weight: 700; padding: 4px 10px; text-transform: uppercase; background: linear-gradient(to top, rgba(0,0,0,0.8), transparent); color: #fff; }
+        .game-info { padding: 8px 5px 0; }
+        .game-title { font-size: 13px; font-weight: 600; line-height: 1.3; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #fff; }
+        .game-tag { font-size: 11px; color: #666; text-transform: capitalize; }
         
         /* ===== HERO ===== */
         .hero { display: flex; gap: 20px; margin-bottom: 40px; overflow-x: auto; scroll-behavior: smooth; scrollbar-width: none; padding: 5px; }
@@ -164,14 +161,14 @@
     <script>
         // ===== GAME DATA =====
         const games = [
-            {id:'bot-real-estate-sim',title:'Real Estate Sim',thumb:'assets/thumbs/bot-real-estate-sim.svg',tags:['simulation','education'],diff:'medium',section:'featured'},
-            {id:'bot-shot',title:'Bot Shot',thumb:'assets/thumbs/bot-shot.svg',tags:['arcade'],diff:'easy',section:'featured'},
-            {id:'bot-smart-borrower',title:'Smart Borrower',thumb:'assets/thumbs/bot-smart-borrower.svg',tags:['education','simulation'],diff:'medium',section:'featured'},
-            {id:'bot-financial-simulator',title:'Financial Simulator',thumb:'assets/thumbs/bot-financial-simulator.svg',tags:['simulation','education'],diff:'medium',section:'featured'},
-            {id:'stockbot',title:'StockBot',thumb:'assets/thumbs/stockbot.svg',tags:['simulation'],diff:'medium',section:'featured'},
-            {id:'cryptobot',title:'CryptoBot',thumb:'assets/thumbs/cryptobot.svg',tags:['arcade'],diff:'easy',section:'featured'},
-            {id:'moneymatch',title:'MoneyMatch',thumb:'assets/thumbs/moneymatch.svg',tags:['puzzle'],diff:'easy',section:'featured'},
-            {id:'bot-insurance-defender',title:'Insurance Defender',thumb:'assets/thumbs/bot-insurance-defender.svg',tags:['strategy','tower-defense'],diff:'medium',section:'featured'},
+            {id:'bot-real-estate-sim',title:'Real Estate Sim',thumb:'assets/thumbs-png/real-estate.png',tags:['simulation','education'],diff:'medium',section:'featured'},
+            {id:'bot-shot',title:'Bot Shot',thumb:'assets/thumbs-png/bot-shot.png',tags:['arcade'],diff:'easy',section:'featured'},
+            {id:'bot-smart-borrower',title:'Smart Borrower',thumb:'assets/thumbs-png/smart-borrower.png',tags:['education','simulation'],diff:'medium',section:'featured'},
+            {id:'bot-financial-simulator',title:'Financial Simulator',thumb:'assets/thumbs-png/financial-sim.png',tags:['simulation','education'],diff:'medium',section:'featured'},
+            {id:'stockbot',title:'StockBot',thumb:'assets/thumbs-png/stockbot.png',tags:['simulation'],diff:'medium',section:'featured'},
+            {id:'cryptobot',title:'CryptoBot',thumb:'assets/thumbs-png/cryptobot.png',tags:['arcade'],diff:'easy',section:'featured'},
+            {id:'moneymatch',title:'MoneyMatch',thumb:'assets/thumbs-png/moneymatch.png',tags:['puzzle'],diff:'easy',section:'featured'},
+            {id:'bot-insurance-defender',title:'Insurance Defender',thumb:'assets/thumbs-png/insurance-defender.png',tags:['strategy','tower-defense'],diff:'medium',section:'featured'},
             {id:'runway-rush',title:'Burn Rate',thumb:'assets/thumbs/runway-rush.svg',tags:['simulation','strategy'],diff:'hard',section:'yc'},
             {id:'the-pivot',title:'The Pivot',thumb:'assets/thumbs/the-pivot.svg',tags:['simulation','strategy'],diff:'medium',section:'yc'},
             {id:'do-things-that-dont-scale',title:'Do Things That Don\'t Scale',thumb:'assets/thumbs/do-things-that-dont-scale.svg',tags:['simulation','strategy'],diff:'medium',section:'yc'},
@@ -274,9 +271,8 @@
 
         // ===== RENDER FUNCTIONS =====
         function createCard(g) {
-            const badge = g.section === 'featured' ? '<span class="badge">Featured</span>' : '';
             return `<a href="../${g.id}/" class="game-card" onclick="trackPlay('${g.title.replace(/'/g,"\\'")}','../${g.id}/','${g.tags[0]}','${g.diff}')">
-                <div class="game-thumb">${badge}<span class="diff ${g.diff}">${g.diff}</span><img src="${g.thumb}" alt="${g.title}" onerror="this.style.display='none';this.parentElement.style.background='#1a1a1a';this.parentElement.innerHTML+='<div style=display:flex;align-items:center;justify-content:center;height:100%;font-size:40px;>🎮</div>'"></div>
+                <div class="game-thumb"><img src="${g.thumb}" alt="${g.title}" onerror="this.style.display='none';this.parentElement.innerHTML='<div style=display:flex;align-items:center;justify-content:center;height:100%;font-size:50px;>🎮</div>'"></div>
                 <div class="game-info"><div class="game-title">${g.title}</div><div class="game-tag">${g.tags.join(', ')}</div></div>
             </a>`;
         }
