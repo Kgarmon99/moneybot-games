@@ -40,8 +40,6 @@
         .controls { display: flex; gap: 10px; padding: 8px 0; }
         .control-btn { flex: 1; padding: 18px; border: 2px solid var(--mb-green); background: transparent; color: var(--mb-green); border-radius: 12px; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
         .control-btn:active { background: var(--mb-green); color: var(--mb-dark); }
-        .control-btn.jump { border-color: var(--mb-gold); color: var(--mb-gold); }
-        .control-btn.jump:active { background: var(--mb-gold); color: var(--mb-dark); }
         
         .overlay-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--mb-dark); z-index: 200; padding: 40px; }
         .overlay-screen.hidden { display: none; }
@@ -54,9 +52,6 @@
         .instructions-list { text-align: left; margin: 20px 0; max-width: 300px; }
         .instructions-list li { color: rgba(255,255,255,0.7); font-size: 14px; margin-bottom: 10px; list-style: none; padding-left: 24px; position: relative; }
         .instructions-list li::before { content: '✓'; position: absolute; left: 0; color: var(--mb-green); font-weight: 700; }
-        
-        .powerup-indicator { position: absolute; top: 80px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); padding: 8px 16px; border-radius: 20px; font-size: 12px; font-weight: 700; color: var(--mb-gold); display: none; }
-        .powerup-indicator.active { display: block; }
     </style>
 </head>
 <body>
@@ -71,7 +66,7 @@
         
         <div class="stats-bar">
             <div class="stat">
-                <div class="stat-label">Score</div>
+                <div class="stat-label">Height</div>
                 <div class="stat-value" id="score">0</div>
             </div>
             <div class="stat">
@@ -85,13 +80,10 @@
         </div>
         
         <div class="game-area">
-            <div style="position: relative;">
-                <canvas id="gameCanvas" width="390" height="550"></canvas>
-                <div class="powerup-indicator" id="powerupIndicator">⚡ SPEED BOOST!</div>
-            </div>
+            <canvas id="gameCanvas" width="390" height="550"></canvas>
             <div class="controls">
                 <button class="control-btn" id="leftBtn">← LEFT</button>
-                <button class="control-btn jump" id="jumpBtn">↑ JUMP</button>
+                <button class="control-btn" id="jumpBtn">JUMP ↑</button>
                 <button class="control-btn" id="rightBtn">RIGHT →</button>
             </div>
         </div>
@@ -99,18 +91,18 @@
     
     <div class="overlay-screen" id="startScreen">
         <div class="game-icon">
-            <img src="../assets/moneybot-running.svg" alt="MoneyBot">
+            <img src="../assets/moneybot-jumping.svg" alt="MoneyBot">
         </div>
         <div class="game-title">BotDash</div>
-        <div class="game-subtitle">3-Lane Endless Runner!<br>Dodge debt, collect coins!</div>
+        <div class="game-subtitle">Jump up through platforms!<br>Collect coins, avoid debt!</div>
         <ul class="instructions-list">
-            <li>Swipe or use arrows to switch lanes</li>
-            <li>Jump over obstacles</li>
-            <li>Collect gold coins</li>
-            <li>Grab blue orbs for invincibility</li>
-            <li>Survive as long as possible!</li>
+            <li>Use arrows or buttons to move</li>
+            <li>Jump on green platforms to go up</li>
+            <li>Collect gold coins for points</li>
+            <li>Avoid red debt blocks</li>
+            <li>Don't fall off the screen!</li>
         </ul>
-        <button class="primary-btn" id="startBtn">Start Running</button>
+        <button class="primary-btn" id="startBtn">Start Jumping</button>
     </div>
     
     <div class="overlay-screen hidden" id="gameOverScreen">
@@ -118,10 +110,10 @@
             <img src="../assets/moneybot-sad.svg" alt="MoneyBot">
         </div>
         <div class="game-title" style="color: var(--mb-red);">Game Over!</div>
-        <div class="game-subtitle">Score: <span id="finalScore" style="color: var(--mb-green); font-weight: 800;">0</span></div>
+        <div class="game-subtitle">Height: <span id="finalScore" style="color: var(--mb-green); font-weight: 800;">0</span></div>
         <div class="game-subtitle">Coins: <span id="finalCoins" style="color: var(--mb-gold); font-weight: 800;">0</span></div>
         <div class="game-subtitle">Best: <span id="finalBest" style="color: var(--mb-blue); font-weight: 800;">0</span></div>
-        <button class="primary-btn" id="restartBtn">Run Again</button>
+        <button class="primary-btn" id="restartBtn">Jump Again</button>
     </div>
     
     <script>
@@ -129,51 +121,38 @@
         const ctx = canvas.getContext('2d');
         
         // Game constants
-        const LANES = 3;
-        const LANE_WIDTH = canvas.width / LANES;
-        const GROUND_Y = 480;
-        const PLAYER_SIZE = 40;
+        const GRAVITY = 0.4;
+        const JUMP_FORCE = -11;
+        const PLAYER_SIZE = 32;
+        const PLATFORM_WIDTH = 80;
+        const PLATFORM_HEIGHT = 12;
         
         // Game state
         let gameRunning = false;
         let score = 0;
         let coins = 0;
         let best = localStorage.getItem('botdash_best') || 0;
-        let speed = 4;
+        let camera = 0;
         let frameCount = 0;
-        let gameSpeed = 1;
-        let powerupActive = false;
-        let powerupTimer = 0;
         
-        // Player - lane-based system
+        // Player
         let player = {
-            lane: 1, // 0, 1, 2
-            x: LANE_WIDTH + (LANE_WIDTH - PLAYER_SIZE) / 2,
-            y: GROUND_Y - PLAYER_SIZE,
+            x: canvas.width / 2 - PLAYER_SIZE / 2,
+            y: 400,
             width: PLAYER_SIZE,
             height: PLAYER_SIZE,
             dy: 0,
-            grounded: true,
-            jumping: false,
-            invincible: false,
-            invincibleTimer: 0,
-            targetX: LANE_WIDTH + (LANE_WIDTH - PLAYER_SIZE) / 2
+            dx: 0,
+            grounded: false,
+            facing: 1 // 1 = right, -1 = left
         };
         
         // Game objects
-        let obstacles = [];
+        let platforms = [];
         let coinItems = [];
-        let powerups = [];
+        let obstacles = [];
         let particles = [];
         let floatingTexts = [];
-        let laneLines = [];
-        
-        // Initialize player position
-        function updatePlayerX() {
-            player.targetX = player.lane * LANE_WIDTH + (LANE_WIDTH - PLAYER_SIZE) / 2;
-            // Smooth transition
-            player.x += (player.targetX - player.x) * 0.2;
-        }
         
         // Update UI
         document.getElementById('best').textContent = best;
@@ -193,60 +172,101 @@
         function startGame() {
             document.getElementById('startScreen').classList.add('hidden');
             document.getElementById('gameOverScreen').classList.add('hidden');
-            document.getElementById('powerupIndicator').classList.remove('active');
             
             // Reset game state
             gameRunning = true;
             score = 0;
             coins = 0;
-            speed = 4;
+            camera = 0;
             frameCount = 0;
-            gameSpeed = 1;
-            powerupActive = false;
-            powerupTimer = 0;
             
             // Reset player
-            player.lane = 1;
-            player.y = GROUND_Y - PLAYER_SIZE;
+            player.x = canvas.width / 2 - PLAYER_SIZE / 2;
+            player.y = 400;
             player.dy = 0;
-            player.grounded = true;
-            player.jumping = false;
-            player.invincible = false;
-            player.invincibleTimer = 0;
-            updatePlayerX();
+            player.dx = 0;
+            player.grounded = false;
+            player.facing = 1;
             
             // Clear arrays
-            obstacles = [];
+            platforms = [];
             coinItems = [];
-            powerups = [];
+            obstacles = [];
             particles = [];
             floatingTexts = [];
+            
+            // Create initial platforms
+            createInitialPlatforms();
             
             updateUI();
             gameLoop();
         }
         
+        function createInitialPlatforms() {
+            // Starting platform
+            platforms.push({
+                x: canvas.width / 2 - PLATFORM_WIDTH / 2,
+                y: 450,
+                width: PLATFORM_WIDTH,
+                height: PLATFORM_HEIGHT,
+                type: 'normal'
+            });
+            
+            // Generate platforms going up
+            let currentY = 450;
+            for (let i = 0; i < 20; i++) {
+                currentY -= 80 + Math.random() * 60;
+                const x = Math.random() * (canvas.width - PLATFORM_WIDTH);
+                const type = Math.random() > 0.8 ? 'moving' : 'normal';
+                platforms.push({
+                    x: x,
+                    y: currentY,
+                    width: PLATFORM_WIDTH,
+                    height: PLATFORM_HEIGHT,
+                    type: type,
+                    moveSpeed: type === 'moving' ? (Math.random() > 0.5 ? 1.5 : -1.5) : 0
+                });
+                
+                // Add coins on some platforms
+                if (Math.random() > 0.5) {
+                    coinItems.push({
+                        x: x + PLATFORM_WIDTH / 2,
+                        y: currentY - 25,
+                        size: 16,
+                        collected: false
+                    });
+                }
+                
+                // Add obstacles on some platforms
+                if (i > 3 && Math.random() > 0.7) {
+                    obstacles.push({
+                        x: x + 10,
+                        y: currentY - 20,
+                        width: 20,
+                        height: 20
+                    });
+                }
+            }
+        }
+        
         function moveLeft() {
             if (!gameRunning) return;
-            if (player.lane > 0) {
-                player.lane--;
-            }
+            player.dx = -5;
+            player.facing = -1;
         }
         
         function moveRight() {
             if (!gameRunning) return;
-            if (player.lane < LANES - 1) {
-                player.lane++;
-            }
+            player.dx = 5;
+            player.facing = 1;
         }
         
         function jump() {
             if (!gameRunning) return;
-            if (player.grounded && !player.jumping) {
-                player.dy = -16;
+            if (player.grounded) {
+                player.dy = JUMP_FORCE;
                 player.grounded = false;
-                player.jumping = true;
-                createParticles(player.x + PLAYER_SIZE/2, player.y + PLAYER_SIZE, '#00E676', 10);
+                createParticles(player.x + PLAYER_SIZE / 2, player.y + PLAYER_SIZE, '#00E676', 8);
             }
         }
         
@@ -254,11 +274,11 @@
             for (let i = 0; i < count; i++) {
                 particles.push({
                     x, y,
-                    dx: (Math.random() - 0.5) * 8,
-                    dy: (Math.random() - 0.5) * 8,
+                    dx: (Math.random() - 0.5) * 6,
+                    dy: (Math.random() - 0.5) * 6,
                     life: 1,
                     color,
-                    size: Math.random() * 5 + 2
+                    size: Math.random() * 4 + 2
                 });
             }
         }
@@ -283,96 +303,100 @@
         }
         
         function update() {
-            // Update player X position (smooth lane transition)
-            updatePlayerX();
+            // Apply gravity
+            player.dy += GRAVITY;
+            player.y += player.dy;
+            player.x += player.dx;
             
-            // Powerup timer
-            if (powerupActive) {
-                powerupTimer--;
-                if (powerupTimer <= 0) {
-                    powerupActive = false;
-                    gameSpeed = 1;
-                    document.getElementById('powerupIndicator').classList.remove('active');
-                }
+            // Friction
+            player.dx *= 0.9;
+            
+            // Screen wrap
+            if (player.x + PLAYER_SIZE < 0) {
+                player.x = canvas.width;
+            } else if (player.x > canvas.width) {
+                player.x = -PLAYER_SIZE;
             }
             
-            // Invincibility timer
-            if (player.invincible) {
-                player.invincibleTimer--;
-                if (player.invincibleTimer <= 0) {
-                    player.invincible = false;
-                }
+            // Update camera to follow player
+            const targetCamera = player.y - canvas.height * 0.6;
+            if (targetCamera < camera) {
+                camera = targetCamera;
             }
             
-            // Gravity
-            if (!player.grounded) {
-                player.dy += 0.8;
-                player.y += player.dy;
+            // Update score based on height
+            const height = Math.max(0, Math.floor((450 - player.y) / 10));
+            if (height > score) {
+                score = height;
+            }
+            
+            // Check if player fell off screen
+            if (player.y - camera > canvas.height + 100) {
+                gameOver();
+                return;
+            }
+            
+            // Platform collisions
+            player.grounded = false;
+            for (let platform of platforms) {
+                // Move moving platforms
+                if (platform.type === 'moving') {
+                    platform.x += platform.moveSpeed;
+                    if (platform.x <= 0 || platform.x + platform.width >= canvas.width) {
+                        platform.moveSpeed *= -1;
+                    }
+                }
                 
-                // Ground collision
-                if (player.y + PLAYER_SIZE >= GROUND_Y) {
-                    player.y = GROUND_Y - PLAYER_SIZE;
+                // Check collision (only when falling and above platform)
+                if (player.dy > 0 &&
+                    player.x + player.width > platform.x &&
+                    player.x < platform.x + platform.width &&
+                    player.y + player.height >= platform.y &&
+                    player.y + player.height <= platform.y + platform.height + player.dy + 5) {
+                    
+                    player.y = platform.y - player.height;
                     player.dy = 0;
                     player.grounded = true;
-                    player.jumping = false;
+                    
+                    // Move with platform
+                    if (platform.type === 'moving') {
+                        player.x += platform.moveSpeed;
+                    }
                 }
             }
             
-            // Update obstacles
-            for (let i = obstacles.length - 1; i >= 0; i--) {
-                obstacles[i].y += speed * gameSpeed;
-                
-                // Remove if off screen
-                if (obstacles[i].y > canvas.height) {
-                    obstacles.splice(i, 1);
-                    score += 15;
-                    continue;
+            // Coin collection
+            for (let i = coinItems.length - 1; i >= 0; i--) {
+                const coin = coinItems[i];
+                if (!coin.collected && checkCoinCollision(player, coin)) {
+                    coin.collected = true;
+                    coins++;
+                    score += 10;
+                    createParticles(coin.x, coin.y, '#FFD700', 6);
+                    createFloatingText(coin.x, coin.y, '+10', '#FFD700');
+                    coinItems.splice(i, 1);
                 }
-                
-                // Collision check (only if not invincible)
-                if (!player.invincible && checkCollision(player, obstacles[i])) {
-                    createParticles(player.x + PLAYER_SIZE/2, player.y + PLAYER_SIZE/2, '#FF5252', 20);
+            }
+            
+            // Obstacle collisions
+            for (let obstacle of obstacles) {
+                if (checkCollision(player, obstacle)) {
+                    createParticles(player.x + PLAYER_SIZE / 2, player.y + PLAYER_SIZE / 2, '#FF5252', 15);
                     gameOver();
                     return;
                 }
             }
             
-            // Update coins
-            for (let i = coinItems.length - 1; i >= 0; i--) {
-                coinItems[i].y += speed * gameSpeed;
-                
-                // Remove if off screen
-                if (coinItems[i].y > canvas.height) {
-                    coinItems.splice(i, 1);
-                    continue;
-                }
-                
-                // Collection check
-                if (checkCoinCollision(player, coinItems[i])) {
-                    coins++;
-                    score += 50;
-                    createParticles(coinItems[i].x, coinItems[i].y, '#FFD700', 8);
-                    createFloatingText(coinItems[i].x, coinItems[i].y, '+50', '#FFD700');
-                    coinItems.splice(i, 1);
-                }
+            // Generate new platforms as player goes up
+            const highestPlatform = platforms.length > 0 ? platforms[platforms.length - 1].y : 450;
+            if (highestPlatform > camera - 200) {
+                generatePlatform(highestPlatform - 80 - Math.random() * 60);
             }
             
-            // Update powerups
-            for (let i = powerups.length - 1; i >= 0; i--) {
-                powerups[i].y += speed * gameSpeed;
-                
-                // Remove if off screen
-                if (powerups[i].y > canvas.height) {
-                    powerups.splice(i, 1);
-                    continue;
-                }
-                
-                // Collection check
-                if (checkCoinCollision(player, powerups[i])) {
-                    activatePowerup();
-                    createParticles(powerups[i].x, powerups[i].y, '#448AFF', 12);
-                    createFloatingText(powerups[i].x, powerups[i].y, 'INVINCIBLE!', '#448AFF');
-                    powerups.splice(i, 1);
+            // Remove platforms below camera
+            for (let i = platforms.length - 1; i >= 0; i--) {
+                if (platforms[i].y > camera + canvas.height + 100) {
+                    platforms.splice(i, 1);
                 }
             }
             
@@ -395,111 +419,54 @@
                 }
             }
             
-            // Spawn obstacles
-            if (frameCount > 60 && Math.random() < 0.03) {
-                const lane = Math.floor(Math.random() * LANES);
-                const laneX = lane * LANE_WIDTH + (LANE_WIDTH - 35) / 2;
-                obstacles.push({
-                    x: laneX,
-                    y: -50,
-                    width: 35,
-                    height: 35,
-                    lane: lane
-                });
-            }
-            
-            // Spawn coins (in rows or patterns)
-            if (frameCount > 30 && Math.random() < 0.05) {
-                const pattern = Math.random();
-                if (pattern < 0.4) {
-                    // Single coin in random lane
-                    const lane = Math.floor(Math.random() * LANES);
-                    const laneX = lane * LANE_WIDTH + LANE_WIDTH / 2;
-                    coinItems.push({
-                        x: laneX,
-                        y: -30,
-                        size: 20
-                    });
-                } else if (pattern < 0.7) {
-                    // Row of coins across all lanes
-                    for (let lane = 0; lane < LANES; lane++) {
-                        const laneX = lane * LANE_WIDTH + LANE_WIDTH / 2;
-                        coinItems.push({
-                            x: laneX,
-                            y: -30,
-                            size: 18
-                        });
-                    }
-                } else {
-                    // V pattern
-                    const centerLane = 1;
-                    const laneX = centerLane * LANE_WIDTH + LANE_WIDTH / 2;
-                    coinItems.push({
-                        x: laneX,
-                        y: -30,
-                        size: 20
-                    });
-                    // Side coins slightly lower
-                    setTimeout(() => {
-                        if (gameRunning) {
-                            coinItems.push({
-                                x: 0 * LANE_WIDTH + LANE_WIDTH / 2,
-                                y: -20,
-                                size: 18
-                            });
-                            coinItems.push({
-                                x: 2 * LANE_WIDTH + LANE_WIDTH / 2,
-                                y: -20,
-                                size: 18
-                            });
-                        }
-                    }, 100);
-                }
-            }
-            
-            // Spawn powerups (very rare)
-            if (frameCount > 200 && Math.random() < 0.003) {
-                const lane = Math.floor(Math.random() * LANES);
-                const laneX = lane * LANE_WIDTH + LANE_WIDTH / 2;
-                powerups.push({
-                    x: laneX,
-                    y: -30,
-                    size: 24
-                });
-            }
-            
-            // Increase speed gradually
-            if (frameCount % 600 === 0) {
-                speed += 0.5;
-            }
-            
             updateUI();
         }
         
-        function activatePowerup() {
-            powerupActive = true;
-            powerupTimer = 360; // 6 seconds at 60fps
-            player.invincible = true;
-            player.invincibleTimer = 360;
-            document.getElementById('powerupIndicator').classList.add('active');
+        function generatePlatform(y) {
+            const x = Math.random() * (canvas.width - PLATFORM_WIDTH);
+            const type = Math.random() > 0.75 ? 'moving' : 'normal';
+            platforms.push({
+                x: x,
+                y: y,
+                width: PLATFORM_WIDTH,
+                height: PLATFORM_HEIGHT,
+                type: type,
+                moveSpeed: type === 'moving' ? (Math.random() > 0.5 ? 1.5 : -1.5) : 0
+            });
+            
+            // Add coins
+            if (Math.random() > 0.4) {
+                coinItems.push({
+                    x: x + PLATFORM_WIDTH / 2,
+                    y: y - 25,
+                    size: 16,
+                    collected: false
+                });
+            }
+            
+            // Add obstacles
+            if (Math.random() > 0.75) {
+                obstacles.push({
+                    x: x + 10,
+                    y: y - 20,
+                    width: 20,
+                    height: 20
+                });
+            }
         }
         
         function checkCollision(rect1, rect2) {
-            // More forgiving collision for gameplay feel
-            const padding = 8;
-            return rect1.x + padding < rect2.x + rect2.width - padding &&
-                   rect1.x + rect1.width - padding > rect2.x + padding &&
-                   rect1.y + padding < rect2.y + rect2.height - padding &&
-                   rect1.y + rect1.height - padding > rect2.y + padding;
+            return rect1.x < rect2.x + rect2.width &&
+                   rect1.x + rect1.width > rect2.x &&
+                   rect1.y < rect2.y + rect2.height &&
+                   rect1.y + rect1.height > rect2.y;
         }
         
         function checkCoinCollision(player, coin) {
-            const playerCenterX = player.x + player.width / 2;
-            const playerCenterY = player.y + player.height / 2;
-            const dx = playerCenterX - coin.x;
-            const dy = playerCenterY - coin.y;
+            const dx = (player.x + player.width / 2) - coin.x;
+            const dy = (player.y + player.height / 2) - coin.y;
             const distance = Math.sqrt(dx * dx + dy * dy);
-            return distance < 30;
+            return distance < 25;
         }
         
         function draw() {
@@ -507,35 +474,91 @@
             ctx.fillStyle = '#0a0e1a';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
-            // Draw lane markings
-            drawLanes();
-            
-            // Draw background elements
+            // Draw background
             drawBackground();
             
-            // Draw ground
-            ctx.fillStyle = '#131b2e';
-            ctx.fillRect(0, GROUND_Y, canvas.width, canvas.height - GROUND_Y);
-            ctx.fillStyle = '#00E676';
-            ctx.fillRect(0, GROUND_Y, canvas.width, 3);
+            ctx.save();
+            ctx.translate(0, -camera);
             
-            // Draw game objects (sorted by Y for depth)
-            const allObjects = [
-                ...obstacles.map(o => ({...o, type: 'obstacle'})),
-                ...coinItems.map(c => ({...c, type: 'coin'})),
-                ...powerups.map(p => ({...p, type: 'powerup'}))
-            ];
-            
-            allObjects.sort((a, b) => a.y - b.y);
-            
-            allObjects.forEach(obj => {
-                if (obj.type === 'obstacle') {
-                    drawObstacle(obj);
-                } else if (obj.type === 'coin') {
-                    drawCoin(obj);
-                } else if (obj.type === 'powerup') {
-                    drawPowerup(obj);
+            // Draw platforms
+            platforms.forEach(platform => {
+                // Platform shadow
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+                ctx.fillRect(platform.x + 3, platform.y + 3, platform.width, platform.height);
+                
+                // Platform body
+                if (platform.type === 'moving') {
+                    ctx.fillStyle = '#00B0FF';
+                } else {
+                    ctx.fillStyle = '#00E676';
                 }
+                ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
+                
+                // Platform top highlight
+                ctx.fillStyle = platform.type === 'moving' ? '#40C4FF' : '#69F0AE';
+                ctx.fillRect(platform.x, platform.y, platform.width, 3);
+                
+                // Platform border
+                ctx.strokeStyle = platform.type === 'moving' ? '#0091EA' : '#00C853';
+                ctx.lineWidth = 1;
+                ctx.strokeRect(platform.x, platform.y, platform.width, platform.height);
+            });
+            
+            // Draw coins
+            coinItems.forEach(coin => {
+                if (coin.collected) return;
+                
+                // Glow
+                ctx.fillStyle = 'rgba(255, 215, 0, 0.25)';
+                ctx.beginPath();
+                ctx.arc(coin.x, coin.y, coin.size / 2 + 5, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Coin body
+                ctx.fillStyle = '#FFD700';
+                ctx.beginPath();
+                ctx.arc(coin.x, coin.y, coin.size / 2, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Inner
+                ctx.fillStyle = '#FFA000';
+                ctx.beginPath();
+                ctx.arc(coin.x, coin.y, coin.size / 2 - 3, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // $ symbol
+                ctx.fillStyle = '#FFD700';
+                ctx.font = 'bold 11px Inter';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('$', coin.x, coin.y);
+            });
+            
+            // Draw obstacles
+            obstacles.forEach(obstacle => {
+                // Shadow
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+                ctx.beginPath();
+                ctx.ellipse(obstacle.x + obstacle.width / 2, obstacle.y + obstacle.height + 3, obstacle.width / 2, 4, 0, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Body
+                ctx.fillStyle = '#FF5252';
+                ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+                
+                // Inner
+                ctx.fillStyle = '#FF1744';
+                ctx.fillRect(obstacle.x + 3, obstacle.y + 3, obstacle.width - 6, obstacle.height - 6);
+                
+                // X mark
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(obstacle.x + 5, obstacle.y + 5);
+                ctx.lineTo(obstacle.x + obstacle.width - 5, obstacle.y + obstacle.height - 5);
+                ctx.moveTo(obstacle.x + obstacle.width - 5, obstacle.y + 5);
+                ctx.lineTo(obstacle.x + 5, obstacle.y + obstacle.height - 5);
+                ctx.stroke();
             });
             
             // Draw player
@@ -555,215 +578,84 @@
             floatingTexts.forEach(ft => {
                 ctx.globalAlpha = ft.life;
                 ctx.fillStyle = ft.color;
-                ctx.font = 'bold 16px Inter';
+                ctx.font = 'bold 14px Inter';
                 ctx.textAlign = 'center';
                 ctx.fillText(ft.text, ft.x, ft.y);
                 ctx.globalAlpha = 1;
             });
             
-            // Draw speed lines when powerup active
-            if (powerupActive) {
-                ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
-                ctx.lineWidth = 2;
-                for (let i = 0; i < 8; i++) {
-                    const x = Math.random() * canvas.width;
-                    ctx.beginPath();
-                    ctx.moveTo(x, 0);
-                    ctx.lineTo(x, canvas.height);
-                    ctx.stroke();
-                }
-            }
-        }
-        
-        function drawLanes() {
-            // Draw lane dividers
-            ctx.strokeStyle = 'rgba(0, 230, 118, 0.1)';
-            ctx.lineWidth = 2;
-            ctx.setLineDash([10, 10]);
-            
-            for (let i = 1; i < LANES; i++) {
-                const x = i * LANE_WIDTH;
-                ctx.beginPath();
-                ctx.moveTo(x, 0);
-                ctx.lineTo(x, GROUND_Y);
-                ctx.stroke();
-            }
-            
-            ctx.setLineDash([]);
+            ctx.restore();
         }
         
         function drawBackground() {
-            // Draw distant buildings
-            ctx.fillStyle = '#0d1220';
-            const buildingOffset = (frameCount * speed * 0.1) % 100;
-            for (let i = -1; i < canvas.width / 60 + 1; i++) {
-                const height = 40 + Math.sin(i * 1.5) * 25 + Math.cos(i * 0.7) * 15;
-                ctx.fillRect(i * 60 - buildingOffset, GROUND_Y - height, 55, height);
-            }
-            
             // Draw stars
             ctx.fillStyle = '#fff';
-            for (let i = 0; i < 30; i++) {
-                const x = (i * 47 + frameCount * 0.05) % canvas.width;
-                const y = 20 + (i * 31) % 120;
-                ctx.globalAlpha = 0.2 + Math.sin(frameCount * 0.03 + i) * 0.15;
+            for (let i = 0; i < 40; i++) {
+                const x = (i * 73) % canvas.width;
+                const y = ((i * 47 + camera * 0.1) % (canvas.height + 100)) - 50;
+                ctx.globalAlpha = 0.15 + Math.sin(frameCount * 0.02 + i) * 0.1;
                 ctx.fillRect(x, y, 2, 2);
             }
             ctx.globalAlpha = 1;
         }
         
         function drawPlayer() {
-            // Invincibility flash
-            if (player.invincible && Math.floor(frameCount / 3) % 2 === 0) {
-                ctx.globalAlpha = 0.4;
-            }
+            const screenY = player.y;
             
             // Shadow
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
             ctx.beginPath();
-            ctx.ellipse(player.x + PLAYER_SIZE/2, GROUND_Y - 5, PLAYER_SIZE/2, 6, 0, 0, Math.PI * 2);
+            ctx.ellipse(player.x + PLAYER_SIZE / 2, screenY + PLAYER_SIZE + 2, PLAYER_SIZE / 2, 4, 0, 0, Math.PI * 2);
             ctx.fill();
             
-            // Player body
-            ctx.fillStyle = '#00E676';
-            ctx.fillRect(player.x, player.y, PLAYER_SIZE, PLAYER_SIZE);
+            // Squash and stretch
+            let stretchX = 0;
+            let stretchY = 0;
+            if (player.dy < -5) {
+                stretchY = -4;
+                stretchX = 2;
+            } else if (player.dy > 5) {
+                stretchY = 4;
+                stretchX = -2;
+            }
             
-            // Player border
+            // Body
+            ctx.fillStyle = '#00E676';
+            ctx.fillRect(player.x - stretchX, screenY - stretchY, PLAYER_SIZE + stretchX * 2, PLAYER_SIZE + stretchY * 2);
+            
+            // Border
             ctx.strokeStyle = '#00C853';
             ctx.lineWidth = 2;
-            ctx.strokeRect(player.x, player.y, PLAYER_SIZE, PLAYER_SIZE);
+            ctx.strokeRect(player.x - stretchX, screenY - stretchY, PLAYER_SIZE + stretchX * 2, PLAYER_SIZE + stretchY * 2);
             
-            // Player eyes
+            // Eyes
+            const eyeOffset = player.facing === 1 ? 4 : -4;
             ctx.fillStyle = '#0a0e1a';
-            ctx.fillRect(player.x + 7, player.y + 8, 9, 11);
-            ctx.fillRect(player.x + 24, player.y + 8, 9, 11);
+            ctx.fillRect(player.x + 6 + eyeOffset, screenY + 7, 7, 9);
+            ctx.fillRect(player.x + 19 + eyeOffset, screenY + 7, 7, 9);
             
             // Eye shine
             ctx.fillStyle = '#fff';
-            ctx.fillRect(player.x + 10, player.y + 10, 4, 4);
-            ctx.fillRect(player.x + 27, player.y + 10, 4, 4);
+            ctx.fillRect(player.x + 8 + eyeOffset, screenY + 9, 3, 3);
+            ctx.fillRect(player.x + 21 + eyeOffset, screenY + 9, 3, 3);
             
-            // Player smile
+            // Smile
             ctx.fillStyle = '#0a0e1a';
-            ctx.fillRect(player.x + 12, player.y + 24, 16, 4);
+            ctx.fillRect(player.x + 10, screenY + 20, 12, 3);
             
             // Antenna
             ctx.strokeStyle = '#00E676';
             ctx.lineWidth = 2;
             ctx.beginPath();
-            ctx.moveTo(player.x + PLAYER_SIZE/2, player.y);
-            ctx.lineTo(player.x + PLAYER_SIZE/2, player.y - 10);
+            ctx.moveTo(player.x + PLAYER_SIZE / 2, screenY - stretchY);
+            ctx.lineTo(player.x + PLAYER_SIZE / 2, screenY - stretchY - 8);
             ctx.stroke();
             
             // Antenna ball
             ctx.fillStyle = '#FFD700';
             ctx.beginPath();
-            ctx.arc(player.x + PLAYER_SIZE/2, player.y - 12, 4, 0, Math.PI * 2);
+            ctx.arc(player.x + PLAYER_SIZE / 2, screenY - stretchY - 10, 3, 0, Math.PI * 2);
             ctx.fill();
-            
-            // Powerup glow
-            if (powerupActive) {
-                ctx.strokeStyle = 'rgba(68, 138, 255, 0.6)';
-                ctx.lineWidth = 3;
-                ctx.strokeRect(player.x - 4, player.y - 4, PLAYER_SIZE + 8, PLAYER_SIZE + 8);
-                
-                // Inner glow
-                ctx.fillStyle = 'rgba(68, 138, 255, 0.15)';
-                ctx.fillRect(player.x - 2, player.y - 2, PLAYER_SIZE + 4, PLAYER_SIZE + 4);
-            }
-            
-            ctx.globalAlpha = 1;
-        }
-        
-        function drawObstacle(obs) {
-            // Shadow
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
-            ctx.beginPath();
-            ctx.ellipse(obs.x + obs.width/2, GROUND_Y - 3, obs.width/2, 5, 0, 0, Math.PI * 2);
-            ctx.fill();
-            
-            // Obstacle body
-            ctx.fillStyle = '#FF5252';
-            ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
-            
-            // Inner
-            ctx.fillStyle = '#FF1744';
-            ctx.fillRect(obs.x + 4, obs.y + 4, obs.width - 8, obs.height - 8);
-            
-            // X mark
-            ctx.strokeStyle = '#fff';
-            ctx.lineWidth = 3;
-            ctx.beginPath();
-            ctx.moveTo(obs.x + 8, obs.y + 8);
-            ctx.lineTo(obs.x + obs.width - 8, obs.y + obs.height - 8);
-            ctx.moveTo(obs.x + obs.width - 8, obs.y + 8);
-            ctx.lineTo(obs.x + 8, obs.y + obs.height - 8);
-            ctx.stroke();
-            
-            // Warning border
-            ctx.strokeStyle = 'rgba(255, 82, 82, 0.5)';
-            ctx.lineWidth = 2;
-            ctx.strokeRect(obs.x - 2, obs.y - 2, obs.width + 4, obs.height + 4);
-        }
-        
-        function drawCoin(coin) {
-            // Glow
-            ctx.fillStyle = 'rgba(255, 215, 0, 0.25)';
-            ctx.beginPath();
-            ctx.arc(coin.x, coin.y, coin.size/2 + 6, 0, Math.PI * 2);
-            ctx.fill();
-            
-            // Outer
-            ctx.fillStyle = '#FFD700';
-            ctx.beginPath();
-            ctx.arc(coin.x, coin.y, coin.size/2, 0, Math.PI * 2);
-            ctx.fill();
-            
-            // Inner
-            ctx.fillStyle = '#FFA000';
-            ctx.beginPath();
-            ctx.arc(coin.x, coin.y, coin.size/2 - 4, 0, Math.PI * 2);
-            ctx.fill();
-            
-            // $ symbol
-            ctx.fillStyle = '#FFD700';
-            ctx.font = 'bold 13px Inter';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText('$', coin.x, coin.y);
-            
-            // Shine
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
-            ctx.beginPath();
-            ctx.arc(coin.x - 3, coin.y - 3, 3, 0, Math.PI * 2);
-            ctx.fill();
-        }
-        
-        function drawPowerup(powerup) {
-            // Glow
-            ctx.fillStyle = 'rgba(68, 138, 255, 0.35)';
-            ctx.beginPath();
-            ctx.arc(powerup.x, powerup.y, powerup.size/2 + 8, 0, Math.PI * 2);
-            ctx.fill();
-            
-            // Outer
-            ctx.fillStyle = '#448AFF';
-            ctx.beginPath();
-            ctx.arc(powerup.x, powerup.y, powerup.size/2, 0, Math.PI * 2);
-            ctx.fill();
-            
-            // Inner
-            ctx.fillStyle = '#2962FF';
-            ctx.beginPath();
-            ctx.arc(powerup.x, powerup.y, powerup.size/2 - 5, 0, Math.PI * 2);
-            ctx.fill();
-            
-            // Lightning bolt
-            ctx.fillStyle = '#fff';
-            ctx.font = 'bold 16px Inter';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText('⚡', powerup.x, powerup.y);
         }
         
         function updateUI() {
@@ -791,10 +683,6 @@
         
         // Keyboard controls
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowUp' || e.key === ' ') {
-                e.preventDefault();
-                jump();
-            }
             if (e.key === 'ArrowLeft') {
                 e.preventDefault();
                 moveLeft();
@@ -803,9 +691,13 @@
                 e.preventDefault();
                 moveRight();
             }
+            if (e.key === 'ArrowUp' || e.key === ' ') {
+                e.preventDefault();
+                jump();
+            }
         });
         
-        // Touch swipe controls
+        // Touch controls
         let touchStartX = 0;
         let touchStartY = 0;
         
@@ -822,11 +714,9 @@
             const dy = touchEndY - touchStartY;
             
             if (Math.abs(dx) > Math.abs(dy)) {
-                // Horizontal swipe
                 if (dx > 30) moveRight();
                 else if (dx < -30) moveLeft();
             } else {
-                // Vertical swipe
                 if (dy < -30) jump();
             }
         });
