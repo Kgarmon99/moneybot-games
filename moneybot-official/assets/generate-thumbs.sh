@@ -87,3 +87,26 @@ create_thumb "bot-cash-dash" "💨" "#ff6b35" "SPEED RUN"
 create_thumb "bot-market-surfers" "🏄" "#00ccff" "SURF MARKETS"
 
 echo "Generated $(ls thumbs/*.svg | wc -l) thumbnails"
+
+# YC School games
+create_thumb "runway-rush" "🏃" "#ff4444" "DON'T DIE"
+create_thumb "the-pivot" "🔄" "#ffcc00" "TALK TO USERS"
+create_thumb "do-things-that-dont-scale" "🔧" "#00ff88" "MANUAL FIRST"
+create_thumb "demo-day-dash" "🎯" "#00ccff" "SELL THE DREAM"
+create_thumb "the-first-hire" "👥" "#ff6b35" "HIRE SLOW"
+create_thumb "ramen-profitability" "🍜" "#ffcc00" "DEFAULT ALIVE"
+create_thumb "100-fans" "💯" "#00ff88" "FIND PMF"
+create_thumb "the-term-sheet" "📄" "#ff6b35" "KNOW NUMBERS"
+create_thumb "growth-loops" "🔄" "#00ccff" "BUILD GROWTH"
+
+# Recently built
+create_thumb "stockbot" "📈" "#00ff88" "TRADING SIM"
+create_thumb "cryptobot" "₿" "#ffcc00" "PRICE PREDICT"
+create_thumb "moneymatch" "🧠" "#00ccff" "MEMORY GAME"
+
+# Other visible games
+create_thumb "bot-burn-rate" "🔥" "#ff4444" "DODGE EXPENSES"
+create_thumb "money-bank-heist" "🏦" "#ffcc00" "HEIST GAME"
+create_thumb "money-invaders" "👾" "#ff00ff" "SPACE SHOOTER"
+create_thumb "money-jump" "🦘" "#00ccff" "PLATFORMER"
+create_thumb "botbalance" "⚖️" "#00ff88" "BALANCE SHEET"
