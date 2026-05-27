@@ -246,6 +246,7 @@
         document.getElementById('healBtn').addEventListener('click', heal);
         
         function startGame() {
+            debugLog('Starting game...');
             document.getElementById('startScreen').classList.add('hidden');
             document.getElementById('gameOverScreen').classList.add('hidden');
             document.getElementById('upgradePanel').classList.remove('active');
@@ -293,6 +294,7 @@
             
             // Spawn initial enemies after delay
             setTimeout(() => {
+                debugLog('Spawning wave...');
                 if (gameRunning) spawnWave();
             }, 2000);
             
@@ -592,6 +594,7 @@
                         createParticles(player.x + player.width / 2, player.y + player.height / 2, '#FF5252', 8);
                         
                         if (player.hp <= 0) {
+                            debugLog('Game over: HP <= 0');
                             gameOver();
                             return;
                         }
@@ -882,6 +885,11 @@
             const gameOverScreen = document.getElementById('gameOverScreen');
             gameOverScreen.classList.remove('hidden');
             gameOverScreen.style.display = 'flex';
+        }
+        
+        // Debug function
+        function debugLog(msg) {
+            console.log(msg);
         }
         
         // Keyboard controls
