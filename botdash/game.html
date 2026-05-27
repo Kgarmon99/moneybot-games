@@ -273,7 +273,7 @@
             player.attackTimer = 0;
             player.attackCooldown = 0;
             player.invincible = true;
-            player.invincibleTimer = 120;
+            player.invincibleTimer = 180;
             player.xp = 0;
             player.xpToNext = 100;
             
@@ -291,8 +291,10 @@
             // Create platforms
             createPlatforms();
             
-            // Spawn initial enemies
-            spawnWave();
+            // Spawn initial enemies after delay
+            setTimeout(() => {
+                if (gameRunning) spawnWave();
+            }, 2000);
             
             updateUI();
             updateUpgradeCosts();
