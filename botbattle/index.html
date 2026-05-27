@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>BotBattle - MoneyBot RPG</title>
+    <link rel="icon" type="image/svg+xml" href="../assets/moneybot-idle.svg">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: manipulation; user-select: none; }
+        
+        :root {
+            --mb-green: #00E676;
+            --mb-dark: #0a0e1a;
+            --mb-panel: #131b2e;
+            --mb-red: #FF5252;
+            --mb-gold: #FFD700;
+            --mb-blue: #448AFF;
+            --mb-purple: #E040FB;
+        }
+        
+        body { font-family: 'Inter', sans-serif; background: var(--mb-dark); min-height: 100vh; color: #fff; overflow: hidden; }
+        .app { max-width: 430px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; }
+        
+        .header { background: var(--mb-panel); padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--mb-green); }
+        .header-logo { display: flex; align-items: center; gap: 10px; }
+        .moneybot-icon { width: 36px; height: 36px; border-radius: 8px; overflow: hidden; background: var(--mb-green); }
+        .moneybot-icon img { width: 100%; height: 100%; object-fit: cover; }
+        .header-title { font-weight: 800; font-size: 18px; color: #fff; }
+        .back-btn { width: 40px; height: 40px; border-radius: 10px; background: var(--mb-green); border: none; color: var(--mb-dark); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 18px; text-decoration: none; font-weight: 700; }
+        
+        .stats-bar { display: flex; justify-content: space-around; padding: 12px; background: rgba(0, 230, 118, 0.1); }
+        .stat { text-align: center; }
+        .stat-label { font-size: 10px; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 1px; }
+        .stat-value { font-size: 22px; font-weight: 800; color: var(--mb-green); }
+        
+        .game-area { flex: 1; display: flex; flex-direction: column; padding: 16px; gap: 12px; position: relative; }
+        
+        #gameCanvas { background: var(--mb-panel); border-radius: 16px; border: 2px solid rgba(0, 230, 118, 0.3); width: 100%; height: 500px; }
+        
+        .battle-log { background: rgba(0,0,0,0.3); border-radius: 8px; padding: 8px 12px; font-size: 12px; color: rgba(255,255,255,0.7); height: 60px; overflow-y: auto; }
+        .battle-log .log-entry { margin-bottom: 4px; }
+        .battle-log .log-damage { color: var(--mb-red); }
+        .battle-log .log-heal { color: var(--mb-green); }
+        .battle-log .log-coin { color: var(--mb-gold); }
+        
+        .controls { display: flex; gap: 10px; padding: 8px 0; }
+        .control-btn { flex: 1; padding: 16px; border: 2px solid var(--mb-green); background: transparent; color: var(--mb-green); border-radius: 12px; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+        .control-btn:active { background: var(--mb-green); color: var(--mb-dark); }
+        .control-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        .control-btn.attack { border-color: var(--mb-red); color: var(--mb-red); }
+        .control-btn.attack:active { background: var(--mb-red); color: #fff; }
+        .control-btn.heal { border-color: var(--mb-blue); color: var(--mb-blue); }
+        .control-btn.heal:active { background: var(--mb-blue); color: #fff; }
+        
+        .overlay-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--mb-dark); z-index: 200; padding: 40px; }
+        .overlay-screen.hidden { display: none; }
+        .game-icon { width: 120px; height: 120px; background: var(--mb-green); border-radius: 24px; display: flex; align-items: center; justify-content: center; margin-bottom: 24px; overflow: hidden; }
+        .game-icon img { width: 80%; height: 80%; object-fit: contain; }
+        .game-title { font-size: 32px; font-weight: 800; color: #fff; margin-bottom: 12px; }
+        .game-subtitle { color: rgba(255,255,255,0.6); font-size: 16px; margin-bottom: 32px; text-align: center; line-height: 1.5; }
+        .primary-btn { background: var(--mb-green); color: var(--mb-dark); border: none; padding: 18px 48px; font-size: 16px; font-weight: 700; border-radius: 12px; cursor: pointer; width: 100%; max-width: 280px; transition: transform 0.2s; }
+        .primary-btn:active { transform: scale(0.98); }
+        .instructions-list { text-align: left; margin: 20px 0; max-width: 300px; }
+        .instructions-list li { color: rgba(255,255,255,0.7); font-size: 14px; margin-bottom: 10px; list-style: none; padding-left: 24px; position: relative; }
+        .instructions-list li::before { content: '✓'; position: absolute; left: 0; color: var(--mb-green); font-weight: 700; }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <header class="header">
+            <div class="header-logo">
+                <a href="../moneybot-official/" class="back-btn">←</a>
+                <div class="moneybot-icon"><img src="../assets/moneybot-idle.svg" /></div>
+                <span class="header-title">BotBattle</span>
+            </div>
+        </header>
+        
+        <div class="stats-bar">
+            <div class="stat">
+                <div class="stat-label">Wins</div>
+                <div class="stat-value" id="wins">0</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Coins</div>
+                <div class="stat-value" id="coins">0</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Floor</div>
+                <div class="stat-value" id="floor">1</div>
+            </div>
+        </div>
+        
+        <div class="game-area">
+            <canvas id="gameCanvas" width="390" height="500"></canvas>
+            <div class="battle-log" id="battleLog"></div>
+            <div class="controls">
+                <button class="control-btn attack" id="attackBtn">⚔ ATTACK</button>
+                <button class="control-btn heal" id="healBtn">💚 HEAL</button>
+                <button class="control-btn" id="specialBtn">⚡ SPECIAL</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="overlay-screen" id="startScreen">
+        <div class="game-icon">
+            <img src="../assets/moneybot-idle.svg" alt="MoneyBot">
+        </div>
+        <div class="game-title">BotBattle</div>
+        <div class="game-subtitle">Turn-based RPG battles!<br>Defeat enemies, climb floors!</div>
+        <ul class="instructions-list">
+            <li>Attack to deal damage</li>
+            <li>Heal to restore HP</li>
+            <li>Special for big damage</li>
+            <li>Defeat enemies to advance</li>
+            <li>Upgrade between battles</li>
+        </ul>
+        <button class="primary-btn" id="startBtn">Start Battle</button>
+    </div>
+    
+    <div class="overlay-screen hidden" id="gameOverScreen">
+        <div class="game-icon">
+            <img src="../assets/moneybot-sad.svg" alt="MoneyBot">
+        </div>
+        <div class="game-title" style="color: var(--mb-red);">Defeated!</div>
+        <div class="game-subtitle">Floor: <span id="finalFloor" style="color: var(--mb-green); font-weight: 800;">1</span></div>
+        <div class="game-subtitle">Wins: <span id="finalWins" style="color: var(--mb-blue); font-weight: 800;">0</span></div>
+        <div class="game-subtitle">Coins: <span id="finalCoins" style="color: var(--mb-gold); font-weight: 800;">0</span></div>
+        <button class="primary-btn" id="restartBtn">Battle Again</button>
+    </div>
+    
+    <div class="overlay-screen hidden" id="victoryScreen">
+        <div class="game-icon">
+            <img src="../assets/moneybot-celebrating.svg" alt="MoneyBot">
+        </div>
+        <div class="game-title" style="color: var(--mb-green);">Victory!</div>
+        <div class="game-subtitle">Enemy Defeated!</div>
+        <div class="game-subtitle">+<span id="victoryCoins" style="color: var(--mb-gold); font-weight: 800;">0</span> Coins</div>
+        <div class="game-subtitle">+<span id="victoryXP" style="color: var(--mb-blue); font-weight: 800;">0</span> XP</div>
+        <button class="primary-btn" id="continueBtn">Next Floor</button>
+    </div>
+    
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Game state
+        let gameRunning = false;
+        let wins = 0;
+        let coins = 0;
+        let floor = 1;
+        let playerTurn = true;
+        let battleLog = [];
+        let animating = false;
+        
+        // Player stats
+        let player = {
+            hp: 100,
+            maxHp: 100,
+            attack: 20,
+            healAmount: 25,
+            specialCooldown: 0,
+            specialMaxCooldown: 3,
+            xp: 0,
+            xpToNext: 50
+        };
+        
+        // Enemy
+        let enemy = null;
+        
+        // Animation particles
+        let particles = [];
+        let floatingTexts = [];
+        
+        // Update UI
+        document.getElementById('wins').textContent = wins;
+        document.getElementById('coins').textContent = coins;
+        document.getElementById('floor').textContent = floor;
+        
+        // Button event listeners
+        document.getElementById('startBtn').addEventListener('click', startGame);
+        document.getElementById('restartBtn').addEventListener('click', startGame);
+        document.getElementById('continueBtn').addEventListener('click', nextFloor);
+        
+        document.getElementById('attackBtn').addEventListener('click', playerAttack);
+        document.getElementById('healBtn').addEventListener('click', playerHeal);
+        document.getElementById('specialBtn').addEventListener('click', playerSpecial);
+        
+        function startGame() {
+            document.getElementById('startScreen').classList.add('hidden');
+            document.getElementById('gameOverScreen').classList.add('hidden');
+            document.getElementById('victoryScreen').classList.add('hidden');
+            
+            gameRunning = true;
+            wins = 0;
+            coins = 0;
+            floor = 1;
+            playerTurn = true;
+            battleLog = [];
+            
+            player = {
+                hp: 100,
+                maxHp: 100,
+                attack: 20,
+                healAmount: 25,
+                specialCooldown: 0,
+                specialMaxCooldown: 3,
+                xp: 0,
+                xpToNext: 50
+            };
+            
+            particles = [];
+            floatingTexts = [];
+            
+            spawnEnemy();
+            updateUI();
+            updateButtons();
+            gameLoop();
+        }
+        
+        function spawnEnemy() {
+            const isBoss = floor % 5 === 0;
+            const hpMult = isBoss ? 2.5 : 1;
+            const dmgMult = isBoss ? 1.5 : 1;
+            
+            enemy = {
+                x: 250,
+                y: 200,
+                width: 60,
+                height: 60,
+                hp: Math.floor((30 + floor * 10) * hpMult),
+                maxHp: Math.floor((30 + floor * 10) * hpMult),
+                attack: Math.floor((8 + floor * 2) * dmgMult),
+                isBoss: isBoss,
+                name: isBoss ? 'Debt Boss' : 'Debt Minion',
+                attackCooldown: 0
+            };
+            
+            addLog(`A ${enemy.name} appears!`, 'normal');
+        }
+        
+        function playerAttack() {
+            if (!gameRunning || !playerTurn || animating) return;
+            
+            animating = true;
+            playerTurn = false;
+            
+            // Calculate damage
+            const dmg = Math.floor(player.attack + Math.random() * 10);
+            enemy.hp -= dmg;
+            
+            // Visual effects
+            createParticles(enemy.x + enemy.width/2, enemy.y + enemy.height/2, '#FF5252', 15);
+            createFloatingText(enemy.x + enemy.width/2, enemy.y, `-${dmg}`, '#FF5252');
+            addLog(`You attacked for ${dmg} damage!`, 'damage');
+            
+            // Shake effect
+            shakeEnemy();
+            
+            setTimeout(() => {
+                if (enemy.hp <= 0) {
+                    enemyDefeated();
+                } else {
+                    enemyTurn();
+                }
+            }, 800);
+        }
+        
+        function playerHeal() {
+            if (!gameRunning || !playerTurn || animating) return;
+            
+            animating = true;
+            playerTurn = false;
+            
+            const heal = Math.floor(player.healAmount + Math.random() * 10);
+            player.hp = Math.min(player.hp + heal, player.maxHp);
+            
+            createParticles(100, 200, '#00E676', 12);
+            createFloatingText(100, 180, `+${heal}`, '#00E676');
+            addLog(`You healed for ${heal} HP!`, 'heal');
+            
+            setTimeout(() => {
+                enemyTurn();
+            }, 800);
+        }
+        
+        function playerSpecial() {
+            if (!gameRunning || !playerTurn || animating || player.specialCooldown > 0) return;
+            
+            animating = true;
+            playerTurn = false;
+            player.specialCooldown = player.specialMaxCooldown;
+            
+            const dmg = Math.floor(player.attack * 2.5 + Math.random() * 20);
+            enemy.hp -= dmg;
+            
+            createParticles(enemy.x + enemy.width/2, enemy.y + enemy.height/2, '#FFD700', 25);
+            createFloatingText(enemy.x + enemy.width/2, enemy.y - 20, `CRIT! -${dmg}`, '#FFD700');
+            addLog(`SPECIAL ATTACK! ${dmg} damage!`, 'damage');
+            
+            shakeEnemy();
+            
+            setTimeout(() => {
+                if (enemy.hp <= 0) {
+                    enemyDefeated();
+                } else {
+                    enemyTurn();
+                }
+            }, 800);
+        }
+        
+        function enemyTurn() {
+            if (!gameRunning || enemy.hp <= 0) return;
+            
+            setTimeout(() => {
+                if (!gameRunning) return;
+                
+                const dmg = Math.floor(enemy.attack + Math.random() * 5);
+                player.hp -= dmg;
+                
+                createParticles(100, 200, '#FF5252', 10);
+                createFloatingText(100, 180, `-${dmg}`, '#FF5252');
+                addLog(`${enemy.name} attacks for ${dmg} damage!`, 'damage');
+                
+                if (player.specialCooldown > 0) player.specialCooldown--;
+                
+                setTimeout(() => {
+                    if (player.hp <= 0) {
+                        gameOver();
+                    } else {
+                        playerTurn = true;
+                        animating = false;
+                        updateButtons();
+                    }
+                }, 600);
+            }, 500);
+        }
+        
+        function enemyDefeated() {
+            wins++;
+            const coinReward = 10 + floor * 5;
+            const xpReward = 20 + floor * 3;
+            coins += coinReward;
+            player.xp += xpReward;
+            
+            createParticles(enemy.x + enemy.width/2, enemy.y + enemy.height/2, '#FFD700', 30);
+            addLog(`${enemy.name} defeated! +${coinReward} coins`, 'coin');
+            
+            // Check level up
+            if (player.xp >= player.xpToNext) {
+                player.xp -= player.xpToNext;
+                player.xpToNext = Math.floor(player.xpToNext * 1.4);
+                player.maxHp += 15;
+                player.hp = player.maxHp;
+                player.attack += 5;
+                player.healAmount += 5;
+                addLog('LEVEL UP! Stats increased!', 'heal');
+            }
+            
+            setTimeout(() => {
+                document.getElementById('victoryCoins').textContent = coinReward;
+                document.getElementById('victoryXP').textContent = xpReward;
+                document.getElementById('victoryScreen').classList.remove('hidden');
+                document.getElementById('victoryScreen').style.display = 'flex';
+            }, 1000);
+        }
+        
+        function nextFloor() {
+            document.getElementById('victoryScreen').classList.add('hidden');
+            floor++;
+            playerTurn = true;
+            animating = false;
+            
+            // Heal player a bit between floors
+            player.hp = Math.min(player.hp + 20, player.maxHp);
+            
+            spawnEnemy();
+            updateUI();
+            updateButtons();
+        }
+        
+        function gameOver() {
+            gameRunning = false;
+            
+            document.getElementById('finalFloor').textContent = floor;
+            document.getElementById('finalWins').textContent = wins;
+            document.getElementById('finalCoins').textContent = coins;
+            
+            document.getElementById('gameOverScreen').classList.remove('hidden');
+            document.getElementById('gameOverScreen').style.display = 'flex';
+        }
+        
+        function addLog(text, type) {
+            battleLog.unshift({ text, type });
+            if (battleLog.length > 5) battleLog.pop();
+            updateLogDisplay();
+        }
+        
+        function updateLogDisplay() {
+            const logDiv = document.getElementById('battleLog');
+            logDiv.innerHTML = battleLog.map(entry => {
+                let className = 'log-entry';
+                if (entry.type === 'damage') className += ' log-damage';
+                if (entry.type === 'heal') className += ' log-heal';
+                if (entry.type === 'coin') className += ' log-coin';
+                return `<div class="${className}">${entry.text}</div>`;
+            }).join('');
+        }
+        
+        function createParticles(x, y, color, count) {
+            for (let i = 0; i < count; i++) {
+                particles.push({
+                    x, y,
+                    dx: (Math.random() - 0.5) * 8,
+                    dy: (Math.random() - 0.5) * 8,
+                    life: 1,
+                    color,
+                    size: Math.random() * 4 + 2
+                });
+            }
+        }
+        
+        function createFloatingText(x, y, text, color) {
+            floatingTexts.push({
+                x, y,
+                text,
+                color,
+                life: 1,
+                dy: -2
+            });
+        }
+        
+        function shakeEnemy() {
+            enemy.shake = 10;
+        }
+        
+        function updateButtons() {
+            document.getElementById('attackBtn').disabled = !playerTurn || animating;
+            document.getElementById('healBtn').disabled = !playerTurn || animating || player.hp >= player.maxHp;
+            document.getElementById('specialBtn').disabled = !playerTurn || animating || player.specialCooldown > 0;
+            
+            if (player.specialCooldown > 0) {
+                document.getElementById('specialBtn').textContent = `⚡ ${player.specialCooldown}`;
+            } else {
+                document.getElementById('specialBtn').textContent = '⚡ SPECIAL';
+            }
+        }
+        
+        function updateUI() {
+            document.getElementById('wins').textContent = wins;
+            document.getElementById('coins').textContent = coins;
+            document.getElementById('floor').textContent = floor;
+        }
+        
+        function gameLoop() {
+            if (!gameRunning) return;
+            
+            update();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+        
+        function update() {
+            // Update particles
+            for (let i = particles.length - 1; i >= 0; i--) {
+                particles[i].x += particles[i].dx;
+                particles[i].y += particles[i].dy;
+                particles[i].life -= 0.03;
+                if (particles[i].life <= 0) {
+                    particles.splice(i, 1);
+                }
+            }
+            
+            // Update floating texts
+            for (let i = floatingTexts.length - 1; i >= 0; i--) {
+                floatingTexts[i].y += floatingTexts[i].dy;
+                floatingTexts[i].life -= 0.02;
+                if (floatingTexts[i].life <= 0) {
+                    floatingTexts.splice(i, 1);
+                }
+            }
+            
+            // Update enemy shake
+            if (enemy && enemy.shake > 0) {
+                enemy.shake--;
+            }
+        }
+        
+        function draw() {
+            // Clear
+            ctx.fillStyle = '#0a0e1a';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Background
+            drawBackground();
+            
+            // Draw player
+            drawPlayer();
+            
+            // Draw enemy
+            if (enemy) drawEnemy();
+            
+            // Draw particles
+            particles.forEach(p => {
+                ctx.globalAlpha = p.life;
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.globalAlpha = 1;
+            });
+            
+            // Draw floating texts
+            floatingTexts.forEach(ft => {
+                ctx.globalAlpha = ft.life;
+                ctx.fillStyle = ft.color;
+                ctx.font = 'bold 18px Inter';
+                ctx.textAlign = 'center';
+                ctx.fillText(ft.text, ft.x, ft.y);
+                ctx.globalAlpha = 1;
+            });
+            
+            // Draw HP bars
+            drawHPBars();
+            
+            // Draw turn indicator
+            if (playerTurn && !animating) {
+                ctx.fillStyle = '#00E676';
+                ctx.font = '14px Inter';
+                ctx.textAlign = 'center';
+                ctx.fillText('YOUR TURN', 100, 320);
+            } else if (!playerTurn) {
+                ctx.fillStyle = '#FF5252';
+                ctx.font = '14px Inter';
+                ctx.textAlign = 'center';
+                ctx.fillText('ENEMY TURN', 100, 320);
+            }
+        }
+        
+        function drawBackground() {
+            // Stars
+            ctx.fillStyle = '#fff';
+            for (let i = 0; i < 20; i++) {
+                const x = (i * 73) % canvas.width;
+                const y = (i * 47) % canvas.height;
+                ctx.globalAlpha = 0.1;
+                ctx.fillRect(x, y, 2, 2);
+            }
+            ctx.globalAlpha = 1;
+            
+            // Ground
+            ctx.fillStyle = '#131b2e';
+            ctx.fillRect(0, 350, canvas.width, 150);
+            ctx.fillStyle = '#00E676';
+            ctx.fillRect(0, 350, canvas.width, 3);
+        }
+        
+        function drawPlayer() {
+            const x = 70;
+            const y = 260;
+            const size = 50;
+            
+            // Shadow
+            ctx.fillStyle = 'rgba(0,0,0,0.3)';
+            ctx.beginPath();
+            ctx.ellipse(x + size/2, 350, size/2, 8, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Body
+            ctx.fillStyle = '#00E676';
+            ctx.fillRect(x, y, size, size);
+            
+            // Border
+            ctx.strokeStyle = '#00C853';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(x, y, size, size);
+            
+            // Eyes
+            ctx.fillStyle = '#0a0e1a';
+            ctx.fillRect(x + 10, y + 12, 10, 12);
+            ctx.fillRect(x + 30, y + 12, 10, 12);
+            
+            // Eye shine
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(x + 13, y + 14, 4, 4);
+            ctx.fillRect(x + 33, y + 14, 4, 4);
+            
+            // Smile
+            ctx.fillStyle = '#0a0e1a';
+            ctx.fillRect(x + 15, y + 32, 20, 4);
+            
+            // Antenna
+            ctx.strokeStyle = '#00E676';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(x + size/2, y);
+            ctx.lineTo(x + size/2, y - 12);
+            ctx.stroke();
+            
+            ctx.fillStyle = '#FFD700';
+            ctx.beginPath();
+            ctx.arc(x + size/2, y - 15, 5, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        
+        function drawEnemy() {
+            let x = enemy.x;
+            const y = enemy.y;
+            const size = enemy.width;
+            
+            // Shake effect
+            if (enemy.shake > 0) {
+                x += (Math.random() - 0.5) * 10;
+            }
+            
+            // Shadow
+            ctx.fillStyle = 'rgba(0,0,0,0.3)';
+            ctx.beginPath();
+            ctx.ellipse(x + size/2, 350, size/2, 8, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Body
+            ctx.fillStyle = enemy.isBoss ? '#FF6D00' : '#FF5252';
+            ctx.fillRect(x, y, size, size);
+            
+            // Border
+            ctx.strokeStyle = enemy.isBoss ? '#E65100' : '#FF1744';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(x, y, size, size);
+            
+            // Eyes
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(x + 10, y + 15, 10, 10);
+            ctx.fillRect(x + 40, y + 15, 10, 10);
+            
+            // Angry eyebrows
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(x + 8, y + 12);
+            ctx.lineTo(x + 22, y + 18);
+            ctx.moveTo(x + 52, y + 12);
+            ctx.lineTo(x + 38, y + 18);
+            ctx.stroke();
+            
+            // Mouth
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(x + 20, y + 40, 20, 4);
+        }
+        
+        function drawHPBars() {
+            // Player HP bar
+            const playerBarWidth = 120;
+            const playerBarHeight = 14;
+            const playerBarX = 25;
+            const playerBarY = 100;
+            
+            ctx.fillStyle = 'rgba(255,255,255,0.1)';
+            ctx.fillRect(playerBarX, playerBarY, playerBarWidth, playerBarHeight);
+            
+            const playerHpPercent = player.hp / player.maxHp;
+            ctx.fillStyle = playerHpPercent > 0.5 ? '#00E676' : playerHpPercent > 0.25 ? '#FFD700' : '#FF5252';
+            ctx.fillRect(playerBarX, playerBarY, playerBarWidth * playerHpPercent, playerBarHeight);
+            
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 11px Inter';
+            ctx.textAlign = 'left';
+            ctx.fillText(`${Math.ceil(player.hp)}/${player.maxHp}`, playerBarX, playerBarY - 5);
+            
+            // Enemy HP bar
+            if (enemy) {
+                const enemyBarWidth = 120;
+                const enemyBarHeight = 14;
+                const enemyBarX = 220;
+                const enemyBarY = 100;
+                
+                ctx.fillStyle = 'rgba(255,255,255,0.1)';
+                ctx.fillRect(enemyBarX, enemyBarY, enemyBarWidth, enemyBarHeight);
+                
+                const enemyHpPercent = Math.max(0, enemy.hp / enemy.maxHp);
+                ctx.fillStyle = '#FF5252';
+                ctx.fillRect(enemyBarX, enemyBarY, enemyBarWidth * enemyHpPercent, enemyBarHeight);
+                
+                ctx.fillStyle = '#fff';
+                ctx.font = 'bold 11px Inter';
+                ctx.textAlign = 'left';
+                ctx.fillText(`${Math.max(0, Math.ceil(enemy.hp))}/${enemy.maxHp}`, enemyBarX, enemyBarY - 5);
+                
+                // Enemy name
+                ctx.fillStyle = '#fff';
+                ctx.font = '12px Inter';
+                ctx.textAlign = 'center';
+                ctx.fillText(enemy.name, enemyBarX + enemyBarWidth/2, enemyBarY - 20);
+            }
+            
+            // XP bar
+            const xpBarWidth = 200;
+            const xpBarHeight = 6;
+            const xpBarX = (canvas.width - xpBarWidth) / 2;
+            const xpBarY = 140;
+            
+            ctx.fillStyle = 'rgba(255,255,255,0.1)';
+            ctx.fillRect(xpBarX, xpBarY, xpBarWidth, xpBarHeight);
+            ctx.fillStyle = '#448AFF';
+            ctx.fillRect(xpBarX, xpBarY, xpBarWidth * (player.xp / player.xpToNext), xpBarHeight);
+        }
+    </script>
+</body>
+</html>
