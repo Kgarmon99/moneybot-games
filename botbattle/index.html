@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BotBattle - MoneyBot RPG</title>
+    <title>BotBattle - Card Battler</title>
     <link rel="icon" type="image/svg+xml" href="../assets/moneybot-idle.svg">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
@@ -17,6 +17,7 @@
             --mb-gold: #FFD700;
             --mb-blue: #448AFF;
             --mb-purple: #E040FB;
+            --mb-orange: #FF9800;
         }
         
         body { font-family: 'Inter', sans-serif; background: var(--mb-dark); min-height: 100vh; color: #fff; overflow: hidden; }
@@ -36,22 +37,27 @@
         
         .game-area { flex: 1; display: flex; flex-direction: column; padding: 16px; gap: 12px; position: relative; }
         
-        #gameCanvas { background: var(--mb-panel); border-radius: 16px; border: 2px solid rgba(0, 230, 118, 0.3); width: 100%; height: 500px; }
+        #gameCanvas { background: var(--mb-panel); border-radius: 16px; border: 2px solid rgba(0, 230, 118, 0.3); width: 100%; height: 400px; }
         
-        .battle-log { background: rgba(0,0,0,0.3); border-radius: 8px; padding: 8px 12px; font-size: 12px; color: rgba(255,255,255,0.7); height: 60px; overflow-y: auto; }
-        .battle-log .log-entry { margin-bottom: 4px; }
-        .battle-log .log-damage { color: var(--mb-red); }
-        .battle-log .log-heal { color: var(--mb-green); }
-        .battle-log .log-coin { color: var(--mb-gold); }
+        .hand-area { display: flex; gap: 8px; padding: 8px 0; justify-content: center; flex-wrap: wrap; }
+        .card { width: 100px; height: 140px; background: #1a2332; border: 2px solid #2a3a4a; border-radius: 12px; padding: 8px; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: space-between; }
+        .card:hover { transform: translateY(-5px); border-color: var(--mb-green); }
+        .card:active { transform: scale(0.95); }
+        .card-cost { font-size: 14px; font-weight: 800; color: var(--mb-blue); }
+        .card-icon { font-size: 32px; }
+        .card-name { font-size: 11px; font-weight: 700; text-align: center; }
+        .card-desc { font-size: 9px; color: rgba(255,255,255,0.6); text-align: center; }
+        .card.attack { border-color: var(--mb-red); }
+        .card.defend { border-color: var(--mb-blue); }
+        .card.heal { border-color: var(--mb-green); }
+        .card.special { border-color: var(--mb-gold); }
         
-        .controls { display: flex; gap: 10px; padding: 8px 0; }
-        .control-btn { flex: 1; padding: 16px; border: 2px solid var(--mb-green); background: transparent; color: var(--mb-green); border-radius: 12px; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
-        .control-btn:active { background: var(--mb-green); color: var(--mb-dark); }
-        .control-btn:disabled { opacity: 0.3; cursor: not-allowed; }
-        .control-btn.attack { border-color: var(--mb-red); color: var(--mb-red); }
-        .control-btn.attack:active { background: var(--mb-red); color: #fff; }
-        .control-btn.heal { border-color: var(--mb-blue); color: var(--mb-blue); }
-        .control-btn.heal:active { background: var(--mb-blue); color: #fff; }
+        .energy-bar { display: flex; align-items: center; gap: 8px; padding: 8px 16px; background: rgba(68, 138, 255, 0.1); border-radius: 8px; }
+        .energy-label { font-size: 12px; font-weight: 700; color: var(--mb-blue); }
+        .energy-value { font-size: 18px; font-weight: 800; color: var(--mb-blue); }
+        
+        .end-turn-btn { background: var(--mb-green); color: var(--mb-dark); border: none; padding: 12px 24px; font-size: 14px; font-weight: 700; border-radius: 8px; cursor: pointer; }
+        .end-turn-btn:disabled { opacity: 0.3; cursor: not-allowed; }
         
         .overlay-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--mb-dark); z-index: 200; padding: 40px; }
         .overlay-screen.hidden { display: none; }
@@ -64,6 +70,11 @@
         .instructions-list { text-align: left; margin: 20px 0; max-width: 300px; }
         .instructions-list li { color: rgba(255,255,255,0.7); font-size: 14px; margin-bottom: 10px; list-style: none; padding-left: 24px; position: relative; }
         .instructions-list li::before { content: '✓'; position: absolute; left: 0; color: var(--mb-green); font-weight: 700; }
+        
+        .card-reward { display: flex; gap: 16px; justify-content: center; margin: 20px 0; }
+        .reward-card { width: 120px; height: 160px; background: #1a2332; border: 2px solid var(--mb-gold); border-radius: 12px; padding: 12px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: space-between; transition: all 0.2s; }
+        .reward-card:hover { transform: scale(1.05); }
+        .reward-card.selected { border-color: var(--mb-green); background: rgba(0, 230, 118, 0.1); }
     </style>
 </head>
 <body>
@@ -78,27 +89,27 @@
         
         <div class="stats-bar">
             <div class="stat">
-                <div class="stat-label">Wins</div>
-                <div class="stat-value" id="wins">0</div>
-            </div>
-            <div class="stat">
-                <div class="stat-label">Coins</div>
-                <div class="stat-value" id="coins">0</div>
-            </div>
-            <div class="stat">
                 <div class="stat-label">Floor</div>
                 <div class="stat-value" id="floor">1</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Gold</div>
+                <div class="stat-value" id="gold">0</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Wins</div>
+                <div class="stat-value" id="wins">0</div>
             </div>
         </div>
         
         <div class="game-area">
-            <canvas id="gameCanvas" width="390" height="500"></canvas>
-            <div class="battle-log" id="battleLog"></div>
-            <div class="controls">
-                <button class="control-btn attack" id="attackBtn">⚔ ATTACK</button>
-                <button class="control-btn heal" id="healBtn">💚 HEAL</button>
-                <button class="control-btn" id="specialBtn">⚡ SPECIAL</button>
+            <canvas id="gameCanvas" width="390" height="400"></canvas>
+            <div class="energy-bar">
+                <span class="energy-label">ENERGY</span>
+                <span class="energy-value" id="energy">3/3</span>
             </div>
+            <div class="hand-area" id="handArea"></div>
+            <button class="end-turn-btn" id="endTurnBtn">End Turn</button>
         </div>
     </div>
     
@@ -107,15 +118,15 @@
             <img src="../assets/moneybot-idle.svg" alt="MoneyBot">
         </div>
         <div class="game-title">BotBattle</div>
-        <div class="game-subtitle">Turn-based RPG battles!<br>Defeat enemies, climb floors!</div>
+        <div class="game-subtitle">Card-based battles!<br>Build your deck, defeat enemies!</div>
         <ul class="instructions-list">
+            <li>Play cards using energy</li>
             <li>Attack to deal damage</li>
+            <li>Block to reduce damage</li>
             <li>Heal to restore HP</li>
-            <li>Special for big damage</li>
-            <li>Defeat enemies to advance</li>
-            <li>Upgrade between battles</li>
+            <li>Build your deck after each win</li>
         </ul>
-        <button class="primary-btn" id="startBtn">Start Battle</button>
+        <button class="primary-btn" id="startBtn">Start Adventure</button>
     </div>
     
     <div class="overlay-screen hidden" id="gameOverScreen">
@@ -125,99 +136,290 @@
         <div class="game-title" style="color: var(--mb-red);">Defeated!</div>
         <div class="game-subtitle">Floor: <span id="finalFloor" style="color: var(--mb-green); font-weight: 800;">1</span></div>
         <div class="game-subtitle">Wins: <span id="finalWins" style="color: var(--mb-blue); font-weight: 800;">0</span></div>
-        <div class="game-subtitle">Coins: <span id="finalCoins" style="color: var(--mb-gold); font-weight: 800;">0</span></div>
-        <button class="primary-btn" id="restartBtn">Battle Again</button>
+        <button class="primary-btn" id="restartBtn">Try Again</button>
     </div>
     
-    <div class="overlay-screen hidden" id="victoryScreen">
+    <div class="overlay-screen hidden" id="rewardScreen">
         <div class="game-icon">
             <img src="../assets/moneybot-celebrating.svg" alt="MoneyBot">
         </div>
         <div class="game-title" style="color: var(--mb-green);">Victory!</div>
-        <div class="game-subtitle">Enemy Defeated!</div>
-        <div class="game-subtitle">+<span id="victoryCoins" style="color: var(--mb-gold); font-weight: 800;">0</span> Coins</div>
-        <div class="game-subtitle">+<span id="victoryXP" style="color: var(--mb-blue); font-weight: 800;">0</span> XP</div>
-        <button class="primary-btn" id="continueBtn">Next Floor</button>
+        <div class="game-subtitle">Choose a card to add:</div>
+        <div class="card-reward" id="cardReward"></div>
+        <button class="primary-btn" id="skipRewardBtn">Skip (+10 Gold)</button>
     </div>
     
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         
+        // Card definitions
+        const CARD_TYPES = {
+            strike: { name: 'Strike', cost: 1, damage: 10, icon: '⚔', type: 'attack', desc: 'Deal 10 dmg' },
+            bash: { name: 'Bash', cost: 2, damage: 18, icon: '🔨', type: 'attack', desc: 'Deal 18 dmg' },
+            defend: { name: 'Defend', cost: 1, block: 8, icon: '🛡', type: 'defend', desc: 'Gain 8 block' },
+            heal: { name: 'Heal', cost: 1, heal: 8, icon: '💚', type: 'heal', desc: 'Heal 8 HP' },
+            slash: { name: 'Slash', cost: 2, damage: 22, icon: '⚡', type: 'attack', desc: 'Deal 22 dmg' },
+            fortify: { name: 'Fortify', cost: 2, block: 15, icon: '🏰', type: 'defend', desc: 'Gain 15 block' },
+            recover: { name: 'Recover', cost: 2, heal: 15, icon: '💊', type: 'heal', desc: 'Heal 15 HP' },
+            coinCard: { name: 'Coin Toss', cost: 0, damage: 5, gold: 5, icon: '🪙', type: 'special', desc: '5 dmg + 5 gold' },
+            bigStrike: { name: 'Big Strike', cost: 3, damage: 30, icon: '💥', type: 'attack', desc: 'Deal 30 dmg' }
+        };
+        
         // Game state
         let gameRunning = false;
-        let wins = 0;
-        let coins = 0;
         let floor = 1;
+        let gold = 0;
+        let wins = 0;
         let playerTurn = true;
-        let battleLog = [];
-        let animating = false;
+        let energy = 3;
+        let maxEnergy = 3;
         
-        // Player stats
+        // Player
         let player = {
-            hp: 100,
-            maxHp: 100,
-            attack: 20,
-            healAmount: 25,
-            specialCooldown: 0,
-            specialMaxCooldown: 3,
-            xp: 0,
-            xpToNext: 50
+            hp: 80,
+            maxHp: 80,
+            block: 0
         };
         
         // Enemy
         let enemy = null;
         
-        // Animation particles
+        // Deck
+        let deck = [];
+        let hand = [];
+        let discard = [];
+        
+        // Animation
         let particles = [];
         let floatingTexts = [];
+        let animating = false;
         
-        // Update UI
-        document.getElementById('wins').textContent = wins;
-        document.getElementById('coins').textContent = coins;
-        document.getElementById('floor').textContent = floor;
+        // Initialize deck
+        function initDeck() {
+            deck = [
+                { ...CARD_TYPES.strike, id: 1 },
+                { ...CARD_TYPES.strike, id: 2 },
+                { ...CARD_TYPES.strike, id: 3 },
+                { ...CARD_TYPES.strike, id: 4 },
+                { ...CARD_TYPES.defend, id: 5 },
+                { ...CARD_TYPES.defend, id: 6 },
+                { ...CARD_TYPES.defend, id: 7 },
+                { ...CARD_TYPES.heal, id: 8 }
+            ];
+        }
         
-        // Button event listeners
-        document.getElementById('startBtn').addEventListener('click', startGame);
-        document.getElementById('restartBtn').addEventListener('click', startGame);
-        document.getElementById('continueBtn').addEventListener('click', nextFloor);
+        // Shuffle deck
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
         
-        document.getElementById('attackBtn').addEventListener('click', playerAttack);
-        document.getElementById('healBtn').addEventListener('click', playerHeal);
-        document.getElementById('specialBtn').addEventListener('click', playerSpecial);
+        // Draw hand
+        function drawHand() {
+            hand = [];
+            for (let i = 0; i < 5; i++) {
+                if (deck.length === 0) {
+                    deck = [...discard];
+                    discard = [];
+                    shuffle(deck);
+                }
+                if (deck.length > 0) {
+                    hand.push(deck.pop());
+                }
+            }
+            renderHand();
+        }
         
-        function startGame() {
-            document.getElementById('startScreen').classList.add('hidden');
-            document.getElementById('gameOverScreen').classList.add('hidden');
-            document.getElementById('victoryScreen').classList.add('hidden');
+        // Render hand
+        function renderHand() {
+            const handArea = document.getElementById('handArea');
+            handArea.innerHTML = '';
+            hand.forEach((card, index) => {
+                const cardEl = document.createElement('div');
+                cardEl.className = `card ${card.type}`;
+                cardEl.innerHTML = `
+                    <div class="card-cost">${card.cost}</div>
+                    <div class="card-icon">${card.icon}</div>
+                    <div class="card-name">${card.name}</div>
+                    <div class="card-desc">${card.desc}</div>
+                `;
+                cardEl.addEventListener('click', () => playCard(index));
+                handArea.appendChild(cardEl);
+            });
+        }
+        
+        // Play card
+        function playCard(index) {
+            if (!gameRunning || !playerTurn || animating || index >= hand.length) return;
             
-            gameRunning = true;
-            wins = 0;
-            coins = 0;
-            floor = 1;
+            const card = hand[index];
+            if (card.cost > energy) return;
+            
+            animating = true;
+            energy -= card.cost;
+            updateEnergy();
+            
+            // Apply card effects
+            if (card.damage) {
+                enemy.hp -= card.damage;
+                createParticles(280, 150, '#FF5252', 15);
+                createFloatingText(280, 120, `-${card.damage}`, '#FF5252');
+            }
+            if (card.block) {
+                player.block += card.block;
+                createParticles(100, 150, '#448AFF', 12);
+                createFloatingText(100, 120, `+${card.block} Block`, '#448AFF');
+            }
+            if (card.heal) {
+                player.hp = Math.min(player.hp + card.heal, player.maxHp);
+                createParticles(100, 150, '#00E676', 12);
+                createFloatingText(100, 120, `+${card.heal} HP`, '#00E676');
+            }
+            if (card.gold) {
+                gold += card.gold;
+                updateUI();
+            }
+            
+            // Move to discard
+            discard.push(card);
+            hand.splice(index, 1);
+            renderHand();
+            
+            setTimeout(() => {
+                animating = false;
+                if (enemy.hp <= 0) {
+                    enemyDefeated();
+                } else {
+                    updateButtons();
+                }
+            }, 600);
+        }
+        
+        // End turn
+        function endTurn() {
+            if (!gameRunning || !playerTurn || animating) return;
+            
+            playerTurn = false;
+            animating = true;
+            updateButtons();
+            
+            // Discard hand
+            discard.push(...hand);
+            hand = [];
+            renderHand();
+            
+            setTimeout(() => {
+                enemyTurn();
+            }, 500);
+        }
+        
+        // Enemy turn
+        function enemyTurn() {
+            if (!gameRunning || enemy.hp <= 0) return;
+            
+            // Enemy attacks
+            const dmg = Math.floor(enemy.attack + Math.random() * 5);
+            const actualDmg = Math.max(0, dmg - player.block);
+            player.block = Math.max(0, player.block - dmg);
+            player.hp -= actualDmg;
+            
+            createParticles(100, 150, '#FF5252', 10);
+            if (actualDmg > 0) {
+                createFloatingText(100, 120, `-${actualDmg}`, '#FF5252');
+            } else {
+                createFloatingText(100, 120, 'Blocked!', '#448AFF');
+            }
+            
+            setTimeout(() => {
+                if (player.hp <= 0) {
+                    gameOver();
+                } else {
+                    startPlayerTurn();
+                }
+            }, 800);
+        }
+        
+        // Start player turn
+        function startPlayerTurn() {
             playerTurn = true;
-            battleLog = [];
+            energy = maxEnergy;
+            player.block = 0;
+            drawHand();
+            updateEnergy();
+            updateButtons();
+            animating = false;
+        }
+        
+        // Enemy defeated
+        function enemyDefeated() {
+            wins++;
+            const goldReward = 15 + floor * 5;
+            gold += goldReward;
             
-            player = {
-                hp: 100,
-                maxHp: 100,
-                attack: 20,
-                healAmount: 25,
-                specialCooldown: 0,
-                specialMaxCooldown: 3,
-                xp: 0,
-                xpToNext: 50
-            };
+            createParticles(280, 150, '#FFD700', 30);
             
-            particles = [];
-            floatingTexts = [];
+            setTimeout(() => {
+                showRewardScreen();
+            }, 800);
+        }
+        
+        // Show reward screen
+        function showRewardScreen() {
+            const rewardArea = document.getElementById('cardReward');
+            rewardArea.innerHTML = '';
+            
+            // Generate 3 random cards
+            const cardKeys = Object.keys(CARD_TYPES);
+            const rewards = [];
+            for (let i = 0; i < 3; i++) {
+                const key = cardKeys[Math.floor(Math.random() * cardKeys.length)];
+                rewards.push({ ...CARD_TYPES[key], id: Date.now() + i });
+            }
+            
+            rewards.forEach((card, index) => {
+                const cardEl = document.createElement('div');
+                cardEl.className = 'reward-card';
+                cardEl.innerHTML = `
+                    <div class="card-cost">${card.cost}</div>
+                    <div class="card-icon">${card.icon}</div>
+                    <div class="card-name">${card.name}</div>
+                    <div class="card-desc">${card.desc}</div>
+                `;
+                cardEl.addEventListener('click', () => {
+                    deck.push(card);
+                    document.getElementById('rewardScreen').classList.add('hidden');
+                    nextFloor();
+                });
+                rewardArea.appendChild(cardEl);
+            });
+            
+            document.getElementById('rewardScreen').classList.remove('hidden');
+            document.getElementById('rewardScreen').style.display = 'flex';
+        }
+        
+        // Skip reward
+        function skipReward() {
+            gold += 10;
+            document.getElementById('rewardScreen').classList.add('hidden');
+            nextFloor();
+        }
+        
+        // Next floor
+        function nextFloor() {
+            floor++;
+            
+            // Heal player a bit
+            player.hp = Math.min(player.hp + 10, player.maxHp);
             
             spawnEnemy();
             updateUI();
-            updateButtons();
-            gameLoop();
+            startPlayerTurn();
         }
         
+        // Spawn enemy
         function spawnEnemy() {
             const isBoss = floor % 5 === 0;
             const hpMult = isBoss ? 2.5 : 1;
@@ -225,188 +427,44 @@
             
             enemy = {
                 x: 250,
-                y: 200,
+                y: 120,
                 width: 60,
                 height: 60,
-                hp: Math.floor((30 + floor * 10) * hpMult),
-                maxHp: Math.floor((30 + floor * 10) * hpMult),
-                attack: Math.floor((8 + floor * 2) * dmgMult),
+                hp: Math.floor((25 + floor * 8) * hpMult),
+                maxHp: Math.floor((25 + floor * 8) * hpMult),
+                attack: Math.floor((6 + floor * 2) * dmgMult),
                 isBoss: isBoss,
-                name: isBoss ? 'Debt Boss' : 'Debt Minion',
-                attackCooldown: 0
+                name: isBoss ? 'Debt Boss' : 'Debt Minion'
             };
-            
-            addLog(`A ${enemy.name} appears!`, 'normal');
         }
         
-        function playerAttack() {
-            if (!gameRunning || !playerTurn || animating) return;
-            
-            animating = true;
-            playerTurn = false;
-            
-            // Calculate damage
-            const dmg = Math.floor(player.attack + Math.random() * 10);
-            enemy.hp -= dmg;
-            
-            // Visual effects
-            createParticles(enemy.x + enemy.width/2, enemy.y + enemy.height/2, '#FF5252', 15);
-            createFloatingText(enemy.x + enemy.width/2, enemy.y, `-${dmg}`, '#FF5252');
-            addLog(`You attacked for ${dmg} damage!`, 'damage');
-            
-            // Shake effect
-            shakeEnemy();
-            
-            setTimeout(() => {
-                if (enemy.hp <= 0) {
-                    enemyDefeated();
-                } else {
-                    enemyTurn();
-                }
-            }, 800);
-        }
-        
-        function playerHeal() {
-            if (!gameRunning || !playerTurn || animating) return;
-            
-            animating = true;
-            playerTurn = false;
-            
-            const heal = Math.floor(player.healAmount + Math.random() * 10);
-            player.hp = Math.min(player.hp + heal, player.maxHp);
-            
-            createParticles(100, 200, '#00E676', 12);
-            createFloatingText(100, 180, `+${heal}`, '#00E676');
-            addLog(`You healed for ${heal} HP!`, 'heal');
-            
-            setTimeout(() => {
-                enemyTurn();
-            }, 800);
-        }
-        
-        function playerSpecial() {
-            if (!gameRunning || !playerTurn || animating || player.specialCooldown > 0) return;
-            
-            animating = true;
-            playerTurn = false;
-            player.specialCooldown = player.specialMaxCooldown;
-            
-            const dmg = Math.floor(player.attack * 2.5 + Math.random() * 20);
-            enemy.hp -= dmg;
-            
-            createParticles(enemy.x + enemy.width/2, enemy.y + enemy.height/2, '#FFD700', 25);
-            createFloatingText(enemy.x + enemy.width/2, enemy.y - 20, `CRIT! -${dmg}`, '#FFD700');
-            addLog(`SPECIAL ATTACK! ${dmg} damage!`, 'damage');
-            
-            shakeEnemy();
-            
-            setTimeout(() => {
-                if (enemy.hp <= 0) {
-                    enemyDefeated();
-                } else {
-                    enemyTurn();
-                }
-            }, 800);
-        }
-        
-        function enemyTurn() {
-            if (!gameRunning || enemy.hp <= 0) return;
-            
-            setTimeout(() => {
-                if (!gameRunning) return;
-                
-                const dmg = Math.floor(enemy.attack + Math.random() * 5);
-                player.hp -= dmg;
-                
-                createParticles(100, 200, '#FF5252', 10);
-                createFloatingText(100, 180, `-${dmg}`, '#FF5252');
-                addLog(`${enemy.name} attacks for ${dmg} damage!`, 'damage');
-                
-                if (player.specialCooldown > 0) player.specialCooldown--;
-                
-                setTimeout(() => {
-                    if (player.hp <= 0) {
-                        gameOver();
-                    } else {
-                        playerTurn = true;
-                        animating = false;
-                        updateButtons();
-                    }
-                }, 600);
-            }, 500);
-        }
-        
-        function enemyDefeated() {
-            wins++;
-            const coinReward = 10 + floor * 5;
-            const xpReward = 20 + floor * 3;
-            coins += coinReward;
-            player.xp += xpReward;
-            
-            createParticles(enemy.x + enemy.width/2, enemy.y + enemy.height/2, '#FFD700', 30);
-            addLog(`${enemy.name} defeated! +${coinReward} coins`, 'coin');
-            
-            // Check level up
-            if (player.xp >= player.xpToNext) {
-                player.xp -= player.xpToNext;
-                player.xpToNext = Math.floor(player.xpToNext * 1.4);
-                player.maxHp += 15;
-                player.hp = player.maxHp;
-                player.attack += 5;
-                player.healAmount += 5;
-                addLog('LEVEL UP! Stats increased!', 'heal');
-            }
-            
-            setTimeout(() => {
-                document.getElementById('victoryCoins').textContent = coinReward;
-                document.getElementById('victoryXP').textContent = xpReward;
-                document.getElementById('victoryScreen').classList.remove('hidden');
-                document.getElementById('victoryScreen').style.display = 'flex';
-            }, 1000);
-        }
-        
-        function nextFloor() {
-            document.getElementById('victoryScreen').classList.add('hidden');
-            floor++;
-            playerTurn = true;
-            animating = false;
-            
-            // Heal player a bit between floors
-            player.hp = Math.min(player.hp + 20, player.maxHp);
-            
-            spawnEnemy();
-            updateUI();
-            updateButtons();
-        }
-        
+        // Game over
         function gameOver() {
             gameRunning = false;
             
             document.getElementById('finalFloor').textContent = floor;
             document.getElementById('finalWins').textContent = wins;
-            document.getElementById('finalCoins').textContent = coins;
             
             document.getElementById('gameOverScreen').classList.remove('hidden');
             document.getElementById('gameOverScreen').style.display = 'flex';
         }
         
-        function addLog(text, type) {
-            battleLog.unshift({ text, type });
-            if (battleLog.length > 5) battleLog.pop();
-            updateLogDisplay();
+        // Update UI
+        function updateUI() {
+            document.getElementById('floor').textContent = floor;
+            document.getElementById('gold').textContent = gold;
+            document.getElementById('wins').textContent = wins;
         }
         
-        function updateLogDisplay() {
-            const logDiv = document.getElementById('battleLog');
-            logDiv.innerHTML = battleLog.map(entry => {
-                let className = 'log-entry';
-                if (entry.type === 'damage') className += ' log-damage';
-                if (entry.type === 'heal') className += ' log-heal';
-                if (entry.type === 'coin') className += ' log-coin';
-                return `<div class="${className}">${entry.text}</div>`;
-            }).join('');
+        function updateEnergy() {
+            document.getElementById('energy').textContent = `${energy}/${maxEnergy}`;
         }
         
+        function updateButtons() {
+            document.getElementById('endTurnBtn').disabled = !playerTurn || animating;
+        }
+        
+        // Particle effects
         function createParticles(x, y, color, count) {
             for (let i = 0; i < count; i++) {
                 particles.push({
@@ -430,28 +488,38 @@
             });
         }
         
-        function shakeEnemy() {
-            enemy.shake = 10;
-        }
-        
-        function updateButtons() {
-            document.getElementById('attackBtn').disabled = !playerTurn || animating;
-            document.getElementById('healBtn').disabled = !playerTurn || animating || player.hp >= player.maxHp;
-            document.getElementById('specialBtn').disabled = !playerTurn || animating || player.specialCooldown > 0;
+        // Start game
+        function startGame() {
+            document.getElementById('startScreen').classList.add('hidden');
+            document.getElementById('gameOverScreen').classList.add('hidden');
+            document.getElementById('rewardScreen').classList.add('hidden');
             
-            if (player.specialCooldown > 0) {
-                document.getElementById('specialBtn').textContent = `⚡ ${player.specialCooldown}`;
-            } else {
-                document.getElementById('specialBtn').textContent = '⚡ SPECIAL';
-            }
+            gameRunning = true;
+            floor = 1;
+            gold = 0;
+            wins = 0;
+            energy = 3;
+            maxEnergy = 3;
+            
+            player = {
+                hp: 80,
+                maxHp: 80,
+                block: 0
+            };
+            
+            particles = [];
+            floatingTexts = [];
+            
+            initDeck();
+            shuffle(deck);
+            spawnEnemy();
+            updateUI();
+            updateEnergy();
+            startPlayerTurn();
+            gameLoop();
         }
         
-        function updateUI() {
-            document.getElementById('wins').textContent = wins;
-            document.getElementById('coins').textContent = coins;
-            document.getElementById('floor').textContent = floor;
-        }
-        
+        // Game loop
         function gameLoop() {
             if (!gameRunning) return;
             
@@ -478,11 +546,6 @@
                 if (floatingTexts[i].life <= 0) {
                     floatingTexts.splice(i, 1);
                 }
-            }
-            
-            // Update enemy shake
-            if (enemy && enemy.shake > 0) {
-                enemy.shake--;
             }
         }
         
@@ -514,7 +577,7 @@
             floatingTexts.forEach(ft => {
                 ctx.globalAlpha = ft.life;
                 ctx.fillStyle = ft.color;
-                ctx.font = 'bold 18px Inter';
+                ctx.font = 'bold 16px Inter';
                 ctx.textAlign = 'center';
                 ctx.fillText(ft.text, ft.x, ft.y);
                 ctx.globalAlpha = 1;
@@ -523,24 +586,32 @@
             // Draw HP bars
             drawHPBars();
             
+            // Draw block indicator
+            if (player.block > 0) {
+                ctx.fillStyle = '#448AFF';
+                ctx.font = '12px Inter';
+                ctx.textAlign = 'center';
+                ctx.fillText(`🛡 ${player.block}`, 100, 200);
+            }
+            
             // Draw turn indicator
             if (playerTurn && !animating) {
                 ctx.fillStyle = '#00E676';
-                ctx.font = '14px Inter';
+                ctx.font = '12px Inter';
                 ctx.textAlign = 'center';
-                ctx.fillText('YOUR TURN', 100, 320);
+                ctx.fillText('YOUR TURN', canvas.width / 2, 30);
             } else if (!playerTurn) {
                 ctx.fillStyle = '#FF5252';
-                ctx.font = '14px Inter';
+                ctx.font = '12px Inter';
                 ctx.textAlign = 'center';
-                ctx.fillText('ENEMY TURN', 100, 320);
+                ctx.fillText('ENEMY TURN', canvas.width / 2, 30);
             }
         }
         
         function drawBackground() {
             // Stars
             ctx.fillStyle = '#fff';
-            for (let i = 0; i < 20; i++) {
+            for (let i = 0; i < 15; i++) {
                 const x = (i * 73) % canvas.width;
                 const y = (i * 47) % canvas.height;
                 ctx.globalAlpha = 0.1;
@@ -550,20 +621,20 @@
             
             // Ground
             ctx.fillStyle = '#131b2e';
-            ctx.fillRect(0, 350, canvas.width, 150);
+            ctx.fillRect(0, 280, canvas.width, 120);
             ctx.fillStyle = '#00E676';
-            ctx.fillRect(0, 350, canvas.width, 3);
+            ctx.fillRect(0, 280, canvas.width, 3);
         }
         
         function drawPlayer() {
             const x = 70;
-            const y = 260;
+            const y = 200;
             const size = 50;
             
             // Shadow
             ctx.fillStyle = 'rgba(0,0,0,0.3)';
             ctx.beginPath();
-            ctx.ellipse(x + size/2, 350, size/2, 8, 0, 0, Math.PI * 2);
+            ctx.ellipse(x + size/2, 280, size/2, 8, 0, 0, Math.PI * 2);
             ctx.fill();
             
             // Body
@@ -604,19 +675,14 @@
         }
         
         function drawEnemy() {
-            let x = enemy.x;
+            const x = enemy.x;
             const y = enemy.y;
             const size = enemy.width;
-            
-            // Shake effect
-            if (enemy.shake > 0) {
-                x += (Math.random() - 0.5) * 10;
-            }
             
             // Shadow
             ctx.fillStyle = 'rgba(0,0,0,0.3)';
             ctx.beginPath();
-            ctx.ellipse(x + size/2, 350, size/2, 8, 0, 0, Math.PI * 2);
+            ctx.ellipse(x + size/2, 280, size/2, 8, 0, 0, Math.PI * 2);
             ctx.fill();
             
             // Body
@@ -650,29 +716,29 @@
         
         function drawHPBars() {
             // Player HP bar
-            const playerBarWidth = 120;
-            const playerBarHeight = 14;
-            const playerBarX = 25;
-            const playerBarY = 100;
+            const playerBarWidth = 100;
+            const playerBarHeight = 12;
+            const playerBarX = 20;
+            const playerBarY = 80;
             
             ctx.fillStyle = 'rgba(255,255,255,0.1)';
             ctx.fillRect(playerBarX, playerBarY, playerBarWidth, playerBarHeight);
             
-            const playerHpPercent = player.hp / player.maxHp;
+            const playerHpPercent = Math.max(0, player.hp / player.maxHp);
             ctx.fillStyle = playerHpPercent > 0.5 ? '#00E676' : playerHpPercent > 0.25 ? '#FFD700' : '#FF5252';
             ctx.fillRect(playerBarX, playerBarY, playerBarWidth * playerHpPercent, playerBarHeight);
             
             ctx.fillStyle = '#fff';
-            ctx.font = 'bold 11px Inter';
+            ctx.font = 'bold 10px Inter';
             ctx.textAlign = 'left';
-            ctx.fillText(`${Math.ceil(player.hp)}/${player.maxHp}`, playerBarX, playerBarY - 5);
+            ctx.fillText(`${Math.max(0, Math.ceil(player.hp))}/${player.maxHp}`, playerBarX, playerBarY - 5);
             
             // Enemy HP bar
             if (enemy) {
-                const enemyBarWidth = 120;
-                const enemyBarHeight = 14;
-                const enemyBarX = 220;
-                const enemyBarY = 100;
+                const enemyBarWidth = 100;
+                const enemyBarHeight = 12;
+                const enemyBarX = 270;
+                const enemyBarY = 80;
                 
                 ctx.fillStyle = 'rgba(255,255,255,0.1)';
                 ctx.fillRect(enemyBarX, enemyBarY, enemyBarWidth, enemyBarHeight);
@@ -682,28 +748,23 @@
                 ctx.fillRect(enemyBarX, enemyBarY, enemyBarWidth * enemyHpPercent, enemyBarHeight);
                 
                 ctx.fillStyle = '#fff';
-                ctx.font = 'bold 11px Inter';
+                ctx.font = 'bold 10px Inter';
                 ctx.textAlign = 'left';
                 ctx.fillText(`${Math.max(0, Math.ceil(enemy.hp))}/${enemy.maxHp}`, enemyBarX, enemyBarY - 5);
                 
                 // Enemy name
                 ctx.fillStyle = '#fff';
-                ctx.font = '12px Inter';
+                ctx.font = '11px Inter';
                 ctx.textAlign = 'center';
                 ctx.fillText(enemy.name, enemyBarX + enemyBarWidth/2, enemyBarY - 20);
             }
-            
-            // XP bar
-            const xpBarWidth = 200;
-            const xpBarHeight = 6;
-            const xpBarX = (canvas.width - xpBarWidth) / 2;
-            const xpBarY = 140;
-            
-            ctx.fillStyle = 'rgba(255,255,255,0.1)';
-            ctx.fillRect(xpBarX, xpBarY, xpBarWidth, xpBarHeight);
-            ctx.fillStyle = '#448AFF';
-            ctx.fillRect(xpBarX, xpBarY, xpBarWidth * (player.xp / player.xpToNext), xpBarHeight);
         }
+        
+        // Event listeners
+        document.getElementById('startBtn').addEventListener('click', startGame);
+        document.getElementById('restartBtn').addEventListener('click', startGame);
+        document.getElementById('endTurnBtn').addEventListener('click', endTurn);
+        document.getElementById('skipRewardBtn').addEventListener('click', skipReward);
     </script>
 </body>
 </html>
