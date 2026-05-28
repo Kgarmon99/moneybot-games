@@ -40,7 +40,7 @@
         #gameCanvas { background: var(--mb-panel); border-radius: 16px; border: 2px solid rgba(0, 230, 118, 0.3); width: 100%; height: 380px; }
         
         .hand-area { display: flex; gap: 6px; padding: 4px 0; justify-content: center; flex-wrap: wrap; }
-        .card { width: 90px; height: 120px; background: #1a2332; border: 2px solid #2a3a4a; border-radius: 10px; padding: 6px; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: space-between; }
+        .card { width: 90px; height: 120px; background: #1a2332; border: 2px solid #2a3a4a; border-radius: 10px; padding: 6px; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: space-between; position: relative; }
         .card:hover { transform: translateY(-5px); border-color: var(--mb-green); }
         .card:active { transform: scale(0.95); }
         .card-cost { font-size: 12px; font-weight: 800; color: var(--mb-blue); }
@@ -52,6 +52,7 @@
         .card.heal { border-color: var(--mb-green); }
         .card.special { border-color: var(--mb-gold); }
         .card.upgraded { border-color: var(--mb-purple); box-shadow: 0 0 10px rgba(224, 64, 251, 0.3); }
+        .card.disabled { opacity: 0.4; cursor: not-allowed; }
         
         .energy-bar { display: flex; align-items: center; gap: 8px; padding: 8px 16px; background: rgba(68, 138, 255, 0.1); border-radius: 8px; }
         .energy-label { font-size: 12px; font-weight: 700; color: var(--mb-blue); }
@@ -91,6 +92,13 @@
         .shop-item-cost { color: var(--mb-gold); font-weight: 700; }
         
         .enemy-intent { position: absolute; top: 60px; right: 40px; background: rgba(255, 82, 82, 0.2); border: 1px solid var(--mb-red); border-radius: 8px; padding: 4px 8px; font-size: 11px; color: var(--mb-red); }
+        
+        .achievement-popup { position: fixed; top: 20px; right: 20px; background: var(--mb-panel); border: 2px solid var(--mb-gold); border-radius: 12px; padding: 16px; z-index: 300; animation: slideIn 0.5s ease-out; }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        .achievement-popup.hidden { display: none; }
+        
+        .combo-text { position: absolute; font-size: 24px; font-weight: 800; color: var(--mb-gold); text-shadow: 0 0 20px var(--mb-gold); animation: comboFloat 1s ease-out forwards; pointer-events: none; }
+        @keyframes comboFloat { 0% { transform: scale(0.5); opacity: 0; } 50% { transform: scale(1.2); opacity: 1; } 100% { transform: scale(1) translateY(-50px); opacity: 0; } }
     </style>
 </head>
 <body>
@@ -183,6 +191,12 @@
         <button class="primary-btn" id="leaveShopBtn" style="margin-top: 20px;">Leave Shop</button>
     </div>
     
+    <div class="achievement-popup hidden" id="achievementPopup">
+        <div style="font-size: 24px; margin-bottom: 8px;">🏆</div>
+        <div style="font-weight: 700; color: var(--mb-gold);">Achievement Unlocked!</div>
+        <div id="achievementText" style="font-size: 12px; color: rgba(255,255,255,0.7);"></div>
+    </div>
+    
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
@@ -200,7 +214,11 @@
             bigStrike: { name: 'Big Strike', cost: 3, damage: 30, icon: '💥', type: 'attack', desc: 'Deal 30 dmg' },
             poison: { name: 'Poison', cost: 1, damage: 3, poison: 4, icon: '☠', type: 'attack', desc: '3 dmg + 4 poison' },
             draw: { name: 'Draw', cost: 1, draw: 2, icon: '📜', type: 'special', desc: 'Draw 2 cards' },
-            energy: { name: 'Energy+', cost: 0, energy: 2, icon: '⚡', type: 'special', desc: '+2 Energy' }
+            energy: { name: 'Energy+', cost: 0, energy: 2, icon: '⚡', type: 'special', desc: '+2 Energy' },
+            weaken: { name: 'Weaken', cost: 1, damage: 6, weak: 2, icon: '💢', type: 'attack', desc: '6 dmg + Weak 2' },
+            vulnerable: { name: 'Break', cost: 2, damage: 10, vulnerable: 2, icon: '🔓', type: 'attack', desc: '10 dmg + Vuln 2' },
+            strength: { name: 'Flex', cost: 1, strength: 3, icon: '💪', type: 'special', desc: '+3 Strength' },
+            ritual: { name: 'Ritual', cost: 1, ritual: 3, icon: '🔥', type: 'special', desc: '+3 Ritual' }
         };
         
         // Relic definitions
@@ -212,7 +230,9 @@
             sword: { name: 'Sharp Sword', icon: '🗡', desc: 'Crit +20%', effect: 'crit+20' },
             shield: { name: 'Tower Shield', icon: '🏰', desc: 'Start +5 Block', effect: 'startBlock' },
             potion: { name: 'Potion Belt', icon: '🧪', desc: '+1 Potion slot', effect: 'potionSlot' },
-            energy: { name: 'Energy Core', icon: '🔋', desc: '+1 Max Energy', effect: 'energy+1' }
+            energy: { name: 'Energy Core', icon: '🔋', desc: '+1 Max Energy', effect: 'energy+1' },
+            thorns: { name: 'Thorns', icon: '🌵', desc: 'Deal 3 dmg when hit', effect: 'thorns3' },
+            regen: { name: 'Regen Ring', icon: '💍', desc: 'Heal 1/turn', effect: 'regen1' }
         };
         
         // Potion definitions
@@ -220,7 +240,18 @@
             heal: { name: 'Health Potion', icon: '❤', heal: 20, desc: 'Heal 20 HP' },
             block: { name: 'Block Potion', icon: '🛡', block: 15, desc: 'Gain 15 Block' },
             energy: { name: 'Energy Potion', icon: '⚡', energy: 2, desc: '+2 Energy' },
-            damage: { name: 'Damage Potion', icon: '💥', damage: 25, desc: 'Deal 25 dmg' }
+            damage: { name: 'Damage Potion', icon: '💥', damage: 25, desc: 'Deal 25 dmg' },
+            strength: { name: 'Strength Potion', icon: '💪', strength: 5, desc: '+5 Strength' }
+        };
+        
+        // Achievements
+        const ACHIEVEMENTS = {
+            firstWin: { name: 'First Blood', desc: 'Win your first battle', unlocked: false },
+            reachFloor5: { name: 'Going Up', desc: 'Reach floor 5', unlocked: false },
+            reachFloor10: { name: 'High Climber', desc: 'Reach floor 10', unlocked: false },
+            collect5Relics: { name: 'Relic Hunter', desc: 'Collect 5 relics', unlocked: false },
+            winWithoutDamage: { name: 'Untouchable', desc: 'Win a battle without taking damage', unlocked: false },
+            combo5: { name: 'Combo Master', desc: 'Play 5 cards in one turn', unlocked: false }
         };
         
         // Game state
@@ -231,17 +262,25 @@
         let playerTurn = true;
         let energy = 3;
         let maxEnergy = 3;
+        let combo = 0;
+        let maxCombo = 0;
+        let damageTakenThisBattle = 0;
         
         // Player
         let player = {
             hp: 80,
             maxHp: 80,
             block: 0,
-            poison: 0
+            poison: 0,
+            strength: 0,
+            weak: 0,
+            vulnerable: 0,
+            ritual: 0
         };
         
         // Enemy
-        let enemy = null;
+        let enemies = [];
+        let currentEnemyIndex = 0;
         
         // Deck
         let deck = [];
@@ -258,7 +297,9 @@
         // Animation
         let particles = [];
         let floatingTexts = [];
+        let screenShake = 0;
         let animating = false;
+        let cardsPlayedThisTurn = 0;
         
         // Initialize deck
         function initDeck() {
@@ -304,14 +345,16 @@
             handArea.innerHTML = '';
             hand.forEach((card, index) => {
                 const cardEl = document.createElement('div');
-                cardEl.className = `card ${card.type} ${card.upgraded ? 'upgraded' : ''}`;
+                cardEl.className = `card ${card.type} ${card.upgraded ? 'upgraded' : ''} ${card.cost > energy ? 'disabled' : ''}`;
                 cardEl.innerHTML = `
                     <div class="card-cost">${card.cost}</div>
                     <div class="card-icon">${card.icon}</div>
                     <div class="card-name">${card.name}</div>
                     <div class="card-desc">${card.desc}</div>
                 `;
-                cardEl.addEventListener('click', () => playCard(index));
+                if (card.cost <= energy) {
+                    cardEl.addEventListener('click', () => playCard(index));
+                }
                 handArea.appendChild(cardEl);
             });
         }
@@ -363,15 +406,19 @@
                 updateEnergy();
                 createFloatingText(100, 120, `+${potion.energy} Energy`, '#448AFF');
             }
-            if (potion.damage && enemy) {
-                enemy.hp -= potion.damage;
+            if (potion.damage && enemies[currentEnemyIndex]) {
+                enemies[currentEnemyIndex].hp -= potion.damage;
                 createFloatingText(280, 120, `-${potion.damage}`, '#FF5252');
+            }
+            if (potion.strength) {
+                player.strength += potion.strength;
+                createFloatingText(100, 120, `+${potion.strength} Str`, '#FF9800');
             }
             
             potions.splice(index, 1);
             renderPotions();
             
-            if (enemy && enemy.hp <= 0) {
+            if (enemies[currentEnemyIndex] && enemies[currentEnemyIndex].hp <= 0) {
                 enemyDefeated();
             }
         }
@@ -395,6 +442,20 @@
             return relics.some(r => r.effect === effect);
         }
         
+        // Show achievement
+        function showAchievement(key) {
+            if (ACHIEVEMENTS[key].unlocked) return;
+            ACHIEVEMENTS[key].unlocked = true;
+            
+            const popup = document.getElementById('achievementPopup');
+            document.getElementById('achievementText').textContent = ACHIEVEMENTS[key].name + ': ' + ACHIEVEMENTS[key].desc;
+            popup.classList.remove('hidden');
+            
+            setTimeout(() => {
+                popup.classList.add('hidden');
+            }, 3000);
+        }
+        
         // Play card
         function playCard(index) {
             if (!gameRunning || !playerTurn || animating || index >= hand.length) return;
@@ -405,20 +466,40 @@
             animating = true;
             energy -= card.cost;
             updateEnergy();
+            cardsPlayedThisTurn++;
+            combo++;
+            if (combo > maxCombo) maxCombo = combo;
+            
+            // Check combo achievement
+            if (cardsPlayedThisTurn >= 5) {
+                showAchievement('combo5');
+            }
+            
+            // Show combo text
+            if (combo >= 3) {
+                createComboText(combo + 'x COMBO!');
+            }
+            
+            const target = enemies[currentEnemyIndex];
             
             // Apply card effects
             if (card.damage) {
                 let dmg = card.damage;
                 if (hasRelic('attack+2')) dmg = applyRelicEffect('attack+2', dmg);
                 if (hasRelic('crit+20')) dmg = applyRelicEffect('crit+20', dmg);
+                if (player.strength > 0) dmg += player.strength;
+                if (player.weak > 0) dmg = Math.floor(dmg * 0.75);
+                if (target.vulnerable > 0) dmg = Math.floor(dmg * 1.5);
                 
-                enemy.hp -= dmg;
+                target.hp -= dmg;
                 createParticles(280, 150, '#FF5252', 15);
                 createFloatingText(280, 120, `-${dmg}`, '#FF5252');
+                screenShake = 10;
             }
             if (card.block) {
                 let block = card.block;
                 if (hasRelic('block+3')) block = applyRelicEffect('block+3', block);
+                if (player.weak > 0) block = Math.floor(block * 0.75);
                 
                 player.block += block;
                 createParticles(100, 150, '#448AFF', 12);
@@ -436,7 +517,7 @@
                 updateUI();
             }
             if (card.poison) {
-                enemy.poison = (enemy.poison || 0) + card.poison;
+                target.poison = (target.poison || 0) + card.poison;
                 createFloatingText(280, 100, `+${card.poison} Poison`, '#E040FB');
             }
             if (card.draw) {
@@ -456,6 +537,22 @@
                 updateEnergy();
                 createFloatingText(100, 100, `+${card.energy} Energy`, '#448AFF');
             }
+            if (card.weak) {
+                target.weak = (target.weak || 0) + card.weak;
+                createFloatingText(280, 100, `+${card.weak} Weak`, '#E040FB');
+            }
+            if (card.vulnerable) {
+                target.vulnerable = (target.vulnerable || 0) + card.vulnerable;
+                createFloatingText(280, 100, `+${card.vulnerable} Vuln`, '#E040FB');
+            }
+            if (card.strength) {
+                player.strength += card.strength;
+                createFloatingText(100, 100, `+${card.strength} Str`, '#FF9800');
+            }
+            if (card.ritual) {
+                player.ritual += card.ritual;
+                createFloatingText(100, 100, `+${card.ritual} Ritual`, '#FF9800');
+            }
             
             // Move to discard
             discard.push(card);
@@ -464,7 +561,7 @@
             
             setTimeout(() => {
                 animating = false;
-                if (enemy.hp <= 0) {
+                if (target.hp <= 0) {
                     enemyDefeated();
                 } else {
                     updateButtons();
@@ -479,12 +576,14 @@
             playerTurn = false;
             animating = true;
             updateButtons();
+            combo = 0;
             
-            // Apply poison to enemy
-            if (enemy.poison > 0) {
-                enemy.hp -= enemy.poison;
-                createFloatingText(280, 100, `-${enemy.poison} Poison`, '#E040FB');
-                enemy.poison--;
+            // Apply poison to current enemy
+            const target = enemies[currentEnemyIndex];
+            if (target && target.poison > 0) {
+                target.hp -= target.poison;
+                createFloatingText(280, 100, `-${target.poison} Poison`, '#E040FB');
+                target.poison--;
             }
             
             // Discard hand
@@ -493,7 +592,7 @@
             renderHand();
             
             setTimeout(() => {
-                if (enemy.hp <= 0) {
+                if (target && target.hp <= 0) {
                     enemyDefeated();
                 } else {
                     enemyTurn();
@@ -503,34 +602,70 @@
         
         // Enemy turn
         function enemyTurn() {
-            if (!gameRunning || enemy.hp <= 0) return;
+            if (!gameRunning || !enemies[currentEnemyIndex] || enemies[currentEnemyIndex].hp <= 0) return;
             
-            // Enemy attacks
-            const dmg = Math.floor(enemy.attack + Math.random() * 5);
-            const actualDmg = Math.max(0, dmg - player.block);
-            player.block = Math.max(0, player.block - dmg);
-            player.hp -= actualDmg;
+            const enemy = enemies[currentEnemyIndex];
             
-            createParticles(100, 150, '#FF5252', 10);
-            if (actualDmg > 0) {
-                createFloatingText(100, 120, `-${actualDmg}`, '#FF5252');
-            } else {
-                createFloatingText(100, 120, 'Blocked!', '#448AFF');
-            }
-            
-            // Apply enemy poison to player
-            if (enemy.playerPoison > 0) {
-                player.poison += enemy.playerPoison;
-                createFloatingText(100, 100, `+${enemy.playerPoison} Poison`, '#E040FB');
-            }
+            // Show intent
+            showEnemyIntent(enemy);
             
             setTimeout(() => {
-                if (player.hp <= 0) {
-                    gameOver();
+                if (!gameRunning) return;
+                
+                // Enemy attacks
+                let dmg = Math.floor(enemy.attack + Math.random() * 5);
+                if (enemy.weak > 0) dmg = Math.floor(dmg * 0.75);
+                if (enemy.strength > 0) dmg += enemy.strength;
+                
+                const actualDmg = Math.max(0, dmg - player.block);
+                player.block = Math.max(0, player.block - dmg);
+                player.hp -= actualDmg;
+                damageTakenThisBattle += actualDmg;
+                
+                createParticles(100, 150, '#FF5252', 10);
+                if (actualDmg > 0) {
+                    createFloatingText(100, 120, `-${actualDmg}`, '#FF5252');
+                    screenShake = 8;
                 } else {
-                    startPlayerTurn();
+                    createFloatingText(100, 120, 'Blocked!', '#448AFF');
                 }
-            }, 800);
+                
+                // Apply enemy poison to player
+                if (enemy.playerPoison > 0) {
+                    player.poison += enemy.playerPoison;
+                    createFloatingText(100, 100, `+${enemy.playerPoison} Poison`, '#E040FB');
+                }
+                
+                // Apply thorns
+                if (hasRelic('thorns3') && actualDmg > 0) {
+                    enemy.hp -= 3;
+                    createFloatingText(280, 100, '-3 Thorns', '#FF5252');
+                }
+                
+                setTimeout(() => {
+                    if (player.hp <= 0) {
+                        gameOver();
+                    } else {
+                        startPlayerTurn();
+                    }
+                }, 800);
+            }, 1000);
+        }
+        
+        // Show enemy intent
+        function showEnemyIntent(enemy) {
+            // Clear previous intent
+            const existing = document.querySelector('.enemy-intent');
+            if (existing) existing.remove();
+            
+            const intent = document.createElement('div');
+            intent.className = 'enemy-intent';
+            intent.textContent = `⚔ ${enemy.attack} dmg`;
+            document.querySelector('.game-area').appendChild(intent);
+            
+            setTimeout(() => {
+                intent.remove();
+            }, 2000);
         }
         
         // Start player turn
@@ -538,11 +673,31 @@
             playerTurn = true;
             energy = maxEnergy;
             player.block = 0;
+            cardsPlayedThisTurn = 0;
+            
+            // Apply status effects
+            if (player.weak > 0) player.weak--;
+            if (player.vulnerable > 0) player.vulnerable--;
+            if (player.poison > 0) {
+                player.hp -= player.poison;
+                createFloatingText(100, 100, `-${player.poison} Poison`, '#E040FB');
+                player.poison--;
+            }
+            
+            // Apply ritual
+            if (player.ritual > 0) {
+                player.strength += player.ritual;
+                createFloatingText(100, 100, `+${player.ritual} Str`, '#FF9800');
+            }
             
             // Apply relic heal
             if (hasRelic('heal2')) {
                 player.hp = Math.min(player.hp + 2, player.maxHp);
                 createFloatingText(100, 100, '+2 Relic', '#00E676');
+            }
+            if (hasRelic('regen1')) {
+                player.hp = Math.min(player.hp + 1, player.maxHp);
+                createFloatingText(100, 100, '+1 Regen', '#00E676');
             }
             
             // Apply relic start block
@@ -560,7 +715,15 @@
         // Enemy defeated
         function enemyDefeated() {
             wins++;
+            
+            // Check first win achievement
+            if (wins === 1) showAchievement('firstWin');
+            
+            // Check no damage achievement
+            if (damageTakenThisBattle === 0) showAchievement('winWithoutDamage');
+            
             let goldReward = 15 + floor * 5;
+            const enemy = enemies[currentEnemyIndex];
             if (enemy.isElite) goldReward *= 2;
             if (enemy.isBoss) goldReward *= 3;
             if (hasRelic('gold+10%')) goldReward = Math.floor(goldReward * 1.1);
@@ -569,15 +732,24 @@
             
             createParticles(280, 150, '#FFD700', 30);
             
-            setTimeout(() => {
-                // Chance for relic drop (30% for normal, 60% for elite, 100% for boss)
-                const relicChance = enemy.isBoss ? 1 : enemy.isElite ? 0.6 : 0.3;
-                if (Math.random() < relicChance) {
-                    showRelicScreen();
-                } else {
-                    showRewardScreen();
-                }
-            }, 800);
+            // Remove defeated enemy
+            enemies.splice(currentEnemyIndex, 1);
+            
+            if (enemies.length > 0) {
+                // More enemies to fight
+                currentEnemyIndex = 0;
+                startPlayerTurn();
+            } else {
+                // All enemies defeated
+                setTimeout(() => {
+                    const relicChance = enemy.isBoss ? 1 : enemy.isElite ? 0.6 : 0.3;
+                    if (Math.random() < relicChance) {
+                        showRelicScreen();
+                    } else {
+                        showRewardScreen();
+                    }
+                }, 800);
+            }
         }
         
         // Show reward screen
@@ -586,12 +758,10 @@
             const rewardArea = document.getElementById('cardReward');
             rewardArea.innerHTML = '';
             
-            // Reset title and subtitle
             document.querySelector('#rewardScreen .game-title').textContent = 'Victory!';
             document.querySelector('#rewardScreen .game-subtitle').textContent = 'Choose a card to add:';
             document.getElementById('skipRewardBtn').style.display = 'block';
             
-            // Generate 3 random cards
             const cardKeys = Object.keys(CARD_TYPES);
             const rewards = [];
             for (let i = 0; i < 3; i++) {
@@ -625,7 +795,6 @@
             const relicArea = document.getElementById('relicReward');
             relicArea.innerHTML = '';
             
-            // Generate 3 random relics
             const relicKeys = Object.keys(RELICS);
             const rewards = [];
             for (let i = 0; i < 3; i++) {
@@ -645,13 +814,11 @@
                     relics.push(relic);
                     renderRelics();
                     
-                    // Apply energy relic immediately
-                    if (relic.effect === 'energy+1') {
-                        maxEnergy++;
-                    }
-                    if (relic.effect === 'potionSlot') {
-                        maxPotions++;
-                    }
+                    if (relic.effect === 'energy+1') maxEnergy++;
+                    if (relic.effect === 'potionSlot') maxPotions++;
+                    
+                    // Check relic achievement
+                    if (relics.length >= 5) showAchievement('collect5Relics');
                     
                     relicScreen.classList.add('hidden');
                     showRewardScreen();
@@ -674,16 +841,19 @@
         function nextFloor() {
             floor++;
             
-            // Heal player a bit between floors
+            // Check floor achievements
+            if (floor === 5) showAchievement('reachFloor5');
+            if (floor === 10) showAchievement('reachFloor10');
+            
             player.hp = Math.min(player.hp + 10, player.maxHp);
+            damageTakenThisBattle = 0;
             
             updateUI();
             
-            // Chance for shop (every 3 floors)
             if (floor % 3 === 0) {
                 showShop();
             } else {
-                spawnEnemy();
+                spawnEnemies();
                 startPlayerTurn();
             }
         }
@@ -693,10 +863,8 @@
             const shopItems = document.getElementById('shopItems');
             shopItems.innerHTML = '';
             
-            // Generate shop items
             const items = [];
             
-            // Card removal
             items.push({
                 type: 'remove',
                 name: 'Remove Card',
@@ -704,7 +872,6 @@
                 desc: 'Remove a card from your deck'
             });
             
-            // Card upgrade
             items.push({
                 type: 'upgrade',
                 name: 'Upgrade Card',
@@ -712,7 +879,6 @@
                 desc: 'Upgrade a card (+50% effect)'
             });
             
-            // Potion
             const potionKeys = Object.keys(POTIONS);
             const potionKey = potionKeys[Math.floor(Math.random() * potionKeys.length)];
             items.push({
@@ -723,7 +889,6 @@
                 desc: POTIONS[potionKey].desc
             });
             
-            // Random card
             const cardKeys = Object.keys(CARD_TYPES);
             const cardKey = cardKeys[Math.floor(Math.random() * cardKeys.length)];
             items.push({
@@ -750,7 +915,6 @@
             });
             
             document.getElementById('shopScreen').classList.remove('hidden');
-            document.getElementById('shopScreen').style.display = 'flex';
         }
         
         // Buy item
@@ -768,16 +932,13 @@
                     renderPotions();
                 }
             } else if (item.type === 'remove') {
-                // Show card removal UI
                 showCardRemoval();
                 return;
             } else if (item.type === 'upgrade') {
-                // Show card upgrade UI
                 showCardUpgrade();
                 return;
             }
             
-            // Refresh shop
             showShop();
         }
         
@@ -807,7 +968,6 @@
             document.querySelector('#rewardScreen .game-subtitle').textContent = 'Choose a card to remove:';
             document.getElementById('skipRewardBtn').style.display = 'none';
             document.getElementById('rewardScreen').classList.remove('hidden');
-            document.getElementById('rewardScreen').style.display = 'flex';
         }
         
         // Show card upgrade
@@ -843,39 +1003,48 @@
             document.querySelector('#rewardScreen .game-subtitle').textContent = 'Choose a card to upgrade:';
             document.getElementById('skipRewardBtn').style.display = 'none';
             document.getElementById('rewardScreen').classList.remove('hidden');
-            document.getElementById('rewardScreen').style.display = 'flex';
         }
         
         // Leave shop
         function leaveShop() {
             const shopScreen = document.getElementById('shopScreen');
             shopScreen.classList.add('hidden');
-            spawnEnemy();
-            updateUI();
+            spawnEnemies();
             startPlayerTurn();
         }
         
-        // Spawn enemy
-        function spawnEnemy() {
+        // Spawn enemies
+        function spawnEnemies() {
+            enemies = [];
+            currentEnemyIndex = 0;
+            
             const isBoss = floor % 5 === 0;
             const isElite = !isBoss && floor % 3 === 0;
-            const hpMult = isBoss ? 3 : isElite ? 1.8 : 1;
-            const dmgMult = isBoss ? 2 : isElite ? 1.4 : 1;
+            const enemyCount = isBoss ? 1 : isElite ? 2 : Math.floor(Math.random() * 2) + 1;
             
-            enemy = {
-                x: 250,
-                y: 120,
-                width: 60,
-                height: 60,
-                hp: Math.floor((25 + floor * 8) * hpMult),
-                maxHp: Math.floor((25 + floor * 8) * hpMult),
-                attack: Math.floor((6 + floor * 2) * dmgMult),
-                isBoss: isBoss,
-                isElite: isElite,
-                name: isBoss ? 'Debt Boss' : isElite ? 'Debt Elite' : 'Debt Minion',
-                poison: 0,
-                playerPoison: isElite ? 2 : 0
-            };
+            for (let i = 0; i < enemyCount; i++) {
+                const hpMult = isBoss ? 3 : isElite ? 1.8 : 1;
+                const dmgMult = isBoss ? 2 : isElite ? 1.4 : 1;
+                
+                enemies.push({
+                    x: 250 + i * 20,
+                    y: 120 + i * 30,
+                    width: 60,
+                    height: 60,
+                    hp: Math.floor((25 + floor * 8) * hpMult),
+                    maxHp: Math.floor((25 + floor * 8) * hpMult),
+                    attack: Math.floor((6 + floor * 2) * dmgMult),
+                    isBoss: isBoss,
+                    isElite: isElite,
+                    name: isBoss ? 'Debt Boss' : isElite ? 'Debt Elite' : 'Debt Minion',
+                    poison: 0,
+                    playerPoison: isElite ? 2 : 0,
+                    weak: 0,
+                    vulnerable: 0,
+                    strength: 0,
+                    shake: 0
+                });
+            }
         }
         
         // Game over
@@ -928,6 +1097,20 @@
             });
         }
         
+        function createComboText(text) {
+            const comboEl = document.createElement('div');
+            comboEl.className = 'combo-text';
+            comboEl.textContent = text;
+            comboEl.style.left = '50%';
+            comboEl.style.top = '40%';
+            comboEl.style.transform = 'translateX(-50%)';
+            document.querySelector('.game-area').appendChild(comboEl);
+            
+            setTimeout(() => {
+                comboEl.remove();
+            }, 1000);
+        }
+        
         // Start game
         function startGame() {
             document.getElementById('startScreen').classList.add('hidden');
@@ -942,12 +1125,20 @@
             wins = 0;
             energy = 3;
             maxEnergy = 3;
+            combo = 0;
+            maxCombo = 0;
+            damageTakenThisBattle = 0;
+            cardsPlayedThisTurn = 0;
             
             player = {
                 hp: 80,
                 maxHp: 80,
                 block: 0,
-                poison: 0
+                poison: 0,
+                strength: 0,
+                weak: 0,
+                vulnerable: 0,
+                ritual: 0
             };
             
             relics = [];
@@ -956,10 +1147,11 @@
             
             particles = [];
             floatingTexts = [];
+            screenShake = 0;
             
             initDeck();
             shuffle(deck);
-            spawnEnemy();
+            spawnEnemies();
             updateUI();
             updateEnergy();
             renderRelics();
@@ -996,12 +1188,28 @@
                     floatingTexts.splice(i, 1);
                 }
             }
+            
+            // Update screen shake
+            if (screenShake > 0) {
+                screenShake--;
+            }
+            
+            // Update enemy shake
+            enemies.forEach(enemy => {
+                if (enemy.shake > 0) enemy.shake--;
+            });
         }
         
         function draw() {
-            // Clear
+            // Clear with screen shake
+            const shakeX = screenShake > 0 ? (Math.random() - 0.5) * 10 : 0;
+            const shakeY = screenShake > 0 ? (Math.random() - 0.5) * 10 : 0;
+            
+            ctx.save();
+            ctx.translate(shakeX, shakeY);
+            
             ctx.fillStyle = '#0a0e1a';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillRect(-10, -10, canvas.width + 20, canvas.height + 20);
             
             // Background
             drawBackground();
@@ -1009,8 +1217,10 @@
             // Draw player
             drawPlayer();
             
-            // Draw enemy
-            if (enemy) drawEnemy();
+            // Draw enemies
+            enemies.forEach((enemy, index) => {
+                if (enemy.hp > 0) drawEnemy(enemy, index);
+            });
             
             // Draw particles
             particles.forEach(p => {
@@ -1035,21 +1245,8 @@
             // Draw HP bars
             drawHPBars();
             
-            // Draw block indicator
-            if (player.block > 0) {
-                ctx.fillStyle = '#448AFF';
-                ctx.font = '12px Inter';
-                ctx.textAlign = 'center';
-                ctx.fillText(`Block: ${player.block}`, 100, 200);
-            }
-            
-            // Draw poison indicators
-            if (enemy && enemy.poison > 0) {
-                ctx.fillStyle = '#E040FB';
-                ctx.font = '12px Inter';
-                ctx.textAlign = 'center';
-                ctx.fillText(`Poison: ${enemy.poison}`, 280, 100);
-            }
+            // Draw status effects
+            drawStatusEffects();
             
             // Draw turn indicator
             if (playerTurn && !animating) {
@@ -1063,10 +1260,11 @@
                 ctx.textAlign = 'center';
                 ctx.fillText('ENEMY TURN', canvas.width / 2, 30);
             }
+            
+            ctx.restore();
         }
         
         function drawBackground() {
-            // Stars
             ctx.fillStyle = '#fff';
             for (let i = 0; i < 15; i++) {
                 const x = (i * 73) % canvas.width;
@@ -1076,7 +1274,6 @@
             }
             ctx.globalAlpha = 1;
             
-            // Ground
             ctx.fillStyle = '#131b2e';
             ctx.fillRect(0, 280, canvas.width, 100);
             ctx.fillStyle = '#00E676';
@@ -1088,36 +1285,29 @@
             const y = 200;
             const size = 50;
             
-            // Shadow
             ctx.fillStyle = 'rgba(0,0,0,0.3)';
             ctx.beginPath();
             ctx.ellipse(x + size/2, 280, size/2, 8, 0, 0, Math.PI * 2);
             ctx.fill();
             
-            // Body
             ctx.fillStyle = '#00E676';
             ctx.fillRect(x, y, size, size);
             
-            // Border
             ctx.strokeStyle = '#00C853';
             ctx.lineWidth = 2;
             ctx.strokeRect(x, y, size, size);
             
-            // Eyes
             ctx.fillStyle = '#0a0e1a';
             ctx.fillRect(x + 10, y + 12, 10, 12);
             ctx.fillRect(x + 30, y + 12, 10, 12);
             
-            // Eye shine
             ctx.fillStyle = '#fff';
             ctx.fillRect(x + 13, y + 14, 4, 4);
             ctx.fillRect(x + 33, y + 14, 4, 4);
             
-            // Smile
             ctx.fillStyle = '#0a0e1a';
             ctx.fillRect(x + 15, y + 32, 20, 4);
             
-            // Antenna
             ctx.strokeStyle = '#00E676';
             ctx.lineWidth = 2;
             ctx.beginPath();
@@ -1131,32 +1321,31 @@
             ctx.fill();
         }
         
-        function drawEnemy() {
-            const x = enemy.x;
+        function drawEnemy(enemy, index) {
+            let x = enemy.x;
             const y = enemy.y;
             const size = enemy.width;
             
-            // Shadow
+            if (enemy.shake > 0) {
+                x += (Math.random() - 0.5) * 10;
+            }
+            
             ctx.fillStyle = 'rgba(0,0,0,0.3)';
             ctx.beginPath();
             ctx.ellipse(x + size/2, 280, size/2, 8, 0, 0, Math.PI * 2);
             ctx.fill();
             
-            // Body
             ctx.fillStyle = enemy.isBoss ? '#FF6D00' : enemy.isElite ? '#E040FB' : '#FF5252';
             ctx.fillRect(x, y, size, size);
             
-            // Border
             ctx.strokeStyle = enemy.isBoss ? '#E65100' : enemy.isElite ? '#D500F9' : '#FF1744';
             ctx.lineWidth = 2;
             ctx.strokeRect(x, y, size, size);
             
-            // Eyes
             ctx.fillStyle = '#fff';
             ctx.fillRect(x + 10, y + 15, 10, 10);
             ctx.fillRect(x + 40, y + 15, 10, 10);
             
-            // Angry eyebrows
             ctx.strokeStyle = '#fff';
             ctx.lineWidth = 2;
             ctx.beginPath();
@@ -1166,11 +1355,9 @@
             ctx.lineTo(x + 38, y + 18);
             ctx.stroke();
             
-            // Mouth
             ctx.fillStyle = '#fff';
             ctx.fillRect(x + 20, y + 40, 20, 4);
             
-            // Elite/Boss indicator
             if (enemy.isElite || enemy.isBoss) {
                 ctx.fillStyle = '#FFD700';
                 ctx.font = '10px Inter';
@@ -1180,7 +1367,6 @@
         }
         
         function drawHPBars() {
-            // Player HP bar
             const playerBarWidth = 100;
             const playerBarHeight = 12;
             const playerBarX = 20;
@@ -1198,12 +1384,13 @@
             ctx.textAlign = 'left';
             ctx.fillText(`${Math.max(0, Math.ceil(player.hp))}/${player.maxHp}`, playerBarX, playerBarY - 5);
             
-            // Enemy HP bar
-            if (enemy) {
+            enemies.forEach((enemy, index) => {
+                if (enemy.hp <= 0) return;
+                
                 const enemyBarWidth = 100;
                 const enemyBarHeight = 12;
                 const enemyBarX = 270;
-                const enemyBarY = 80;
+                const enemyBarY = 80 + index * 40;
                 
                 ctx.fillStyle = 'rgba(255,255,255,0.1)';
                 ctx.fillRect(enemyBarX, enemyBarY, enemyBarWidth, enemyBarHeight);
@@ -1217,12 +1404,80 @@
                 ctx.textAlign = 'left';
                 ctx.fillText(`${Math.max(0, Math.ceil(enemy.hp))}/${enemy.maxHp}`, enemyBarX, enemyBarY - 5);
                 
-                // Enemy name
                 ctx.fillStyle = '#fff';
                 ctx.font = '11px Inter';
                 ctx.textAlign = 'center';
                 ctx.fillText(enemy.name, enemyBarX + enemyBarWidth/2, enemyBarY - 20);
+            });
+        }
+        
+        function drawStatusEffects() {
+            let yOffset = 200;
+            
+            if (player.block > 0) {
+                ctx.fillStyle = '#448AFF';
+                ctx.font = '12px Inter';
+                ctx.textAlign = 'center';
+                ctx.fillText(`Block: ${player.block}`, 100, yOffset);
+                yOffset += 15;
             }
+            
+            if (player.strength > 0) {
+                ctx.fillStyle = '#FF9800';
+                ctx.font = '12px Inter';
+                ctx.textAlign = 'center';
+                ctx.fillText(`Str: ${player.strength}`, 100, yOffset);
+                yOffset += 15;
+            }
+            
+            if (player.weak > 0) {
+                ctx.fillStyle = '#E040FB';
+                ctx.font = '12px Inter';
+                ctx.textAlign = 'center';
+                ctx.fillText(`Weak: ${player.weak}`, 100, yOffset);
+                yOffset += 15;
+            }
+            
+            if (player.vulnerable > 0) {
+                ctx.fillStyle = '#E040FB';
+                ctx.font = '12px Inter';
+                ctx.textAlign = 'center';
+                ctx.fillText(`Vuln: ${player.vulnerable}`, 100, yOffset);
+                yOffset += 15;
+            }
+            
+            if (player.poison > 0) {
+                ctx.fillStyle = '#E040FB';
+                ctx.font = '12px Inter';
+                ctx.textAlign = 'center';
+                ctx.fillText(`Poison: ${player.poison}`, 100, yOffset);
+            }
+            
+            enemies.forEach((enemy, index) => {
+                if (enemy.hp <= 0) return;
+                let enemyYOffset = 100 + index * 40;
+                
+                if (enemy.poison > 0) {
+                    ctx.fillStyle = '#E040FB';
+                    ctx.font = '12px Inter';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(`Poison: ${enemy.poison}`, 280, enemyYOffset);
+                }
+                
+                if (enemy.weak > 0) {
+                    ctx.fillStyle = '#E040FB';
+                    ctx.font = '12px Inter';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(`Weak: ${enemy.weak}`, 280, enemyYOffset + 15);
+                }
+                
+                if (enemy.vulnerable > 0) {
+                    ctx.fillStyle = '#E040FB';
+                    ctx.font = '12px Inter';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(`Vuln: ${enemy.vulnerable}`, 280, enemyYOffset + 30);
+                }
+            });
         }
         
         // Event listeners
