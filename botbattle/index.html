@@ -35,18 +35,18 @@
         .stat-label { font-size: 10px; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 1px; }
         .stat-value { font-size: 22px; font-weight: 800; color: var(--mb-green); }
         
-        .game-area { flex: 1; display: flex; flex-direction: column; padding: 16px; gap: 12px; position: relative; }
+        .game-area { flex: 1; display: flex; flex-direction: column; padding: 12px; gap: 8px; position: relative; overflow-y: auto; }
         
-        #gameCanvas { background: var(--mb-panel); border-radius: 16px; border: 2px solid rgba(0, 230, 118, 0.3); width: 100%; height: 380px; }
+        #gameCanvas { background: var(--mb-panel); border-radius: 16px; border: 2px solid rgba(0, 230, 118, 0.3); width: 100%; height: 300px; flex-shrink: 0; }
         
-        .hand-area { display: flex; gap: 6px; padding: 4px 0; justify-content: center; flex-wrap: wrap; }
-        .card { width: 90px; height: 120px; background: #1a2332; border: 2px solid #2a3a4a; border-radius: 10px; padding: 6px; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: space-between; position: relative; }
+        .hand-area { display: flex; gap: 6px; padding: 4px 0; justify-content: center; flex-wrap: wrap; min-height: 100px; }
+        .card { width: 80px; height: 100px; background: #1a2332; border: 2px solid #2a3a4a; border-radius: 10px; padding: 4px; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: space-between; position: relative; }
         .card:hover { transform: translateY(-5px); border-color: var(--mb-green); }
         .card:active { transform: scale(0.95); }
         .card-cost { font-size: 12px; font-weight: 800; color: var(--mb-blue); }
-        .card-icon { font-size: 28px; }
-        .card-name { font-size: 10px; font-weight: 700; text-align: center; }
-        .card-desc { font-size: 8px; color: rgba(255,255,255,0.6); text-align: center; }
+        .card-icon { font-size: 24px; }
+        .card-name { font-size: 9px; font-weight: 700; text-align: center; }
+        .card-desc { font-size: 7px; color: rgba(255,255,255,0.6); text-align: center; }
         .card.attack { border-color: var(--mb-red); }
         .card.defend { border-color: var(--mb-blue); }
         .card.heal { border-color: var(--mb-green); }
@@ -54,11 +54,11 @@
         .card.upgraded { border-color: var(--mb-purple); box-shadow: 0 0 10px rgba(224, 64, 251, 0.3); }
         .card.disabled { opacity: 0.4; cursor: not-allowed; }
         
-        .energy-bar { display: flex; align-items: center; gap: 8px; padding: 8px 16px; background: rgba(68, 138, 255, 0.1); border-radius: 8px; }
+        .energy-bar { display: flex; align-items: center; gap: 8px; padding: 6px 12px; background: rgba(68, 138, 255, 0.1); border-radius: 8px; }
         .energy-label { font-size: 12px; font-weight: 700; color: var(--mb-blue); }
         .energy-value { font-size: 18px; font-weight: 800; color: var(--mb-blue); }
         
-        .end-turn-btn { background: var(--mb-green); color: var(--mb-dark); border: none; padding: 12px 24px; font-size: 14px; font-weight: 700; border-radius: 8px; cursor: pointer; }
+        .end-turn-btn { background: var(--mb-green); color: var(--mb-dark); border: none; padding: 10px 20px; font-size: 14px; font-weight: 700; border-radius: 8px; cursor: pointer; margin-bottom: 8px; }
         .end-turn-btn:disabled { opacity: 0.3; cursor: not-allowed; }
         
         .overlay-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--mb-dark); z-index: 200; padding: 40px; }
@@ -78,12 +78,12 @@
         .reward-card:hover { transform: scale(1.05); }
         .reward-card.selected { border-color: var(--mb-green); background: rgba(0, 230, 118, 0.1); }
         
-        .relic-display { display: flex; gap: 8px; justify-content: center; margin: 12px 0; flex-wrap: wrap; }
+        .relic-display { display: flex; gap: 6px; justify-content: center; margin: 4px 0; flex-wrap: wrap; }
         .relic { width: 50px; height: 50px; background: #1a2332; border: 2px solid var(--mb-gold); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; position: relative; }
         .relic-tooltip { position: absolute; bottom: 60px; left: 50%; transform: translateX(-50%); background: #1a2332; border: 1px solid var(--mb-gold); border-radius: 8px; padding: 8px; font-size: 11px; white-space: nowrap; z-index: 100; display: none; }
         .relic:hover .relic-tooltip { display: block; }
         
-        .potion-bar { display: flex; gap: 8px; justify-content: center; margin: 8px 0; }
+        .potion-bar { display: flex; gap: 6px; justify-content: center; margin: 4px 0; }
         .potion { width: 40px; height: 40px; background: #1a2332; border: 2px solid var(--mb-purple); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; }
         .potion:hover { transform: scale(1.1); }
         
