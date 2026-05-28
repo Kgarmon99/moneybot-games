@@ -781,12 +781,14 @@
                 cardEl.addEventListener('click', () => {
                     deck.push(card);
                     rewardScreen.classList.add('hidden');
+                    rewardScreen.style.display = '';
                     nextFloor();
                 });
                 rewardArea.appendChild(cardEl);
             });
             
             rewardScreen.classList.remove('hidden');
+            rewardScreen.style.display = 'flex';
         }
         
         // Show relic screen
@@ -821,12 +823,14 @@
                     if (relics.length >= 5) showAchievement('collect5Relics');
                     
                     relicScreen.classList.add('hidden');
+                    relicScreen.style.display = '';
                     showRewardScreen();
                 });
                 relicArea.appendChild(relicEl);
             });
             
             relicScreen.classList.remove('hidden');
+            relicScreen.style.display = 'flex';
         }
         
         // Skip reward
@@ -834,6 +838,7 @@
             gold += 15;
             const rewardScreen = document.getElementById('rewardScreen');
             rewardScreen.classList.add('hidden');
+            rewardScreen.style.display = '';
             nextFloor();
         }
         
@@ -860,6 +865,7 @@
         
         // Show shop
         function showShop() {
+            const shopScreen = document.getElementById('shopScreen');
             const shopItems = document.getElementById('shopItems');
             shopItems.innerHTML = '';
             
@@ -914,7 +920,8 @@
                 shopItems.appendChild(itemEl);
             });
             
-            document.getElementById('shopScreen').classList.remove('hidden');
+            shopScreen.classList.remove('hidden');
+            shopScreen.style.display = 'flex';
         }
         
         // Buy item
@@ -1009,6 +1016,7 @@
         function leaveShop() {
             const shopScreen = document.getElementById('shopScreen');
             shopScreen.classList.add('hidden');
+            shopScreen.style.display = '';
             spawnEnemies();
             startPlayerTurn();
         }
