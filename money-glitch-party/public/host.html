@@ -137,8 +137,12 @@
         const currentPath = window.location.pathname;
         const basePath = currentPath.substring(0, currentPath.lastIndexOf('/') + 1);
         
-        const socket = io(window.location.origin, {
-            path: basePath + 'socket.io'
+        const serverUrl = window.location.hostname.includes('github.io') 
+            ? 'https://71f046c4b3e48a.lhr.life' 
+            : window.location.origin;
+
+        const socket = io(serverUrl, {
+            path: serverUrl.includes('github.io') ? basePath + 'socket.io' : '/socket.io'
         });
         let lastState = null;
         let qrCodeObj = null;
@@ -261,7 +265,10 @@
                 splash.style.display = 'none';
                 clueContainer.style.display = 'none';
                 
-                document.getElementById('lobby-url-display').innerText = state.joinUrl;
+                const displayUrl = window.location.hostname.includes('github.io') 
+                    ? window.location.href.replace('host.html', 'player.html')
+                    : state.joinUrl;
+                document.getElementById('lobby-url-display').innerText = displayUrl;
                 
                 const playersCount = Object.keys(state.players).length;
                 document.getElementById('lobby-players-display').innerText = `${playersCount} PLAYER${playersCount === 1 ? '' : 'S'} JOINED`;
@@ -275,15 +282,21 @@
                     namesContainer.appendChild(badge);
                 });
                 
-                if(!qrCodeObj && state.joinUrl) {
+                // Initialize the QR Code to point to the GitHub Pages player.html, NOT the local IP
+                const playerUrl = window.location.hostname.includes('github.io') 
+                    ? window.location.href.replace('host.html', 'player.html')
+                    : state.joinUrl;
+
+                if(!qrCodeObj && playerUrl) {
                     qrCodeObj = new QRCode(document.getElementById("qr-container"), {
-                        text: state.joinUrl,
-                        width: 250,
-                        height: 250,
+                        text: playerUrl,
+                        width: 256,
+                        height: 256,
                         colorDark : "#000000",
                         colorLight : "#ffffff",
                         correctLevel : QRCode.CorrectLevel.H
                     });
+                    document.getElementById("join-link").innerText = playerUrl;
                 }
             } else if (state.phase === 'board') {
                 overlay.style.display = 'none';

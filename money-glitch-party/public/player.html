@@ -88,8 +88,12 @@
         const currentPath = window.location.pathname;
         const basePath = currentPath.substring(0, currentPath.lastIndexOf('/') + 1);
         
-        const socket = io(window.location.origin, {
-            path: basePath + 'socket.io'
+        const serverUrl = window.location.hostname.includes('github.io') 
+            ? 'https://71f046c4b3e48a.lhr.life' 
+            : window.location.origin;
+
+        const socket = io(serverUrl, {
+            path: serverUrl.includes('github.io') ? basePath + 'socket.io' : '/socket.io'
         });
         let myId = null;
         let lastState = null;
