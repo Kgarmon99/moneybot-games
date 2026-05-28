@@ -193,6 +193,7 @@
     <script>
         // ===== GAME DATA =====
         const games = [
+            {id:'../money-glitch-party/public/host.html',title:'Money Glitch Party',thumb:'assets/thumbnails/moneybot-official.svg',tags:['arcade','education'],diff:'medium',section:'featured', customUrl: true},
             {id:'bot-real-estate-sim',title:'Real Estate Sim',thumb:'assets/thumbs-png/real-estate.png',tags:['simulation','education'],diff:'medium',section:'featured'},
             {id:'bot-shot',title:'Bot Shot',thumb:'assets/thumbs-png/bot-shot.png',tags:['arcade'],diff:'easy',section:'featured'},
             {id:'bot-smart-borrower',title:'Smart Borrower',thumb:'assets/thumbs-png/smart-borrower.png',tags:['education','simulation'],diff:'medium',section:'featured'},
@@ -303,7 +304,8 @@
 
         // ===== RENDER FUNCTIONS =====
         function createCard(g) {
-            return `<a href="../${g.id}/" class="game-card" onclick="trackPlay('${g.title.replace(/'/g,"\\'")}','../${g.id}/','${g.tags[0]}','${g.diff}')">
+            const linkUrl = g.customUrl ? g.id : `../${g.id}/`;
+            return `<a href="${linkUrl}" class="game-card" onclick="trackPlay('${g.title.replace(/'/g,"\\'")}','${linkUrl}','${g.tags[0]}','${g.diff}')">
                 <div class="game-thumb"><img src="${g.thumb}" alt="${g.title}" onerror="this.style.display='none';this.parentElement.innerHTML='<div style=display:flex;align-items:center;justify-content:center;height:100%;font-size:50px;>🎮</div>'"></div>
                 <div class="game-info"><div class="game-title">${g.title}</div><div class="game-tag">${g.tags.join(', ')}</div></div>
             </a>`;
