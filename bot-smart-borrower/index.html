@@ -3,2456 +3,585 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-        <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
-    <title>Smart Borrower - Financial Literacy Game</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,600,1,0" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>Smart Borrower: Debt Survivor</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Inter:wght@400;700;900&display=swap');
         
-        body {
-            background: #000;
-        }
-        .app-container {
-            background: linear-gradient(180deg, #0a0a0a 0%, #000 100%);
-            border-left: 1px solid rgba(0, 200, 83, 0.1);
-            border-right: 1px solid rgba(0, 200, 83, 0.1);
-        }
-        .bg-cyber {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: 
-                radial-gradient(ellipse at 20% 80%, rgba(0, 200, 83, 0.1) 0%, transparent 50%),
-                radial-gradient(ellipse at 80% 20%, rgba(0, 200, 83, 0.08) 0%, transparent 50%),
-                #000;
-            pointer-events: none;
-            z-index: -1;
-        }
-        .cyber-grid {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: 
-                linear-gradient(rgba(0, 200, 83, 0.05) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 200, 83, 0.05) 1px, transparent 1px);
-            background-size: 40px 40px;
-            pointer-events: none;
-            z-index: -1;
-        }
-        .header {
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(0, 200, 83, 0.2);
-        }
-        .screen-title {
-            color: #00E676;
-            text-shadow: 0 0 20px rgba(0, 230, 118, 0.5);
-        }
-        .loan-card {
-            background: linear-gradient(145deg, #111 0%, #0a0a0a 100%);
-            border: 1px solid rgba(0, 200, 83, 0.1);
-        }
-        .loan-card:hover {
-            border-color: rgba(0, 200, 83, 0.5);
-            box-shadow: 0 0 30px rgba(0, 200, 83, 0.2);
-        }
-        .btn-primary {
-            background: linear-gradient(135deg, #00C853 0%, #00E676 100%);
-            box-shadow: 0 4px 20px rgba(0, 200, 83, 0.4);
-        }
-        .btn-primary:hover {
-            box-shadow: 0 6px 30px rgba(0, 200, 83, 0.6);
-        }
-        .moneybot-tip {
-            background: linear-gradient(135deg, #111 0%, #1a1a1a 100%);
-            border: 1px solid rgba(0, 200, 83, 0.3);
-            box-shadow: 0 0 30px rgba(0, 200, 83, 0.1);
+        * { margin: 0; padding: 0; box-sizing: border-box; touch-action: none; }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: #050508; 
+            color: #fff; 
+            overflow: hidden; 
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        :root {
-            --money-green: #00C853;
-            --money-green-light: #E8F5E9;
-            --money-green-dark: #00A344;
-            --danger-red: #FF3D00;
-            --danger-light: #FFEBEE;
-            --warning-orange: #FF9100;
-            --warning-light: #FFF3E0;
-            --text-primary: #1A1A1A;
-            --text-secondary: #6B7280;
-            --text-tertiary: #9CA3AF;
-            --bg-white: #FFFFFF;
-            --bg-gray: #F9FAFB;
-            --bg-gray-dark: #F3F4F6;
-            --border-light: #E5E7EB;
-            --border-medium: #D1D5DB;
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-            --radius-sm: 8px;
-            --radius-md: 12px;
-            --radius-lg: 16px;
-            --radius-xl: 24px;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        html {
-            font-size: 16px;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: rgba(15, 20, 25, 0.9);
-            border: 1px solid rgba(0, 200, 83, 0.2);
-            color: var(--text-primary);
-            line-height: 1.5;
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-
-        .app-container {
-            max-width: 480px;
-            margin: 0 auto;
-            min-height: 100vh;
-            .bg-white {
-                background: rgba(15, 20, 25, 0.85);
-                border: 1px solid rgba(0, 200, 83, 0.2);
-            }
-
-        
-        .character-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-            margin-bottom: 32px;
-        }
-
-        .char-card {
-            background: rgba(15, 20, 25, 0.9);
-            border: 1px solid rgba(0, 200, 83, 0.2);
-            border: 2px solid var(--border-light);
-            border-radius: var(--radius-lg);
-            padding: 20px;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            box-shadow: var(--shadow-sm);
-        }
-
-        .char-card:hover {
-            border-color: var(--money-green-light);
-            transform: translateY(-2px);
-        }
-
-        .char-card.selected {
-            border-color: var(--money-green);
-            background: var(--money-green-light);
-            box-shadow: 0 4px 12px rgba(0, 200, 83, 0.2);
-        }
-
-        .char-icon {
-            margin-bottom: 12px;
-            display: flex;
-            justify-content: center;
-        }
-
-        .char-name {
-            font-weight: 700;
-            font-size: 16px;
-            margin-bottom: 8px;
-            color: var(--text-primary);
-        }
-
-        .char-desc {
-            font-size: 12px;
-            color: var(--text-secondary);
-            margin-bottom: 12px;
-            flex-grow: 1;
-        }
-
-        .char-stats {
-            width: 100%;
-            background: rgba(0, 30, 15, 0.7);
-            border-radius: var(--radius-sm);
-            padding: 8px;
-            font-size: 12px;
-        }
-
-        .char-stat-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 4px;
-        }
-
-        .char-stat-row:last-child {
-            margin-bottom: 0;
-        }
-        
-        .char-stat-label {
-            font-weight: 600;
-            color: var(--text-secondary);
-        }
-        
-        .char-stat-value {
-            font-weight: 700;
-        }
-
-        @media (max-width: 400px) {
-            .character-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        
-        .material-symbols-rounded {
-            font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 0, 'opsz' 24;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        
-        /* Premium UI Upgrades */
-        .app-container {
-            box-shadow: 0 0 50px rgba(0, 200, 83, 0.15);
-            border-left: 1px solid rgba(0, 200, 83, 0.3);
-            border-right: 1px solid rgba(0, 200, 83, 0.3);
-        }
-        .btn-primary {
-            background: linear-gradient(135deg, var(--money-green) 0%, var(--money-green-dark) 100%);
-            box-shadow: 0 4px 15px rgba(0, 200, 83, 0.3);
-            border: none;
-        }
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 200, 83, 0.4);
-        }
-        .loan-card {
-            border: 2px solid transparent;
-            background: linear-gradient(to bottom, #ffffff, #f9fafb);
-            box-shadow: var(--shadow-md);
-        }
-        .loan-card:hover {
-            border-color: var(--money-green);
-            transform: scale(1.02);
-            box-shadow: 0 10px 25px rgba(0,200,83,0.15);
-        }
-        .moneybot-tip {
-            display: flex;
-            background: linear-gradient(135deg, #111 0%, #222 100%);
-            color: white;
-            border-radius: var(--radius-lg);
-            padding: 16px;
-            margin-top: 20px;
-            align-items: center;
-            gap: 16px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        }
-        .moneybot-tip img {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: white;
-            padding: 4px;
-        }
-
-        /* Header */
-        .header {
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            background: rgba(15, 20, 25, 0.9);
-            border: 1px solid rgba(0, 200, 83, 0.2);
-            border-bottom: 1px solid var(--border-light);
-            padding: 16px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-weight: 700;
-            font-size: 18px;
-        }
-
-        .logo-icon {
-            width: 32px;
-            height: 32px;
-            background: var(--money-green);
-            border-radius: var(--radius-md);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 16px;
-        }
-
-        .score-badge {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            background: var(--money-green-light);
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-weight: 600;
-            font-size: 14px;
-            color: var(--money-green-dark);
-        }
-
-        /* Screen Management */
+        /* --- SCREENS --- */
         .screen {
-            display: none;
-            padding: 20px;
-            animation: fadeIn 0.3s ease-out;
-        }
-
-        .screen.active {
-            display: block;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Welcome Screen */
-        .welcome-hero {
-            text-align: center;
-            padding: 40px 0 30px;
-        }
-
-        .welcome-icon {
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(135deg, var(--money-green) 0%, var(--money-green-dark) 100%);
-            border-radius: var(--radius-xl);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 24px;
-            font-size: 36px;
-            box-shadow: var(--shadow-lg);
-        }
-
-        .welcome-title {
-            font-size: 28px;
-            font-weight: 700;
-            margin-bottom: 12px;
-            line-height: 1.2;
-        }
-
-        .welcome-subtitle {
-            font-size: 16px;
-            color: var(--text-secondary);
-            max-width: 320px;
-            margin: 0 auto;
-        }
-
-        .features-grid {
-            display: grid;
-            gap: 12px;
-            margin: 30px 0;
-        }
-
-        .feature-card {
-            background: rgba(0, 30, 15, 0.7);
-            padding: 16px;
-            border-radius: var(--radius-md);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .feature-icon {
-            width: 44px;
-            height: 44px;
-            background: rgba(15, 20, 25, 0.9);
-            border: 1px solid rgba(0, 200, 83, 0.2);
-            border-radius: var(--radius-sm);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            flex-shrink: 0;
-        }
-
-        .feature-text h3 {
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 2px;
-        }
-
-        .feature-text p {
-            font-size: 13px;
-            color: var(--text-secondary);
-        }
-
-        /* Buttons */
-        .btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            width: 100%;
-            padding: 16px 24px;
-            border: none;
-            border-radius: var(--radius-md);
-            font-family: inherit;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            text-decoration: none;
-        }
-
-        .btn-primary {
-            background: var(--money-green);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: var(--money-green-dark);
-            transform: translateY(-1px);
-            box-shadow: var(--shadow-md);
-        }
-
-        .btn-primary:active {
-            transform: translateY(0);
-        }
-
-        .btn-secondary {
-            background: var(--bg-gray-dark);
-            color: var(--text-primary);
-        }
-
-        .bg-white {
-            background: rgba(15, 20, 25, 0.85);
-            border: 1px solid rgba(0, 200, 83, 0.2);
-        }
-
-        .btn-outline {
-            background: transparent;
-            border: 2px solid var(--border-medium);
-            color: var(--text-primary);
-        }
-
-        .btn-outline:hover {
-            border-color: var(--money-green);
-            color: var(--money-green);
-        }
-
-        .btn-group {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin-top: 24px;
-        }
-
-        .btn-small {
-            padding: 10px 16px;
-            font-size: 14px;
-            width: auto;
-            display: inline-flex;
-        }
-
-        /* Scenario Selection */
-        .screen-title {
-            font-size: 24px;
-            font-weight: 700;
-            margin-bottom: 8px;
-        }
-
-        .screen-desc {
-            font-size: 15px;
-            color: var(--text-secondary);
-            margin-bottom: 24px;
-        }
-
-        .scenarios-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .scenario-card {
-            background: rgba(15, 20, 25, 0.9);
-            border: 1px solid rgba(0, 200, 83, 0.3);
-            border-radius: var(--radius-md);
-            padding: 16px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-        }
-
-        .scenario-card:hover {
-            transform: translateY(-2px) scale(1.02);
-            border-color: rgba(0, 200, 83, 0.8);
-            box-shadow: 0 8px 25px rgba(0, 200, 83, 0.2);
-            background: rgba(20, 30, 25, 0.95);
-        }
-
-        .scenario-card.completed {
-            border-color: var(--money-green);
-            background: rgba(0, 200, 83, 0.15);
-        }
-
-        .scenario-icon {
-            width: 48px;
-            height: 48px;
-            background: var(--bg-gray-dark);
-            border-radius: var(--radius-sm);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            flex-shrink: 0;
-        }
-
-        .scenario-card:hover .scenario-icon,
-        .scenario-card.completed .scenario-icon {
-            background: var(--money-green);
-        }
-
-        .scenario-info {
-            flex: 1;
-        }
-
-        .scenario-name {
-            font-weight: 600;
-            font-size: 15px;
-            margin-bottom: 4px;
-        }
-
-        .scenario-amount {
-            font-size: 13px;
-            color: var(--text-secondary);
-        }
-
-        .scenario-status {
-            font-size: 20px;
-        }
-
-        /* Game Screen */
-        .scenario-header {
-            background: rgba(0, 30, 15, 0.7);
-            border-radius: var(--radius-md);
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-
-        .scenario-label {
-            font-size: 12px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: var(--text-tertiary);
-            margin-bottom: 8px;
-        }
-
-        .scenario-title {
-            font-size: 20px;
-            font-weight: 700;
-            margin-bottom: 8px;
-        }
-
-        .scenario-description {
-            font-size: 14px;
-            color: var(--text-secondary);
-            margin-bottom: 16px;
-        }
-
-        .loan-amount-needed {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: rgba(15, 20, 25, 0.9);
-            border: 1px solid rgba(0, 200, 83, 0.2);
-            padding: 12px 16px;
-            border-radius: var(--radius-sm);
-        }
-
-        .loan-amount-label {
-            font-size: 13px;
-            color: var(--text-secondary);
-        }
-
-        .loan-amount-value {
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--money-green-dark);
-        }
-
-        .loan-options-title {
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .loan-options-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-
-        
-        .loan-card.denied {
-            opacity: 0.5;
-            pointer-events: none;
-            filter: grayscale(100%);
-        }
-        .denied-badge {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) rotate(-10deg);
-            background: var(--danger-red);
-            color: white;
-            font-weight: 800;
-            font-size: 24px;
-            padding: 8px 16px;
-            border-radius: 8px;
-            border: 4px solid white;
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: none; flex-direction: column;
+            background: radial-gradient(circle at top, #0a1118 0%, #020205 100%);
             z-index: 10;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            box-shadow: var(--shadow-lg);
+        }
+        .screen.active { display: flex; }
+
+        .center-content {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            height: 100%; text-align: center; padding: 20px;
         }
 
-        .loan-card {
-            background: rgba(15, 20, 25, 0.9);
-            border: 1px solid rgba(0, 200, 83, 0.3);
-            border-radius: var(--radius-md);
-            overflow: hidden;
-            transition: all 0.2s ease;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        h1 { font-family: 'Share Tech Mono', monospace; font-size: 48px; color: #00ff88; text-shadow: 0 0 20px #00ff88; line-height: 1.1; margin-bottom: 20px; text-transform: uppercase; }
+        .danger-text { color: #ff3333; text-shadow: 0 0 20px #ff3333; }
+
+        .btn {
+            background: linear-gradient(180deg, #005522 0%, #002200 100%);
+            border: 2px solid #00ff88; border-radius: 8px; color: #00ff88;
+            font-family: 'Share Tech Mono', monospace; font-size: 24px; font-weight: bold;
+            padding: 15px 40px; cursor: pointer; text-transform: uppercase;
+            box-shadow: 0 0 15px rgba(0,255,136,0.3); transition: all 0.1s;
+            margin: 10px;
         }
+        .btn:active { transform: scale(0.95); background: #00ff88; color: #000; }
 
-        .loan-card:hover {
-            border-color: rgba(0, 200, 83, 0.8);
-            box-shadow: 0 8px 25px rgba(0, 200, 83, 0.2);
-            transform: translateY(-2px);
+        /* --- GAME HUD --- */
+        .top-bar {
+            display: flex; justify-content: space-between; padding: 15px;
+            background: rgba(0,0,0,0.8); border-bottom: 1px solid #333;
+            backdrop-filter: blur(5px); z-index: 5;
         }
+        .stat { display: flex; flex-direction: column; }
+        .stat-label { font-size: 11px; color: #888; text-transform: uppercase; font-weight: bold; letter-spacing: 1px; }
+        .stat-val { font-family: 'Share Tech Mono', monospace; font-size: 28px; font-weight: bold; }
+        
+        .cash-green { color: #00ff88; text-shadow: 0 0 10px #00ff88; }
+        .cash-red { color: #ff3333; text-shadow: 0 0 10px #ff3333; }
 
-        .loan-card.selected {
-            border-color: var(--money-green);
-            box-shadow: 0 0 0 3px var(--money-green-light);
+        /* --- THREAT TRACK --- */
+        .threat-container {
+            background: #111; border-bottom: 2px solid #333; padding: 15px;
+            text-align: center; position: relative; overflow: hidden;
         }
+        .threat-title { font-size: 14px; color: #ffaa00; font-weight: bold; margin-bottom: 5px; text-transform: uppercase; }
+        .threat-timer { font-family: 'Share Tech Mono', monospace; font-size: 36px; color: #fff; font-weight: bold; }
+        .threat-amount { font-size: 20px; color: #ff3333; font-weight: bold; }
+        
+        .progress-bg { width: 100%; height: 6px; background: #222; border-radius: 3px; margin-top: 10px; overflow: hidden; }
+        .progress-fill { height: 100%; background: #00ff88; width: 100%; transition: width 0.1s linear, background 0.3s; }
 
-        .loan-card.predatory {
-            border-color: var(--danger-red);
-        }
-
-        .loan-card.predatory.selected {
-            box-shadow: 0 0 0 3px var(--danger-light);
-        }
-
-        .loan-card-header {
-            padding: 16px;
-            display: flex;
-            justify-content: space-between;
-            .bg-white {
-                background: rgba(15, 20, 25, 0.85);
-                border: 1px solid rgba(0, 200, 83, 0.2);
-            }
-
-        .loan-lender {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .lender-icon {
-            width: 40px;
-            height: 40px;
-            background: rgba(15, 20, 25, 0.9);
-            border: 1px solid rgba(0, 200, 83, 0.2);
-            border-radius: var(--radius-sm);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-        }
-
-        .lender-name {
-            font-weight: 600;
-            font-size: 15px;
-        }
-
-        .lender-type {
-            font-size: 12px;
-            color: var(--text-secondary);
-        }
-
-        .loan-apr {
-            text-align: right;
-        }
-
-        .apr-value {
-            font-size: 24px;
-            font-weight: 700;
-            color: var(--text-primary);
-        }
-
-        .apr-value.high {
-            color: var(--danger-red);
-        }
-
-        .apr-value.medium {
-            color: var(--warning-orange);
-        }
-
-        .apr-value.low {
-            color: var(--money-green-dark);
-        }
-
-        .apr-label {
-            font-size: 11px;
-            color: var(--text-tertiary);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .loan-details {
-            padding: 16px;
-        }
-
-        .loan-detail-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px solid var(--border-light);
-            font-size: 14px;
-        }
-
-        .loan-detail-row:last-child {
-            border-bottom: none;
-        }
-
-        .loan-detail-label {
-            color: var(--text-secondary);
-        }
-
-        .loan-detail-value {
-            font-weight: 500;
-        }
-
-        .loan-detail-value.highlight {
-            color: var(--money-green-dark);
-            font-weight: 600;
-        }
-
-        .loan-flags {
-            padding: 0 16px 16px;
-        }
-
-        .flag-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            padding: 6px 10px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 500;
-            margin-right: 6px;
-            margin-bottom: 6px;
-        }
-
-        .flag-warning {
-            background: var(--warning-light);
-            color: var(--warning-orange);
-        }
-
-        .flag-danger {
-            background: var(--danger-light);
-            color: var(--danger-red);
-        }
-
-        .loan-select-btn {
-            margin: 0 16px 16px;
-            padding: 12px;
-            background: var(--bg-gray-dark);
-            border: none;
-            border-radius: var(--radius-sm);
-            font-family: inherit;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .loan-card.selected .loan-select-btn {
-            background: var(--money-green);
-            color: white;
-        }
-
-        /* Tooltip */
-        .tooltip-trigger {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 18px;
-            height: 18px;
-            background: var(--bg-gray-dark);
-            border-radius: 50%;
-            font-size: 11px;
-            color: var(--text-secondary);
-            cursor: help;
-            margin-left: 4px;
-        }
-
-        .tooltip {
-            position: fixed;
-            background: var(--text-primary);
-            color: white;
-            padding: 10px 14px;
-            border-radius: var(--radius-sm);
-            font-size: 13px;
-            max-width: 280px;
-            z-index: 1000;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.2s ease;
-            box-shadow: var(--shadow-lg);
-        }
-
-        .tooltip.visible {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .tooltip::before {
-            content: '';
-            position: absolute;
-            bottom: -6px;
-            left: 50%;
-            transform: translateX(-50%);
-            border-width: 6px 6px 0;
-            border-style: solid;
-            border-color: var(--text-primary) transparent transparent;
-        }
-
-        /* APR Visualization */
-        .apr-viz {
-            background: rgba(0, 30, 15, 0.7);
-            border-radius: var(--radius-md);
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-
-        .apr-viz-title {
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .apr-chart {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .apr-bar-row {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .apr-bar-label {
-            font-size: 12px;
-            color: var(--text-secondary);
-            width: 60px;
-            flex-shrink: 0;
-        }
-
-        .apr-bar-container {
-            flex: 1;
-            height: 24px;
-            background: var(--bg-gray-dark);
-            border-radius: 12px;
-            overflow: hidden;
+        /* --- MIDDLE: HUSTLE --- */
+        .hustle-zone {
+            flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
             position: relative;
         }
-
-        .apr-bar {
-            height: 100%;
-            border-radius: 12px;
-            transition: width 0.5s ease;
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            padding-right: 8px;
-        }
-
-        .apr-bar-value {
-            font-size: 11px;
-            font-weight: 600;
-            color: white;
-        }
-
-        .apr-bar.good {
-            background: var(--money-green);
-        }
-
-        .apr-bar.medium {
-            background: var(--warning-orange);
-        }
-
-        .apr-bar.bad {
-            background: var(--danger-red);
-        }
-
-        /* Result Screen */
-        .result-hero {
-            text-align: center;
-            padding: 30px 0;
-        }
-
-        .result-icon {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 20px;
-            font-size: 40px;
-        }
-
-        .result-icon.success {
-            background: var(--money-green-light);
-        }
-
-        .result-icon.warning {
-            background: var(--warning-light);
-        }
-
-        .bg-white {
-            background: rgba(15, 20, 25, 0.85);
-            border: 1px solid rgba(0, 200, 83, 0.2);
-        }
-
-        .result-title {
-            font-size: 24px;
-            font-weight: 700;
-            margin-bottom: 8px;
-        }
-
-        .result-subtitle {
-            font-size: 15px;
-            color: var(--text-secondary);
-        }
-
-        .result-details {
-            background: rgba(0, 30, 15, 0.7);
-            border-radius: var(--radius-md);
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-
-        .result-detail-title {
-            font-size: 12px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: var(--text-tertiary);
-            margin-bottom: 16px;
-        }
-
-        .comparison-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 12px 0;
-            border-bottom: 1px solid var(--border-light);
-        }
-
-        .comparison-row:last-child {
-            border-bottom: none;
-        }
-
-        .comparison-label {
-            font-size: 14px;
-            color: var(--text-secondary);
-        }
-
-        .comparison-value {
-            font-size: 14px;
-            font-weight: 600;
-        }
-
-        .comparison-value.good {
-            color: var(--money-green-dark);
-        }
-
-        .comparison-value.bad {
-            color: var(--danger-red);
-        }
-
-        .comparison-value.neutral {
-            color: var(--text-primary);
-        }
-
-        .savings-highlight {
-            background: var(--money-green-light);
-            border-radius: var(--radius-sm);
-            padding: 16px;
-            text-align: center;
-            margin-top: 16px;
-        }
-
-        .savings-amount {
-            font-size: 28px;
-            font-weight: 700;
-            color: var(--money-green-dark);
-        }
-
-        .savings-label {
-            font-size: 13px;
-            color: var(--text-secondary);
-            margin-top: 4px;
-        }
-
-        .education-box {
-            background: rgba(15, 20, 25, 0.9);
-            border: 1px solid rgba(0, 200, 83, 0.2);
-            border: 2px solid var(--border-light);
-            border-radius: var(--radius-md);
-            padding: 16px;
-            margin-bottom: 20px;
-        }
-
-        .education-title {
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .education-list {
-            list-style: none;
-        }
-
-        .education-list li {
-            font-size: 13px;
-            color: var(--text-secondary);
-            padding: 8px 0;
-            padding-left: 24px;
-            position: relative;
-            border-bottom: 1px solid var(--border-light);
-        }
-
-        .education-list li:last-child {
-            border-bottom: none;
-        }
-
-        .education-list li::before {
-            content: '✓';
-            position: absolute;
-            left: 0;
-            color: var(--money-green);
-            font-weight: 700;
-        }
-
-        /* Final Score Screen */
-        .final-score-hero {
-            text-align: center;
-            padding: 40px 20px;
-            background: linear-gradient(135deg, var(--money-green-light) 0%, var(--bg-white) 100%);
-            border-radius: var(--radius-lg);
-            margin-bottom: 24px;
-        }
-
-        .final-score-circle {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            background: rgba(15, 20, 25, 0.9);
-            border: 1px solid rgba(0, 200, 83, 0.2);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 20px;
-            box-shadow: var(--shadow-md);
-        }
-
-        .final-score-value {
-            font-size: 36px;
-            font-weight: 700;
-            color: var(--money-green-dark);
-        }
-
-        .final-score-label {
-            font-size: 12px;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .final-score-title {
-            font-size: 24px;
-            font-weight: 700;
-            margin-bottom: 8px;
-        }
-
-        .final-score-message {
-            font-size: 15px;
-            color: var(--text-secondary);
-        }
-
-        .scenarios-summary {
-            margin-bottom: 24px;
-        }
-
-        .summary-title {
-            font-size: 16px;
-            font-weight: 600;
-            margin-bottom: 16px;
-        }
-
-        .summary-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 0;
-            border-bottom: 1px solid var(--border-light);
-        }
-
-        .summary-icon {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-        }
-
-        .summary-icon.correct {
-            background: var(--money-green-light);
-        }
-
-        .bg-white {
-            background: rgba(15, 20, 25, 0.85);
-            border: 1px solid rgba(0, 200, 83, 0.2);
-        }
-
-        .summary-text {
-            flex: 1;
-        }
-
-        .summary-name {
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        .summary-choice {
-            font-size: 12px;
-            color: var(--text-secondary);
-        }
-
-        /* Progress Bar */
-        .progress-container {
-            margin-bottom: 20px;
-        }
-
-        .progress-header {
-            display: flex;
-            justify-content: space-between;
-            font-size: 13px;
-            margin-bottom: 8px;
-        }
-
-        .progress-label {
-            color: var(--text-secondary);
-        }
-
-        .progress-value {
-            font-weight: 600;
-        }
-
-        .progress-bar {
-            height: 8px;
-            background: var(--bg-gray-dark);
-            border-radius: 4px;
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: var(--money-green);
-            border-radius: 4px;
-            transition: width 0.3s ease;
-        }
-
-        /* Modal */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 200;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.2s ease;
-        }
-
-        .modal-overlay.active {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .modal {
-            background: rgba(15, 20, 25, 0.9);
-            border: 1px solid rgba(0, 200, 83, 0.2);
-            border-radius: var(--radius-lg);
-            width: 90%;
-            max-width: 360px;
-            max-height: 80vh;
-            overflow: hidden;
-            transform: scale(0.9);
-            transition: transform 0.2s ease;
-        }
-
-        .modal-overlay.active .modal {
-            transform: scale(1);
-        }
-
-        .modal-header {
-            padding: 20px;
-            border-bottom: 1px solid var(--border-light);
-        }
-
-        .modal-title {
-            font-size: 18px;
-            font-weight: 700;
-        }
-
-        .modal-body {
-            padding: 20px;
-            max-height: 50vh;
-            overflow-y: auto;
-        }
-
-        .modal-footer {
-            padding: 16px 20px;
-            border-top: 1px solid var(--border-light);
-            display: flex;
-            gap: 12px;
-        }
-
-        .modal-footer .btn {
-            flex: 1;
-        }
-
-        /* Red Flag Legend */
-        .legend-item {
-            display: flex;
-            align-items: flex-start;
-            gap: 12px;
-            padding: 12px 0;
-            border-bottom: 1px solid var(--border-light);
-        }
-
-        .legend-item:last-child {
-            border-bottom: none;
-        }
-
-        .legend-icon {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            flex-shrink: 0;
-        }
-
-        .legend-icon.danger {
-            background: var(--danger-light);
-            color: var(--danger-red);
-        }
-
-        .legend-icon.warning {
-            background: var(--warning-light);
-            color: var(--warning-orange);
-        }
-
-        .legend-text h4 {
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 2px;
-        }
-
-        .legend-text p {
-            font-size: 13px;
-            color: var(--text-secondary);
-        }
-
-        /* Responsive */
-        @media (max-width: 400px) {
-            .app-container {
-                max-width: 100%;
-            }
-            
-            .welcome-title {
-                font-size: 24px;
-            }
-            
-            .screen-title {
-                font-size: 20px;
-            }
-            
-            .apr-value {
-                font-size: 20px;
-            }
-        }
-
-        /* Utility classes */
-        .text-center {
-            text-align: center;
-        }
-
-        .mb-16 {
-            margin-bottom: 16px;
-        }
-
-        .mb-24 {
-            margin-bottom: 24px;
-        }
-
-        .hidden {
-            display: none !important;
-        }
+        .hustle-btn {
+            width: 180px; height: 180px; border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #00aa55 0%, #004422 100%);
+            border: 4px solid #00ff88; box-shadow: 0 0 30px rgba(0,255,136,0.2), inset 0 0 20px rgba(0,0,0,0.5);
+            color: #fff; font-size: 28px; font-weight: 900; font-family: 'Inter', sans-serif;
+            text-transform: uppercase; cursor: pointer;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: transform 0.05s; z-index: 2;
+        }
+        .hustle-btn:active { transform: scale(0.9); box-shadow: 0 0 50px rgba(0,255,136,0.6); }
+        .hustle-sub { font-size: 14px; opacity: 0.8; margin-top: 5px; font-weight: normal; }
+
+        /* --- BOTTOM: LOANS & DEBT --- */
+        .bottom-zone {
+            height: 45%; background: rgba(10, 10, 15, 0.95);
+            border-top: 2px solid #333; display: flex; flex-direction: column;
+        }
+        
+        .tabs { display: flex; border-bottom: 1px solid #333; }
+        .tab { 
+            flex: 1; padding: 12px; text-align: center; font-size: 13px; font-weight: bold; 
+            color: #888; text-transform: uppercase; cursor: pointer; background: #0a0a0a;
+        }
+        .tab.active { background: #1a1a25; color: #fff; border-bottom: 2px solid #00ff88; }
+
+        .tab-content { flex-grow: 1; overflow-y: auto; padding: 10px; display: none; }
+        .tab-content.active { display: block; }
+
+        /* Loan Market Cards */
+        .market-card {
+            background: #111; border: 1px solid #333; border-radius: 8px;
+            padding: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;
+        }
+        .market-card.payday { border-left: 4px solid #ff00aa; }
+        .market-card.credit { border-left: 4px solid #ffaa00; }
+        .market-card.bank { border-left: 4px solid #00aaff; }
+        
+        .market-info h3 { font-size: 16px; margin-bottom: 4px; }
+        .market-info p { font-size: 12px; color: #aaa; margin-bottom: 2px; }
+        .bleed-text { color: #ff3333; font-family: monospace; font-weight: bold; }
+        
+        .take-btn {
+            background: #222; border: 1px solid #555; color: #fff;
+            padding: 10px 15px; border-radius: 6px; font-weight: bold; cursor: pointer;
+        }
+        .take-btn:active { background: #444; }
+
+        /* Active Debt Cards */
+        .debt-card {
+            background: rgba(40, 0, 0, 0.5); border: 1px solid #ff3333; border-radius: 8px;
+            padding: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;
+            animation: pulse-red 2s infinite;
+        }
+        @keyframes pulse-red { 0% { box-shadow: 0 0 5px rgba(255,0,0,0.1); } 50% { box-shadow: 0 0 15px rgba(255,0,0,0.3); } 100% { box-shadow: 0 0 5px rgba(255,0,0,0.1); } }
+        
+        .payoff-btn {
+            background: #00aa55; border: none; color: #fff;
+            padding: 10px 15px; border-radius: 6px; font-weight: bold; cursor: pointer;
+        }
+        .payoff-btn:disabled { background: #333; color: #666; cursor: not-allowed; }
+
+        /* --- EFFECTS --- */
+        .floating-text {
+            position: absolute; font-weight: bold; font-size: 24px; pointer-events: none;
+            animation: floatUp 1s ease-out forwards; z-index: 100; text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+        }
+        @keyframes floatUp { 0% { transform: translateY(0) scale(1); opacity: 1; } 100% { transform: translateY(-50px) scale(1.2); opacity: 0; } }
+
+        .screen-flash {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,0,0,0.3); pointer-events: none; z-index: 999;
+            opacity: 0; transition: opacity 0.1s;
+        }
+
+        .empty-state { text-align: center; color: #666; font-style: italic; margin-top: 30px; font-size: 14px; }
+        
+        /* Processing bar */
+        .processing-bar { width: 100%; height: 4px; background: #222; margin-top: 8px; display: none; }
+        .processing-fill { height: 100%; background: #00aaff; width: 0%; }
     </style>
 </head>
 <body>
-    <div class="app-container">
-        <!-- Header -->
+
+    <!-- FLASH EFFECT -->
+    <div class="screen-flash" id="flash"></div>
+
+    <!-- TITLE SCREEN -->
+    <div class="screen active" id="titleScreen">
+        <div class="center-content">
+            <h1>SMART<br>BORROWER</h1>
+            <p style="color: #aaa; margin-bottom: 30px; font-size: 14px; max-width: 300px; line-height: 1.5;">
+                Survive life's unexpected expenses.<br><br>
+                Tap <b>HUSTLE</b> to earn cash.<br>
+                If you can't afford a bill, take a loan... but beware the <b>Debt Bleed</b>.<br><br>
+                Payday loans save you today, but bleed you dry tomorrow.
+            </p>
+            <button class="btn" onclick="startGame()">START SURVIVAL</button>
+            <button class="btn" style="font-size:14px; background:transparent; border-color:#444; color:#888; box-shadow:none;" onclick="window.location.href='../moneybot-official/'">← BACK TO GAMES</button>
+        </div>
+    </div>
+
+    <!-- GAME OVER SCREEN -->
+    <div class="screen" id="gameOverScreen">
+        <div class="center-content">
+            <h1 class="danger-text">BANKRUPT</h1>
+            <p style="color: #aaa; margin-bottom: 10px;">Your cash hit $0.</p>
+            <p style="font-size: 24px; margin-bottom: 30px;">Months Survived: <span id="finalMonths" style="color:#00ff88; font-weight:bold;">0</span></p>
+            <button class="btn" onclick="startGame()">TRY AGAIN</button>
+            <button class="btn" style="font-size:14px; background:transparent; border-color:#444; color:#888; box-shadow:none;" onclick="window.location.href='../moneybot-official/'">← BACK TO GAMES</button>
+        </div>
+    </div>
+
+    <!-- MAIN GAME UI -->
+    <div id="gameUI" style="display: none; flex-direction: column; height: 100%;">
         
-        <header class="header">
-            <a href="../moneybot-official/index.html" style="text-decoration: none; color: var(--text-tertiary); margin-right: 10px; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; background: var(--bg-gray); border-radius: 50%;"><span class="material-symbols-rounded" style="font-size: 18px;">arrow_back</span></a>
-
-            <div class="logo">
-                <div class="logo-icon"><span class="material-symbols-rounded">savings</span></div>
-                <span>Smart Borrower</span>
+        <div class="top-bar">
+            <div class="stat">
+                <span class="stat-label">Net Cash</span>
+                <span class="stat-val cash-green" id="cashDisplay">$1,000</span>
             </div>
-            <div class="score-badge">
-                <span class="material-symbols-rounded" style="font-size:18px; color:var(--money-green-dark)">workspace_premium</span>
-                <span id="header-score">0</span>
-            </div>
-        </header>
-
-        <!-- Welcome Screen -->
-        <div class="screen active" id="welcome-screen">
-            <div class="welcome-hero">
-                <img src="assets/hero-moneybot.png" alt="MoneyBot Shielding Predatory Loans" style="height: 180px; display: block; margin: 0 auto 20px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,200,83,0.3); object-fit: cover;">
-                <h1 class="welcome-title">Master the Art of Smart Borrowing</h1>
-                <p class="welcome-subtitle">Learn to spot predatory loans and make informed financial decisions that save you thousands.</p>
-            </div>
-
-            <div class="features-grid">
-                <div class="feature-card">
-                    <div class="feature-icon"><span class="material-symbols-rounded">monitoring</span></div>
-                    <div class="feature-text">
-                        <h3>Compare Real Loans</h3>
-                        <p>Analyze APR, fees, and total costs side-by-side</p>
-                    </div>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon"><span class="material-symbols-rounded">flag</span></div>
-                    <div class="feature-text">
-                        <h3>Spot Red Flags</h3>
-                        <p>Learn to identify predatory lending traps</p>
-                    </div>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon"><span class="material-symbols-rounded">school</span></div>
-                    <div class="feature-text">
-                        <h3>Build Knowledge</h3>
-                        <p>Master loan terminology and financial concepts</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="btn-group">
-                <button class="btn btn-primary" onclick="showScreen('character-screen')">
-                    Start Learning
-                    <span>→</span>
-                </button>
-                <button class="btn btn-outline" onclick="showModal('how-to-play')">
-                    How to Play
-                </button>
+            <div class="stat" style="text-align: right;">
+                <span class="stat-label">Cashflow (per sec)</span>
+                <span class="stat-val cash-green" id="flowDisplay">+$10</span>
             </div>
         </div>
 
-
-        <!-- Character Selection Screen -->
-        <div class="screen" id="character-screen">
-            <h2 class="screen-title">Choose Your Identity</h2>
-            <p class="screen-desc">Your background will determine your starting credit score and the loan options available to you.</p>
-
-            <div class="character-grid" id="character-grid">
-                <!-- Injected via JS -->
-            </div>
-
-            <div class="btn-group">
-                <button class="btn btn-primary" id="start-game-btn" style="opacity:0.5; pointer-events:none;" onclick="confirmCharacter()">
-                    Start Borrowing
-                    <span>→</span>
-                </button>
-            </div>
+        <div class="threat-container">
+            <div class="threat-title" id="expenseName">Upcoming: Rent Due</div>
+            <div class="threat-amount" id="expenseAmount">-$800</div>
+            <div class="threat-timer" id="expenseTimer">10.0s</div>
+            <div class="progress-bg"><div class="progress-fill" id="expenseProgress"></div></div>
         </div>
 
-        <!-- Scenario Selection Screen -->
-        <div class="screen" id="scenarios-screen">
-            <h2 class="screen-title">Choose a Scenario</h2>
-            <p class="screen-desc">Select a borrowing situation to analyze loan offers and make the smartest choice.</p>
-
-            <div class="progress-container">
-                <div class="progress-header">
-                    <span class="progress-label">Progress</span>
-                    <span class="progress-value"><span id="completed-count">0</span>/<span id="total-count">5</span></span>
-                </div>
-                <div class="progress-bar">
-                    <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
-                </div>
-            </div>
-
-            <div class="scenarios-list" id="scenarios-list">
-                <!-- Scenarios will be populated by JS -->
-            </div>
-        </div>
-
-        <!-- Game Screen -->
-        <div class="screen" id="game-screen">
-            <div class="scenario-header">
-                <div class="scenario-label">Current Scenario</div>
-                <h2 class="scenario-title" id="game-scenario-title">Car Repair Emergency</h2>
-                <p class="scenario-description" id="game-scenario-desc">Your car broke down and needs immediate repairs to get to work.</p>
-                <div class="loan-amount-needed">
-                    <span class="loan-amount-label">Amount Needed</span>
-                    <span class="loan-amount-value" id="game-amount">$2,500</span>
-                </div>
-            </div>
-
-            <div class="apr-viz" id="apr-viz">
-                <div class="apr-viz-title">
-                    <span>📊</span>
-                    True Cost Comparison
-                    <span class="tooltip-trigger" onclick="showTooltip(event, 'Shows total cost over the life of each loan including all fees and interest')">?</span>
-                </div>
-                <div class="apr-chart" id="apr-chart">
-                    <!-- Chart bars populated by JS -->
-                </div>
-            </div>
-
-            <div class="loan-options-title">
-                <span>💳</span>
-                Select the Best Loan Offer
-                <span class="tooltip-trigger" onclick="showTooltip(event, 'Compare all options carefully. The lowest monthly payment isn\'t always the best deal!')">?</span>
-            </div>
-
-            <div class="loan-options-list" id="loan-options">
-                <!-- Loan cards populated by JS -->
-            </div>
-
-            <button class="btn btn-secondary" onclick="showModal('red-flag-legend')">
-                <span>🚩</span>
-                Red Flag Guide
+        <div class="hustle-zone" id="hustleZone">
+            <div style="position:absolute; top: 10px; left: 15px; font-weight:bold; color:#666;">MONTH <span id="monthDisplay" style="color:#fff;">1</span></div>
+            
+            <button class="hustle-btn" id="hustleBtn">
+                HUSTLE
+                <span class="hustle-sub">+$5 / TAP</span>
             </button>
         </div>
 
-        <!-- Result Screen -->
-        <div class="screen" id="result-screen">
-            <div class="result-hero">
-                <div class="result-icon" id="result-icon">✅</div>
-                <h2 class="result-title" id="result-title">Great Choice!</h2>
-                <p class="result-subtitle" id="result-subtitle">You selected a responsible loan option.</p>
+        <div class="bottom-zone">
+            <div class="tabs">
+                <div class="tab active" onclick="switchTab('market')" id="tab-market">Loan Market</div>
+                <div class="tab" onclick="switchTab('debts')" id="tab-debts">Active Debts (<span id="debtCount">0</span>)</div>
+            </div>
+            
+            <!-- MARKET TAB -->
+            <div class="tab-content active" id="content-market">
+                
+                <div class="market-card payday">
+                    <div class="market-info">
+                        <h3>Payday Loan <span style="font-size:10px; background:#ff00aa; color:#fff; padding:2px 4px; border-radius:3px;">INSTANT</span></h3>
+                        <p>Get: <b style="color:#fff;">$500</b> | Payoff: $650</p>
+                        <p>Rate: <span class="bleed-text">-$30/sec</span> bleed</p>
+                    </div>
+                    <button class="take-btn" onclick="takeLoan('payday')">TAKE</button>
+                </div>
+
+                <div class="market-card credit">
+                    <div class="market-info">
+                        <h3>Credit Card <span style="font-size:10px; background:#ffaa00; color:#000; padding:2px 4px; border-radius:3px;">INSTANT</span></h3>
+                        <p>Get: <b style="color:#fff;">$1,000</b> | Payoff: $1,200</p>
+                        <p>Rate: <span class="bleed-text">-$15/sec</span> bleed</p>
+                    </div>
+                    <button class="take-btn" onclick="takeLoan('credit')">TAKE</button>
+                </div>
+
+                <div class="market-card bank">
+                    <div class="market-info">
+                        <h3>Bank Loan <span style="font-size:10px; background:#00aaff; color:#fff; padding:2px 4px; border-radius:3px;">3s WAIT</span></h3>
+                        <p>Get: <b style="color:#fff;">$2,500</b> | Payoff: $2,800</p>
+                        <p>Rate: <span class="bleed-text">-$5/sec</span> bleed</p>
+                        <div class="processing-bar" id="bank-progress-bar"><div class="processing-fill" id="bank-progress-fill"></div></div>
+                    </div>
+                    <button class="take-btn" id="bank-btn" onclick="takeLoan('bank')">APPLY</button>
+                </div>
+
             </div>
 
-            <div class="result-details">
-                <div class="result-detail-title">Your Selection</div>
-                <div class="comparison-row">
-                    <span class="comparison-label">Lender</span>
-                    <span class="comparison-value neutral" id="result-lender">Credit Union</span>
-                </div>
-                <div class="comparison-row">
-                    <span class="comparison-label">APR</span>
-                    <span class="comparison-value" id="result-apr">8.5%</span>
-                </div>
-                <div class="comparison-row">
-                    <span class="comparison-label">Monthly Payment</span>
-                    <span class="comparison-value neutral" id="result-payment">$220</span>
-                </div>
-                <div class="comparison-row">
-                    <span class="comparison-label">Total Cost</span>
-                    <span class="comparison-value good" id="result-total">$2,640</span>
-                </div>
-
-                <div class="savings-highlight" id="savings-highlight">
-                    <div class="savings-amount" id="savings-amount">$1,240</div>
-                    <div class="savings-label">saved vs. the worst option</div>
+            <!-- DEBTS TAB -->
+            <div class="tab-content" id="content-debts">
+                <div id="debtsContainer">
+                    <div class="empty-state">No active debts. Good job!</div>
                 </div>
             </div>
 
-            <div class="education-box">
-                <div class="education-title">
-                    <span>💡</span>
-                    What You Learned
-                </div>
-                <ul class="education-list" id="education-list">
-                    <!-- Populated by JS -->
-                </ul>
-            </div>
-
-            <div class="btn-group">
-                <button class="btn btn-primary" onclick="backToScenarios()">
-                    Continue to Next Scenario
-                    <span>→</span>
-                </button>
-                <button class="btn btn-outline" onclick="showScreen('game-screen')">
-                    Review Options Again
-                </button>
-            </div>
-        </div>
-
-        <!-- Final Score Screen -->
-        <div class="screen" id="final-screen">
-            <div class="final-score-hero">
-                <div class="final-score-circle">
-                    <div class="final-score-value" id="final-score">0</div>
-                    <div class="final-score-label">Score</div>
-                </div>
-                <h2 class="final-score-title" id="final-title">Loan Master!</h2>
-                <p class="final-score-message" id="final-message">You've completed all scenarios.</p>
-            </div>
-
-            <div class="scenarios-summary" id="scenarios-summary">
-                <div class="summary-title">Scenario Results</div>
-                <!-- Populated by JS -->
-            </div>
-
-            <div class="btn-group">
-                <button class="btn btn-primary" onclick="resetGame()">
-                    <span>🔄</span>
-                    Play Again
-                </button>
-                <button class="btn btn-secondary" onclick="showScreen('welcome-screen')">
-                    Back to Home
-                </button>
-            </div>
-        </div>
-
-        <!-- Tooltip -->
-        <div class="tooltip" id="tooltip"></div>
-
-        <!-- Modals -->
-        <div class="modal-overlay" id="modal-overlay">
-            <div class="modal" id="modal">
-                <div class="modal-header">
-                    <h3 class="modal-title" id="modal-title">Title</h3>
-                </div>
-                <div class="modal-body" id="modal-body">
-                    <!-- Content populated by JS -->
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-primary" onclick="closeModal()">Got it</button>
-                </div>
-            </div>
         </div>
     </div>
 
     <script>
+        // --- GAME STATE ---
+        let cash = 1000;
+        let baseIncome = 10; // per second
+        let debtBleed = 0;   // per second (absolute)
+        let month = 1;
+        let hustlePower = 5;
         
-        // Characters Data
-        const characters = [
-            {
-                id: "student",
-                name: "College Student",
-                description: "Tight budget. Limited credit history.",
-                creditScore: 620,
-                scoreLabel: "Fair",
-                income: 1200,
-                icon: '<img src="assets/char-student.png" style="width:60px; height:60px; border-radius:12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); object-fit:cover;">'
-            },
-            {
-                id: "gig",
-                name: "Gig Worker",
-                description: "Income fluctuates. Needs quick cash.",
-                creditScore: 580,
-                scoreLabel: "Poor",
-                income: 2500,
-                icon: '<img src="assets/char-gig.png" style="width:60px; height:60px; border-radius:12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); object-fit:cover;">'
-            },
-            {
-                id: "parent",
-                name: "Single Parent",
-                description: "Steady job, high expenses, maxed cards.",
-                creditScore: 650,
-                scoreLabel: "Fair",
-                income: 4000,
-                icon: '<img src="assets/char-parent.png" style="width:60px; height:60px; border-radius:12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); object-fit:cover;">'
-            },
-            {
-                id: "grad",
-                name: "Recent Grad",
-                description: "Good salary, high student loan debt.",
-                creditScore: 720,
-                scoreLabel: "Good",
-                income: 5000,
-                icon: '<img src="assets/char-grad.png" style="width:60px; height:60px; border-radius:12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); object-fit:cover;">'
-            }
+        let expenseTimer = 10.0;
+        let expenseTimerMax = 10.0;
+        let currentExpenseName = "Rent Due";
+        let currentExpenseAmount = 800;
+        
+        let activeLoans = [];
+        let loanIdCounter = 0;
+        
+        let isGameOver = true;
+        let lastTime = 0;
+        let animationFrameId;
+
+        let bankProcessing = 0; // countdown for bank loan
+        let bankActive = false;
+
+        const EXPENSE_NAMES = [
+            "Rent Due", "Car Repair", "Medical Bill", "Broken Laptop", 
+            "Tax Bill", "Roof Leak", "Speeding Ticket", "Vet Bill"
         ];
 
-        let playerCharacter = null;
-
-        function renderCharacters() {
-            const container = document.getElementById('character-grid');
-            if(!container) return;
-            container.innerHTML = characters.map(c => `
-                <div class="char-card" id="char-${c.id}" onclick="selectCharacter('${c.id}')">
-                    <div class="char-icon">${c.icon}</div>
-                    <div class="char-name">${c.name}</div>
-                    <div class="char-desc">${c.description}</div>
-                    <div class="char-stats">
-                        <div class="char-stat-row">
-                            <span class="char-stat-label">Credit Score</span>
-                            <span class="char-stat-value" style="color: ${getScoreColor(c.creditScore)}">${c.creditScore} (${c.scoreLabel})</span>
-                        </div>
-                        <div class="char-stat-row">
-                            <span class="char-stat-label">Income</span>
-                            <span class="char-stat-value">$${c.income}/mo</span>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function getScoreColor(score) {
-            if(score >= 700) return 'var(--money-green-dark)';
-            if(score >= 600) return 'var(--warning-orange)';
-            return 'var(--danger-red)';
-        }
-
-        function selectCharacter(id) {
-            playerCharacter = characters.find(c => c.id === id);
-            document.querySelectorAll('.char-card').forEach(el => el.classList.remove('selected'));
-            document.getElementById('char-' + id).classList.add('selected');
-            document.getElementById('start-game-btn').style.opacity = '1'; document.getElementById('start-game-btn').style.pointerEvents = 'auto';
-        }
-
-        function confirmCharacter() {
-            // Update header with credit score
-            document.getElementById('header-score').innerHTML = `Credit: <span style="color: ${getScoreColor(playerCharacter.creditScore)}">${playerCharacter.creditScore}</span> | Pts: <span id="actual-score">0</span>`;
-            showScreen('scenarios-screen');
-        }
-
-
-        // Game Data
-        const scenarios = [
-            {
-                id: 1,
-                icon: '<img src="assets/icon-car.png" style="width:100%; height:100%; border-radius:12px; object-fit:cover;">',
-                name: "Car Repair Emergency",
-                amount: 2500,
-                description: "Your car broke down and needs immediate repairs to get to work.",
-                loans: [
-                    {
-                        id: "credit_union",
-                        lender: "Community Credit Union",
-                        type: "Credit Union",
-                        icon: '<img src="assets/icon-bank.png" style="width:100%; height:100%; border-radius:8px; object-fit:cover;">',
-                        apr: 9.5,
-                        termMonths: 24,
-                        monthlyPayment: 114.67,
-                        totalCost: 2752.08,
-                        fees: 25,
-                        flags: [],
-                        isBest: true
-                    },
-                    {
-                        id: "bank",
-                        lender: "First National Bank",
-                        type: "Bank Personal Loan",
-                        icon: '<img src="assets/icon-bank.png" style="width:100%; height:100%; border-radius:8px; object-fit:cover;">',
-                        apr: 12.9,
-                        termMonths: 24,
-                        monthlyPayment: 118.38,
-                        totalCost: 2841.12,
-                        fees: 50,
-                        flags: ["origination_fee"],
-                        isBest: false
-                    },
-                    {
-                        id: "payday",
-                        lender: "Quick Cash Now",
-                        type: "Payday Loan",
-                        icon: '<img src="assets/icon-predatory.png" style="width:100%; height:100%; border-radius:8px; object-fit:cover;">',
-                        apr: 399,
-                        termMonths: 1,
-                        monthlyPayment: 3331.25,
-                        totalCost: 3331.25,
-                        fees: 50,
-                        flags: ["extreme_apr", "short_term", "rollover_risk", "predatory"],
-                        isBest: false
-                    },
-                    {
-                        id: "title",
-                        lender: "TitleMax Loans",
-                        type: "Title Loan",
-                        icon: '<img src="assets/char-gig.png" style="width:60px; height:60px; border-radius:12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); object-fit:cover;">',
-                        apr: 300,
-                        termMonths: 1,
-                        monthlyPayment: 3125,
-                        totalCost: 3125,
-                        fees: 100,
-                        flags: ["extreme_apr", "asset_risk", "predatory"],
-                        isBest: false
-                    }
-                ],
-                lessons: [
-                    "Payday loans can have APRs over 300%, trapping borrowers in debt cycles",
-                    "Credit unions typically offer the lowest rates for personal loans",
-                    "Title loans put your vehicle at risk of repossession",
-                    "Always calculate the total cost, not just the monthly payment"
-                ]
-            },
-            {
-                id: 2,
-                icon: '<img src="assets/icon-medical.png" style="width:100%; height:100%; border-radius:12px; object-fit:cover;">',
-                name: "Medical Bill",
-                amount: 5000,
-                description: "An unexpected medical expense needs to be paid immediately.",
-                loans: [
-                    {
-                        id: "credit_union",
-                        lender: "Health Care Credit Union",
-                        type: "Medical Loan",
-                        icon: '<img src="assets/icon-bank.png" style="width:100%; height:100%; border-radius:8px; object-fit:cover;">',
-                        apr: 7.9,
-                        termMonths: 36,
-                        monthlyPayment: 156.23,
-                        totalCost: 5624.28,
-                        fees: 0,
-                        flags: [],
-                        isBest: true
-                    },
-                    {
-                        id: "online_lender",
-                        lender: "LendingPoint",
-                        type: "Online Personal Loan",
-                        icon: '<img src="assets/icon-predatory.png" style="width:100%; height:100%; border-radius:8px; object-fit:cover;">',
-                        apr: 18.9,
-                        termMonths: 36,
-                        monthlyPayment: 182.75,
-                        totalCost: 6579,
-                        fees: 150,
-                        flags: ["high_apr", "origination_fee"],
-                        isBest: false
-                    },
-                    {
-                        id: "medical_credit",
-                        lender: "CareCredit Medical",
-                        type: "Deferred Interest",
-                        icon: '<img src="assets/icon-bank.png" style="width:100%; height:100%; border-radius:8px; object-fit:cover;">',
-                        apr: 26.99,
-                        termMonths: 24,
-                        monthlyPayment: 208.33,
-                        totalCost: 5000,
-                        deferredInterest: true,
-                        fees: 0,
-                        flags: ["deferred_interest_trap", "high_apr"],
-                        isBest: false
-                    },
-                    {
-                        id: "pawn",
-                        lender: "EZ Pawn Shop",
-                        type: "Pawn Loan",
-                        icon: '<img src="assets/icon-predatory.png" style="width:100%; height:100%; border-radius:8px; object-fit:cover;">',
-                        apr: 240,
-                        termMonths: 4,
-                        monthlyPayment: 1500,
-                        totalCost: 6000,
-                        fees: 50,
-                        flags: ["extreme_apr", "asset_risk", "short_term"],
-                        isBest: false
-                    }
-                ],
-                lessons: [
-                    "Deferred interest cards charge ALL accrued interest if not paid in full",
-                    "Medical credit cards often have higher rates than personal loans",
-                    "Pawn loans require collateral and have very high APRs",
-                    "Some credit unions offer specialized low-rate medical loans"
-                ]
-            },
-            {
-                id: 3,
-                icon: '<img src="assets/icon-house.png" style="width:100%; height:100%; border-radius:12px; object-fit:cover;">',
-                name: "Rent Payment",
-                amount: 1200,
-                description: "You're short on rent and need to avoid eviction.",
-                loans: [
-                    {
-                        id: "cash_advance_app",
-                        lender: "Earnin App",
-                        type: "Paycheck Advance",
-                        icon: '<img src="assets/icon-predatory.png" style="width:100%; height:100%; border-radius:8px; object-fit:cover;">',
-                        apr: 0,
-                        termMonths: 1,
-                        monthlyPayment: 1200,
-                        totalCost: 1200,
-                        fees: 0,
-                        tipSuggested: true,
-                        flags: ["tip_pressure"],
-                        isBest: true
-                    },
-                    {
-                        id: "credit_union",
-                        lender: "Local Credit Union",
-                        type: "Small Dollar Loan",
-                        icon: '<img src="assets/icon-bank.png" style="width:100%; height:100%; border-radius:8px; object-fit:cover;">',
-                        apr: 18,
-                        termMonths: 3,
-                        monthlyPayment: 412.12,
-                        totalCost: 1236.36,
-                        fees: 10,
-                        flags: [],
-                        isBest: false
-                    },
-                    {
-                        id: "rent_loan",
-                        lender: "RentCash Express",
-                        type: "Rent Loan",
-                        icon: '<img src="assets/icon-predatory.png" style="width:100%; height:100%; border-radius:8px; object-fit:cover;">',
-                        apr: 149,
-                        termMonths: 3,
-                        monthlyPayment: 647.67,
-                        totalCost: 1943,
-                        fees: 75,
-                        flags: ["extreme_apr", "hidden_fees", "predatory"],
-                        isBest: false
-                    },
-                    {
-                        id: "overdraft",
-                        lender: "Big Bank Checking",
-                        type: "Overdraft Protection",
-                        icon: '<span class="material-symbols-rounded">monetization_on</span>',
-                        apr: 2000,
-                        termMonths: 0.5,
-                        monthlyPayment: 1350,
-                        totalCost: 1350,
-                        fees: 35,
-                        flags: ["extreme_apr", "short_term", "overdraft_risk"],
-                        isBest: false
-                    }
-                ],
-                lessons: [
-                    "Paycheck advance apps can be better than payday loans if used responsibly",
-                    "Overdraft fees can equate to APRs over 1000%",
-                    "Rent loans often target vulnerable tenants with predatory rates",
-                    "Even small credit union loans beat most emergency lending options"
-                ]
-            },
-            {
-                id: 4,
-                icon: '<img src="assets/char-student.png" style="width:60px; height:60px; border-radius:12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); object-fit:cover;">',
-                name: "Student Expenses",
-                amount: 3000,
-                description: "Textbooks and supplies for the upcoming semester.",
-                loans: [
-                    {
-                        id: "student_credit_union",
-                        lender: "University Credit Union",
-                        type: "Student Personal Loan",
-                        icon: '<img src="assets/icon-bank.png" style="width:100%; height:100%; border-radius:8px; object-fit:cover;">',
-                        apr: 6.9,
-                        termMonths: 24,
-                        monthlyPayment: 133.95,
-                        totalCost: 3214.80,
-                        fees: 0,
-                        flags: [],
-                        isBest: true
-                    },
-                    {
-                        id: "student_card",
-                        lender: "StudentCredit Card",
-                        type: "Credit Card",
-                        icon: '<img src="assets/icon-bank.png" style="width:100%; height:100%; border-radius:8px; object-fit:cover;">',
-                        apr: 22.99,
-                        termMonths: 36,
-                        monthlyPayment: 116.12,
-                        totalCost: 4180.32,
-                        fees: 0,
-                        flags: ["high_apr", "minimum_payment_trap"],
-                        isBest: false
-                    },
-                    {
-                        id: "buy_now_pay_later",
-                        lender: "AfterPay Later",
-                        type: "BNPL Service",
-                        icon: '<span class="material-symbols-rounded">shopping_cart</span>',
-                        apr: 0,
-                        termMonths: 2,
-                        monthlyPayment: 1500,
-                        totalCost: 3000,
-                        lateFee: 25,
-                        flags: ["late_fee_risk", "overspending_risk"],
-                        isBest: false
-                    },
-                    {
-                        id: "private_student",
-                        lender: "EduLend Private",
-                        type: "Private Student Loan",
-                        icon: '<span class="material-symbols-rounded">local_library</span>',
-                        apr: 11.5,
-                        termMonths: 120,
-                        monthlyPayment: 42.04,
-                        totalCost: 5044.80,
-                        fees: 0,
-                        flags: ["long_term_cost", "no_flexibility"],
-                        isBest: false
-                    }
-                ],
-                lessons: [
-                    "Credit card minimum payments stretch debt and maximize interest",
-                    "BNPL services charge steep late fees and encourage overspending",
-                    "Private student loans often cost more than federal options",
-                    "Shorter terms with credit unions minimize total interest paid"
-                ]
-            },
-            {
-                id: 5,
-                icon: '<img src="assets/icon-flight.png" style="width:100%; height:100%; border-radius:12px; object-fit:cover;">',
-                name: "Emergency Travel",
-                amount: 800,
-                description: "Urgent travel for a family emergency.",
-                loans: [
-                    {
-                        id: "credit_union",
-                        lender: "Family Credit Union",
-                        type: "Emergency Loan",
-                        icon: '<img src="assets/icon-bank.png" style="width:100%; height:100%; border-radius:8px; object-fit:cover;">',
-                        apr: 8.5,
-                        termMonths: 6,
-                        monthlyPayment: 136.27,
-                        totalCost: 817.62,
-                        fees: 0,
-                        flags: [],
-                        isBest: true
-                    },
-                    {
-                        id: "travel_card",
-                        lender: "TravelRewards Card",
-                        type: "Credit Card",
-                        icon: '<img src="assets/icon-flight.png" style="width:100%; height:100%; border-radius:12px; object-fit:cover;">',
-                        apr: 24.99,
-                        termMonths: 12,
-                        monthlyPayment: 75.74,
-                        totalCost: 908.88,
-                        fees: 0,
-                        flags: ["high_apr"],
-                        isBest: false
-                    },
-                    {
-                        id: "travel_loan",
-                        lender: "WanderLend",
-                        type: "Travel Loan",
-                        icon: '<span class="material-symbols-rounded">public</span>',
-                        apr: 89,
-                        termMonths: 6,
-                        monthlyPayment: 158.67,
-                        totalCost: 952.02,
-                        fees: 50,
-                        flags: ["extreme_apr", "hidden_fees"],
-                        isBest: false
-                    },
-                    {
-                        id: "tribal",
-                        lender: "TribalLoans Direct",
-                        type: "Tribal Payday Loan",
-                        icon: '<span class="material-symbols-rounded">warning</span>',
-                        apr: 450,
-                        termMonths: 2,
-                        monthlyPayment: 980,
-                        totalCost: 1960,
-                        fees: 100,
-                        flags: ["extreme_apr", "regulatory_gap", "predatory", "no_state_protection"],
-                        isBest: false
-                    }
-                ],
-                lessons: [
-                    "Tribal lenders claim sovereign immunity to bypass state rate caps",
-                    "Travel-specific loans often have inflated rates",
-                    "Credit unions offer true emergency loans with reasonable terms",
-                    "Always verify lenders are licensed in your state"
-                ]
-            }
-        ];
-
-        // Red flag definitions
-        const redFlags = {
-            extreme_apr: { type: "danger", label: "Extreme APR", description: "APR over 100% is predatory" },
-            high_apr: { type: "warning", label: "High APR", description: "Above average interest rate" },
-            predatory: { type: "danger", label: "Predatory", description: "Designed to trap borrowers" },
-            short_term: { type: "warning", label: "Very Short Term", description: "Must repay quickly or renew" },
-            rollover_risk: { type: "danger", label: "Rollover Trap", description: "Designed to force loan renewals" },
-            asset_risk: { type: "danger", label: "Asset at Risk", description: "Could lose car or property" },
-            origination_fee: { type: "warning", label: "Origination Fee", description: "Upfront fee deducted from loan" },
-            deferred_interest_trap: { type: "danger", label: "Deferred Interest", description: "All interest due if not paid in full" },
-            hidden_fees: { type: "danger", label: "Hidden Fees", description: "Charges not clearly disclosed" },
-            overdraft_risk: { type: "warning", label: "Overdraft Risk", description: "Can trigger multiple fees" },
-            tip_pressure: { type: "warning", label: "Tip Pressure", description: "Suggested tips increase cost" },
-            late_fee_risk: { type: "warning", label: "High Late Fees", description: "Expensive penalties for missed payments" },
-            overspending_risk: { type: "warning", label: "Overspending Risk", description: "Encourages buying more than needed" },
-            long_term_cost: { type: "warning", label: "Long-term Cost", description: "Low payments but high total interest" },
-            no_flexibility: { type: "warning", label: "No Flexibility", description: "Hard to modify or discharge" },
-            minimum_payment_trap: { type: "danger", label: "Min Payment Trap", description: "Paying minimum stretches debt for years" },
-            regulatory_gap: { type: "danger", label: "Regulatory Gap", description: "Avoids consumer protection laws" },
-            no_state_protection: { type: "danger", label: "No State Protection", description: "Not subject to state usury limits" }
+        const LOANS = {
+            payday: { name: "Payday Loan", cash: 500, payoff: 650, bleed: 30 },
+            credit: { name: "Credit Card", cash: 1000, payoff: 1200, bleed: 15 },
+            bank:   { name: "Bank Loan", cash: 2500, payoff: 2800, bleed: 5 }
         };
 
-        // Game State
-        let gameState = {
-            currentScenario: null,
-            completedScenarios: [],
-            scores: {},
-            totalScore: 0
-        };
+        // --- DOM ELEMENTS ---
+        const uiCash = document.getElementById('cashDisplay');
+        const uiFlow = document.getElementById('flowDisplay');
+        const uiExpName = document.getElementById('expenseName');
+        const uiExpAmt = document.getElementById('expenseAmount');
+        const uiExpTimer = document.getElementById('expenseTimer');
+        const uiExpProg = document.getElementById('expenseProgress');
+        const uiMonth = document.getElementById('monthDisplay');
+        const uiDebtCount = document.getElementById('debtCount');
+        const uiDebtsContainer = document.getElementById('debtsContainer');
+        const flashScreen = document.getElementById('flash');
+        const hustleZone = document.getElementById('hustleZone');
 
-        // Initialize
-        document.addEventListener('DOMContentLoaded', () => {
-            renderCharacters();
-            renderScenarios();
-            updateHeaderScore();
+        // --- UI LOGIC ---
+        function switchTab(tab) {
+            document.getElementById('tab-market').classList.remove('active');
+            document.getElementById('tab-debts').classList.remove('active');
+            document.getElementById('content-market').classList.remove('active');
+            document.getElementById('content-debts').classList.remove('active');
+            
+            document.getElementById('tab-' + tab).classList.add('active');
+            document.getElementById('content-' + tab).classList.add('active');
+        }
+
+        function formatMoney(num) {
+            return '$' + Math.floor(num).toLocaleString();
+        }
+
+        function createFloatingText(x, y, text, color) {
+            const el = document.createElement('div');
+            el.className = 'floating-text';
+            el.style.left = x + 'px';
+            el.style.top = y + 'px';
+            el.style.color = color;
+            el.textContent = text;
+            hustleZone.appendChild(el);
+            setTimeout(() => { if(el.parentNode) el.parentNode.removeChild(el); }, 1000);
+        }
+
+        function flash() {
+            flashScreen.style.opacity = '1';
+            setTimeout(() => { flashScreen.style.opacity = '0'; }, 150);
+        }
+
+        // --- INTERACTION ---
+        document.getElementById('hustleBtn').addEventListener('touchstart', (e) => {
+            e.preventDefault(); doHustle(e.touches[0].clientX, e.touches[0].clientY);
+        });
+        document.getElementById('hustleBtn').addEventListener('mousedown', (e) => {
+            doHustle(e.clientX, e.clientY);
         });
 
-        // Screen Management
-        function showScreen(screenId) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.getElementById(screenId).classList.add('active');
-            window.scrollTo(0, 0);
+        function doHustle(x, y) {
+            if(isGameOver) return;
+            cash += hustlePower;
+            
+            // Adjust coordinates to be relative to hustleZone
+            const rect = hustleZone.getBoundingClientRect();
+            const relX = x - rect.left - 20;
+            const relY = y - rect.top - 20;
+            
+            createFloatingText(relX + (Math.random()*40-20), relY + (Math.random()*40-20), "+" + formatMoney(hustlePower), "#00ff88");
+            updateHUD();
         }
 
-        // Render Scenarios List
-        function renderScenarios() {
-            const list = document.getElementById('scenarios-list');
-            const completedCount = gameState.completedScenarios.length;
+        function takeLoan(type) {
+            if(isGameOver) return;
             
-            document.getElementById('completed-count').textContent = completedCount;
-            document.getElementById('total-count').textContent = scenarios.length;
-            document.getElementById('progress-fill').style.width = 
-                `${(completedCount / scenarios.length) * 100}%`;
-
-            list.innerHTML = scenarios.map(scenario => {
-                const isCompleted = gameState.completedScenarios.includes(scenario.id);
-                const statusIcon = isCompleted ? (gameState.scores[scenario.id] ? '✅' : '⚠️') : '→';
-                
-                return `
-                    <div class="scenario-card ${isCompleted ? 'completed' : ''}" 
-                         onclick="startScenario(${scenario.id})">
-                        <div class="scenario-icon">${scenario.icon}</div>
-                        <div class="scenario-info">
-                            <div class="scenario-name">${scenario.name}</div>
-                            <div class="scenario-amount">$${scenario.amount.toLocaleString()} needed</div>
-                        </div>
-                        <div class="scenario-status">${statusIcon}</div>
-                    </div>
-                `;
-            }).join('');
-
-            // Check if all completed
-            if (completedCount === scenarios.length && completedCount > 0) {
-                setTimeout(() => showFinalScore(), 500);
+            if(type === 'bank') {
+                if(bankActive) return;
+                bankActive = true;
+                bankProcessing = 3.0; // 3 seconds
+                document.getElementById('bank-btn').textContent = "WAIT...";
+                document.getElementById('bank-btn').style.background = "#555";
+                document.getElementById('bank-progress-bar').style.display = "block";
+                return;
             }
+
+            processLoan(type);
         }
 
-        // Start Scenario
-        function startScenario(scenarioId) {
-            gameState.currentScenario = scenarioId;
-            const scenario = scenarios.find(s => s.id === scenarioId);
+        function processLoan(type) {
+            const l = LOANS[type];
+            cash += l.cash;
+            debtBleed += l.bleed;
             
-            // Update game screen
-            document.getElementById('game-scenario-title').textContent = scenario.name;
-            document.getElementById('game-scenario-desc').textContent = scenario.description;
-            document.getElementById('game-amount').textContent = `$${scenario.amount.toLocaleString()}`;
-
-            // Render APR chart
-            renderAPRChart(scenario);
-
-            // Render loan options
-            renderLoanOptions(scenario);
-            showMoneyBotTip(scenario);
-
-            showScreen('game-screen');
-        }
-
-        
-        // Update tip based on scenario
-        function showMoneyBotTip(scenario) {
-            const tipEl = document.getElementById('moneybot-tip');
-            const textEl = document.getElementById('moneybot-tip-text');
-            if(tipEl && textEl && scenario.lessons && scenario.lessons.length > 0) {
-                tipEl.style.display = 'flex';
-                // Show a random lesson as a hint
-                textEl.textContent = scenario.lessons[0];
-            }
-        }
-
-        // Render APR Chart
-        function renderAPRChart(scenario) {
-            const chart = document.getElementById('apr-chart');
-            const maxCost = Math.max(...scenario.loans.map(l => l.totalCost));
-            
-            chart.innerHTML = scenario.loans.map(loan => {
-                const width = (loan.totalCost / maxCost) * 100;
-                const barClass = loan.apr < 15 ? 'good' : loan.apr < 50 ? 'medium' : 'bad';
-                
-                return `
-                    <div class="apr-bar-row">
-                        <span class="apr-bar-label">${loan.lender.split(' ')[0]}</span>
-                        <div class="apr-bar-container">
-                            <div class="apr-bar ${barClass}" style="width: ${width}%">
-                                <span class="apr-bar-value">$${Math.round(loan.totalCost).toLocaleString()}</span>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        // Render Loan Options
-        
-        // Render Loan Options
-        function renderLoanOptions(scenario) {
-            const container = document.getElementById('loan-options');
-            
-            // Randomize loan order so the best option isn't always first
-            const shuffledLoans = [...scenario.loans].sort(() => Math.random() - 0.5);
-            
-            container.innerHTML = shuffledLoans.map(loan => {
-
-                const aprClass = loan.apr < 15 ? 'low' : loan.apr < 50 ? 'medium' : 'high';
-                const flagsHtml = loan.flags.map(flag => {
-                    const flagInfo = redFlags[flag];
-                    return `<span class="flag-badge flag-${flagInfo.type}">${flagInfo.label}</span>`;
-                }).join('');
-                
-                // Determine if loan is denied based on character credit score
-                let isDenied = false;
-                let reqScore = 0;
-                if(loan.type.includes("Credit Union")) reqScore = 650;
-                else if(loan.type.includes("Bank Personal")) reqScore = 620;
-                else if(loan.type.includes("Personal Loan")) reqScore = 600;
-                
-                if(playerCharacter && playerCharacter.creditScore < reqScore) {
-                    isDenied = true;
-                }
-
-                return `
-                    <div class="loan-card ${loan.flags.some(f => redFlags[f].type === 'danger') ? 'predatory' : ''} ${isDenied ? 'denied' : ''}" 
-                         id="loan-${loan.id}" 
-                         ${!isDenied ? `onclick="selectLoan('${loan.id}')"` : ''}>
-                        ${isDenied ? '<div class="denied-badge">Denied</div>' : ''}
-                        <div class="loan-card-header">
-                            <div class="loan-lender">
-                                <div class="lender-icon">${loan.icon}</div>
-                                <div>
-                                    <div class="lender-name">${loan.lender}</div>
-                                    <div class="lender-type">${loan.type} ${reqScore > 0 ? `(Req: ${reqScore})` : ''}</div>
-                                </div>
-                            </div>
-                            <div class="loan-apr">
-                                <div class="apr-value ${aprClass}">${loan.apr}%</div>
-                                <div class="apr-label">APR</div>
-                            </div>
-                        </div>
-                        <div class="loan-details">
-                            <div class="loan-detail-row">
-                                <span class="loan-detail-label">Monthly Payment</span>
-                                <span class="loan-detail-value">$${loan.monthlyPayment.toFixed(2)}</span>
-                            </div>
-                            <div class="loan-detail-row">
-                                <span class="loan-detail-label">Term</span>
-                                <span class="loan-detail-value">${loan.termMonths} months</span>
-                            </div>
-                            <div class="loan-detail-row">
-                                <span class="loan-detail-label">Total Cost</span>
-                                <span class="loan-detail-value highlight">$${loan.totalCost.toLocaleString()}</span>
-                            </div>
-                            ${loan.fees ? `
-                            <div class="loan-detail-row">
-                                <span class="loan-detail-label">Upfront Fees</span>
-                                <span class="loan-detail-value">$${loan.fees}</span>
-                            </div>
-                            ` : ''}
-                        </div>
-                        <div class="loan-flags">
-                            ${flagsHtml}
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        // Select Loan
-        function selectLoan(loanId) {
-            const scenario = scenarios.find(s => s.id === gameState.currentScenario);
-            const loan = scenario.loans.find(l => l.id === loanId);
-            
-            // Mark as selected
-            document.querySelectorAll('.loan-card').forEach(card => {
-                card.classList.remove('selected');
+            activeLoans.push({
+                id: loanIdCounter++,
+                type: type,
+                name: l.name,
+                payoff: l.payoff,
+                bleed: l.bleed
             });
-            document.getElementById(`loan-${loanId}`).classList.add('selected');
-
-            // Show result after brief delay
-            setTimeout(() => showResult(scenario, loan), 300);
+            
+            renderDebts();
+            updateHUD();
+            
+            // Auto switch to debts tab so they see the damage
+            switchTab('debts');
         }
 
-        // Show Result
-        function showResult(scenario, selectedLoan) {
-            const bestLoan = scenario.loans.find(l => l.isBest);
-            const isCorrect = selectedLoan.isBest;
-            const worstLoan = scenario.loans.reduce((worse, loan) => 
-                loan.totalCost > worse.totalCost ? loan : worse
-            );
-            const savings = worstLoan.totalCost - selectedLoan.totalCost;
-
-            // Update UI
-            const resultIcon = document.getElementById('result-icon');
-            const resultTitle = document.getElementById('result-title');
-            const resultSubtitle = document.getElementById('result-subtitle');
-
-            if (isCorrect) {
-                resultIcon.innerHTML = '<img src="../assets/moneybot-celebrating.svg" style="height:100px; display:block; margin:0 auto;">';
-                resultIcon.className = 'result-icon success';
-                resultTitle.textContent = 'Excellent Choice!';
-                resultSubtitle.textContent = 'You selected the best loan option available.';
-            } else if (selectedLoan.flags.some(f => redFlags[f].type === 'danger')) {
-                resultIcon.innerHTML = '<span class="material-symbols-rounded" style="font-size:64px;">gavel</span>';
-                resultIcon.className = 'result-icon danger';
-                resultTitle.textContent = 'Predatory Loan Selected';
-                resultSubtitle.textContent = 'This loan has dangerous terms. Learn why.';
-            } else {
-                resultIcon.innerHTML = '<span class="material-symbols-rounded" style="font-size:64px;">priority_high</span>';
-                resultIcon.className = 'result-icon warning';
-                resultTitle.textContent = 'Better Options Available';
-                resultSubtitle.textContent = 'This loan works, but there was a better choice.';
+        function payOffDebt(id) {
+            if(isGameOver) return;
+            const index = activeLoans.findIndex(l => l.id === id);
+            if(index === -1) return;
+            
+            const l = activeLoans[index];
+            if(cash >= l.payoff) {
+                cash -= l.payoff;
+                debtBleed -= l.bleed;
+                activeLoans.splice(index, 1);
+                renderDebts();
+                updateHUD();
             }
-
-            document.getElementById('result-lender').textContent = selectedLoan.lender;
-            document.getElementById('result-apr').textContent = selectedLoan.apr + '%';
-            document.getElementById('result-apr').className = 'comparison-value ' + 
-                (selectedLoan.apr < 15 ? 'good' : selectedLoan.apr < 50 ? 'neutral' : 'bad');
-            document.getElementById('result-payment').textContent = '$' + selectedLoan.monthlyPayment.toFixed(2);
-            document.getElementById('result-total').textContent = '$' + selectedLoan.totalCost.toLocaleString();
-
-            const savingsHighlight = document.getElementById('savings-highlight');
-            if (savings > 0 && !isCorrect) {
-                savingsHighlight.style.display = 'block';
-                document.getElementById('savings-amount').textContent = '$' + Math.round(savings).toLocaleString();
-            } else if (isCorrect) {
-                const potentialLoss = worstLoan.totalCost - bestLoan.totalCost;
-                savingsHighlight.style.display = 'block';
-                document.getElementById('savings-amount').textContent = '$' + Math.round(potentialLoss).toLocaleString();
-                document.querySelector('.savings-label').textContent = 'you saved vs. the worst option';
-            } else {
-                savingsHighlight.style.display = 'none';
-            }
-
-            // Update lessons
-            document.getElementById('education-list').innerHTML = scenario.lessons
-                .map(lesson => `<li>${lesson}</li>`)
-                .join('');
-
-            // Save result
-            if (!gameState.completedScenarios.includes(scenario.id)) {
-                gameState.completedScenarios.push(scenario.id);
-                gameState.scores[scenario.id] = isCorrect;
-                gameState.totalScore += isCorrect ? 100 : selectedLoan.flags.some(f => redFlags[f].type === 'danger') ? 0 : 50;
-                updateHeaderScore();
-            }
-
-            showScreen('result-screen');
         }
 
-        // Back to Scenarios
-        function backToScenarios() {
-            renderScenarios();
-            showScreen('scenarios-screen');
-        }
-
-        // Show Final Score
-        function showFinalScore() {
-            const score = gameState.totalScore;
-            const maxScore = scenarios.length * 100;
-            const percentage = Math.round((score / maxScore) * 100);
-
-            document.getElementById('final-score').textContent = percentage;
-
-            let title, message;
-            if (percentage >= 90) {
-                title = 'Loan Master! 🏆';
-                message = 'You have exceptional financial literacy skills!';
-            } else if (percentage >= 70) {
-                title = 'Smart Borrower! 🌟';
-                message = 'You make good decisions with room to improve.';
-            } else if (percentage >= 50) {
-                title = 'Learning in Progress 📚';
-                message = 'You\'re building awareness of predatory lending.';
-            } else {
-                title = 'Keep Learning! 💪';
-                message = 'Review the lessons to build stronger skills.';
+        function renderDebts() {
+            uiDebtCount.textContent = activeLoans.length;
+            if(activeLoans.length === 0) {
+                uiDebtsContainer.innerHTML = '<div class="empty-state">No active debts. Good job!</div>';
+                return;
             }
-
-            document.getElementById('final-title').textContent = title;
-            document.getElementById('final-message').textContent = message;
-
-            // Render summary
-            const summary = document.getElementById('scenarios-summary');
-            summary.innerHTML = '<div class="summary-title">Scenario Results</div>' +
-                scenarios.map(s => {
-                    const isCorrect = gameState.scores[s.id];
-                    return `
-                        <div class="summary-item">
-                            <div class="summary-icon ${isCorrect ? 'correct' : 'incorrect'}">
-                                ${isCorrect ? '✓' : '✗'}
-                            </div>
-                            <div class="summary-text">
-                                <div class="summary-name">${s.name}</div>
-                                <div class="summary-choice">${isCorrect ? 'Best choice selected' : 'Room for improvement'}</div>
-                            </div>
+            
+            let html = '';
+            activeLoans.forEach(l => {
+                const canPay = cash >= l.payoff;
+                html += `
+                    <div class="debt-card">
+                        <div class="market-info">
+                            <h3 style="color:#ff3333;">${l.name}</h3>
+                            <p>Owe: <b style="color:#fff;">${formatMoney(l.payoff)}</b></p>
+                            <p>Bleeding: <span class="bleed-text">-${formatMoney(l.bleed)}/sec</span></p>
                         </div>
-                    `;
-                }).join('');
-
-            showScreen('final-screen');
-        }
-
-        // Reset Game
-        function resetGame() {
-            gameState = {
-                currentScenario: null,
-                completedScenarios: [],
-                scores: {},
-                totalScore: 0
-            };
-            updateHeaderScore();
-            renderScenarios();
-            showScreen('scenarios-screen');
-        }
-
-        // Update Header Score
-        
-        
-        function updateHeaderScore() {
-            const actualScoreEl = document.getElementById('actual-score');
-            if(actualScoreEl) {
-                actualScoreEl.textContent = gameState.score;
-            } else {
-                const headerScore = document.getElementById('header-score');
-                if(headerScore && !headerScore.innerHTML.includes('Credit:')) {
-                    headerScore.textContent = gameState.score;
-                }
-            }
-        }
-
-
-        // Tooltip
-        function showTooltip(event, text) {
-            const tooltip = document.getElementById('tooltip');
-            tooltip.textContent = text;
-            tooltip.classList.add('visible');
-
-            const rect = event.target.getBoundingClientRect();
-            tooltip.style.left = rect.left + rect.width / 2 - tooltip.offsetWidth / 2 + 'px';
-            tooltip.style.top = rect.top - tooltip.offsetHeight - 8 + 'px';
-
-            setTimeout(() => {
-                tooltip.classList.remove('visible');
-            }, 3000);
-        }
-
-        // Modal
-        function showModal(type) {
-            const overlay = document.getElementById('modal-overlay');
-            const title = document.getElementById('modal-title');
-            const body = document.getElementById('modal-body');
-
-            if (type === 'how-to-play') {
-                title.textContent = 'How to Play';
-                body.innerHTML = `
-                    <div style="line-height: 1.6;">
-                        <p style="margin-bottom: 16px;"><strong>1.</strong> Choose a borrowing scenario that matches real-life situations.</p>
-                        <p style="margin-bottom: 16px;"><strong>2.</strong> Compare 3-4 loan offers from different lenders.</p>
-                        <p style="margin-bottom: 16px;"><strong>3.</strong> Look for red flags like extreme APRs, hidden fees, and asset risks.</p>
-                        <p style="margin-bottom: 16px;"><strong>4.</strong> Select what you think is the best loan option.</p>
-                        <p><strong>5.</strong> Learn from feedback and improve your financial literacy!</p>
+                        <button class="payoff-btn" ${canPay ? '' : 'disabled'} onclick="payOffDebt(${l.id})">PAY OFF</button>
                     </div>
                 `;
-            } else if (type === 'red-flag-legend') {
-                title.textContent = 'Red Flag Guide';
-                body.innerHTML = Object.entries(redFlags).map(([key, flag]) => `
-                    <div class="legend-item">
-                        <div class="legend-icon ${flag.type}">!</div>
-                        <div class="legend-text">
-                            <h4>${flag.label}</h4>
-                            <p>${flag.description}</p>
-                        </div>
-                    </div>
-                `).join('');
-            }
-
-            overlay.classList.add('active');
+            });
+            uiDebtsContainer.innerHTML = html;
         }
 
-        function closeModal() {
-            document.getElementById('modal-overlay').classList.remove('active');
+        // --- GAME LOOP ---
+        function triggerExpense() {
+            cash -= currentExpenseAmount;
+            flash();
+            
+            // Create big red text in center
+            const rect = hustleZone.getBoundingClientRect();
+            createFloatingText(rect.width/2 - 50, rect.height/2 - 50, "-" + formatMoney(currentExpenseAmount), "#ff3333");
+            
+            // Setup next month
+            month++;
+            uiMonth.textContent = month;
+            
+            // Increase difficulty
+            currentExpenseName = EXPENSE_NAMES[Math.floor(Math.random() * EXPENSE_NAMES.length)];
+            currentExpenseAmount = 500 + (month * 250) + Math.floor(Math.random() * 300);
+            
+            // Timer gets slightly faster over time, down to 6 seconds minimum
+            expenseTimerMax = Math.max(6.0, 10.0 - (month * 0.2));
+            expenseTimer = expenseTimerMax;
         }
 
-        // Close modal on overlay click
-        document.getElementById('modal-overlay').addEventListener('click', (e) => {
-            if (e.target === document.getElementById('modal-overlay')) {
-                closeModal();
+        function updateHUD() {
+            uiCash.textContent = formatMoney(cash);
+            
+            const netFlow = baseIncome - debtBleed;
+            if(netFlow >= 0) {
+                uiFlow.textContent = "+" + formatMoney(netFlow);
+                uiFlow.className = "stat-val cash-green";
+                uiCash.className = "stat-val cash-green";
+            } else {
+                uiFlow.textContent = formatMoney(netFlow);
+                uiFlow.className = "stat-val cash-red";
+                uiCash.className = "stat-val cash-red";
             }
-        });
+
+            uiExpName.textContent = "Upcoming: " + currentExpenseName;
+            uiExpAmt.textContent = "-" + formatMoney(currentExpenseAmount);
+            uiExpTimer.textContent = expenseTimer.toFixed(1) + "s";
+            
+            const pct = (expenseTimer / expenseTimerMax) * 100;
+            uiExpProg.style.width = pct + "%";
+            
+            if(expenseTimer < 3.0) {
+                uiExpProg.style.background = "#ff3333";
+                uiExpTimer.style.color = "#ff3333";
+            } else {
+                uiExpProg.style.background = "#00ff88";
+                uiExpTimer.style.color = "#fff";
+            }
+            
+            // Update payoff buttons state without full re-render
+            const btns = document.querySelectorAll('.payoff-btn');
+            btns.forEach((btn, i) => {
+                if(activeLoans[i]) {
+                    btn.disabled = cash < activeLoans[i].payoff;
+                }
+            });
+        }
+
+        function gameLoop(time) {
+            if (isGameOver) return;
+            
+            if (!lastTime) lastTime = time;
+            const dt = (time - lastTime) / 1000;
+            lastTime = time;
+
+            // Apply Cashflow
+            const netFlow = baseIncome - debtBleed;
+            cash += netFlow * dt;
+
+            // Check Bankrupt
+            if (cash < 0) {
+                cash = 0;
+                endGame();
+                return;
+            }
+
+            // Bank Loan Processing
+            if (bankActive) {
+                bankProcessing -= dt;
+                const fill = document.getElementById('bank-progress-fill');
+                fill.style.width = ((3.0 - bankProcessing) / 3.0 * 100) + "%";
+                
+                if (bankProcessing <= 0) {
+                    bankActive = false;
+                    document.getElementById('bank-btn').textContent = "APPLY";
+                    document.getElementById('bank-btn').style.background = "#222";
+                    document.getElementById('bank-progress-bar').style.display = "none";
+                    processLoan('bank');
+                }
+            }
+
+            // Expense Timer
+            expenseTimer -= dt;
+            if (expenseTimer <= 0) {
+                triggerExpense();
+            }
+
+            updateHUD();
+            animationFrameId = requestAnimationFrame(gameLoop);
+        }
+
+        function startGame() {
+            cash = 1000;
+            baseIncome = 10;
+            debtBleed = 0;
+            month = 1;
+            hustlePower = 5;
+            
+            expenseTimerMax = 10.0;
+            expenseTimer = 10.0;
+            currentExpenseName = "Rent Due";
+            currentExpenseAmount = 800;
+            
+            activeLoans = [];
+            bankActive = false;
+            
+            document.getElementById('bank-btn').textContent = "APPLY";
+            document.getElementById('bank-btn').style.background = "#222";
+            document.getElementById('bank-progress-bar').style.display = "none";
+
+            document.getElementById('titleScreen').classList.remove('active');
+            document.getElementById('gameOverScreen').classList.remove('active');
+            document.getElementById('gameUI').style.display = 'flex';
+            
+            switchTab('market');
+            renderDebts();
+            updateHUD();
+            uiMonth.textContent = month;
+
+            isGameOver = false;
+            lastTime = 0;
+            cancelAnimationFrame(animationFrameId);
+            animationFrameId = requestAnimationFrame(gameLoop);
+        }
+
+        function endGame() {
+            isGameOver = true;
+            document.getElementById('finalMonths').textContent = month;
+            document.getElementById('gameUI').style.display = 'none';
+            document.getElementById('gameOverScreen').classList.add('active');
+        }
     </script>
 </body>
 </html>
