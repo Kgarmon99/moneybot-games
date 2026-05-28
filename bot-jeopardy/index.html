@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Financial Jeopardy | MoneyBot Games</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="app">
+        <!-- Header / Scoreboard -->
+        <header id="header">
+            <div class="brand">
+                <span class="brand-pill">MB</span>
+                <h2>Bot Jeopardy</h2>
+            </div>
+            <div class="scoreboard">
+                <span class="score-label">NET WORTH</span>
+                <span id="score-display" class="score-value">$0</span>
+            </div>
+        </header>
+
+        <!-- Game Board -->
+        <main id="board" class="board">
+            <!-- Categories and clues injected by JS -->
+        </main>
+
+        <!-- Question Modal -->
+        <div id="question-modal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <span id="modal-category">CATEGORY</span>
+                    <span id="modal-value" class="value-badge">$200</span>
+                </div>
+                <div class="question-text" id="modal-question">Question goes here?</div>
+                <div class="options-grid" id="modal-options">
+                    <!-- Options injected here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Result overlay inside modal -->
+        <div id="result-overlay" class="overlay hidden">
+            <h2 id="result-title">CORRECT!</h2>
+            <p id="result-desc">You earned $200</p>
+            <button id="result-btn" class="btn">Continue</button>
+        </div>
+        
+        <!-- Game Over Modal -->
+        <div id="game-over-modal" class="modal hidden">
+            <div class="modal-content text-center">
+                <h1 class="game-over-title">GAME OVER</h1>
+                <p>Final Net Worth</p>
+                <h2 id="final-score" class="final-score-value">$0</h2>
+                <div id="game-over-message" class="game-over-msg">Not bad!</div>
+                <button id="restart-btn" class="btn btn-primary mt-4">Play Again</button>
+            </div>
+        </div>
+    </div>
+    <script src="game.js"></script>
+</body>
+</html>
