@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Trophy body -->
+  <path d="M20 8 L20 28 C20 38 26 44 32 44 C38 44 44 38 44 28 L44 8 Z" 
+        fill="#FFD700" 
+        stroke="#FFA500" 
+        stroke-width="2"/>
+  
+  <!-- Handles -->
+  <path d="M20 12 C12 12 8 18 8 24 C8 30 12 34 18 34" 
+        fill="none" 
+        stroke="#FFD700" 
+        stroke-width="3" 
+        stroke-linecap="round"/>
+  <path d="M44 12 C52 12 56 18 56 24 C56 30 52 34 46 34" 
+        fill="none" 
+        stroke="#FFD700" 
+        stroke-width="3" 
+        stroke-linecap="round"/>
+  
+  <!-- Base -->
+  <rect x="24" y="44" width="16" height="6" rx="2" fill="#FFD700" stroke="#FFA500" stroke-width="2"/>
+  <rect x="20" y="50" width="24" height="6" rx="2" fill="#FFD700" stroke="#FFA500" stroke-width="2"/>
+  
+  <!-- Star on trophy -->
+  <path d="M32 18 L34 24 L40 24 L35 28 L37 34 L32 30 L27 34 L29 28 L24 24 L30 24 Z" 
+        fill="#FFFFFF"/>
+</svg>

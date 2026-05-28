@@ -1,0 +1,1499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>BotBattle - Card Battler</title>
+    <link rel="icon" type="image/svg+xml" href="../assets/moneybot-idle.svg">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: manipulation; user-select: none; }
+        
+        :root {
+            --mb-green: #00E676;
+            --mb-dark: #0a0e1a;
+            --mb-panel: #131b2e;
+            --mb-red: #FF5252;
+            --mb-gold: #FFD700;
+            --mb-blue: #448AFF;
+            --mb-purple: #E040FB;
+            --mb-orange: #FF9800;
+        }
+        
+        body { font-family: 'Inter', sans-serif; background: var(--mb-dark); min-height: 100vh; color: #fff; overflow: hidden; }
+        .app { max-width: 430px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; }
+        
+        .header { background: var(--mb-panel); padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--mb-green); }
+        .header-logo { display: flex; align-items: center; gap: 10px; }
+        .moneybot-icon { width: 36px; height: 36px; border-radius: 8px; overflow: hidden; background: var(--mb-green); }
+        .moneybot-icon img { width: 100%; height: 100%; object-fit: cover; }
+        .header-title { font-weight: 800; font-size: 18px; color: #fff; }
+        .back-btn { width: 40px; height: 40px; border-radius: 10px; background: var(--mb-green); border: none; color: var(--mb-dark); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 18px; text-decoration: none; font-weight: 700; }
+        
+        .stats-bar { display: flex; justify-content: space-around; padding: 12px; background: rgba(0, 230, 118, 0.1); }
+        .stat { text-align: center; }
+        .stat-label { font-size: 10px; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 1px; }
+        .stat-value { font-size: 22px; font-weight: 800; color: var(--mb-green); }
+        
+        .game-area { flex: 1; display: flex; flex-direction: column; padding: 12px; gap: 8px; position: relative; overflow-y: auto; }
+        
+        #gameCanvas { background: var(--mb-panel); border-radius: 16px; border: 2px solid rgba(0, 230, 118, 0.3); width: 100%; height: 300px; flex-shrink: 0; }
+        
+        .hand-area { display: flex; gap: 6px; padding: 4px 0; justify-content: center; flex-wrap: wrap; min-height: 100px; }
+        .card { width: 80px; height: 100px; background: #1a2332; border: 2px solid #2a3a4a; border-radius: 10px; padding: 4px; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: space-between; position: relative; }
+        .card:hover { transform: translateY(-5px); border-color: var(--mb-green); }
+        .card:active { transform: scale(0.95); }
+        .card-cost { font-size: 12px; font-weight: 800; color: var(--mb-blue); }
+        .card-icon { font-size: 24px; }
+        .card-name { font-size: 9px; font-weight: 700; text-align: center; }
+        .card-desc { font-size: 7px; color: rgba(255,255,255,0.6); text-align: center; }
+        .card.attack { border-color: var(--mb-red); }
+        .card.defend { border-color: var(--mb-blue); }
+        .card.heal { border-color: var(--mb-green); }
+        .card.special { border-color: var(--mb-gold); }
+        .card.upgraded { border-color: var(--mb-purple); box-shadow: 0 0 10px rgba(224, 64, 251, 0.3); }
+        .card.disabled { opacity: 0.4; cursor: not-allowed; }
+        
+        .energy-bar { display: flex; align-items: center; gap: 8px; padding: 6px 12px; background: rgba(68, 138, 255, 0.1); border-radius: 8px; }
+        .energy-label { font-size: 12px; font-weight: 700; color: var(--mb-blue); }
+        .energy-value { font-size: 18px; font-weight: 800; color: var(--mb-blue); }
+        
+        .end-turn-btn { background: var(--mb-green); color: var(--mb-dark); border: none; padding: 10px 20px; font-size: 14px; font-weight: 700; border-radius: 8px; cursor: pointer; margin-bottom: 8px; }
+        .end-turn-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        
+        .overlay-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--mb-dark); z-index: 200; padding: 40px; }
+        .overlay-screen.hidden { display: none; }
+        .game-icon { width: 120px; height: 120px; background: var(--mb-green); border-radius: 24px; display: flex; align-items: center; justify-content: center; margin-bottom: 24px; overflow: hidden; }
+        .game-icon img { width: 80%; height: 80%; object-fit: contain; }
+        .game-title { font-size: 32px; font-weight: 800; color: #fff; margin-bottom: 12px; }
+        .game-subtitle { color: rgba(255,255,255,0.6); font-size: 16px; margin-bottom: 32px; text-align: center; line-height: 1.5; }
+        .primary-btn { background: var(--mb-green); color: var(--mb-dark); border: none; padding: 18px 48px; font-size: 16px; font-weight: 700; border-radius: 12px; cursor: pointer; width: 100%; max-width: 280px; transition: transform 0.2s; }
+        .primary-btn:active { transform: scale(0.98); }
+        .instructions-list { text-align: left; margin: 20px 0; max-width: 300px; }
+        .instructions-list li { color: rgba(255,255,255,0.7); font-size: 14px; margin-bottom: 10px; list-style: none; padding-left: 24px; position: relative; }
+        .instructions-list li::before { content: '✓'; position: absolute; left: 0; color: var(--mb-green); font-weight: 700; }
+        
+        .card-reward { display: flex; gap: 12px; justify-content: center; margin: 20px 0; flex-wrap: wrap; }
+        .reward-card { width: 100px; height: 130px; background: #1a2332; border: 2px solid var(--mb-gold); border-radius: 10px; padding: 8px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: space-between; transition: all 0.2s; }
+        .reward-card:hover { transform: scale(1.05); }
+        .reward-card.selected { border-color: var(--mb-green); background: rgba(0, 230, 118, 0.1); }
+        
+        .relic-display { display: flex; gap: 6px; justify-content: center; margin: 4px 0; flex-wrap: wrap; }
+        .relic { width: 50px; height: 50px; background: #1a2332; border: 2px solid var(--mb-gold); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; position: relative; }
+        .relic-tooltip { position: absolute; bottom: 60px; left: 50%; transform: translateX(-50%); background: #1a2332; border: 1px solid var(--mb-gold); border-radius: 8px; padding: 8px; font-size: 11px; white-space: nowrap; z-index: 100; display: none; }
+        .relic:hover .relic-tooltip { display: block; }
+        
+        .potion-bar { display: flex; gap: 6px; justify-content: center; margin: 4px 0; }
+        .potion { width: 40px; height: 40px; background: #1a2332; border: 2px solid var(--mb-purple); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; }
+        .potion:hover { transform: scale(1.1); }
+        
+        .shop-item { display: flex; align-items: center; gap: 12px; padding: 12px; background: #1a2332; border-radius: 8px; margin-bottom: 8px; cursor: pointer; }
+        .shop-item:hover { background: #2a3a4a; }
+        .shop-item-cost { color: var(--mb-gold); font-weight: 700; }
+        
+        .enemy-intent { position: absolute; top: 60px; right: 40px; background: rgba(255, 82, 82, 0.2); border: 1px solid var(--mb-red); border-radius: 8px; padding: 4px 8px; font-size: 11px; color: var(--mb-red); }
+        
+        .achievement-popup { position: fixed; top: 20px; right: 20px; background: var(--mb-panel); border: 2px solid var(--mb-gold); border-radius: 12px; padding: 16px; z-index: 300; animation: slideIn 0.5s ease-out; }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        .achievement-popup.hidden { display: none; }
+        
+        .combo-text { position: absolute; font-size: 24px; font-weight: 800; color: var(--mb-gold); text-shadow: 0 0 20px var(--mb-gold); animation: comboFloat 1s ease-out forwards; pointer-events: none; }
+        @keyframes comboFloat { 0% { transform: scale(0.5); opacity: 0; } 50% { transform: scale(1.2); opacity: 1; } 100% { transform: scale(1) translateY(-50px); opacity: 0; } }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <header class="header">
+            <div class="header-logo">
+                <a href="../moneybot-official/" class="back-btn">←</a>
+                <div class="moneybot-icon"><img src="../assets/moneybot-idle.svg" /></div>
+                <span class="header-title">BotBattle</span>
+            </div>
+        </header>
+        
+        <div class="stats-bar">
+            <div class="stat">
+                <div class="stat-label">Floor</div>
+                <div class="stat-value" id="floor">1</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Gold</div>
+                <div class="stat-value" id="gold">0</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">HP</div>
+                <div class="stat-value" id="hp">80</div>
+            </div>
+        </div>
+        
+        <div class="game-area">
+            <canvas id="gameCanvas" width="390" height="380"></canvas>
+            <div class="relic-display" id="relicDisplay"></div>
+            <div class="potion-bar" id="potionBar"></div>
+            <div class="energy-bar">
+                <span class="energy-label">ENERGY</span>
+                <span class="energy-value" id="energy">3/3</span>
+            </div>
+            <div class="hand-area" id="handArea"></div>
+            <button class="end-turn-btn" id="endTurnBtn">End Turn</button>
+        </div>
+    </div>
+    
+    <div class="overlay-screen" id="startScreen">
+        <div class="game-icon">
+            <img src="../assets/moneybot-idle.svg" alt="MoneyBot">
+        </div>
+        <div class="game-title">BotBattle</div>
+        <div class="game-subtitle">Card-based battles!<br>Build your deck, collect relics!</div>
+        <ul class="instructions-list">
+            <li>Play cards using energy</li>
+            <li>Block to reduce damage</li>
+            <li>Collect relics for bonuses</li>
+            <li>Use potions in emergencies</li>
+            <li>Defeat elites for better rewards</li>
+        </ul>
+        <button class="primary-btn" id="startBtn">Start Adventure</button>
+    </div>
+    
+    <div class="overlay-screen hidden" id="gameOverScreen">
+        <div class="game-icon">
+            <img src="../assets/moneybot-sad.svg" alt="MoneyBot">
+        </div>
+        <div class="game-title" style="color: var(--mb-red);">Defeated!</div>
+        <div class="game-subtitle">Floor: <span id="finalFloor" style="color: var(--mb-green); font-weight: 800;">1</span></div>
+        <div class="game-subtitle">Relics: <span id="finalRelics" style="color: var(--mb-gold); font-weight: 800;">0</span></div>
+        <button class="primary-btn" id="restartBtn">Try Again</button>
+    </div>
+    
+    <div class="overlay-screen hidden" id="rewardScreen">
+        <div class="game-icon">
+            <img src="../assets/moneybot-celebrating.svg" alt="MoneyBot">
+        </div>
+        <div class="game-title" style="color: var(--mb-green);">Victory!</div>
+        <div class="game-subtitle">Choose a card to add:</div>
+        <div class="card-reward" id="cardReward"></div>
+        <button class="primary-btn" id="skipRewardBtn">Skip (+15 Gold)</button>
+    </div>
+    
+    <div class="overlay-screen hidden" id="relicScreen">
+        <div class="game-icon">
+            <img src="../assets/moneybot-celebrating.svg" alt="MoneyBot">
+        </div>
+        <div class="game-title" style="color: var(--mb-gold);">Relic Found!</div>
+        <div class="game-subtitle">Choose a relic:</div>
+        <div class="card-reward" id="relicReward"></div>
+    </div>
+    
+    <div class="overlay-screen hidden" id="shopScreen">
+        <div class="game-title" style="color: var(--mb-gold);">Shop</div>
+        <div class="game-subtitle">Spend your gold wisely:</div>
+        <div id="shopItems"></div>
+        <button class="primary-btn" id="leaveShopBtn" style="margin-top: 20px;">Leave Shop</button>
+    </div>
+    
+    <div class="achievement-popup hidden" id="achievementPopup">
+        <div style="font-size: 24px; margin-bottom: 8px;">🏆</div>
+        <div style="font-weight: 700; color: var(--mb-gold);">Achievement Unlocked!</div>
+        <div id="achievementText" style="font-size: 12px; color: rgba(255,255,255,0.7);"></div>
+    </div>
+    
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Card definitions
+        const CARD_TYPES = {
+            strike: { name: 'Strike', cost: 1, damage: 10, icon: '⚔', type: 'attack', desc: 'Deal 10 dmg' },
+            bash: { name: 'Bash', cost: 2, damage: 18, icon: '🔨', type: 'attack', desc: 'Deal 18 dmg' },
+            defend: { name: 'Defend', cost: 1, block: 8, icon: '🛡', type: 'defend', desc: 'Gain 8 block' },
+            heal: { name: 'Heal', cost: 1, heal: 8, icon: '💚', type: 'heal', desc: 'Heal 8 HP' },
+            slash: { name: 'Slash', cost: 2, damage: 22, icon: '⚡', type: 'attack', desc: 'Deal 22 dmg' },
+            fortify: { name: 'Fortify', cost: 2, block: 15, icon: '🏰', type: 'defend', desc: 'Gain 15 block' },
+            recover: { name: 'Recover', cost: 2, heal: 15, icon: '💊', type: 'heal', desc: 'Heal 15 HP' },
+            coinCard: { name: 'Coin Toss', cost: 0, damage: 5, gold: 5, icon: '🪙', type: 'special', desc: '5 dmg + 5 gold' },
+            bigStrike: { name: 'Big Strike', cost: 3, damage: 30, icon: '💥', type: 'attack', desc: 'Deal 30 dmg' },
+            poison: { name: 'Poison', cost: 1, damage: 3, poison: 4, icon: '☠', type: 'attack', desc: '3 dmg + 4 poison' },
+            draw: { name: 'Draw', cost: 1, draw: 2, icon: '📜', type: 'special', desc: 'Draw 2 cards' },
+            energy: { name: 'Energy+', cost: 0, energy: 2, icon: '⚡', type: 'special', desc: '+2 Energy' },
+            weaken: { name: 'Weaken', cost: 1, damage: 6, weak: 2, icon: '💢', type: 'attack', desc: '6 dmg + Weak 2' },
+            vulnerable: { name: 'Break', cost: 2, damage: 10, vulnerable: 2, icon: '🔓', type: 'attack', desc: '10 dmg + Vuln 2' },
+            strength: { name: 'Flex', cost: 1, strength: 3, icon: '💪', type: 'special', desc: '+3 Strength' },
+            ritual: { name: 'Ritual', cost: 1, ritual: 3, icon: '🔥', type: 'special', desc: '+3 Ritual' }
+        };
+        
+        // Relic definitions
+        const RELICS = {
+            ring: { name: 'Ring of Power', icon: '💍', desc: '+2 Attack dmg', effect: 'attack+2' },
+            armor: { name: 'Iron Armor', icon: '🛡', desc: '+3 Block', effect: 'block+3' },
+            amulet: { name: 'Healing Amulet', icon: '📿', desc: 'Heal 2/turn', effect: 'heal2' },
+            coin: { name: 'Golden Coin', icon: '🪙', desc: '+10% Gold', effect: 'gold+10%' },
+            sword: { name: 'Sharp Sword', icon: '🗡', desc: 'Crit +20%', effect: 'crit+20' },
+            shield: { name: 'Tower Shield', icon: '🏰', desc: 'Start +5 Block', effect: 'startBlock' },
+            potion: { name: 'Potion Belt', icon: '🧪', desc: '+1 Potion slot', effect: 'potionSlot' },
+            energy: { name: 'Energy Core', icon: '🔋', desc: '+1 Max Energy', effect: 'energy+1' },
+            thorns: { name: 'Thorns', icon: '🌵', desc: 'Deal 3 dmg when hit', effect: 'thorns3' },
+            regen: { name: 'Regen Ring', icon: '💍', desc: 'Heal 1/turn', effect: 'regen1' }
+        };
+        
+        // Potion definitions
+        const POTIONS = {
+            heal: { name: 'Health Potion', icon: '❤', heal: 20, desc: 'Heal 20 HP' },
+            block: { name: 'Block Potion', icon: '🛡', block: 15, desc: 'Gain 15 Block' },
+            energy: { name: 'Energy Potion', icon: '⚡', energy: 2, desc: '+2 Energy' },
+            damage: { name: 'Damage Potion', icon: '💥', damage: 25, desc: 'Deal 25 dmg' },
+            strength: { name: 'Strength Potion', icon: '💪', strength: 5, desc: '+5 Strength' }
+        };
+        
+        // Achievements
+        const ACHIEVEMENTS = {
+            firstWin: { name: 'First Blood', desc: 'Win your first battle', unlocked: false },
+            reachFloor5: { name: 'Going Up', desc: 'Reach floor 5', unlocked: false },
+            reachFloor10: { name: 'High Climber', desc: 'Reach floor 10', unlocked: false },
+            collect5Relics: { name: 'Relic Hunter', desc: 'Collect 5 relics', unlocked: false },
+            winWithoutDamage: { name: 'Untouchable', desc: 'Win a battle without taking damage', unlocked: false },
+            combo5: { name: 'Combo Master', desc: 'Play 5 cards in one turn', unlocked: false }
+        };
+        
+        // Game state
+        let gameRunning = false;
+        let floor = 1;
+        let gold = 0;
+        let wins = 0;
+        let playerTurn = true;
+        let energy = 3;
+        let maxEnergy = 3;
+        let combo = 0;
+        let maxCombo = 0;
+        let damageTakenThisBattle = 0;
+        
+        // Player
+        let player = {
+            hp: 80,
+            maxHp: 80,
+            block: 0,
+            poison: 0,
+            strength: 0,
+            weak: 0,
+            vulnerable: 0,
+            ritual: 0
+        };
+        
+        // Enemy
+        let enemies = [];
+        let currentEnemyIndex = 0;
+        
+        // Deck
+        let deck = [];
+        let hand = [];
+        let discard = [];
+        
+        // Relics
+        let relics = [];
+        
+        // Potions
+        let potions = [];
+        let maxPotions = 2;
+        
+        // Animation
+        let particles = [];
+        let floatingTexts = [];
+        let screenShake = 0;
+        let animating = false;
+        let cardsPlayedThisTurn = 0;
+        
+        // Initialize deck
+        function initDeck() {
+            deck = [
+                { ...CARD_TYPES.strike, id: 1 },
+                { ...CARD_TYPES.strike, id: 2 },
+                { ...CARD_TYPES.strike, id: 3 },
+                { ...CARD_TYPES.strike, id: 4 },
+                { ...CARD_TYPES.defend, id: 5 },
+                { ...CARD_TYPES.defend, id: 6 },
+                { ...CARD_TYPES.defend, id: 7 },
+                { ...CARD_TYPES.heal, id: 8 }
+            ];
+        }
+        
+        // Shuffle deck
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+        
+        // Draw hand
+        function drawHand() {
+            hand = [];
+            for (let i = 0; i < 5; i++) {
+                if (deck.length === 0) {
+                    deck = [...discard];
+                    discard = [];
+                    shuffle(deck);
+                }
+                if (deck.length > 0) {
+                    hand.push(deck.pop());
+                }
+            }
+            renderHand();
+        }
+        
+        // Render hand
+        function renderHand() {
+            const handArea = document.getElementById('handArea');
+            handArea.innerHTML = '';
+            hand.forEach((card, index) => {
+                const cardEl = document.createElement('div');
+                cardEl.className = `card ${card.type} ${card.upgraded ? 'upgraded' : ''} ${card.cost > energy ? 'disabled' : ''}`;
+                cardEl.innerHTML = `
+                    <div class="card-cost">${card.cost}</div>
+                    <div class="card-icon">${card.icon}</div>
+                    <div class="card-name">${card.name}</div>
+                    <div class="card-desc">${card.desc}</div>
+                `;
+                if (card.cost <= energy) {
+                    cardEl.addEventListener('click', () => playCard(index));
+                }
+                handArea.appendChild(cardEl);
+            });
+        }
+        
+        // Render relics
+        function renderRelics() {
+            const relicDisplay = document.getElementById('relicDisplay');
+            relicDisplay.innerHTML = '';
+            relics.forEach(relic => {
+                const relicEl = document.createElement('div');
+                relicEl.className = 'relic';
+                relicEl.innerHTML = `
+                    ${relic.icon}
+                    <div class="relic-tooltip">${relic.name}: ${relic.desc}</div>
+                `;
+                relicDisplay.appendChild(relicEl);
+            });
+        }
+        
+        // Render potions
+        function renderPotions() {
+            const potionBar = document.getElementById('potionBar');
+            potionBar.innerHTML = '';
+            potions.forEach((potion, index) => {
+                const potionEl = document.createElement('div');
+                potionEl.className = 'potion';
+                potionEl.textContent = potion.icon;
+                potionEl.addEventListener('click', () => usePotion(index));
+                potionBar.appendChild(potionEl);
+            });
+        }
+        
+        // Use potion
+        function usePotion(index) {
+            if (!gameRunning || !playerTurn || animating || index >= potions.length) return;
+            
+            const potion = potions[index];
+            
+            if (potion.heal) {
+                player.hp = Math.min(player.hp + potion.heal, player.maxHp);
+                createFloatingText(100, 120, `+${potion.heal} HP`, '#00E676');
+            }
+            if (potion.block) {
+                player.block += potion.block;
+                createFloatingText(100, 120, `+${potion.block} Block`, '#448AFF');
+            }
+            if (potion.energy) {
+                energy += potion.energy;
+                updateEnergy();
+                createFloatingText(100, 120, `+${potion.energy} Energy`, '#448AFF');
+            }
+            if (potion.damage && enemies[currentEnemyIndex]) {
+                enemies[currentEnemyIndex].hp -= potion.damage;
+                createFloatingText(280, 120, `-${potion.damage}`, '#FF5252');
+            }
+            if (potion.strength) {
+                player.strength += potion.strength;
+                createFloatingText(100, 120, `+${potion.strength} Str`, '#FF9800');
+            }
+            
+            potions.splice(index, 1);
+            renderPotions();
+            
+            if (enemies[currentEnemyIndex] && enemies[currentEnemyIndex].hp <= 0) {
+                enemyDefeated();
+            }
+        }
+        
+        // Apply relic effects
+        function applyRelicEffect(effect, value) {
+            switch(effect) {
+                case 'attack+2':
+                    return value + 2;
+                case 'block+3':
+                    return value + 3;
+                case 'crit+20':
+                    return Math.random() < 0.2 ? value * 2 : value;
+                default:
+                    return value;
+            }
+        }
+        
+        // Check if has relic
+        function hasRelic(effect) {
+            return relics.some(r => r.effect === effect);
+        }
+        
+        // Show achievement
+        function showAchievement(key) {
+            if (ACHIEVEMENTS[key].unlocked) return;
+            ACHIEVEMENTS[key].unlocked = true;
+            
+            const popup = document.getElementById('achievementPopup');
+            document.getElementById('achievementText').textContent = ACHIEVEMENTS[key].name + ': ' + ACHIEVEMENTS[key].desc;
+            popup.classList.remove('hidden');
+            
+            setTimeout(() => {
+                popup.classList.add('hidden');
+            }, 3000);
+        }
+        
+        // Play card
+        function playCard(index) {
+            if (!gameRunning || !playerTurn || animating || index >= hand.length) return;
+            
+            const card = hand[index];
+            if (card.cost > energy) return;
+            
+            animating = true;
+            energy -= card.cost;
+            updateEnergy();
+            cardsPlayedThisTurn++;
+            combo++;
+            if (combo > maxCombo) maxCombo = combo;
+            
+            // Check combo achievement
+            if (cardsPlayedThisTurn >= 5) {
+                showAchievement('combo5');
+            }
+            
+            // Show combo text
+            if (combo >= 3) {
+                createComboText(combo + 'x COMBO!');
+            }
+            
+            const target = enemies[currentEnemyIndex];
+            
+            // Apply card effects
+            if (card.damage) {
+                let dmg = card.damage;
+                if (hasRelic('attack+2')) dmg = applyRelicEffect('attack+2', dmg);
+                if (hasRelic('crit+20')) dmg = applyRelicEffect('crit+20', dmg);
+                if (player.strength > 0) dmg += player.strength;
+                if (player.weak > 0) dmg = Math.floor(dmg * 0.75);
+                if (target.vulnerable > 0) dmg = Math.floor(dmg * 1.5);
+                
+                target.hp -= dmg;
+                createParticles(280, 150, '#FF5252', 15);
+                createFloatingText(280, 120, `-${dmg}`, '#FF5252');
+                screenShake = 10;
+            }
+            if (card.block) {
+                let block = card.block;
+                if (hasRelic('block+3')) block = applyRelicEffect('block+3', block);
+                if (player.weak > 0) block = Math.floor(block * 0.75);
+                
+                player.block += block;
+                createParticles(100, 150, '#448AFF', 12);
+                createFloatingText(100, 120, `+${block} Block`, '#448AFF');
+            }
+            if (card.heal) {
+                player.hp = Math.min(player.hp + card.heal, player.maxHp);
+                createParticles(100, 150, '#00E676', 12);
+                createFloatingText(100, 120, `+${card.heal} HP`, '#00E676');
+            }
+            if (card.gold) {
+                let g = card.gold;
+                if (hasRelic('gold+10%')) g = Math.floor(g * 1.1);
+                gold += g;
+                updateUI();
+            }
+            if (card.poison) {
+                target.poison = (target.poison || 0) + card.poison;
+                createFloatingText(280, 100, `+${card.poison} Poison`, '#E040FB');
+            }
+            if (card.draw) {
+                for (let i = 0; i < card.draw; i++) {
+                    if (deck.length === 0) {
+                        deck = [...discard];
+                        discard = [];
+                        shuffle(deck);
+                    }
+                    if (deck.length > 0) {
+                        hand.push(deck.pop());
+                    }
+                }
+            }
+            if (card.energy) {
+                energy += card.energy;
+                updateEnergy();
+                createFloatingText(100, 100, `+${card.energy} Energy`, '#448AFF');
+            }
+            if (card.weak) {
+                target.weak = (target.weak || 0) + card.weak;
+                createFloatingText(280, 100, `+${card.weak} Weak`, '#E040FB');
+            }
+            if (card.vulnerable) {
+                target.vulnerable = (target.vulnerable || 0) + card.vulnerable;
+                createFloatingText(280, 100, `+${card.vulnerable} Vuln`, '#E040FB');
+            }
+            if (card.strength) {
+                player.strength += card.strength;
+                createFloatingText(100, 100, `+${card.strength} Str`, '#FF9800');
+            }
+            if (card.ritual) {
+                player.ritual += card.ritual;
+                createFloatingText(100, 100, `+${card.ritual} Ritual`, '#FF9800');
+            }
+            
+            // Move to discard
+            discard.push(card);
+            hand.splice(index, 1);
+            renderHand();
+            
+            setTimeout(() => {
+                animating = false;
+                if (target.hp <= 0) {
+                    enemyDefeated();
+                } else {
+                    updateButtons();
+                }
+            }, 600);
+        }
+        
+        // End turn
+        function endTurn() {
+            if (!gameRunning || !playerTurn || animating) return;
+            
+            playerTurn = false;
+            animating = true;
+            updateButtons();
+            combo = 0;
+            
+            // Apply poison to current enemy
+            const target = enemies[currentEnemyIndex];
+            if (target && target.poison > 0) {
+                target.hp -= target.poison;
+                createFloatingText(280, 100, `-${target.poison} Poison`, '#E040FB');
+                target.poison--;
+            }
+            
+            // Discard hand
+            discard.push(...hand);
+            hand = [];
+            renderHand();
+            
+            setTimeout(() => {
+                if (target && target.hp <= 0) {
+                    enemyDefeated();
+                } else {
+                    enemyTurn();
+                }
+            }, 500);
+        }
+        
+        // Enemy turn
+        function enemyTurn() {
+            if (!gameRunning || !enemies[currentEnemyIndex] || enemies[currentEnemyIndex].hp <= 0) return;
+            
+            const enemy = enemies[currentEnemyIndex];
+            
+            // Show intent
+            showEnemyIntent(enemy);
+            
+            setTimeout(() => {
+                if (!gameRunning) return;
+                
+                // Enemy attacks
+                let dmg = Math.floor(enemy.attack + Math.random() * 5);
+                if (enemy.weak > 0) dmg = Math.floor(dmg * 0.75);
+                if (enemy.strength > 0) dmg += enemy.strength;
+                
+                const actualDmg = Math.max(0, dmg - player.block);
+                player.block = Math.max(0, player.block - dmg);
+                player.hp -= actualDmg;
+                damageTakenThisBattle += actualDmg;
+                
+                createParticles(100, 150, '#FF5252', 10);
+                if (actualDmg > 0) {
+                    createFloatingText(100, 120, `-${actualDmg}`, '#FF5252');
+                    screenShake = 8;
+                } else {
+                    createFloatingText(100, 120, 'Blocked!', '#448AFF');
+                }
+                
+                // Apply enemy poison to player
+                if (enemy.playerPoison > 0) {
+                    player.poison += enemy.playerPoison;
+                    createFloatingText(100, 100, `+${enemy.playerPoison} Poison`, '#E040FB');
+                }
+                
+                // Apply thorns
+                if (hasRelic('thorns3') && actualDmg > 0) {
+                    enemy.hp -= 3;
+                    createFloatingText(280, 100, '-3 Thorns', '#FF5252');
+                }
+                
+                setTimeout(() => {
+                    if (player.hp <= 0) {
+                        gameOver();
+                    } else {
+                        startPlayerTurn();
+                    }
+                }, 800);
+            }, 1000);
+        }
+        
+        // Show enemy intent
+        function showEnemyIntent(enemy) {
+            // Clear previous intent
+            const existing = document.querySelector('.enemy-intent');
+            if (existing) existing.remove();
+            
+            const intent = document.createElement('div');
+            intent.className = 'enemy-intent';
+            intent.textContent = `⚔ ${enemy.attack} dmg`;
+            document.querySelector('.game-area').appendChild(intent);
+            
+            setTimeout(() => {
+                intent.remove();
+            }, 2000);
+        }
+        
+        // Start player turn
+        function startPlayerTurn() {
+            playerTurn = true;
+            energy = maxEnergy;
+            player.block = 0;
+            cardsPlayedThisTurn = 0;
+            
+            // Apply status effects
+            if (player.weak > 0) player.weak--;
+            if (player.vulnerable > 0) player.vulnerable--;
+            if (player.poison > 0) {
+                player.hp -= player.poison;
+                createFloatingText(100, 100, `-${player.poison} Poison`, '#E040FB');
+                player.poison--;
+            }
+            
+            // Apply ritual
+            if (player.ritual > 0) {
+                player.strength += player.ritual;
+                createFloatingText(100, 100, `+${player.ritual} Str`, '#FF9800');
+            }
+            
+            // Apply relic heal
+            if (hasRelic('heal2')) {
+                player.hp = Math.min(player.hp + 2, player.maxHp);
+                createFloatingText(100, 100, '+2 Relic', '#00E676');
+            }
+            if (hasRelic('regen1')) {
+                player.hp = Math.min(player.hp + 1, player.maxHp);
+                createFloatingText(100, 100, '+1 Regen', '#00E676');
+            }
+            
+            // Apply relic start block
+            if (hasRelic('startBlock')) {
+                player.block += 5;
+                createFloatingText(100, 100, '+5 Block', '#448AFF');
+            }
+            
+            drawHand();
+            updateEnergy();
+            updateButtons();
+            animating = false;
+        }
+        
+        // Enemy defeated
+        function enemyDefeated() {
+            wins++;
+            
+            // Check first win achievement
+            if (wins === 1) showAchievement('firstWin');
+            
+            // Check no damage achievement
+            if (damageTakenThisBattle === 0) showAchievement('winWithoutDamage');
+            
+            let goldReward = 15 + floor * 5;
+            const enemy = enemies[currentEnemyIndex];
+            if (enemy.isElite) goldReward *= 2;
+            if (enemy.isBoss) goldReward *= 3;
+            if (hasRelic('gold+10%')) goldReward = Math.floor(goldReward * 1.1);
+            
+            gold += goldReward;
+            
+            createParticles(280, 150, '#FFD700', 30);
+            
+            // Remove defeated enemy
+            enemies.splice(currentEnemyIndex, 1);
+            
+            if (enemies.length > 0) {
+                // More enemies to fight
+                currentEnemyIndex = 0;
+                startPlayerTurn();
+            } else {
+                // All enemies defeated
+                setTimeout(() => {
+                    const relicChance = enemy.isBoss ? 1 : enemy.isElite ? 0.6 : 0.3;
+                    if (Math.random() < relicChance) {
+                        showRelicScreen();
+                    } else {
+                        showRewardScreen();
+                    }
+                }, 800);
+            }
+        }
+        
+        // Show reward screen
+        function showRewardScreen() {
+            const rewardScreen = document.getElementById('rewardScreen');
+            const rewardArea = document.getElementById('cardReward');
+            rewardArea.innerHTML = '';
+            
+            document.querySelector('#rewardScreen .game-title').textContent = 'Victory!';
+            document.querySelector('#rewardScreen .game-subtitle').textContent = 'Choose a card to add:';
+            document.getElementById('skipRewardBtn').style.display = 'block';
+            
+            const cardKeys = Object.keys(CARD_TYPES);
+            const rewards = [];
+            for (let i = 0; i < 3; i++) {
+                const key = cardKeys[Math.floor(Math.random() * cardKeys.length)];
+                rewards.push({ ...CARD_TYPES[key], id: Date.now() + i });
+            }
+            
+            rewards.forEach((card, index) => {
+                const cardEl = document.createElement('div');
+                cardEl.className = 'reward-card';
+                cardEl.innerHTML = `
+                    <div class="card-cost">${card.cost}</div>
+                    <div class="card-icon">${card.icon}</div>
+                    <div class="card-name">${card.name}</div>
+                    <div class="card-desc">${card.desc}</div>
+                `;
+                cardEl.addEventListener('click', () => {
+                    deck.push(card);
+                    rewardScreen.classList.add('hidden');
+                    rewardScreen.style.display = '';
+                    nextFloor();
+                });
+                rewardArea.appendChild(cardEl);
+            });
+            
+            rewardScreen.classList.remove('hidden');
+            rewardScreen.style.display = 'flex';
+        }
+        
+        // Show relic screen
+        function showRelicScreen() {
+            const relicScreen = document.getElementById('relicScreen');
+            const relicArea = document.getElementById('relicReward');
+            relicArea.innerHTML = '';
+            
+            const relicKeys = Object.keys(RELICS);
+            const rewards = [];
+            for (let i = 0; i < 3; i++) {
+                const key = relicKeys[Math.floor(Math.random() * relicKeys.length)];
+                rewards.push({ ...RELICS[key], id: Date.now() + i });
+            }
+            
+            rewards.forEach((relic, index) => {
+                const relicEl = document.createElement('div');
+                relicEl.className = 'reward-card';
+                relicEl.innerHTML = `
+                    <div class="card-icon">${relic.icon}</div>
+                    <div class="card-name">${relic.name}</div>
+                    <div class="card-desc">${relic.desc}</div>
+                `;
+                relicEl.addEventListener('click', () => {
+                    relics.push(relic);
+                    renderRelics();
+                    
+                    if (relic.effect === 'energy+1') maxEnergy++;
+                    if (relic.effect === 'potionSlot') maxPotions++;
+                    
+                    // Check relic achievement
+                    if (relics.length >= 5) showAchievement('collect5Relics');
+                    
+                    relicScreen.classList.add('hidden');
+                    relicScreen.style.display = '';
+                    showRewardScreen();
+                });
+                relicArea.appendChild(relicEl);
+            });
+            
+            relicScreen.classList.remove('hidden');
+            relicScreen.style.display = 'flex';
+        }
+        
+        // Skip reward
+        function skipReward() {
+            gold += 15;
+            const rewardScreen = document.getElementById('rewardScreen');
+            rewardScreen.classList.add('hidden');
+            rewardScreen.style.display = '';
+            nextFloor();
+        }
+        
+        // Next floor
+        function nextFloor() {
+            floor++;
+            
+            // Check floor achievements
+            if (floor === 5) showAchievement('reachFloor5');
+            if (floor === 10) showAchievement('reachFloor10');
+            
+            player.hp = Math.min(player.hp + 10, player.maxHp);
+            damageTakenThisBattle = 0;
+            
+            updateUI();
+            
+            if (floor % 3 === 0) {
+                showShop();
+            } else {
+                spawnEnemies();
+                startPlayerTurn();
+            }
+        }
+        
+        // Show shop
+        function showShop() {
+            const shopScreen = document.getElementById('shopScreen');
+            const shopItems = document.getElementById('shopItems');
+            shopItems.innerHTML = '';
+            
+            const items = [];
+            
+            items.push({
+                type: 'remove',
+                name: 'Remove Card',
+                cost: 75,
+                desc: 'Remove a card from your deck'
+            });
+            
+            items.push({
+                type: 'upgrade',
+                name: 'Upgrade Card',
+                cost: 50,
+                desc: 'Upgrade a card (+50% effect)'
+            });
+            
+            const potionKeys = Object.keys(POTIONS);
+            const potionKey = potionKeys[Math.floor(Math.random() * potionKeys.length)];
+            items.push({
+                type: 'potion',
+                potion: { ...POTIONS[potionKey] },
+                name: POTIONS[potionKey].name,
+                cost: 30,
+                desc: POTIONS[potionKey].desc
+            });
+            
+            const cardKeys = Object.keys(CARD_TYPES);
+            const cardKey = cardKeys[Math.floor(Math.random() * cardKeys.length)];
+            items.push({
+                type: 'card',
+                card: { ...CARD_TYPES[cardKey], id: Date.now() },
+                name: CARD_TYPES[cardKey].name,
+                cost: 40 + CARD_TYPES[cardKey].cost * 10,
+                desc: CARD_TYPES[cardKey].desc
+            });
+            
+            items.forEach(item => {
+                const itemEl = document.createElement('div');
+                itemEl.className = 'shop-item';
+                itemEl.innerHTML = `
+                    <div style="font-size: 24px;">${item.type === 'potion' ? item.potion.icon : item.type === 'card' ? item.card.icon : '🛠'}</div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 700;">${item.name}</div>
+                        <div style="font-size: 11px; color: rgba(255,255,255,0.6);">${item.desc}</div>
+                    </div>
+                    <div class="shop-item-cost">${item.cost}g</div>
+                `;
+                itemEl.addEventListener('click', () => buyItem(item));
+                shopItems.appendChild(itemEl);
+            });
+            
+            shopScreen.classList.remove('hidden');
+            shopScreen.style.display = 'flex';
+        }
+        
+        // Buy item
+        function buyItem(item) {
+            if (gold < item.cost) return;
+            
+            gold -= item.cost;
+            updateUI();
+            
+            if (item.type === 'card') {
+                deck.push(item.card);
+            } else if (item.type === 'potion') {
+                if (potions.length < maxPotions) {
+                    potions.push(item.potion);
+                    renderPotions();
+                }
+            } else if (item.type === 'remove') {
+                showCardRemoval();
+                return;
+            } else if (item.type === 'upgrade') {
+                showCardUpgrade();
+                return;
+            }
+            
+            showShop();
+        }
+        
+        // Show card removal
+        function showCardRemoval() {
+            const rewardArea = document.getElementById('cardReward');
+            rewardArea.innerHTML = '';
+            
+            deck.forEach((card, index) => {
+                const cardEl = document.createElement('div');
+                cardEl.className = 'reward-card';
+                cardEl.innerHTML = `
+                    <div class="card-cost">${card.cost}</div>
+                    <div class="card-icon">${card.icon}</div>
+                    <div class="card-name">${card.name}</div>
+                    <div class="card-desc">${card.desc}</div>
+                `;
+                cardEl.addEventListener('click', () => {
+                    deck.splice(index, 1);
+                    document.getElementById('rewardScreen').classList.add('hidden');
+                    nextFloor();
+                });
+                rewardArea.appendChild(cardEl);
+            });
+            
+            document.querySelector('#rewardScreen .game-title').textContent = 'Remove Card';
+            document.querySelector('#rewardScreen .game-subtitle').textContent = 'Choose a card to remove:';
+            document.getElementById('skipRewardBtn').style.display = 'none';
+            document.getElementById('rewardScreen').classList.remove('hidden');
+        }
+        
+        // Show card upgrade
+        function showCardUpgrade() {
+            const rewardArea = document.getElementById('cardReward');
+            rewardArea.innerHTML = '';
+            
+            deck.forEach((card, index) => {
+                if (card.upgraded) return;
+                
+                const cardEl = document.createElement('div');
+                cardEl.className = 'reward-card';
+                cardEl.innerHTML = `
+                    <div class="card-cost">${card.cost}</div>
+                    <div class="card-icon">${card.icon}</div>
+                    <div class="card-name">${card.name}</div>
+                    <div class="card-desc">${card.desc}</div>
+                `;
+                cardEl.addEventListener('click', () => {
+                    card.upgraded = true;
+                    if (card.damage) card.damage = Math.floor(card.damage * 1.5);
+                    if (card.block) card.block = Math.floor(card.block * 1.5);
+                    if (card.heal) card.heal = Math.floor(card.heal * 1.5);
+                    card.desc = card.desc.replace(/\d+/, match => Math.floor(parseInt(match) * 1.5));
+                    
+                    document.getElementById('rewardScreen').classList.add('hidden');
+                    nextFloor();
+                });
+                rewardArea.appendChild(cardEl);
+            });
+            
+            document.querySelector('#rewardScreen .game-title').textContent = 'Upgrade Card';
+            document.querySelector('#rewardScreen .game-subtitle').textContent = 'Choose a card to upgrade:';
+            document.getElementById('skipRewardBtn').style.display = 'none';
+            document.getElementById('rewardScreen').classList.remove('hidden');
+        }
+        
+        // Leave shop
+        function leaveShop() {
+            const shopScreen = document.getElementById('shopScreen');
+            shopScreen.classList.add('hidden');
+            shopScreen.style.display = '';
+            spawnEnemies();
+            startPlayerTurn();
+        }
+        
+        // Spawn enemies
+        function spawnEnemies() {
+            enemies = [];
+            currentEnemyIndex = 0;
+            
+            const isBoss = floor % 5 === 0;
+            const isElite = !isBoss && floor % 3 === 0;
+            const enemyCount = isBoss ? 1 : isElite ? 2 : Math.floor(Math.random() * 2) + 1;
+            
+            for (let i = 0; i < enemyCount; i++) {
+                const hpMult = isBoss ? 3 : isElite ? 1.8 : 1;
+                const dmgMult = isBoss ? 2 : isElite ? 1.4 : 1;
+                
+                enemies.push({
+                    x: 250 + i * 20,
+                    y: 120 + i * 30,
+                    width: 60,
+                    height: 60,
+                    hp: Math.floor((25 + floor * 8) * hpMult),
+                    maxHp: Math.floor((25 + floor * 8) * hpMult),
+                    attack: Math.floor((6 + floor * 2) * dmgMult),
+                    isBoss: isBoss,
+                    isElite: isElite,
+                    name: isBoss ? 'Debt Boss' : isElite ? 'Debt Elite' : 'Debt Minion',
+                    poison: 0,
+                    playerPoison: isElite ? 2 : 0,
+                    weak: 0,
+                    vulnerable: 0,
+                    strength: 0,
+                    shake: 0
+                });
+            }
+        }
+        
+        // Game over
+        function gameOver() {
+            gameRunning = false;
+            
+            document.getElementById('finalFloor').textContent = floor;
+            document.getElementById('finalRelics').textContent = relics.length;
+            
+            document.getElementById('gameOverScreen').classList.remove('hidden');
+            document.getElementById('gameOverScreen').style.display = 'flex';
+        }
+        
+        // Update UI
+        function updateUI() {
+            document.getElementById('floor').textContent = floor;
+            document.getElementById('gold').textContent = gold;
+            document.getElementById('hp').textContent = Math.max(0, player.hp);
+        }
+        
+        function updateEnergy() {
+            document.getElementById('energy').textContent = `${energy}/${maxEnergy}`;
+        }
+        
+        function updateButtons() {
+            document.getElementById('endTurnBtn').disabled = !playerTurn || animating;
+        }
+        
+        // Particle effects
+        function createParticles(x, y, color, count) {
+            for (let i = 0; i < count; i++) {
+                particles.push({
+                    x, y,
+                    dx: (Math.random() - 0.5) * 8,
+                    dy: (Math.random() - 0.5) * 8,
+                    life: 1,
+                    color,
+                    size: Math.random() * 4 + 2
+                });
+            }
+        }
+        
+        function createFloatingText(x, y, text, color) {
+            floatingTexts.push({
+                x, y,
+                text,
+                color,
+                life: 1,
+                dy: -2
+            });
+        }
+        
+        function createComboText(text) {
+            const comboEl = document.createElement('div');
+            comboEl.className = 'combo-text';
+            comboEl.textContent = text;
+            comboEl.style.left = '50%';
+            comboEl.style.top = '40%';
+            comboEl.style.transform = 'translateX(-50%)';
+            document.querySelector('.game-area').appendChild(comboEl);
+            
+            setTimeout(() => {
+                comboEl.remove();
+            }, 1000);
+        }
+        
+        // Start game
+        function startGame() {
+            document.getElementById('startScreen').classList.add('hidden');
+            document.getElementById('gameOverScreen').classList.add('hidden');
+            document.getElementById('rewardScreen').classList.add('hidden');
+            document.getElementById('relicScreen').classList.add('hidden');
+            document.getElementById('shopScreen').classList.add('hidden');
+            
+            gameRunning = true;
+            floor = 1;
+            gold = 0;
+            wins = 0;
+            energy = 3;
+            maxEnergy = 3;
+            combo = 0;
+            maxCombo = 0;
+            damageTakenThisBattle = 0;
+            cardsPlayedThisTurn = 0;
+            
+            player = {
+                hp: 80,
+                maxHp: 80,
+                block: 0,
+                poison: 0,
+                strength: 0,
+                weak: 0,
+                vulnerable: 0,
+                ritual: 0
+            };
+            
+            relics = [];
+            potions = [];
+            maxPotions = 2;
+            
+            particles = [];
+            floatingTexts = [];
+            screenShake = 0;
+            
+            initDeck();
+            shuffle(deck);
+            spawnEnemies();
+            updateUI();
+            updateEnergy();
+            renderRelics();
+            renderPotions();
+            startPlayerTurn();
+            gameLoop();
+        }
+        
+        // Game loop
+        function gameLoop() {
+            if (!gameRunning) return;
+            
+            update();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+        
+        function update() {
+            // Update particles
+            for (let i = particles.length - 1; i >= 0; i--) {
+                particles[i].x += particles[i].dx;
+                particles[i].y += particles[i].dy;
+                particles[i].life -= 0.03;
+                if (particles[i].life <= 0) {
+                    particles.splice(i, 1);
+                }
+            }
+            
+            // Update floating texts
+            for (let i = floatingTexts.length - 1; i >= 0; i--) {
+                floatingTexts[i].y += floatingTexts[i].dy;
+                floatingTexts[i].life -= 0.02;
+                if (floatingTexts[i].life <= 0) {
+                    floatingTexts.splice(i, 1);
+                }
+            }
+            
+            // Update screen shake
+            if (screenShake > 0) {
+                screenShake--;
+            }
+            
+            // Update enemy shake
+            enemies.forEach(enemy => {
+                if (enemy.shake > 0) enemy.shake--;
+            });
+        }
+        
+        function draw() {
+            // Clear with screen shake
+            const shakeX = screenShake > 0 ? (Math.random() - 0.5) * 10 : 0;
+            const shakeY = screenShake > 0 ? (Math.random() - 0.5) * 10 : 0;
+            
+            ctx.save();
+            ctx.translate(shakeX, shakeY);
+            
+            ctx.fillStyle = '#0a0e1a';
+            ctx.fillRect(-10, -10, canvas.width + 20, canvas.height + 20);
+            
+            // Background
+            drawBackground();
+            
+            // Draw player
+            drawPlayer();
+            
+            // Draw enemies
+            enemies.forEach((enemy, index) => {
+                if (enemy.hp > 0) drawEnemy(enemy, index);
+            });
+            
+            // Draw particles
+            particles.forEach(p => {
+                ctx.globalAlpha = p.life;
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.globalAlpha = 1;
+            });
+            
+            // Draw floating texts
+            floatingTexts.forEach(ft => {
+                ctx.globalAlpha = ft.life;
+                ctx.fillStyle = ft.color;
+                ctx.font = 'bold 16px Inter';
+                ctx.textAlign = 'center';
+                ctx.fillText(ft.text, ft.x, ft.y);
+                ctx.globalAlpha = 1;
+            });
+            
+            // Draw HP bars
+            drawHPBars();
+            
+            // Draw status effects
+            drawStatusEffects();
+            
+            // Draw turn indicator
+            if (playerTurn && !animating) {
+                ctx.fillStyle = '#00E676';
+                ctx.font = '12px Inter';
+                ctx.textAlign = 'center';
+                ctx.fillText('YOUR TURN', canvas.width / 2, 30);
+            } else if (!playerTurn) {
+                ctx.fillStyle = '#FF5252';
+                ctx.font = '12px Inter';
+                ctx.textAlign = 'center';
+                ctx.fillText('ENEMY TURN', canvas.width / 2, 30);
+            }
+            
+            ctx.restore();
+        }
+        
+        function drawBackground() {
+            ctx.fillStyle = '#fff';
+            for (let i = 0; i < 15; i++) {
+                const x = (i * 73) % canvas.width;
+                const y = (i * 47) % canvas.height;
+                ctx.globalAlpha = 0.1;
+                ctx.fillRect(x, y, 2, 2);
+            }
+            ctx.globalAlpha = 1;
+            
+            ctx.fillStyle = '#131b2e';
+            ctx.fillRect(0, 280, canvas.width, 100);
+            ctx.fillStyle = '#00E676';
+            ctx.fillRect(0, 280, canvas.width, 3);
+        }
+        
+        function drawPlayer() {
+            const x = 70;
+            const y = 200;
+            const size = 50;
+            
+            ctx.fillStyle = 'rgba(0,0,0,0.3)';
+            ctx.beginPath();
+            ctx.ellipse(x + size/2, 280, size/2, 8, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.fillStyle = '#00E676';
+            ctx.fillRect(x, y, size, size);
+            
+            ctx.strokeStyle = '#00C853';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(x, y, size, size);
+            
+            ctx.fillStyle = '#0a0e1a';
+            ctx.fillRect(x + 10, y + 12, 10, 12);
+            ctx.fillRect(x + 30, y + 12, 10, 12);
+            
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(x + 13, y + 14, 4, 4);
+            ctx.fillRect(x + 33, y + 14, 4, 4);
+            
+            ctx.fillStyle = '#0a0e1a';
+            ctx.fillRect(x + 15, y + 32, 20, 4);
+            
+            ctx.strokeStyle = '#00E676';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(x + size/2, y);
+            ctx.lineTo(x + size/2, y - 12);
+            ctx.stroke();
+            
+            ctx.fillStyle = '#FFD700';
+            ctx.beginPath();
+            ctx.arc(x + size/2, y - 15, 5, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        
+        function drawEnemy(enemy, index) {
+            let x = enemy.x;
+            const y = enemy.y;
+            const size = enemy.width;
+            
+            if (enemy.shake > 0) {
+                x += (Math.random() - 0.5) * 10;
+            }
+            
+            ctx.fillStyle = 'rgba(0,0,0,0.3)';
+            ctx.beginPath();
+            ctx.ellipse(x + size/2, 280, size/2, 8, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.fillStyle = enemy.isBoss ? '#FF6D00' : enemy.isElite ? '#E040FB' : '#FF5252';
+            ctx.fillRect(x, y, size, size);
+            
+            ctx.strokeStyle = enemy.isBoss ? '#E65100' : enemy.isElite ? '#D500F9' : '#FF1744';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(x, y, size, size);
+            
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(x + 10, y + 15, 10, 10);
+            ctx.fillRect(x + 40, y + 15, 10, 10);
+            
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(x + 8, y + 12);
+            ctx.lineTo(x + 22, y + 18);
+            ctx.moveTo(x + 52, y + 12);
+            ctx.lineTo(x + 38, y + 18);
+            ctx.stroke();
+            
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(x + 20, y + 40, 20, 4);
+            
+            if (enemy.isElite || enemy.isBoss) {
+                ctx.fillStyle = '#FFD700';
+                ctx.font = '10px Inter';
+                ctx.textAlign = 'center';
+                ctx.fillText(enemy.isBoss ? 'BOSS' : 'ELITE', x + size/2, y - 10);
+            }
+        }
+        
+        function drawHPBars() {
+            const playerBarWidth = 100;
+            const playerBarHeight = 12;
+            const playerBarX = 20;
+            const playerBarY = 80;
+            
+            ctx.fillStyle = 'rgba(255,255,255,0.1)';
+            ctx.fillRect(playerBarX, playerBarY, playerBarWidth, playerBarHeight);
+            
+            const playerHpPercent = Math.max(0, player.hp / player.maxHp);
+            ctx.fillStyle = playerHpPercent > 0.5 ? '#00E676' : playerHpPercent > 0.25 ? '#FFD700' : '#FF5252';
+            ctx.fillRect(playerBarX, playerBarY, playerBarWidth * playerHpPercent, playerBarHeight);
+            
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 10px Inter';
+            ctx.textAlign = 'left';
+            ctx.fillText(`${Math.max(0, Math.ceil(player.hp))}/${player.maxHp}`, playerBarX, playerBarY - 5);
+            
+            enemies.forEach((enemy, index) => {
+                if (enemy.hp <= 0) return;
+                
+                const enemyBarWidth = 100;
+                const enemyBarHeight = 12;
+                const enemyBarX = 270;
+                const enemyBarY = 80 + index * 40;
+                
+                ctx.fillStyle = 'rgba(255,255,255,0.1)';
+                ctx.fillRect(enemyBarX, enemyBarY, enemyBarWidth, enemyBarHeight);
+                
+                const enemyHpPercent = Math.max(0, enemy.hp / enemy.maxHp);
+                ctx.fillStyle = '#FF5252';
+                ctx.fillRect(enemyBarX, enemyBarY, enemyBarWidth * enemyHpPercent, enemyBarHeight);
+                
+                ctx.fillStyle = '#fff';
+                ctx.font = 'bold 10px Inter';
+                ctx.textAlign = 'left';
+                ctx.fillText(`${Math.max(0, Math.ceil(enemy.hp))}/${enemy.maxHp}`, enemyBarX, enemyBarY - 5);
+                
+                ctx.fillStyle = '#fff';
+                ctx.font = '11px Inter';
+                ctx.textAlign = 'center';
+                ctx.fillText(enemy.name, enemyBarX + enemyBarWidth/2, enemyBarY - 20);
+            });
+        }
+        
+        function drawStatusEffects() {
+            let yOffset = 200;
+            
+            if (player.block > 0) {
+                ctx.fillStyle = '#448AFF';
+                ctx.font = '12px Inter';
+                ctx.textAlign = 'center';
+                ctx.fillText(`Block: ${player.block}`, 100, yOffset);
+                yOffset += 15;
+            }
+            
+            if (player.strength > 0) {
+                ctx.fillStyle = '#FF9800';
+                ctx.font = '12px Inter';
+                ctx.textAlign = 'center';
+                ctx.fillText(`Str: ${player.strength}`, 100, yOffset);
+                yOffset += 15;
+            }
+            
+            if (player.weak > 0) {
+                ctx.fillStyle = '#E040FB';
+                ctx.font = '12px Inter';
+                ctx.textAlign = 'center';
+                ctx.fillText(`Weak: ${player.weak}`, 100, yOffset);
+                yOffset += 15;
+            }
+            
+            if (player.vulnerable > 0) {
+                ctx.fillStyle = '#E040FB';
+                ctx.font = '12px Inter';
+                ctx.textAlign = 'center';
+                ctx.fillText(`Vuln: ${player.vulnerable}`, 100, yOffset);
+                yOffset += 15;
+            }
+            
+            if (player.poison > 0) {
+                ctx.fillStyle = '#E040FB';
+                ctx.font = '12px Inter';
+                ctx.textAlign = 'center';
+                ctx.fillText(`Poison: ${player.poison}`, 100, yOffset);
+            }
+            
+            enemies.forEach((enemy, index) => {
+                if (enemy.hp <= 0) return;
+                let enemyYOffset = 100 + index * 40;
+                
+                if (enemy.poison > 0) {
+                    ctx.fillStyle = '#E040FB';
+                    ctx.font = '12px Inter';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(`Poison: ${enemy.poison}`, 280, enemyYOffset);
+                }
+                
+                if (enemy.weak > 0) {
+                    ctx.fillStyle = '#E040FB';
+                    ctx.font = '12px Inter';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(`Weak: ${enemy.weak}`, 280, enemyYOffset + 15);
+                }
+                
+                if (enemy.vulnerable > 0) {
+                    ctx.fillStyle = '#E040FB';
+                    ctx.font = '12px Inter';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(`Vuln: ${enemy.vulnerable}`, 280, enemyYOffset + 30);
+                }
+            });
+        }
+        
+        // Event listeners
+        document.getElementById('startBtn').addEventListener('click', startGame);
+        document.getElementById('restartBtn').addEventListener('click', startGame);
+        document.getElementById('endTurnBtn').addEventListener('click', endTurn);
+        document.getElementById('skipRewardBtn').addEventListener('click', skipReward);
+        document.getElementById('leaveShopBtn').addEventListener('click', leaveShop);
+    </script>
+</body>
+</html>

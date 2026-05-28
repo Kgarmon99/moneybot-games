@@ -3,166 +3,579 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MoneyBot - bot-achievement-hunt</title>
-    <link rel="icon" type="image/jpeg" href="assets/moneybot-logo-1.jpg">
+    <title>Achievement Hunt - MoneyBot</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: manipulation; user-select: none; }
-        body { font-family: 'Inter', sans-serif; background: #FFFFFF; min-height: 100vh; color: #0F172A; }
-        .app { max-width: 430px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; }
-        .header { background: #FFFFFF; padding: 16px; display: flex; align-items: center; gap: 12px; border-bottom: 2px solid #22C55E; }
-        .header img { width: 40px; height: 40px; border-radius: 8px; object-fit: cover; }
-        .header h1 { font-size: 20px; font-weight: 800; }
-        .back-btn { width: 44px; height: 44px; border-radius: 12px; background: #22C55E; border: none; color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 20px; text-decoration: none; }
-        .game-container { flex: 1; padding: 20px; display: flex; flex-direction: column; }
-        #gameCanvas { background: #F1F5F9; border-radius: 16px; width: 100%; height: 400px; margin-bottom: 16px; }
-        .controls { display: flex; justify-content: center; gap: 12px; }
-        .btn { background: #22C55E; color: white; border: none; padding: 16px 32px; border-radius: 12px; font-weight: 700; font-size: 16px; cursor: pointer; }
-        .score { text-align: center; padding: 16px; background: #F1F5F9; border-radius: 12px; margin-bottom: 16px; }
-        .score-label { font-size: 12px; color: #64748B; }
-        .score-value { font-size: 32px; font-weight: 800; color: #22C55E; }
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.98); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; }
-        .overlay.hidden { display: none; }
-        .start-btn { background: #22C55E; color: white; border: none; padding: 20px 48px; border-radius: 16px; font-size: 18px; font-weight: 700; cursor: pointer; }
+        body { font-family: 'Outfit', sans-serif; background: #0a0a0f; color: #fff; min-height: 100vh; overflow: hidden; }
+        .app { max-width: 480px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; position: relative; }
+        
+        .header { padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; background: rgba(0,255,136,0.05); border-bottom: 1px solid rgba(0,255,136,0.15); }
+        .back-btn { width: 40px; height: 40px; border-radius: 10px; background: rgba(0,255,136,0.15); border: none; color: #00ff88; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 18px; text-decoration: none; }
+        .header-title { font-weight: 800; font-size: 18px; color: #00ff88; }
+        .xp-bar { display: flex; align-items: center; gap: 8px; }
+        .xp-label { font-size: 11px; color: #888; font-weight: 600; }
+        .xp-track { width: 100px; height: 8px; background: #1a1a2e; border-radius: 4px; overflow: hidden; }
+        .xp-fill { height: 100%; background: linear-gradient(90deg, #00ff88, #00cc6a); border-radius: 4px; transition: width 0.5s ease; }
+        .level-badge { background: linear-gradient(135deg, #00ff88, #00cc6a); color: #0a0a0f; padding: 4px 10px; border-radius: 12px; font-weight: 800; font-size: 12px; }
+
+        .game-container { flex: 1; position: relative; overflow: hidden; }
+        #gameCanvas { display: block; width: 100%; height: 100%; }
+        
+        .overlay { position: fixed; inset: 0; background: rgba(10,10,15,0.95); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100; padding: 30px; transition: opacity 0.3s; }
+        .overlay.hidden { opacity: 0; pointer-events: none; }
+        .overlay-icon { font-size: 64px; margin-bottom: 16px; animation: float 2s ease-in-out infinite; }
+        @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+        .overlay h1 { font-size: 32px; font-weight: 900; margin-bottom: 8px; text-align: center; }
+        .overlay p { color: #888; font-size: 15px; text-align: center; margin-bottom: 24px; line-height: 1.5; }
+        .btn { padding: 16px 40px; border-radius: 14px; font-weight: 700; font-size: 16px; cursor: pointer; border: none; transition: all 0.2s; }
+        .btn-primary { background: linear-gradient(135deg, #00ff88, #00cc6a); color: #0a0a0f; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,255,136,0.3); }
+        
+        .achievements-panel { position: fixed; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(10,10,15,0.98), rgba(10,10,15,0.9)); padding: 16px 20px 24px; z-index: 50; transform: translateY(100%); transition: transform 0.3s ease; max-height: 50vh; overflow-y: auto; }
+        .achievements-panel.open { transform: translateY(0); }
+        .panel-toggle { position: fixed; bottom: 20px; right: 20px; width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, #00ff88, #00cc6a); color: #0a0a0f; border: none; font-size: 24px; cursor: pointer; z-index: 51; box-shadow: 0 4px 20px rgba(0,255,136,0.3); }
+        .achievements-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .achievement { background: rgba(255,255,255,0.05); border-radius: 12px; padding: 12px 8px; text-align: center; border: 2px solid transparent; transition: all 0.2s; }
+        .achievement.unlocked { border-color: #00ff88; background: rgba(0,255,136,0.08); }
+        .achievement .ach-icon { font-size: 28px; margin-bottom: 4px; }
+        .achievement .ach-name { font-size: 10px; font-weight: 700; color: #aaa; }
+        .achievement.unlocked .ach-name { color: #00ff88; }
+        .achievement .ach-progress { font-size: 9px; color: #666; margin-top: 2px; }
+
+        .toast { position: fixed; top: 80px; left: 50%; transform: translateX(-50%) translateY(-100px); background: linear-gradient(135deg, #00ff88, #00cc6a); color: #0a0a0f; padding: 14px 24px; border-radius: 12px; font-weight: 700; font-size: 14px; z-index: 200; opacity: 0; transition: all 0.4s ease; pointer-events: none; }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        .stats-row { display: flex; gap: 16px; margin-bottom: 20px; }
+        .stat-box { text-align: center; }
+        .stat-box .stat-val { font-size: 28px; font-weight: 800; color: #00ff88; }
+        .stat-box .stat-label { font-size: 11px; color: #888; text-transform: uppercase; }
     </style>
 </head>
 <body>
     <div class="app">
-        <header class="header">
+        <div class="header">
             <a href="../moneybot-official/" class="back-btn">←</a>
-            <img src="assets/moneybot-logo-1.jpg" alt="MoneyBot">
-            <h1>bot-achievement-hunt</h1>
-        </header>
-        
-        <div class="game-container">
-            <div class="score">
-                <div class="score-label">SCORE</div>
-                <div class="score-value" id="score">0</div>
-            </div>
-            <canvas id="gameCanvas" width="390" height="400"></canvas>
-            <div class="controls">
-                <button class="btn" onclick="game.action()">PLAY</button>
+            <span class="header-title">🏆 Achievement Hunt</span>
+            <div class="xp-bar">
+                <span class="xp-label">XP</span>
+                <div class="xp-track"><div class="xp-fill" id="xpFill" style="width:0%"></div></div>
+                <span class="level-badge" id="levelBadge">Lvl 1</span>
             </div>
         </div>
+        <div class="game-container">
+            <canvas id="gameCanvas"></canvas>
+        </div>
     </div>
-    
+
     <div class="overlay" id="startOverlay">
-        <h2 style="font-size: 28px; margin-bottom: 16px;">bot-achievement-hunt</h2>
-        <p style="color: #64748B; margin-bottom: 32px;">Tap to play! Collect coins, avoid debt.</p>
-        <button id="startBtn" class="start-btn">START GAME</button>
+        <div class="overlay-icon">🏃</div>
+        <h1>Achievement Hunt</h1>
+        <p>Run through your financial journey!<br>Collect coins, avoid debt traps,<br>and unlock real money milestones.</p>
+        <div class="stats-row">
+            <div class="stat-box"><div class="stat-val" id="bestScore">0</div><div class="stat-label">Best Score</div></div>
+            <div class="stat-box"><div class="stat-val" id="achievementsCount">0/12</div><div class="stat-label">Achievements</div></div>
+        </div>
+        <button class="btn btn-primary" id="startBtn">START RUNNING</button>
     </div>
-    
+
+    <div class="overlay hidden" id="gameOverOverlay">
+        <div class="overlay-icon" id="endEmoji">💀</div>
+        <h1 id="endTitle">Run Ended!</h1>
+        <p id="endText">You collected $0</p>
+        <div class="stats-row">
+            <div class="stat-box"><div class="stat-val" id="endScore">0</div><div class="stat-label">Score</div></div>
+            <div class="stat-box"><div class="stat-val" id="endCoins">0</div><div class="stat-label">Coins</div></div>
+            <div class="stat-box"><div class="stat-val" id="endDistance">0m</div><div class="stat-label">Distance</div></div>
+        </div>
+        <div id="newAchievements" style="margin-bottom:20px;display:none;"></div>
+        <button class="btn btn-primary" id="restartBtn">RUN AGAIN</button>
+    </div>
+
+    <button class="panel-toggle" id="panelToggle">🏆</button>
+    <div class="achievements-panel" id="achievementsPanel">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+            <h3 style="font-size:18px;font-weight:800;">Financial Milestones</h3>
+            <span style="color:#888;font-size:13px;" id="panelCount">0/12</span>
+        </div>
+        <div class="achievements-grid" id="achievementsGrid"></div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
     <script>
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-        const startBtn = document.getElementById('startBtn');
-        
-        startBtn.addEventListener('click', () => game.start());
-        startBtn.addEventListener('touchstart', (e) => { e.preventDefault(); game.start(); }, {passive: false});
-        
-        const game = {
-            score: 0,
-            running: false,
-            entities: [],
-            player: { x: 195, y: 350, size: 20 },
-            
-            start() {
-                document.getElementById('startOverlay').classList.add('hidden');
-                this.running = true;
-                this.score = 0;
-                this.entities = [];
-                for (let i = 0; i < 8; i++) {
-                    this.spawnEntity();
+    // Game Config
+    const ACHIEVEMENTS = [
+        { id: 'first_steps', name: 'First Steps', icon: '👶', desc: 'Run 100m', check: (s) => s.distance >= 100 },
+        { id: 'saver', name: 'Saver', icon: '💰', desc: 'Collect $500', check: (s) => s.coins >= 500 },
+        { id: 'debt_dodger', name: 'Debt Dodger', icon: '🛡️', desc: 'Avoid 10 debt traps', check: (s) => s.debtAvoided >= 10 },
+        { id: 'marathon', name: 'Marathon', icon: '🏃', desc: 'Run 500m', check: (s) => s.distance >= 500 },
+        { id: 'investor', name: 'Investor', icon: '📈', desc: 'Collect $2000', check: (s) => s.coins >= 2000 },
+        { id: 'combo_king', name: 'Combo King', icon: '🔥', desc: '10x coin combo', check: (s) => s.maxCombo >= 10 },
+        { id: 'financial_freedom', name: 'F.I.R.E.', icon: '🔥', desc: 'Collect $5000', check: (s) => s.coins >= 5000 },
+        { id: 'marathon_pro', name: 'Ultra Runner', icon: '🏆', desc: 'Run 1000m', check: (s) => s.distance >= 1000 },
+        { id: 'net_worth_10k', name: '10K Club', icon: '💎', desc: 'Score $10,000', check: (s) => s.score >= 10000 },
+        { id: 'perfect_run', name: 'Perfect Run', icon: '✨', desc: '500m with no debt hits', check: (s) => s.perfectDistance >= 500 },
+        { id: 'speed_demon', name: 'Speed Demon', icon: '⚡', desc: 'Reach max speed', check: (s) => s.maxSpeed >= 8 },
+        { id: 'legend', name: 'Money Legend', icon: '👑', desc: 'Unlock all other achievements', check: (s) => s.unlockedCount >= 11 }
+    ];
+
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = Math.min(480, window.innerWidth);
+    canvas.height = window.innerHeight - 60;
+
+    let game = {
+        running: false,
+        score: 0,
+        coins: 0,
+        distance: 0,
+        speed: 3,
+        maxSpeed: 3,
+        combo: 0,
+        maxCombo: 0,
+        debtHits: 0,
+        debtAvoided: 0,
+        perfectDistance: 0,
+        lastDebtHit: 0,
+        unlockedAchievements: new Set(JSON.parse(localStorage.getItem('mb_achievements') || '[]')),
+        bestScore: parseInt(localStorage.getItem('mb_best_score') || '0'),
+        xp: parseInt(localStorage.getItem('mb_xp') || '0'),
+        level: parseInt(localStorage.getItem('mb_level') || '1')
+    };
+
+    let player = { x: canvas.width/2, y: canvas.height - 100, size: 24, vy: 0, onGround: true };
+    let obstacles = [];
+    let particles = [];
+    let floatingTexts = [];
+    let groundY = canvas.height - 40;
+    let frameCount = 0;
+    let animId;
+
+    // Input
+    let keys = {};
+    let touchX = null;
+    document.addEventListener('keydown', e => { keys[e.key] = true; if(e.key===' '||e.key==='ArrowUp') e.preventDefault(); });
+    document.addEventListener('keyup', e => keys[e.key] = false);
+    canvas.addEventListener('touchstart', e => { touchX = e.touches[0].clientX; if(e.touches[0].clientY < canvas.height/2) playerJump(); }, {passive:false});
+    canvas.addEventListener('touchmove', e => { touchX = e.touches[0].clientX; e.preventDefault(); }, {passive:false});
+    canvas.addEventListener('touchend', () => touchX = null);
+    canvas.addEventListener('mousedown', () => playerJump());
+
+    function playerJump() {
+        if (player.onGround) {
+            player.vy = -12;
+            player.onGround = false;
+            spawnParticles(player.x, player.y + player.size, '#00ff88', 5);
+        }
+    }
+
+    function spawnParticles(x, y, color, count) {
+        for (let i = 0; i < count; i++) {
+            particles.push({
+                x, y,
+                vx: (Math.random() - 0.5) * 6,
+                vy: (Math.random() - 0.5) * 6 - 2,
+                life: 1,
+                color,
+                size: Math.random() * 4 + 2
+            });
+        }
+    }
+
+    function spawnFloatingText(x, y, text, color) {
+        floatingTexts.push({ x, y, text, color, life: 1, vy: -2 });
+    }
+
+    function spawnObstacle() {
+        const type = Math.random();
+        const y = groundY - 20 - Math.random() * 120;
+        if (type < 0.5) {
+            // Coin
+            obstacles.push({
+                type: 'coin', x: canvas.width + 30, y,
+                size: 16, value: 50 + Math.floor(Math.random() * 50),
+                speed: game.speed
+            });
+        } else if (type < 0.75) {
+            // Debt trap
+            obstacles.push({
+                type: 'debt', x: canvas.width + 30, y: groundY - 15,
+                width: 40, height: 30,
+                speed: game.speed
+            });
+        } else {
+            // Powerup
+            obstacles.push({
+                type: 'powerup', x: canvas.width + 30, y: groundY - 80 - Math.random() * 60,
+                size: 20,
+                speed: game.speed,
+                kind: Math.random() > 0.5 ? 'magnet' : 'shield'
+            });
+        }
+    }
+
+    function update() {
+        if (!game.running) return;
+        frameCount++;
+
+        // Speed progression
+        game.speed = Math.min(8, 3 + game.distance / 500);
+        game.maxSpeed = Math.max(game.maxSpeed, game.speed);
+
+        // Player physics
+        player.vy += 0.6;
+        player.y += player.vy;
+        if (player.y + player.size >= groundY) {
+            player.y = groundY - player.size;
+            player.vy = 0;
+            player.onGround = true;
+        }
+
+        // Horizontal movement
+        if (keys['ArrowLeft'] || keys['a']) player.x = Math.max(player.size, player.x - 5);
+        if (keys['ArrowRight'] || keys['d']) player.x = Math.min(canvas.width - player.size, player.x + 5);
+        if (touchX !== null) {
+            const targetX = touchX / window.innerWidth * canvas.width;
+            player.x += (targetX - player.x) * 0.1;
+        }
+
+        // Spawn obstacles
+        if (frameCount % Math.max(30, 90 - Math.floor(game.speed * 5)) === 0) {
+            spawnObstacle();
+        }
+
+        // Update obstacles
+        obstacles.forEach((obs, i) => {
+            obs.x -= obs.speed || game.speed;
+
+            // Collision
+            const dx = obs.x - player.x;
+            const dy = obs.y - player.y;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+
+            if (obs.type === 'coin' && dist < player.size + obs.size) {
+                game.coins += obs.value;
+                game.combo++;
+                game.maxCombo = Math.max(game.maxCombo, game.combo);
+                const bonus = Math.floor(game.combo / 5) * obs.value;
+                game.score += obs.value + bonus;
+                spawnParticles(obs.x, obs.y, '#FFD700', 8);
+                spawnFloatingText(obs.x, obs.y - 20, `+$${obs.value}${bonus > 0 ? ' (combo!)' : ''}`, '#FFD700');
+                obstacles.splice(i, 1);
+                if (navigator.vibrate) navigator.vibrate(10);
+            } else if (obs.type === 'debt') {
+                if (Math.abs(player.x - obs.x) < player.size + obs.width/2 &&
+                    player.y + player.size > obs.y - obs.height/2) {
+                    game.combo = 0;
+                    game.debtHits++;
+                    game.lastDebtHit = game.distance;
+                    game.score = Math.max(0, game.score - 200);
+                    spawnParticles(player.x, player.y, '#FF4444', 10);
+                    spawnFloatingText(player.x, player.y - 30, '-$200', '#FF4444');
+                    obstacles.splice(i, 1);
+                    if (navigator.vibrate) navigator.vibrate([50, 30, 50]);
                 }
-                this.updateScore();
-                this.loop();
-            },
-            
-            spawnEntity() {
-                this.entities.push({
-                    x: Math.random() * 350 + 20,
-                    y: -30,
-                    type: Math.random() > 0.3 ? 'coin' : 'debt',
-                    value: Math.random() > 0.3 ? 10 : -15,
-                    speed: Math.random() * 2 + 1
-                });
-            },
-            
-            action() {
-                if (!this.running) {
-                    this.start();
-                    return;
+            } else if (obs.type === 'powerup' && dist < player.size + obs.size) {
+                if (obs.kind === 'magnet') {
+                    // Magnet effect: attract nearby coins
+                    obstacles.filter(o => o.type === 'coin').forEach(coin => {
+                        coin.x += (player.x - coin.x) * 0.1;
+                        coin.y += (player.y - coin.y) * 0.1;
+                    });
+                    spawnFloatingText(player.x, player.y - 30, '🧲 MAGNET!', '#00CCFF');
+                } else {
+                    game.score += 500;
+                    spawnFloatingText(player.x, player.y - 30, '🛡️ SHIELD +$500', '#00FF88');
                 }
-                
-                // Move player
-                this.player.x += 40;
-                if (this.player.x > 370) this.player.x = 20;
-                
-                // Check collisions
-                this.entities.forEach((entity, index) => {
-                    const dx = this.player.x - entity.x;
-                    const dy = this.player.y - entity.y;
-                    const dist = Math.sqrt(dx*dx + dy*dy);
-                    
-                    if (dist < 30) {
-                        this.score += entity.value;
-                        this.entities.splice(index, 1);
-                        this.spawnEntity();
-                    }
-                });
-                
-                this.updateScore();
-            },
-            
-            loop() {
-                if (!this.running) return;
-                
-                // Update entities
-                this.entities.forEach(entity => {
-                    entity.y += entity.speed;
-                    if (entity.y > 420) {
-                        entity.y = -30;
-                        entity.x = Math.random() * 350 + 20;
-                    }
-                });
-                
-                // Draw
-                ctx.fillStyle = '#F1F5F9';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                
-                // Draw grid
-                ctx.strokeStyle = '#E2E8F0';
-                for (let i = 0; i < canvas.width; i += 40) {
-                    ctx.beginPath();
-                    ctx.moveTo(i, 0);
-                    ctx.lineTo(i, canvas.height);
-                    ctx.stroke();
-                }
-                
-                // Draw entities
-                this.entities.forEach(entity => {
-                    ctx.font = '24px Arial';
-                    ctx.textAlign = 'center';
-                    ctx.fillText(entity.type === 'coin' ? '🪙' : '💸', entity.x, entity.y);
-                });
-                
-                // Draw player
-                ctx.fillStyle = '#22C55E';
-                ctx.beginPath();
-                ctx.arc(this.player.x, this.player.y, this.player.size, 0, Math.PI * 2);
-                ctx.fill();
-                
-                requestAnimationFrame(() => this.loop());
-            },
-            
-            updateScore() {
-                document.getElementById('score').textContent = this.score;
+                obstacles.splice(i, 1);
+                spawnParticles(player.x, player.y, '#00FF88', 12);
             }
+
+            // Count debt avoided
+            if (obs.type === 'debt' && obs.x < player.x - 50 && !obs.counted) {
+                obs.counted = true;
+                game.debtAvoided++;
+            }
+        });
+
+        // Remove off-screen
+        obstacles = obstacles.filter(o => o.x > -60);
+
+        // Update distance
+        game.distance += game.speed / 10;
+        if (game.distance - game.lastDebtHit > game.perfectDistance) {
+            game.perfectDistance = game.distance - game.lastDebtHit;
+        }
+
+        // Particles
+        particles.forEach(p => {
+            p.x += p.vx; p.y += p.vy;
+            p.vy += 0.2;
+            p.life -= 0.03;
+        });
+        particles = particles.filter(p => p.life > 0);
+
+        // Floating texts
+        floatingTexts.forEach(t => {
+            t.y += t.vy;
+            t.life -= 0.02;
+        });
+        floatingTexts = floatingTexts.filter(t => t.life > 0);
+
+        // Check achievements
+        checkAchievements();
+
+        // XP calculation
+        const xpGain = Math.floor(game.distance / 10) + game.coins / 100;
+        game.xp += xpGain / 60; // per frame, will be saved at end
+
+        draw();
+        animId = requestAnimationFrame(update);
+    }
+
+    function checkAchievements() {
+        const stats = {
+            distance: game.distance,
+            coins: game.coins,
+            score: game.score,
+            debtAvoided: game.debtAvoided,
+            maxCombo: game.maxCombo,
+            maxSpeed: game.maxSpeed,
+            perfectDistance: game.perfectDistance,
+            unlockedCount: game.unlockedAchievements.size
         };
-        
-        // Controls
-        canvas.addEventListener('click', () => game.action());
-        canvas.addEventListener('touchstart', (e) => { e.preventDefault(); game.action(); }, {passive: false});
-        document.addEventListener('keydown', (e) => { if (e.code === 'Space') { e.preventDefault(); game.action(); }});
+
+        ACHIEVEMENTS.forEach(ach => {
+            if (!game.unlockedAchievements.has(ach.id) && ach.check(stats)) {
+                game.unlockedAchievements.add(ach.id);
+                showToast(`🏆 Unlocked: ${ach.name}!`);
+                spawnParticles(canvas.width/2, canvas.height/2, '#00FF88', 20);
+                saveProgress();
+            }
+        });
+    }
+
+    function draw() {
+        // Background
+        ctx.fillStyle = '#0a0a0f';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Grid lines (scrolling)
+        const gridOffset = (game.distance * 3) % 60;
+        ctx.strokeStyle = 'rgba(0,255,136,0.05)';
+        ctx.lineWidth = 1;
+        for (let x = -gridOffset; x < canvas.width; x += 60) {
+            ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
+        }
+
+        // Ground
+        ctx.fillStyle = '#1a1a2e';
+        ctx.fillRect(0, groundY, canvas.width, canvas.height - groundY);
+        ctx.fillStyle = 'rgba(0,255,136,0.3)';
+        ctx.fillRect(0, groundY, canvas.width, 2);
+
+        // Ground decorations
+        const decorOffset = (game.distance * 3) % 100;
+        for (let x = -decorOffset; x < canvas.width; x += 100) {
+            ctx.fillStyle = 'rgba(0,255,136,0.08)';
+            ctx.fillRect(x + 30, groundY + 5, 40, 4);
+        }
+
+        // Obstacles
+        obstacles.forEach(obs => {
+            if (obs.type === 'coin') {
+                ctx.fillStyle = '#FFD700';
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = '#FFD700';
+                ctx.beginPath();
+                ctx.arc(obs.x, obs.y, obs.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.shadowBlur = 0;
+                ctx.fillStyle = '#B8860B';
+                ctx.font = 'bold 14px Outfit';
+                ctx.textAlign = 'center';
+                ctx.fillText('$', obs.x, obs.y + 4);
+            } else if (obs.type === 'debt') {
+                ctx.fillStyle = '#FF4444';
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = '#FF4444';
+                ctx.beginPath();
+                ctx.moveTo(obs.x, obs.y - obs.height/2);
+                ctx.lineTo(obs.x + obs.width/2, obs.y + obs.height/2);
+                ctx.lineTo(obs.x - obs.width/2, obs.y + obs.height/2);
+                ctx.closePath();
+                ctx.fill();
+                ctx.shadowBlur = 0;
+                ctx.fillStyle = '#fff';
+                ctx.font = 'bold 12px Outfit';
+                ctx.textAlign = 'center';
+                ctx.fillText('💸', obs.x, obs.y + 4);
+            } else if (obs.type === 'powerup') {
+                const color = obs.kind === 'magnet' ? '#00CCFF' : '#00FF88';
+                ctx.fillStyle = color;
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = color;
+                ctx.beginPath();
+                ctx.arc(obs.x, obs.y, obs.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.shadowBlur = 0;
+                ctx.font = '16px Outfit';
+                ctx.textAlign = 'center';
+                ctx.fillText(obs.kind === 'magnet' ? '🧲' : '🛡️', obs.x, obs.y + 5);
+            }
+        });
+
+        // Player
+        ctx.fillStyle = '#00FF88';
+        ctx.shadowBlur = 20;
+        ctx.shadowColor = '#00FF88';
+        ctx.beginPath();
+        ctx.arc(player.x, player.y, player.size, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+        // Player face
+        ctx.fillStyle = '#0a0a0f';
+        ctx.beginPath();
+        ctx.arc(player.x - 7, player.y - 4, 3, 0, Math.PI * 2);
+        ctx.arc(player.x + 7, player.y - 4, 3, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(player.x, player.y + 6, 6, 0, Math.PI);
+        ctx.stroke();
+
+        // Particles
+        particles.forEach(p => {
+            ctx.globalAlpha = p.life;
+            ctx.fillStyle = p.color;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+            ctx.fill();
+        });
+        ctx.globalAlpha = 1;
+
+        // Floating texts
+        floatingTexts.forEach(t => {
+            ctx.globalAlpha = t.life;
+            ctx.fillStyle = t.color;
+            ctx.font = 'bold 16px Outfit';
+            ctx.textAlign = 'center';
+            ctx.fillText(t.text, t.x, t.y);
+        });
+        ctx.globalAlpha = 1;
+
+        // HUD
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 16px Outfit';
+        ctx.textAlign = 'left';
+        ctx.fillText(`$${game.score.toLocaleString()}`, 20, 30);
+        ctx.fillStyle = '#FFD700';
+        ctx.fillText(`💰 ${game.coins.toLocaleString()}`, 20, 52);
+        ctx.fillStyle = '#00CCFF';
+        ctx.fillText(`📏 ${Math.floor(game.distance)}m`, canvas.width - 100, 30);
+        if (game.combo >= 5) {
+            ctx.fillStyle = '#FF6B35';
+            ctx.font = 'bold 18px Outfit';
+            ctx.textAlign = 'center';
+            ctx.fillText(`${game.combo}x COMBO!`, canvas.width/2, 80);
+        }
+    }
+
+    function showToast(msg) {
+        const toast = document.getElementById('toast');
+        toast.textContent = msg;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    function saveProgress() {
+        localStorage.setItem('mb_achievements', JSON.stringify([...game.unlockedAchievements]));
+        localStorage.setItem('mb_best_score', Math.max(game.bestScore, game.score).toString());
+        localStorage.setItem('mb_xp', Math.floor(game.xp).toString());
+        localStorage.setItem('mb_level', game.level.toString());
+    }
+
+    function updateUI() {
+        const xpNeeded = game.level * 500;
+        const xpProgress = (game.xp % xpNeeded) / xpNeeded * 100;
+        document.getElementById('xpFill').style.width = xpProgress + '%';
+        document.getElementById('levelBadge').textContent = 'Lvl ' + game.level;
+        document.getElementById('bestScore').textContent = game.bestScore.toLocaleString();
+        document.getElementById('achievementsCount').textContent = `${game.unlockedAchievements.size}/12`;
+        document.getElementById('panelCount').textContent = `${game.unlockedAchievements.size}/12`;
+
+        const grid = document.getElementById('achievementsGrid');
+        grid.innerHTML = ACHIEVEMENTS.map(ach => `
+            <div class="achievement ${game.unlockedAchievements.has(ach.id) ? 'unlocked' : ''}">
+                <div class="ach-icon">${ach.icon}</div>
+                <div class="ach-name">${ach.name}</div>
+                <div class="ach-progress">${game.unlockedAchievements.has(ach.id) ? '✓ Unlocked' : '🔒 Locked'}</div>
+            </div>
+        `).join('');
+    }
+
+    function startGame() {
+        document.getElementById('startOverlay').classList.add('hidden');
+        game.running = true;
+        game.score = 0;
+        game.coins = 0;
+        game.distance = 0;
+        game.speed = 3;
+        game.combo = 0;
+        game.debtHits = 0;
+        game.debtAvoided = 0;
+        game.lastDebtHit = 0;
+        game.perfectDistance = 0;
+        obstacles = [];
+        particles = [];
+        floatingTexts = [];
+        player.x = canvas.width/2;
+        player.y = groundY - player.size;
+        player.vy = 0;
+        updateUI();
+        update();
+    }
+
+    function endGame() {
+        game.running = false;
+        cancelAnimationFrame(animId);
+        game.bestScore = Math.max(game.bestScore, game.score);
+        saveProgress();
+
+        document.getElementById('endEmoji').textContent = game.score > 5000 ? '🏆' : game.score > 1000 ? '💰' : '💀';
+        document.getElementById('endTitle').textContent = game.score > 5000 ? 'Legendary Run!' : game.score > 1000 ? 'Great Run!' : 'Run Complete';
+        document.getElementById('endText').textContent = `You ran ${Math.floor(game.distance)}m and collected $${game.coins.toLocaleString()}`;
+        document.getElementById('endScore').textContent = game.score.toLocaleString();
+        document.getElementById('endCoins').textContent = game.coins.toLocaleString();
+        document.getElementById('endDistance').textContent = Math.floor(game.distance) + 'm';
+        document.getElementById('gameOverOverlay').classList.remove('hidden');
+        updateUI();
+    }
+
+    // Panel toggle
+    document.getElementById('panelToggle').addEventListener('click', () => {
+        document.getElementById('achievementsPanel').classList.toggle('open');
+    });
+
+    document.getElementById('startBtn').addEventListener('click', startGame);
+    document.getElementById('restartBtn').addEventListener('click', () => {
+        document.getElementById('gameOverOverlay').classList.add('hidden');
+        startGame();
+    });
+
+    // Auto-end after 60 seconds or if player falls
+    setInterval(() => {
+        if (game.running && frameCount > 60 * 60) endGame();
+    }, 1000);
+
+    // Handle resize
+    window.addEventListener('resize', () => {
+        canvas.width = Math.min(480, window.innerWidth);
+        canvas.height = window.innerHeight - 60;
+        groundY = canvas.height - 40;
+    });
+
+    updateUI();
     </script>
 </body>
 </html>

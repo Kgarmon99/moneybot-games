@@ -1,4 +1,40 @@
-/* 100 Fans — MoneyBot Design Extensions */
+/* YC Shared Cyberpunk Matrix Extensions */
+.hud {
+  background: rgba(10, 15, 20, 0.95) !important;
+  border: 1px solid rgba(0, 255, 136, 0.3) !important;
+  border-radius: 6px !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5), inset 0 0 15px rgba(0,255,136,0.1) !important;
+  backdrop-filter: blur(10px) !important;
+}
+
+.stat-pill {
+  background: rgba(0, 0, 0, 0.8) !important;
+  border: 1px solid rgba(0, 255, 136, 0.2) !important;
+  border-radius: 6px !important;
+  box-shadow: 0 0 10px rgba(0,255,136,0.1) !important;
+}
+
+.play-area {
+  background: rgba(10, 15, 20, 0.95) !important;
+  border: 1px solid rgba(0, 255, 136, 0.3) !important;
+  border-radius: 6px !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5), inset 0 0 15px rgba(0,255,136,0.05) !important;
+  backdrop-filter: blur(5px) !important;
+}
+
+.card, .choice-btn {
+  background: rgba(15, 20, 25, 0.9) !important;
+  border: 1px solid rgba(0, 255, 136, 0.2) !important;
+  border-radius: 6px !important;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3) !important;
+  backdrop-filter: blur(5px);
+}
+
+.choice-btn:active {
+  transform: translateY(2px) scale(0.98);
+  border-color: #00ff88 !important;
+  background: rgba(0, 255, 136, 0.1) !important;
+}
 
 .lesson-badge {
   display: flex;

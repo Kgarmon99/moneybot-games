@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Compound Interest Calculator — MoneyBot</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'JetBrains Mono',monospace;background:#000;color:#0f0;min-height:100vh;line-height:1.6}
+.matrix-bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;opacity:0.05;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,255,0,0.03) 2px,rgba(0,255,0,0.03) 4px)}
+.container{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:40px 20px}
+.nav{display:flex;align-items:center;gap:12px;margin-bottom:40px;text-decoration:none;color:#0f0}
+.nav img{width:32px;height:32px;border-radius:4px;border:1px solid #0f0}
+.nav span{font-size:18px;font-weight:700}
+.card{background:#000;border:1px solid #0f0;padding:30px;margin-bottom:20px}
+.card h1{font-size:28px;margin-bottom:8px;text-shadow:0 0 10px #0f0}
+.card .subtitle{font-size:13px;opacity:0.7;margin-bottom:30px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px}
+@media(max-width:600px){.form-row{grid-template-columns:1fr}}
+label{display:block;font-size:12px;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;opacity:0.8}
+input,select{width:100%;background:#000;border:1px solid #0f0;color:#0f0;padding:12px;font-family:inherit;font-size:16px;outline:none}
+input:focus,select:focus{box-shadow:0 0 10px rgba(0,255,0,0.3)}
+input[type="range"]{padding:0;margin-top:8px}
+.range-val{font-size:14px;margin-top:4px;opacity:0.9}
+button{background:#0f0;color:#000;border:none;padding:14px 32px;font-family:inherit;font-size:16px;font-weight:700;cursor:pointer;text-transform:uppercase;letter-spacing:1px;width:100%;margin-top:10px}
+button:hover{box-shadow:0 0 20px #0f0}
+.results{margin-top:30px;padding-top:30px;border-top:1px solid #0f0;display:none}
+.results.active{display:block}
+.big-number{font-size:48px;font-weight:700;text-shadow:0 0 20px #0f0;margin-bottom:5px}
+.big-label{font-size:12px;text-transform:uppercase;opacity:0.7;margin-bottom:25px}
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;margin-bottom:25px}
+@media(max-width:600px){.stats-grid{grid-template-columns:1fr}}
+.stat-box{border:1px solid #0f0;padding:15px;text-align:center}
+.stat-box .num{font-size:22px;font-weight:700}
+.stat-box .lbl{font-size:11px;text-transform:uppercase;opacity:0.7;margin-top:4px}
+.chart-wrap{height:300px;margin-top:20px;border:1px solid #0f0;padding:15px;position:relative}
+.back-link{display:inline-block;margin-top:20px;color:#0f0;text-decoration:none;border:1px solid #0f0;padding:10px 20px;font-size:13px;text-transform:uppercase}
+.back-link:hover{box-shadow:0 0 10px #0f0}
+table{width:100%;border-collapse:collapse;margin-top:15px;font-size:13px}
+th,td{border:1px solid #0f0;padding:8px;text-align:right}
+th{text-align:center;text-transform:uppercase;font-size:11px;opacity:0.8}
+tr:nth-child(even){background:rgba(0,255,0,0.05)}
+.year-col{text-align:center}
+</style>
+</head>
+<body>
+<div class="matrix-bg"></div>
+<div class="container">
+<a href="../moneybot-official/" class="nav">
+<img src="../moneybot-official/assets/moneybot-logo-1.jpg" alt="MoneyBot">
+<span>MoneyBot</span>
+</a>
+<div class="card">
+<h1>Compound Interest Calculator</h1>
+<p class="subtitle">See how time and returns grow your money. Wealth is built, not found.</p>
+<div class="form-row">
+<div>
+<label>Initial Investment ($)</label>
+<input type="number" id="principal" value="10000" min="0" step="100">
+</div>
+<div>
+<label>Monthly Contribution ($)</label>
+<input type="number" id="monthly" value="500" min="0" step="50">
+</div>
+</div>
+<div class="form-row">
+<div>
+<label>Annual Return Rate (%)</label>
+<input type="range" id="rateRange" min="1" max="20" value="8" step="0.5">
+<div class="range-val" id="rateVal">8%</div>
+</div>
+<div>
+<label>Time Horizon (Years)</label>
+<input type="range" id="yearsRange" min="1" max="50" value="20" step="1">
+<div class="range-val" id="yearsVal">20 years</div>
+</div>
+</div>
+<button onclick="calculate()">Calculate Growth</button>
+
+<div class="results" id="results">
+<div class="big-number" id="finalAmount">$0</div>
+<div class="big-label">Total Value</div>
+<div class="stats-grid">
+<div class="stat-box">
+<div class="num" id="totalInvested">$0</div>
+<div class="lbl">Total Invested</div>
+</div>
+<div class="stat-box">
+<div class="num" id="totalInterest">$0</div>
+<div class="lbl">Interest Earned</div>
+</div>
+<div class="stat-box">
+<div class="num" id="multiplier">0x</div>
+<div class="lbl">Multiplier</div>
+</div>
+</div>
+<div class="chart-wrap">
+<canvas id="chart"></canvas>
+</div>
+<table id="table">
+<thead><tr><th class="year-col">Year</th><th>Invested</th><th>Interest</th><th>Total</th></tr></thead>
+<tbody id="tbody"></tbody>
+</table>
+</div>
+</div>
+<a href="../moneybot-official/" class="back-link">← Back to Games</a>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const fmt=n=>'$'+Math.round(n).toLocaleString();
+$('rateRange').oninput=()=>{$('rateVal').textContent=$('rateRange').value+'%'};
+$('yearsRange').oninput=()=>{$('yearsVal').textContent=$('yearsRange').value+' years'};
+
+function calculate(){
+const P=parseFloat($('principal').value)||0;
+const M=parseFloat($('monthly').value)||0;
+const r=parseFloat($('rateRange').value)/100;
+const Y=parseInt($('yearsRange').value);
+let data=[];let invested=P;let total=P;
+for(let y=0;y<=Y;y++){
+if(y===0){data.push({year:0,invested:P,interest:0,total:P});continue;}
+for(let m=0;m<12;m++){total=total*(1+r/12)+M;invested+=M;}
+data.push({year:y,invested,interest:total-invested,total});
+}
+const final=data[data.length-1];
+$('finalAmount').textContent=fmt(final.total);
+$('totalInvested').textContent=fmt(final.invested);
+$('totalInterest').textContent=fmt(final.interest);
+$('multiplier').textContent=(final.total/final.invested).toFixed(1)+'x';
+$('results').classList.add('active');
+
+// chart
+const cvs=$('chart');const ctx=cvs.getContext('2d');
+const rect=cvs.parentElement.getBoundingClientRect();
+cvs.width=rect.width-30;cvs.height=rect.height-30;
+const W=cvs.width,H=cvs.height;
+ctx.clearRect(0,0,W,H);
+const max=final.total;
+const pad=40;const chartW=W-pad*2;const chartH=H-pad*2;
+// grid
+ctx.strokeStyle='rgba(0,255,0,0.15)';ctx.lineWidth=1;
+for(let i=0;i<=5;i++){const y=pad+chartH*(i/5);ctx.beginPath();ctx.moveTo(pad,y);ctx.lineTo(W-pad,y);ctx.stroke();}
+// bars
+const barW=chartW/data.length*0.6;
+data.forEach((d,i)=>{
+const x=pad+(i/(data.length-1))*chartW;
+const hInvested=(d.invested/max)*chartH;
+const hTotal=(d.total/max)*chartH;
+ctx.fillStyle='rgba(0,255,0,0.3)';
+ctx.fillRect(x-barW/2,pad+chartH-hTotal,barW,hTotal);
+ctx.fillStyle='#0f0';
+ctx.fillRect(x-barW/2,pad+chartH-hInvested,barW,hInvested);
+});
+// labels
+ctx.fillStyle='#0f0';ctx.font='10px JetBrains Mono';ctx.textAlign='center';
+for(let i=0;i<data.length;i+=Math.ceil(data.length/6)){
+ctx.fillText(data[i].year,pad+(i/(data.length-1))*chartW,pad+chartH+15);
+}
+ctx.textAlign='right';
+for(let i=0;i<=5;i++){ctx.fillText(fmt(max*(1-i/5)),pad-8,pad+chartH*(i/5)+4);}
+
+// table
+$('tbody').innerHTML=data.map(d=>`<tr><td class="year-col">${d.year}</td><td>${fmt(d.invested)}</td><td>${fmt(d.interest)}</td><td>${fmt(d.total)}</td></tr>`).join('');
+}
+calculate();
+</script>
+</body>
+</html>

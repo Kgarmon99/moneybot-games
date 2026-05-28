@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 240">
+  <!-- Shadow -->
+  <ellipse cx="100" cy="215" rx="60" ry="20" fill="rgba(0,0,0,0.3)"/>
+  
+  <!-- Body -->
+  <rect x="40" y="50" width="120" height="150" rx="30" fill="#FFFFFF" stroke="#E5E7EB" stroke-width="3"/>
+  
+  <!-- Body Gradient Overlay -->
+  <rect x="40" y="50" width="120" height="150" rx="30" fill="url(#bodyGradThink)"/>
+  
+  <!-- Screen/Face -->
+  <rect x="55" y="65" width="90" height="70" rx="15" fill="#0F172A"/>
+  
+  <!-- Thinking Eyes (looking up) -->
+  <ellipse cx="85" cy="95" rx="10" ry="14" fill="#22C55E"/>
+  <ellipse cx="115" cy="95" rx="10" ry="14" fill="#22C55E"/>
+  
+  <!-- Small pupils looking up -->
+  <circle cx="85" cy="90" r="4" fill="#0F172A"/>
+  <circle cx="115" cy="90" r="4" fill="#0F172A"/>
+  
+  <!-- Neutral Mouth -->
+  <line x1="90" y1="125" x2="110" y2="125" stroke="#22C55E" stroke-width="3" stroke-linecap="round"/>
+  
+  <!-- Thought Bubble -->
+  <g transform="translate(130, 20)">
+    <ellipse cx="30" cy="25" rx="35" ry="25" fill="#FFFFFF" stroke="#E5E7EB" stroke-width="2"/>
+    <circle cx="10" cy="55" r="6" fill="#FFFFFF" stroke="#E5E7EB" stroke-width="2"/>
+    <circle cx="0" cy="65" r="3" fill="#FFFFFF" stroke="#E5E7EB" stroke-width="2"/>
+    
+    <!-- Question mark inside -->
+    <text x="30" y="32" text-anchor="middle" font-size="28" font-weight="bold" fill="#22C55E">?</text>
+  </g>
+  
+  <!-- Antenna -->
+  <line x1="100" y1="50" x2="100" y2="20" stroke="#FBBF24" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="100" cy="15" r="10" fill="#FBBF24"/>
+  
+  <!-- Body Detail -->
+  <rect x="70" y="175" width="60" height="15" rx="7" fill="#22C55E" opacity="0.8"/>
+  
+  <!-- Gradients -->
+  <defs>
+    <linearGradient id="bodyGradThink" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#22C55E;stop-opacity:0.1"/>
+      <stop offset="100%" style="stop-color:#22C55E;stop-opacity:0.3"/>
+    </linearGradient>
+  </defs>
+</svg>

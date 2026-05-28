@@ -2,60 +2,312 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MoneyBot - cryptobot</title>
-    <link rel="icon" type="image/svg+xml" href="assets/moneybot-logo-1.jpg">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CryptoBot — MoneyBot</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: manipulation; user-select: none; }
-        body { font-family: 'Inter', sans-serif; background: #FFFFFF; min-height: 100vh; color: #0F172A; }
-        .app { max-width: 430px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; }
-        .header { background: #FFFFFF; padding: 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #22C55E; }
-        .header-logo { display: flex; align-items: center; gap: 12px; }
-        .moneybot-icon { width: 40px; height: 40px; border-radius: 8px; overflow: hidden; }
-        .moneybot-icon img { width: 100%; height: 100%; object-fit: cover; }
-        .header-title { font-weight: 800; font-size: 20px; color: #0F172A; }
-        .back-btn { width: 44px; height: 44px; border-radius: 12px; background: #22C55E; border: none; color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 20px; text-decoration: none; }
-        .game-area { flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px; }
-        .overlay-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #FFFFFF; z-index: 200; padding: 40px; }
-        .overlay-screen.hidden { display: none; }
-        .game-icon { width: 120px; height: 120px; background: #22C55E; border-radius: 24px; display: flex; align-items: center; justify-content: center; font-size: 60px; margin-bottom: 30px; }
-        .game-title { font-size: 36px; font-weight: 800; color: #0F172A; margin-bottom: 12px; text-transform: capitalize; }
-        .game-subtitle { color: #64748B; font-size: 17px; margin-bottom: 40px; text-align: center; }
-        .primary-btn { background: #22C55E; color: white; border: none; padding: 20px 60px; font-size: 18px; font-weight: 700; border-radius: 12px; cursor: pointer; width: 100%; max-width: 280px; }
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@400;600;800&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #050505; color: #00ff88; min-height: 100vh; overflow-x: hidden; }
+        .back-btn { position: fixed; top: 15px; left: 15px; z-index: 100; background: #000; border: 1px solid #00ff88; color: #00ff88; padding: 8px 16px; text-decoration: none; font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+        .container { max-width: 600px; margin: 0 auto; padding: 60px 20px 40px; }
+        header { text-align: center; margin-bottom: 25px; }
+        header h1 { font-size: 28px; font-weight: 800; text-shadow: 0 0 20px #00ff88; }
+        header p { font-size: 13px; opacity: 0.7; margin-top: 8px; }
+        
+        .coin-selector { display: flex; gap: 10px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 5px; }
+        .coin-btn { background: #0a1a0f; border: 1px solid #00ff88; color: #00ff88; padding: 10px 20px; font-family: 'JetBrains Mono', monospace; font-size: 12px; cursor: pointer; white-space: nowrap; }
+        .coin-btn.active { background: #00ff88; color: #000; }
+        
+        .price-display { text-align: center; margin-bottom: 20px; }
+        .price-display .price { font-size: 48px; font-weight: 800; font-family: 'JetBrains Mono', monospace; }
+        .price-display .change { font-size: 18px; margin-top: 5px; }
+        .positive { color: #00ff88; }
+        .negative { color: #ff4444; }
+        
+        .chart-box { background: #0a1a0f; border: 1px solid #00ff88; height: 200px; margin-bottom: 20px; position: relative; }
+        canvas { width: 100%; height: 100%; }
+        
+        .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+        .stat { background: #0a1a0f; border: 1px solid #00ff88; padding: 12px; text-align: center; }
+        .stat .label { font-size: 10px; text-transform: uppercase; opacity: 0.7; }
+        .stat .value { font-size: 16px; font-weight: 700; font-family: 'JetBrains Mono', monospace; margin-top: 4px; }
+        
+        .prediction { text-align: center; margin-bottom: 20px; }
+        .prediction h3 { font-size: 14px; margin-bottom: 15px; text-transform: uppercase; }
+        .prediction-buttons { display: flex; gap: 15px; justify-content: center; }
+        .pred-btn { padding: 20px 40px; font-size: 16px; font-weight: 700; font-family: 'JetBrains Mono', monospace; border: 2px solid; cursor: pointer; }
+        .pred-up { background: #00ff88; color: #000; border-color: #00ff88; }
+        .pred-down { background: transparent; color: #ff4444; border-color: #ff4444; }
+        .pred-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        
+        .timer { text-align: center; font-size: 24px; font-family: 'JetBrains Mono', monospace; margin-bottom: 20px; }
+        .timer .bar { width: 100%; height: 4px; background: #0a1a0f; margin-top: 10px; }
+        .timer .bar-fill { height: 100%; background: #00ff88; transition: width 1s linear; }
+        
+        .history { background: #0a1a0f; border: 1px solid #00ff88; padding: 15px; max-height: 200px; overflow-y: auto; }
+        .history h3 { font-size: 12px; margin-bottom: 10px; text-transform: uppercase; }
+        .history-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(0,255,136,0.1); font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+        .history-item:last-child { border-bottom: none; }
+        
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 200; display: flex; align-items: center; justify-content: center; }
+        .modal-overlay.hidden { display: none; }
+        .modal { background: #0a1a0f; border: 2px solid #00ff88; padding: 40px; text-align: center; max-width: 350px; }
+        .modal h2 { font-size: 22px; margin-bottom: 15px; }
+        .modal p { font-size: 14px; opacity: 0.8; margin-bottom: 25px; }
+        .modal .btn { background: #00ff88; color: #000; border: none; padding: 15px 30px; font-family: 'JetBrains Mono', monospace; font-weight: 700; cursor: pointer; }
     </style>
 </head>
 <body>
-    <div class="app">
-        <header class="header">
-            <div class="header-logo">
-                <a href="../moneybot-official/" class="back-btn">←</a>
-                <div class="moneybot-icon"><img src="assets/moneybot-logo-1.jpg" /></div>
-                <span class="header-title">cryptobot</span>
-            </div>
+    <a href="../moneybot-official/" class="back-btn">← HUB</a>
+    <div class="container">
+        <header>
+            <h1>₿ CRYPTOBOT</h1>
+            <p>Predict the pump. Time the dump. 10 rounds to prove your instincts.</p>
         </header>
-        <div class="game-area">
-            <canvas id="gameCanvas" width="350" height="500"></canvas>
+        
+        <div class="coin-selector" id="coinSelector">
+            <button class="coin-btn active" onclick="selectCoin(0)">₿ BOTCOIN</button>
+            <button class="coin-btn" onclick="selectCoin(1)">Ξ BOTETH</button>
+            <button class="coin-btn" onclick="selectCoin(2)">◈ BOTSOL</button>
+        </div>
+        
+        <div class="price-display">
+            <div class="price" id="priceDisplay">$42,069</div>
+            <div class="change" id="changeDisplay">+2.4%</div>
+        </div>
+        
+        <div class="chart-box">
+            <canvas id="chart"></canvas>
+        </div>
+        
+        <div class="stats">
+            <div class="stat">
+                <div class="label">Score</div>
+                <div class="value" id="score">0</div>
+            </div>
+            <div class="stat">
+                <div class="label">Streak</div>
+                <div class="value" id="streak">0</div>
+            </div>
+            <div class="stat">
+                <div class="label">Round</div>
+                <div class="value" id="round">1/10</div>
+            </div>
+        </div>
+        
+        <div class="prediction">
+            <h3>Will the price go UP or DOWN?</h3>
+            <div class="prediction-buttons">
+                <button class="pred-btn pred-up" id="upBtn" onclick="guess('up')">↑ UP</button>
+                <button class="pred-btn pred-down" id="downBtn" onclick="guess('down')">↓ DOWN</button>
+            </div>
+        </div>
+        
+        <div class="timer">
+            <span id="timerText">Predict now!</span>
+            <div class="bar"><div class="bar-fill" id="timerBar" style="width:100%"></div></div>
+        </div>
+        
+        <div class="history" id="history">
+            <h3>Prediction History</h3>
         </div>
     </div>
-    <div class="overlay-screen" id="startScreen">
-        <div class="game-icon">🎮</div>
-        <div class="game-title">cryptobot</div>
-        <div class="game-subtitle">Master your money skills!<br>Coming soon to MoneyBot</div>
-        <button class="primary-btn" onclick="startGame()">Start Game</button>
+    
+    <div class="modal-overlay hidden" id="resultModal">
+        <div class="modal">
+            <h2 id="resultTitle">Round Result</h2>
+            <p id="resultText">You predicted correctly!</p>
+            <button class="btn" onclick="nextRound()">NEXT ROUND</button>
+        </div>
     </div>
+    
+    <div class="modal-overlay hidden" id="gameOverModal">
+        <div class="modal">
+            <h2 id="gameOverTitle">Game Over</h2>
+            <p id="gameOverText">Final score: 8/10</p>
+            <button class="btn" onclick="restartGame()">PLAY AGAIN</button>
+        </div>
+    </div>
+
     <script>
-        function startGame() {
-            document.getElementById('startScreen').classList.add('hidden');
-            const canvas = document.getElementById('gameCanvas');
-            const ctx = canvas.getContext('2d');
-            ctx.fillStyle = '#FFFFFF';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = '#22C55E';
-            ctx.font = '24px Inter';
-            ctx.textAlign = 'center';
-            ctx.fillText('cryptobot Coming Soon!', canvas.width/2, canvas.height/2);
+        const coins = [
+            { name: 'BOTCOIN', symbol: '₿', basePrice: 42069, volatility: 0.05 },
+            { name: 'BOTETH', symbol: 'Ξ', basePrice: 2850, volatility: 0.07 },
+            { name: 'BOTSOL', symbol: '◈', basePrice: 145, volatility: 0.1 }
+        ];
+        
+        let selectedCoin = 0;
+        let currentPrice = 42069;
+        let priceHistory = [];
+        let round = 1;
+        const maxRounds = 10;
+        let score = 0;
+        let streak = 0;
+        let canGuess = true;
+        let guessLocked = false;
+        
+        const canvas = document.getElementById('chart');
+        const ctx = canvas.getContext('2d');
+        
+        function resizeCanvas() {
+            const box = canvas.parentElement;
+            canvas.width = box.clientWidth;
+            canvas.height = box.clientHeight;
+            drawChart();
         }
+        window.addEventListener('resize', resizeCanvas);
+        
+        function generatePriceHistory() {
+            priceHistory = [currentPrice];
+            for (let i = 0; i < 30; i++) {
+                const change = (Math.random() - 0.5) * coins[selectedCoin].volatility;
+                priceHistory.push(priceHistory[priceHistory.length - 1] * (1 + change));
+            }
+            currentPrice = priceHistory[priceHistory.length - 1];
+        }
+        
+        function drawChart() {
+            const w = canvas.width;
+            const h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+            
+            const min = Math.min(...priceHistory) * 0.98;
+            const max = Math.max(...priceHistory) * 1.02;
+            const range = max - min;
+            
+            // Line
+            const up = priceHistory[priceHistory.length - 1] >= priceHistory[0];
+            ctx.strokeStyle = up ? '#00ff88' : '#ff4444';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            priceHistory.forEach((p, i) => {
+                const x = (i / (priceHistory.length - 1)) * w;
+                const y = h - ((p - min) / range) * h;
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            });
+            ctx.stroke();
+            
+            // Fill
+            ctx.fillStyle = up ? 'rgba(0,255,136,0.1)' : 'rgba(255,68,68,0.1)';
+            ctx.lineTo(w, h);
+            ctx.lineTo(0, h);
+            ctx.closePath();
+            ctx.fill();
+        }
+        
+        function selectCoin(i) {
+            selectedCoin = i;
+            document.querySelectorAll('.coin-btn').forEach((btn, idx) => {
+                btn.classList.toggle('active', idx === i);
+            });
+            generatePriceHistory();
+            updateDisplay();
+        }
+        
+        function updateDisplay() {
+            const startPrice = priceHistory[0];
+            const change = ((currentPrice - startPrice) / startPrice * 100);
+            
+            document.getElementById('priceDisplay').textContent = `$${currentPrice.toLocaleString('en-US', {maximumFractionDigits: 2})}`;
+            document.getElementById('changeDisplay').textContent = `${change >= 0 ? '+' : ''}${change.toFixed(2)}%`;
+            document.getElementById('changeDisplay').className = `change ${change >= 0 ? 'positive' : 'negative'}`;
+            document.getElementById('score').textContent = score;
+            document.getElementById('streak').textContent = streak;
+            document.getElementById('round').textContent = `${round}/${maxRounds}`;
+            
+            drawChart();
+        }
+        
+        function guess(direction) {
+            if (!canGuess || guessLocked) return;
+            guessLocked = true;
+            
+            const startPrice = priceHistory[priceHistory.length - 1];
+            // Generate next price
+            const nextChange = (Math.random() - 0.4) * coins[selectedCoin].volatility;
+            const nextPrice = startPrice * (1 + nextChange);
+            priceHistory.push(nextPrice);
+            if (priceHistory.length > 40) priceHistory.shift();
+            currentPrice = nextPrice;
+            
+            const wentUp = nextPrice > startPrice;
+            const correct = (direction === 'up' && wentUp) || (direction === 'down' && !wentUp);
+            
+            if (correct) {
+                score++;
+                streak++;
+                document.getElementById('resultTitle').textContent = streak >= 3 ? '🔥 HOT STREAK!' : '✅ Correct!';
+                document.getElementById('resultText').textContent = `Price went ${wentUp ? 'UP' : 'DOWN'} to $${currentPrice.toLocaleString('en-US', {maximumFractionDigits: 2})}. ${streak >= 3 ? streak + ' in a row!' : ''}`;
+            } else {
+                streak = 0;
+                document.getElementById('resultTitle').textContent = '❌ Wrong!';
+                document.getElementById('resultText').textContent = `Price went ${wentUp ? 'UP' : 'DOWN'} to $${currentPrice.toLocaleString('en-US', {maximumFractionDigits: 2})}. Better luck next time!`;
+            }
+            
+            addHistory(direction, wentUp, correct);
+            document.getElementById('resultModal').classList.remove('hidden');
+            updateDisplay();
+        }
+        
+        function addHistory(guess, actual, correct) {
+            const history = document.getElementById('history');
+            const item = document.createElement('div');
+            item.className = 'history-item';
+            item.innerHTML = `
+                <span>Round ${round}: Guessed ${guess.toUpperCase()}</span>
+                <span class="${correct ? 'positive' : 'negative'}">${correct ? '✅ +' : '❌ '}${correct ? streak : '0'} pts</span>
+            `;
+            history.insertBefore(item, history.children[1]);
+        }
+        
+        function nextRound() {
+            document.getElementById('resultModal').classList.add('hidden');
+            guessLocked = false;
+            
+            if (round >= maxRounds) {
+                endGame();
+                return;
+            }
+            
+            round++;
+            generatePriceHistory();
+            updateDisplay();
+        }
+        
+        function endGame() {
+            let title, message;
+            if (score >= 8) {
+                title = '🏆 Crypto Oracle!';
+                message = `${score}/${maxRounds} correct! You can read the market like a book.`;
+            } else if (score >= 5) {
+                title = '📈 Solid Trader';
+                message = `${score}/${maxRounds} correct. You're learning the patterns.`;
+            } else {
+                title = '📉 Rekt';
+                message = `${score}/${maxRounds} correct. Maybe HODL is your strategy?`;
+            }
+            document.getElementById('gameOverTitle').textContent = title;
+            document.getElementById('gameOverText').textContent = message;
+            document.getElementById('gameOverModal').classList.remove('hidden');
+        }
+        
+        function restartGame() {
+            round = 1;
+            score = 0;
+            streak = 0;
+            canGuess = true;
+            guessLocked = false;
+            document.getElementById('gameOverModal').classList.add('hidden');
+            document.getElementById('history').innerHTML = '<h3>Prediction History</h3>';
+            generatePriceHistory();
+            updateDisplay();
+        }
+        
+        // Init
+        resizeCanvas();
+        generatePriceHistory();
+        updateDisplay();
     </script>
 </body>
 </html>

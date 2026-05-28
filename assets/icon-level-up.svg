@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Star background -->
+  <path d="M32 4 L40 24 L60 24 L44 36 L50 56 L32 44 L14 56 L20 36 L4 24 L24 24 Z" 
+        fill="#FFD700" 
+        stroke="#FFA500" 
+        stroke-width="2"/>
+  
+  <!-- Up arrow -->
+  <path d="M32 16 L32 40 M24 24 L32 16 L40 24" 
+        stroke="#FFFFFF" 
+        stroke-width="4" 
+        stroke-linecap="round" 
+        stroke-linejoin="round"
+        fill="none"/>
+  
+  <!-- Sparkle effects -->
+  <circle cx="12" cy="12" r="2" fill="#FFD700">
+    <animate attributeName="opacity" values="1;0.3;1" dur="1s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="52" cy="12" r="2" fill="#FFD700">
+    <animate attributeName="opacity" values="1;0.3;1" dur="1s" repeatCount="indefinite" begin="0.3s"/>
+  </circle>
+  <circle cx="32" cy="56" r="2" fill="#FFD700">
+    <animate attributeName="opacity" values="1;0.3;1" dur="1s" repeatCount="indefinite" begin="0.6s"/>
+  </circle>
+</svg>

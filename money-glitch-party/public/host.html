@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>MONEY GLITCH: HOST BOARD</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@700&family=Oswald:wght@500;700&family=VT323&display=swap');
+        
+        :root {
+            --jeopardy-blue: #060CE9;
+            --jeopardy-dark: #000080;
+            --jeopardy-yellow: #FFCC00;
+            --correct-green: #39FF14;
+            --wrong-red: #FF003F;
+            --bg: #000;
+        }
+
+        body {
+            background: var(--bg); color: #fff; margin: 0; font-family: 'Oswald', sans-serif;
+            display: flex; height: 100vh; overflow: hidden; user-select: none;
+        }
+
+        /* Left Side: Game Board */
+        #game-area {
+            flex: 3; display: flex; flex-direction: column; padding: 20px;
+        }
+
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        h1 { color: var(--jeopardy-yellow); font-size: 3rem; margin: 0; text-shadow: 0 0 15px rgba(255,204,0,0.5); }
+        .controls { display: flex; gap: 10px; }
+        button { background: #333; color: #fff; border: 2px solid #555; padding: 10px 20px; font-family: 'Oswald', sans-serif; cursor: pointer; text-transform: uppercase; }
+        button:hover { background: #555; }
+
+        .board { display: grid; grid-template-columns: repeat(6, 1fr); grid-template-rows: 80px repeat(5, 1fr); gap: 10px; flex-grow: 1; }
+        .category-header { background: var(--jeopardy-blue); border: 4px solid #000; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; text-align: center; text-transform: uppercase; text-shadow: 2px 2px 0 #000; }
+        
+        /* 3D Flip Card */
+        .cell-container { perspective: 1000px; }
+        .cell { width: 100%; height: 100%; transition: transform 0.6s; transform-style: preserve-3d; cursor: pointer; position: relative; }
+        .cell.flipped { transform: rotateY(180deg); }
+        .cell-front, .cell-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; display: flex; align-items: center; justify-content: center; border: 4px solid #000; }
+        .cell-front { background: var(--jeopardy-blue); color: var(--jeopardy-yellow); font-size: 4rem; text-shadow: 4px 4px 0 #000; box-shadow: inset 0 0 30px rgba(0,0,0,0.8); }
+        .cell-front:hover { background: #1a1fff; border-color: var(--jeopardy-yellow); }
+        .cell-back { background: var(--jeopardy-dark); transform: rotateY(180deg); }
+
+        /* Right Side: Host AI & Scoreboard */
+        #sidebar {
+            flex: 1; background: #0a0a0a; border-left: 4px solid var(--jeopardy-yellow); display: flex; flex-direction: column;
+        }
+
+        #scoreboard { padding: 20px; flex: 1; }
+        .player-row { display: flex; justify-content: space-between; font-size: 2rem; margin-bottom: 15px; border-bottom: 2px solid #333; padding-bottom: 10px; }
+        .player-name { color: #aaa; }
+        .player-score { color: #fff; font-weight: bold; }
+        .player-score.negative { color: var(--wrong-red); }
+        .has-control { color: var(--jeopardy-yellow); text-shadow: 0 0 10px var(--jeopardy-yellow); }
+
+        #ai-host { flex: 1; background: #000; border-top: 4px solid #333; padding: 20px; font-family: 'VT323', monospace; color: var(--correct-green); display: flex; flex-direction: column; }
+        .terminal-header { font-size: 1.5rem; margin-bottom: 10px; border-bottom: 1px dashed var(--correct-green); padding-bottom: 5px; }
+        #log-area { flex-grow: 1; overflow-y: hidden; font-size: 1.3rem; line-height: 1.4; display: flex; flex-direction: column; justify-content: flex-end; }
+        .log-entry { margin-top: 8px; opacity: 0; animation: fadeIn 0.3s forwards; }
+        @keyframes fadeIn { to { opacity: 1; } }
+
+        /* Full Screen Modals */
+        #overlay { display: none; position: fixed; top:0; left:0; right:0; bottom:0; background: var(--jeopardy-blue); z-index: 100; flex-direction: column; align-items: center; justify-content: center; padding: 40px; text-align: center; }
+        
+        #lobby-screen { display: none; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 100%; }
+        #qr-container { background: #fff; padding: 20px; border-radius: 10px; margin: 30px 0; border: 5px solid var(--jeopardy-yellow); }
+        .lobby-title { font-size: 5rem; color: var(--jeopardy-yellow); text-shadow: 0 0 30px var(--jeopardy-yellow); margin-bottom: 0; }
+        .lobby-url { font-family: 'VT323', monospace; font-size: 3rem; color: #fff; margin-bottom: 20px;}
+        .lobby-players { font-size: 2rem; color: var(--correct-green); margin-top: 20px; }
+        .lobby-names { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; margin-top: 20px; max-width: 800px; }
+        .lobby-name-badge { background: #111; color: #fff; font-size: 2rem; padding: 10px 20px; border: 2px solid var(--correct-green); border-radius: 8px; box-shadow: 0 0 10px rgba(57, 255, 20, 0.3); animation: popIn 0.3s ease-out; }
+        
+        @keyframes popIn { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+
+        #splash { display: none; font-size: 8rem; color: var(--jeopardy-yellow); text-shadow: 0 0 50px var(--jeopardy-yellow); animation: zoom 1s ease-out; }
+        @keyframes zoom { 0% { transform: scale(0.1); opacity: 0;} 100% { transform: scale(1); opacity: 1;} }
+
+        #clue-text { font-family: 'Libre Baskerville', serif; font-size: 4vw; text-transform: uppercase; text-shadow: 4px 4px 0 #000; margin-bottom: 40px; line-height: 1.4; }
+        #buzzer-status { font-size: 3rem; color: var(--jeopardy-yellow); animation: pulse 1s infinite alternate; }
+        @keyframes pulse { from { opacity: 0.5; } to { opacity: 1; } }
+
+        .modal-btn { background: var(--jeopardy-yellow); color: #000; font-size: 2rem; padding: 15px 40px; margin-top: 20px; border: none; cursor: pointer; display: none; }
+    </style>
+</head>
+<body>
+
+    <div id="game-area">
+        <header>
+            <h1>MONEY GLITCH</h1>
+            <div class="controls">
+                <button onclick="socket.emit('start_game')">Start Game</button>
+                <button onclick="socket.emit('reset_game')">Reset Server</button>
+            </div>
+        </header>
+        <div class="board" id="board"></div>
+    </div>
+
+    <div id="sidebar">
+        <div id="scoreboard">
+            <h2 style="color:var(--jeopardy-yellow); margin-top:0;">PLAYERS <span style="font-size:1rem; color:#aaa">(Join via Phone)</span></h2>
+            <div id="players-list"></div>
+        </div>
+        <div id="ai-host">
+            <div class="terminal-header">SYSTEM.BROKER_v1.0</div>
+            <div id="log-area"></div>
+        </div>
+    </div>
+
+    <div id="overlay">
+        <div id="lobby-screen">
+            <h1 class="lobby-title">MONEY GLITCH</h1>
+            <div class="lobby-url" id="lobby-url-display">Waiting for server...</div>
+            <div id="qr-container"></div>
+            <div class="lobby-players" id="lobby-players-display">0 PLAYERS JOINED</div>
+            <div class="lobby-names" id="lobby-names-display"></div>
+            <button class="modal-btn" style="display:block; margin-top: 40px;" onclick="socket.emit('start_game')">START GAME</button>
+        </div>
+
+        <div id="splash">MONEY GLITCH!</div>
+        <div id="clue-container" style="display:none; width: 100%;">
+            <div id="clue-text"></div>
+            <div id="buzzer-status">WAITING FOR WAGER...</div>
+            <button class="modal-btn" id="pass-btn" onclick="socket.emit('host_pass')">Nobody Knows</button>
+            <button class="modal-btn" id="close-btn" onclick="socket.emit('close_clue')">Close Clue</button>
+        </div>
+    </div>
+
+    <!-- Need Socket.io client, Game Data, and QRCode.js -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="game-data.js"></script>
+    
+    <script>
+        // Extract the path if we are running in a subdirectory (like GitHub Codespaces or specific proxy setups)
+        const currentPath = window.location.pathname;
+        const basePath = currentPath.substring(0, currentPath.lastIndexOf('/') + 1);
+        
+        const serverUrl = window.location.hostname.includes('github.io') 
+            ? 'https://71f046c4b3e48a.lhr.life' 
+            : window.location.origin;
+
+        const socket = io(serverUrl, {
+            path: serverUrl.includes('github.io') ? basePath + 'socket.io' : '/socket.io'
+        });
+        let lastState = null;
+        let qrCodeObj = null;
+
+        // Audio System (Web Audio API Synthesizer - No files needed!)
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playSound(type) {
+            if(audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            osc.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+
+            if (type === 'buzz') {
+                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+                gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+            } else if (type === 'correct') {
+                osc.type = 'sine'; osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+                osc.frequency.setValueAtTime(800, audioCtx.currentTime + 0.1);
+                gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+            } else if (type === 'wrong') {
+                osc.type = 'triangle'; osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.5);
+                gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.5);
+            } else if (type === 'glitch') {
+                osc.type = 'square'; osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+                osc.frequency.setValueAtTime(600, audioCtx.currentTime + 0.2);
+                osc.frequency.setValueAtTime(300, audioCtx.currentTime + 0.4);
+                gainNode.gain.setValueAtTime(0.4, audioCtx.currentTime);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.8);
+            }
+        }
+
+        socket.on('play_sound', playSound);
+
+        // Render Board
+        function initBoard() {
+            const boardEl = document.getElementById('board');
+            boardEl.innerHTML = '';
+            let cellIndex = 0;
+
+            defaultGameData.forEach(cat => {
+                const h = document.createElement('div'); h.className = 'category-header'; h.innerText = cat.category;
+                boardEl.appendChild(h);
+            });
+
+            for(let row=0; row<5; row++) {
+                defaultGameData.forEach(cat => {
+                    const q = cat.questions[row];
+                    const cContainer = document.createElement('div'); cContainer.className = 'cell-container';
+                    const c = document.createElement('div'); c.className = 'cell'; c.id = `cell-${cellIndex}`;
+                    
+                    const front = document.createElement('div'); front.className = 'cell-front'; front.innerText = `$${q.value}`;
+                    const back = document.createElement('div'); back.className = 'cell-back';
+                    
+                    c.appendChild(front); c.appendChild(back);
+                    cContainer.appendChild(c);
+                    boardEl.appendChild(cContainer);
+
+                    const idx = cellIndex;
+                    c.onclick = () => {
+                        if(lastState.phase !== 'board' || lastState.playedCells.includes(idx)) return;
+                        c.classList.add('flipped');
+                        setTimeout(() => {
+                            const isDD = lastState.dailyDoubles.includes(idx);
+                            if(isDD) playSound('glitch');
+                            socket.emit('select_cell', { cellIndex: idx, isDD, questionData: q });
+                        }, 600); // wait for flip animation
+                    };
+                    cellIndex++;
+                });
+            }
+        }
+        initBoard();
+
+        // State Sync
+        socket.on('state_update', (state) => {
+            lastState = state;
+            updateUI(state);
+        });
+
+        function updateUI(state) {
+            // Update Board (keep flipped cells flipped)
+            state.playedCells.forEach(idx => {
+                const c = document.getElementById(`cell-${idx}`);
+                if(c) c.classList.add('flipped');
+            });
+
+            // Update Scoreboard
+            const pList = document.getElementById('players-list');
+            pList.innerHTML = '';
+            Object.values(state.players).forEach(p => {
+                const row = document.createElement('div'); row.className = 'player-row';
+                const hasControl = state.boardControl === p.id ? 'has-control' : '';
+                const neg = p.score < 0 ? 'negative' : '';
+                row.innerHTML = `<span class="player-name ${hasControl}">${p.name} ${p.locked ? '🚫' : ''}</span><span class="player-score ${neg}">$${p.score}</span>`;
+                pList.appendChild(row);
+            });
+
+            // Update AI Host Log
+            const logArea = document.getElementById('log-area');
+            logArea.innerHTML = state.hostLog.map(l => `<div class="log-entry">> ${l}</div>`).join('');
+
+            // Modals
+            const overlay = document.getElementById('overlay');
+            const lobbyScreen = document.getElementById('lobby-screen');
+            const splash = document.getElementById('splash');
+            const clueContainer = document.getElementById('clue-container');
+            const clueText = document.getElementById('clue-text');
+            const buzzStatus = document.getElementById('buzzer-status');
+            const passBtn = document.getElementById('pass-btn');
+            const closeBtn = document.getElementById('close-btn');
+
+            if (state.phase === 'lobby') {
+                overlay.style.display = 'flex';
+                lobbyScreen.style.display = 'flex';
+                splash.style.display = 'none';
+                clueContainer.style.display = 'none';
+                
+                const displayUrl = window.location.hostname.includes('github.io') 
+                    ? window.location.href.replace('host.html', 'player.html')
+                    : state.joinUrl;
+                document.getElementById('lobby-url-display').innerText = displayUrl;
+                
+                const playersCount = Object.keys(state.players).length;
+                document.getElementById('lobby-players-display').innerText = `${playersCount} PLAYER${playersCount === 1 ? '' : 'S'} JOINED`;
+                
+                const namesContainer = document.getElementById('lobby-names-display');
+                namesContainer.innerHTML = '';
+                Object.values(state.players).forEach(p => {
+                    const badge = document.createElement('div');
+                    badge.className = 'lobby-name-badge';
+                    badge.innerText = p.name;
+                    namesContainer.appendChild(badge);
+                });
+                
+                // Initialize the QR Code to point to the GitHub Pages player.html, NOT the local IP
+                const playerUrl = window.location.hostname.includes('github.io') 
+                    ? window.location.href.replace('host.html', 'player.html')
+                    : state.joinUrl;
+
+                if(!qrCodeObj && playerUrl) {
+                    qrCodeObj = new QRCode(document.getElementById("qr-container"), {
+                        text: playerUrl,
+                        width: 256,
+                        height: 256,
+                        colorDark : "#000000",
+                        colorLight : "#ffffff",
+                        correctLevel : QRCode.CorrectLevel.H
+                    });
+                    document.getElementById("join-link").innerText = playerUrl;
+                }
+            } else if (state.phase === 'board') {
+                overlay.style.display = 'none';
+            } else {
+                overlay.style.display = 'flex';
+                lobbyScreen.style.display = 'none';
+                splash.style.display = 'none';
+                clueContainer.style.display = 'block';
+                passBtn.style.display = 'none';
+                closeBtn.style.display = 'none';
+                
+                clueText.innerText = state.activeQuestion.prompt;
+
+                if (state.phase === 'wager') {
+                    clueContainer.style.display = 'none';
+                    splash.style.display = 'block'; // MONEY GLITCH!
+                } else if (state.phase === 'clue_reading') {
+                    buzzStatus.innerText = "OPEN FOR BUZZES!";
+                    buzzStatus.style.color = "var(--correct-green)";
+                    passBtn.style.display = 'block';
+                } else if (state.phase === 'answering') {
+                    playSound('buzz');
+                    buzzStatus.innerText = `${state.players[state.activeBuzzer].name} IS ANSWERING...`;
+                    buzzStatus.style.color = "var(--jeopardy-yellow)";
+                } else if (state.phase === 'feedback') {
+                    buzzStatus.innerText = `CORRECT ANSWER: ${state.activeQuestion.options[state.activeQuestion.answer]}`;
+                    buzzStatus.style.color = "#fff";
+                    closeBtn.style.display = 'block';
+                }
+            }
+        }
+
+        // Force reload from server
+        socket.on('force_reload', () => {
+            location.reload();
+        });
+
+        // Must click screen once to enable Web Audio API policies
+        document.body.addEventListener('click', () => { if(audioCtx.state === 'suspended') audioCtx.resume(); }, {once:true});
+    </script>
+</body>
+</html>
