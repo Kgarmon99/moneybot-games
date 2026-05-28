@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Debt Dodger | MoneyBot Games</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        
+        body {
+            margin: 0;
+            padding: 0;
+            background: #0a0a0a;
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+            touch-action: none;
+        }
+
+        #gameCanvas {
+            display: block;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        #ui {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            justify-content: space-between;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .stat-box {
+            background: rgba(0, 0, 0, 0.7);
+            border: 2px solid #00ff88;
+            padding: 10px 20px;
+            border-radius: 12px;
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.2);
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 900;
+            color: #00ff88;
+            text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+        }
+
+        .debt-value {
+            color: #ff3366;
+            text-shadow: 0 0 10px rgba(255, 51, 102, 0.5);
+            border-color: #ff3366;
+        }
+
+        #gameOver {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(10, 10, 10, 0.9);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 20;
+            display: none;
+        }
+
+        h1 {
+            font-size: 48px;
+            color: #ff3366;
+            margin: 0 0 10px 0;
+            text-shadow: 0 0 20px rgba(255, 51, 102, 0.5);
+        }
+
+        .final-stats {
+            font-size: 24px;
+            margin-bottom: 30px;
+            color: #fff;
+            text-align: center;
+        }
+
+        button {
+            background: linear-gradient(90deg, #00ff88, #00cc66);
+            border: none;
+            padding: 15px 40px;
+            border-radius: 30px;
+            font-size: 18px;
+            font-weight: 900;
+            color: #000;
+            cursor: pointer;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: transform 0.1s;
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        #startScreen {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #0a0a0a;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 30;
+        }
+
+        .title-glow {
+            font-size: 54px;
+            font-weight: 900;
+            color: #00ff88;
+            text-shadow: 0 0 30px rgba(0, 255, 136, 0.5);
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            text-align: center;
+        }
+
+        .subtitle {
+            font-size: 16px;
+            color: #888;
+            margin-bottom: 40px;
+            max-width: 400px;
+            text-align: center;
+            line-height: 1.5;
+        }
+        
+        .control-hint {
+            margin-top: 20px;
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="startScreen">
+        <div class="title-glow">Debt Dodger</div>
+        <div class="subtitle">Collect Index Funds (Green) to build wealth. Avoid High APR Debt (Red). Compound interest accelerates over time!</div>
+        <button onclick="startGame()">Start Investing</button>
+        <div class="control-hint">Tap / Click / Drag to move</div>
+    </div>
+
+    <div id="ui" style="display:none;">
+        <div class="stat-box">
+            <div class="stat-label">Net Worth</div>
+            <div class="stat-value" id="nwDisplay">$0</div>
+        </div>
+        <div class="stat-box debt-value">
+            <div class="stat-label">APR Debt</div>
+            <div class="stat-value" id="debtDisplay" style="color:#ff3366;">$0</div>
+        </div>
+    </div>
+
+    <div id="gameOver">
+        <h1>BANKRUPT</h1>
+        <div class="final-stats" id="finalStats">Net Worth: $0</div>
+        <button onclick="resetGame()">Play Again</button>
+    </div>
+
+    <canvas id="gameCanvas"></canvas>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let width, height;
+        function resize() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        // Game State
+        let state = 'start'; // start, play, over
+        let netWorth = 0;
+        let debt = 0;
+        let frameCount = 0;
+        let difficultyMultiplier = 1;
+
+        // Player
+        const player = {
+            x: width / 2,
+            y: height - 100,
+            size: 24,
+            targetX: width / 2,
+            targetY: height - 100
+        };
+
+        // Entities
+        let entities = [];
+        let particles = [];
+
+        // Input
+        let isDragging = false;
+        
+        function updatePlayerPos(clientX, clientY) {
+            player.targetX = clientX;
+            player.targetY = clientY - 40; // Offset slightly above finger
+        }
+
+        canvas.addEventListener('touchstart', e => {
+            if(state !== 'play') return;
+            isDragging = true;
+            updatePlayerPos(e.touches[0].clientX, e.touches[0].clientY);
+        });
+        canvas.addEventListener('touchmove', e => {
+            if(!isDragging || state !== 'play') return;
+            updatePlayerPos(e.touches[0].clientX, e.touches[0].clientY);
+        });
+        canvas.addEventListener('touchend', () => isDragging = false);
+
+        canvas.addEventListener('mousedown', e => {
+            if(state !== 'play') return;
+            isDragging = true;
+            updatePlayerPos(e.clientX, e.clientY);
+        });
+        canvas.addEventListener('mousemove', e => {
+            if(!isDragging || state !== 'play') return;
+            updatePlayerPos(e.clientX, e.clientY);
+        });
+        canvas.addEventListener('mouseup', () => isDragging = false);
+
+        function startGame() {
+            document.getElementById('startScreen').style.display = 'none';
+            document.getElementById('ui').style.display = 'flex';
+            resetGame();
+        }
+
+        function resetGame() {
+            state = 'play';
+            netWorth = 1000;
+            debt = 0;
+            frameCount = 0;
+            difficultyMultiplier = 1;
+            entities = [];
+            particles = [];
+            player.x = width / 2;
+            player.y = height - 100;
+            player.targetX = width / 2;
+            player.targetY = height - 100;
+            document.getElementById('gameOver').style.display = 'none';
+            updateUI();
+            requestAnimationFrame(loop);
+        }
+
+        function gameOver() {
+            state = 'over';
+            document.getElementById('gameOver').style.display = 'flex';
+            document.getElementById('finalStats').innerHTML = `Final Net Worth:<br><span style="color:#00ff88; font-weight:900; font-size:40px;">$${Math.floor(netWorth).toLocaleString()}</span>`;
+        }
+
+        function createParticle(x, y, color) {
+            for(let i=0; i<8; i++) {
+                particles.push({
+                    x: x, y: y,
+                    vx: (Math.random() - 0.5) * 10,
+                    vy: (Math.random() - 0.5) * 10,
+                    life: 1,
+                    color: color
+                });
+            }
+        }
+
+        function updateUI() {
+            document.getElementById('nwDisplay').innerText = '$' + Math.floor(netWorth).toLocaleString();
+            document.getElementById('debtDisplay').innerText = '$' + Math.floor(debt).toLocaleString();
+        }
+
+        function loop() {
+            if (state !== 'play') return;
+
+            // Clear
+            ctx.fillStyle = 'rgba(10, 10, 10, 0.3)'; // Trail effect
+            ctx.fillRect(0, 0, width, height);
+
+            frameCount++;
+            difficultyMultiplier += 0.0005;
+
+            // Finance logic
+            if (frameCount % 60 === 0) {
+                // Compound Interest (7% annual, simulated as 0.5% per sec)
+                if (netWorth > 0) netWorth *= 1.005; 
+                // High APR Debt (25% annual, simulated as 2% per sec)
+                if (debt > 0) {
+                    debt *= 1.02;
+                    netWorth -= (debt * 0.01); // Debt drags down net worth
+                }
+                
+                if (netWorth < 0) {
+                    gameOver();
+                    return;
+                }
+                updateUI();
+            }
+
+            // Player movement (Lerp)
+            player.x += (player.targetX - player.x) * 0.15;
+            player.y += (player.targetY - player.y) * 0.15;
+
+            // Clamp
+            player.x = Math.max(player.size, Math.min(width - player.size, player.x));
+            player.y = Math.max(player.size, Math.min(height - player.size, player.y));
+
+            // Draw Player
+            ctx.shadowBlur = 20;
+            ctx.shadowColor = '#00ff88';
+            ctx.fillStyle = '#00ff88';
+            ctx.beginPath();
+            ctx.arc(player.x, player.y, player.size, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.shadowBlur = 0; // reset
+
+            // Spawn Entities
+            if (Math.random() < 0.05 * difficultyMultiplier) {
+                const isDebt = Math.random() > 0.4;
+                entities.push({
+                    x: Math.random() * width,
+                    y: -30,
+                    size: isDebt ? 18 + Math.random()*15 : 15,
+                    type: isDebt ? 'debt' : 'asset',
+                    speed: (3 + Math.random() * 4) * difficultyMultiplier
+                });
+            }
+
+            // Update & Draw Entities
+            for (let i = entities.length - 1; i >= 0; i--) {
+                let e = entities[i];
+                e.y += e.speed;
+
+                // Draw
+                ctx.fillStyle = e.type === 'debt' ? '#ff3366' : '#00ff88';
+                if(e.type === 'debt') {
+                    ctx.shadowColor = '#ff3366';
+                    ctx.shadowBlur = 15;
+                    ctx.fillRect(e.x - e.size, e.y - e.size, e.size*2, e.size*2);
+                } else {
+                    ctx.shadowColor = '#00ff88';
+                    ctx.shadowBlur = 10;
+                    ctx.beginPath();
+                    ctx.moveTo(e.x, e.y - e.size);
+                    ctx.lineTo(e.x + e.size, e.y);
+                    ctx.lineTo(e.x, e.y + e.size);
+                    ctx.lineTo(e.x - e.size, e.y);
+                    ctx.fill();
+                }
+                ctx.shadowBlur = 0;
+
+                // Collision
+                const dx = player.x - e.x;
+                const dy = player.y - e.y;
+                const dist = Math.sqrt(dx*dx + dy*dy);
+                
+                if (dist < player.size + e.size) {
+                    if (e.type === 'debt') {
+                        debt += 500 * difficultyMultiplier;
+                        createParticle(e.x, e.y, '#ff3366');
+                    } else {
+                        netWorth += 300 * difficultyMultiplier;
+                        createParticle(e.x, e.y, '#00ff88');
+                    }
+                    entities.splice(i, 1);
+                    updateUI();
+                    continue;
+                }
+
+                // Off screen
+                if (e.y > height + 50) {
+                    entities.splice(i, 1);
+                }
+            }
+
+            // Particles
+            for (let i = particles.length - 1; i >= 0; i--) {
+                let p = particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.life -= 0.05;
+                if (p.life <= 0) {
+                    particles.splice(i, 1);
+                    continue;
+                }
+                ctx.globalAlpha = p.life;
+                ctx.fillStyle = p.color;
+                ctx.fillRect(p.x, p.y, 4, 4);
+                ctx.globalAlpha = 1;
+            }
+
+            requestAnimationFrame(loop);
+        }
+    </script>
+</body>
+</html>
