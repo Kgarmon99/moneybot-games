@@ -125,9 +125,10 @@
             max-width: 480px;
             margin: 0 auto;
             min-height: 100vh;
-            position: relative;
-            background: var(--bg-white);
-        }
+            .bg-white {
+                background: rgba(15, 20, 25, 0.85);
+                border: 1px solid rgba(0, 200, 83, 0.2);
+            }
 
         
         .character-grid {
@@ -226,9 +227,9 @@
         
         /* Premium UI Upgrades */
         .app-container {
-            box-shadow: 0 0 50px rgba(0,0,0,0.1);
-            border-left: 1px solid var(--border-light);
-            border-right: 1px solid var(--border-light);
+            box-shadow: 0 0 50px rgba(0, 200, 83, 0.15);
+            border-left: 1px solid rgba(0, 200, 83, 0.3);
+            border-right: 1px solid rgba(0, 200, 83, 0.3);
         }
         .btn-primary {
             background: linear-gradient(135deg, var(--money-green) 0%, var(--money-green-dark) 100%);
@@ -438,8 +439,9 @@
             color: var(--text-primary);
         }
 
-        .btn-secondary:hover {
-            background: var(--border-light);
+        .bg-white {
+            background: rgba(15, 20, 25, 0.85);
+            border: 1px solid rgba(0, 200, 83, 0.2);
         }
 
         .btn-outline {
@@ -487,8 +489,8 @@
         }
 
         .scenario-card {
-            background: var(--bg-white);
-            border: 2px solid var(--border-light);
+            background: rgba(15, 20, 25, 0.9);
+            border: 1px solid rgba(0, 200, 83, 0.3);
             border-radius: var(--radius-md);
             padding: 16px;
             cursor: pointer;
@@ -496,16 +498,19 @@
             display: flex;
             align-items: center;
             gap: 14px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
         }
 
         .scenario-card:hover {
-            border-color: var(--money-green);
-            background: var(--money-green-light);
+            transform: translateY(-2px) scale(1.02);
+            border-color: rgba(0, 200, 83, 0.8);
+            box-shadow: 0 8px 25px rgba(0, 200, 83, 0.2);
+            background: rgba(20, 30, 25, 0.95);
         }
 
         .scenario-card.completed {
             border-color: var(--money-green);
-            background: var(--money-green-light);
+            background: rgba(0, 200, 83, 0.15);
         }
 
         .scenario-icon {
@@ -634,16 +639,19 @@
         }
 
         .loan-card {
-            background: var(--bg-white);
-            border: 2px solid var(--border-light);
+            background: rgba(15, 20, 25, 0.9);
+            border: 1px solid rgba(0, 200, 83, 0.3);
             border-radius: var(--radius-md);
             overflow: hidden;
             transition: all 0.2s ease;
             cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
         }
 
         .loan-card:hover {
-            border-color: var(--border-medium);
+            border-color: rgba(0, 200, 83, 0.8);
+            box-shadow: 0 8px 25px rgba(0, 200, 83, 0.2);
+            transform: translateY(-2px);
         }
 
         .loan-card.selected {
@@ -663,9 +671,10 @@
             padding: 16px;
             display: flex;
             justify-content: space-between;
-            align-items: flex-start;
-            background: var(--bg-gray);
-        }
+            .bg-white {
+                background: rgba(15, 20, 25, 0.85);
+                border: 1px solid rgba(0, 200, 83, 0.2);
+            }
 
         .loan-lender {
             display: flex;
@@ -940,8 +949,9 @@
             background: var(--warning-light);
         }
 
-        .result-icon.danger {
-            background: var(--danger-light);
+        .bg-white {
+            background: rgba(15, 20, 25, 0.85);
+            border: 1px solid rgba(0, 200, 83, 0.2);
         }
 
         .result-title {
@@ -1144,8 +1154,9 @@
             background: var(--money-green-light);
         }
 
-        .summary-icon.incorrect {
-            background: var(--danger-light);
+        .bg-white {
+            background: rgba(15, 20, 25, 0.85);
+            border: 1px solid rgba(0, 200, 83, 0.2);
         }
 
         .summary-text {
