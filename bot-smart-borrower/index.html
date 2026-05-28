@@ -4,25 +4,43 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Smart Borrower: Debt Survivor</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Inter:wght@400;700;900&display=swap');
         
         * { margin: 0; padding: 0; box-sizing: border-box; touch-action: none; }
         body { 
             font-family: 'Inter', sans-serif; 
-            background: #050508; 
+            background: #020203; 
             color: #fff; 
             overflow: hidden; 
             user-select: none;
             -webkit-tap-highlight-color: transparent;
         }
 
+        /* --- CANVAS BACKGROUND --- */
+        #bgCanvas { position: absolute; top: 0; left: 0; z-index: 0; width: 100%; height: 100%; pointer-events: none; }
+        #fxCanvas { position: absolute; top: 0; left: 0; z-index: 20; width: 100%; height: 100%; pointer-events: none; }
+
+        /* --- EFFECTS --- */
+        .scanlines {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 99; pointer-events: none;
+            background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.1));
+            background-size: 100% 4px; opacity: 0.3;
+        }
+        .vignette {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 98; pointer-events: none;
+            box-shadow: inset 0 0 100px rgba(0,0,0,0.9);
+            transition: box-shadow 0.2s;
+        }
+        .vignette.danger { box-shadow: inset 0 0 150px rgba(255,0,0,0.6); }
+
         /* --- SCREENS --- */
         .screen {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             display: none; flex-direction: column;
-            background: radial-gradient(circle at top, #0a1118 0%, #020205 100%);
-            z-index: 10;
+            background: rgba(2, 2, 5, 0.85); backdrop-filter: blur(10px);
+            z-index: 100;
         }
         .screen.active { display: flex; }
 
@@ -31,195 +49,283 @@
             height: 100%; text-align: center; padding: 20px;
         }
 
-        h1 { font-family: 'Share Tech Mono', monospace; font-size: 48px; color: #00ff88; text-shadow: 0 0 20px #00ff88; line-height: 1.1; margin-bottom: 20px; text-transform: uppercase; }
-        .danger-text { color: #ff3333; text-shadow: 0 0 20px #ff3333; }
+        h1 { font-family: 'Share Tech Mono', monospace; font-size: 52px; color: #00ff88; text-shadow: 0 0 20px #00ff88, 0 0 40px #00ff88; line-height: 1; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 2px; }
+        .danger-text { color: #ff3333; text-shadow: 0 0 20px #ff3333, 0 0 40px #ff3333; }
 
         .btn {
-            background: linear-gradient(180deg, #005522 0%, #002200 100%);
-            border: 2px solid #00ff88; border-radius: 8px; color: #00ff88;
+            background: linear-gradient(180deg, #004422 0%, #001100 100%);
+            border: 1px solid #00ff88; border-radius: 4px; color: #00ff88;
             font-family: 'Share Tech Mono', monospace; font-size: 24px; font-weight: bold;
             padding: 15px 40px; cursor: pointer; text-transform: uppercase;
-            box-shadow: 0 0 15px rgba(0,255,136,0.3); transition: all 0.1s;
-            margin: 10px;
+            box-shadow: 0 4px 0 #00aa55, 0 0 15px rgba(0,255,136,0.3); transition: all 0.1s;
+            margin: 10px; position: relative; overflow: hidden;
         }
-        .btn:active { transform: scale(0.95); background: #00ff88; color: #000; }
+        .btn:active { transform: translateY(4px); box-shadow: 0 0 0 #00aa55, 0 0 20px rgba(0,255,136,0.6); background: #00ff88; color: #000; }
+        .btn::after {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0) 100%);
+            transform: rotate(45deg) translate(-100%, -100%); transition: 0.5s;
+        }
+        .btn:hover::after { transform: rotate(45deg) translate(100%, 100%); }
 
-        /* --- GAME HUD --- */
-        .top-bar {
-            display: flex; justify-content: space-between; padding: 15px;
-            background: rgba(0,0,0,0.8); border-bottom: 1px solid #333;
-            backdrop-filter: blur(5px); z-index: 5;
+        /* --- MAIN UI CONTAINER --- */
+        #gameUI { display: none; flex-direction: column; height: 100%; position: relative; z-index: 10; }
+
+        /* --- TOP DASHBOARD --- */
+        .dashboard {
+            display: flex; justify-content: space-between; padding: 15px 20px;
+            background: linear-gradient(180deg, rgba(10,15,20,0.95) 0%, rgba(5,8,12,0.9) 100%);
+            border-bottom: 1px solid rgba(0, 255, 136, 0.3);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
         }
-        .stat { display: flex; flex-direction: column; }
-        .stat-label { font-size: 11px; color: #888; text-transform: uppercase; font-weight: bold; letter-spacing: 1px; }
-        .stat-val { font-family: 'Share Tech Mono', monospace; font-size: 28px; font-weight: bold; }
+        .stat-group { display: flex; flex-direction: column; }
+        .stat-label { font-size: 10px; color: #88aadd; text-transform: uppercase; font-weight: 900; letter-spacing: 2px; display: flex; align-items: center; gap: 4px; }
+        .stat-val { font-family: 'Share Tech Mono', monospace; font-size: 32px; font-weight: bold; margin-top: 2px; }
         
-        .cash-green { color: #00ff88; text-shadow: 0 0 10px #00ff88; }
-        .cash-red { color: #ff3333; text-shadow: 0 0 10px #ff3333; }
+        .val-green { color: #00ff88; text-shadow: 0 0 15px rgba(0,255,136,0.5); }
+        .val-red { color: #ff3333; text-shadow: 0 0 15px rgba(255,51,51,0.5); }
 
-        /* --- THREAT TRACK --- */
+        /* --- THREAT TRACKER (THE INVOICE) --- */
         .threat-container {
-            background: #111; border-bottom: 2px solid #333; padding: 15px;
-            text-align: center; position: relative; overflow: hidden;
+            margin: 15px; background: rgba(20, 5, 5, 0.8);
+            border: 1px solid #ff3333; border-radius: 8px;
+            box-shadow: 0 0 20px rgba(255,0,0,0.2), inset 0 0 10px rgba(255,0,0,0.1);
+            position: relative; overflow: hidden;
+            backdrop-filter: blur(5px);
         }
-        .threat-title { font-size: 14px; color: #ffaa00; font-weight: bold; margin-bottom: 5px; text-transform: uppercase; }
-        .threat-timer { font-family: 'Share Tech Mono', monospace; font-size: 36px; color: #fff; font-weight: bold; }
-        .threat-amount { font-size: 20px; color: #ff3333; font-weight: bold; }
+        .threat-header {
+            background: repeating-linear-gradient(45deg, #330000, #330000 10px, #440000 10px, #440000 20px);
+            padding: 5px 15px; border-bottom: 1px solid #ff3333;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .threat-title { font-size: 12px; color: #ffaa00; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 5px; }
+        .threat-title i { font-size: 14px; }
         
-        .progress-bg { width: 100%; height: 6px; background: #222; border-radius: 3px; margin-top: 10px; overflow: hidden; }
-        .progress-fill { height: 100%; background: #00ff88; width: 100%; transition: width 0.1s linear, background 0.3s; }
+        .threat-body { padding: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .threat-name { font-size: 18px; font-weight: bold; color: #fff; }
+        .threat-amount { font-family: 'Share Tech Mono', monospace; font-size: 28px; color: #ff3333; font-weight: bold; text-shadow: 0 0 10px #ff3333; }
+        
+        .threat-timer-wrap { padding: 0 15px 15px; display: flex; align-items: center; gap: 10px; }
+        .threat-timer { font-family: 'Share Tech Mono', monospace; font-size: 20px; color: #fff; width: 60px; text-align: right; }
+        .progress-bg { flex-grow: 1; height: 10px; background: #111; border-radius: 5px; border: 1px solid #333; overflow: hidden; position: relative; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, #ffaa00, #ff3333); width: 100%; transition: width 0.1s linear; }
+        
+        .critical-flash { animation: critFlash 0.5s infinite; }
+        @keyframes critFlash { 0% { background: rgba(255,0,0,0.1); } 50% { background: rgba(255,0,0,0.4); } 100% { background: rgba(255,0,0,0.1); } }
 
-        /* --- MIDDLE: HUSTLE --- */
+        /* --- MIDDLE: HUSTLE ZONE --- */
         .hustle-zone {
             flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
             position: relative;
         }
-        .hustle-btn {
-            width: 180px; height: 180px; border-radius: 50%;
-            background: radial-gradient(circle at 30% 30%, #00aa55 0%, #004422 100%);
-            border: 4px solid #00ff88; box-shadow: 0 0 30px rgba(0,255,136,0.2), inset 0 0 20px rgba(0,0,0,0.5);
-            color: #fff; font-size: 28px; font-weight: 900; font-family: 'Inter', sans-serif;
-            text-transform: uppercase; cursor: pointer;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            transition: transform 0.05s; z-index: 2;
-        }
-        .hustle-btn:active { transform: scale(0.9); box-shadow: 0 0 50px rgba(0,255,136,0.6); }
-        .hustle-sub { font-size: 14px; opacity: 0.8; margin-top: 5px; font-weight: normal; }
-
-        /* --- BOTTOM: LOANS & DEBT --- */
-        .bottom-zone {
-            height: 45%; background: rgba(10, 10, 15, 0.95);
-            border-top: 2px solid #333; display: flex; flex-direction: column;
+        .month-badge {
+            position: absolute; top: 10px; left: 15px; 
+            background: rgba(0, 255, 136, 0.1); border: 1px solid rgba(0, 255, 136, 0.3);
+            color: #00ff88; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; letter-spacing: 1px;
         }
         
-        .tabs { display: flex; border-bottom: 1px solid #333; }
-        .tab { 
-            flex: 1; padding: 12px; text-align: center; font-size: 13px; font-weight: bold; 
-            color: #888; text-transform: uppercase; cursor: pointer; background: #0a0a0a;
+        /* 3D Skeuomorphic Button */
+        .hustle-btn-wrapper {
+            position: relative; width: 200px; height: 200px;
         }
-        .tab.active { background: #1a1a25; color: #fff; border-bottom: 2px solid #00ff88; }
+        .hustle-btn-base {
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 190px;
+            background: linear-gradient(180deg, #003311 0%, #001100 100%);
+            border-radius: 50%; box-shadow: 0 15px 25px rgba(0,0,0,0.8);
+        }
+        .hustle-btn-top {
+            position: absolute; top: 0; left: 0; width: 100%; height: 190px;
+            background: radial-gradient(circle at 30% 30%, #00ff88 0%, #00aa55 40%, #004422 100%);
+            border-radius: 50%; border: 2px solid #aaffcc;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            box-shadow: inset 0 5px 15px rgba(255,255,255,0.4), inset 0 -10px 20px rgba(0,0,0,0.5), 0 0 30px rgba(0,255,136,0.4);
+            cursor: pointer; transition: transform 0.05s cubic-bezier(0.2, 2, 0.4, 1);
+            color: #002211; text-shadow: 0 1px 1px rgba(255,255,255,0.5); z-index: 2;
+        }
+        .hustle-btn-wrapper:active .hustle-btn-top { transform: translateY(12px); box-shadow: inset 0 5px 15px rgba(255,255,255,0.2), inset 0 -5px 10px rgba(0,0,0,0.5), 0 0 50px rgba(0,255,136,0.8); }
+        
+        .hustle-title { font-size: 36px; font-weight: 900; letter-spacing: 2px; }
+        .hustle-sub { font-size: 14px; font-weight: 700; margin-top: 5px; opacity: 0.8; font-family: 'Share Tech Mono', monospace; }
+        
+        .btn-ring {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 220px; height: 220px; border-radius: 50%; border: 2px dashed rgba(0,255,136,0.3);
+            animation: spin 10s linear infinite; pointer-events: none;
+        }
+        @keyframes spin { 100% { transform: translate(-50%, -50%) rotate(360deg); } }
 
-        .tab-content { flex-grow: 1; overflow-y: auto; padding: 10px; display: none; }
+        /* --- BOTTOM LOANS TERMINAL --- */
+        .terminal-zone {
+            height: 48%; background: rgba(5, 8, 12, 0.95);
+            border-top: 1px solid rgba(0, 255, 136, 0.3); display: flex; flex-direction: column;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.5); position: relative; z-index: 5;
+        }
+        
+        .tabs { display: flex; background: rgba(0,0,0,0.5); }
+        .tab { 
+            flex: 1; padding: 12px; text-align: center; font-size: 12px; font-weight: 900; 
+            color: #557766; text-transform: uppercase; cursor: pointer; letter-spacing: 1px;
+            transition: 0.2s; border-bottom: 2px solid transparent; display: flex; align-items: center; justify-content: center; gap: 5px;
+        }
+        .tab i { font-size: 16px; }
+        .tab.active { color: #00ff88; border-bottom: 2px solid #00ff88; background: rgba(0, 255, 136, 0.05); text-shadow: 0 0 10px rgba(0,255,136,0.5); }
+
+        .tab-content { flex-grow: 1; overflow-y: auto; padding: 15px; display: none; position: relative; }
         .tab-content.active { display: block; }
 
-        /* Loan Market Cards */
+        /* Cards */
         .market-card {
-            background: #111; border: 1px solid #333; border-radius: 8px;
-            padding: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;
+            background: rgba(15, 20, 25, 0.9); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px;
+            padding: 12px 15px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3); position: relative; overflow: hidden;
         }
-        .market-card.payday { border-left: 4px solid #ff00aa; }
-        .market-card.credit { border-left: 4px solid #ffaa00; }
-        .market-card.bank { border-left: 4px solid #00aaff; }
+        .market-card::before { content: ''; position: absolute; left: 0; top: 0; width: 4px; height: 100%; }
+        .market-card.payday::before { background: #ff00aa; box-shadow: 0 0 10px #ff00aa; }
+        .market-card.credit::before { background: #ffaa00; box-shadow: 0 0 10px #ffaa00; }
+        .market-card.bank::before { background: #00aaff; box-shadow: 0 0 10px #00aaff; }
         
-        .market-info h3 { font-size: 16px; margin-bottom: 4px; }
-        .market-info p { font-size: 12px; color: #aaa; margin-bottom: 2px; }
-        .bleed-text { color: #ff3333; font-family: monospace; font-weight: bold; }
+        .market-info { flex-grow: 1; margin-left: 10px; }
+        .market-info h3 { font-size: 14px; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; text-transform: uppercase; }
+        .badge { font-size: 9px; padding: 2px 6px; border-radius: 10px; font-weight: 900; letter-spacing: 1px; color: #000; }
+        .badge.instant { background: #ffaa00; }
+        .badge.wait { background: #00aaff; color: #fff; }
+        
+        .market-stats { font-family: 'Share Tech Mono', monospace; font-size: 13px; color: #aaa; display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+        .market-stats span { display: block; }
+        .bleed-text { color: #ff3333; font-weight: bold; text-shadow: 0 0 5px rgba(255,51,51,0.5); }
         
         .take-btn {
-            background: #222; border: 1px solid #555; color: #fff;
-            padding: 10px 15px; border-radius: 6px; font-weight: bold; cursor: pointer;
+            background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); color: #fff;
+            padding: 10px 15px; border-radius: 4px; font-weight: 900; cursor: pointer; text-transform: uppercase; font-size: 12px;
+            transition: 0.2s; min-width: 80px; text-align: center;
         }
-        .take-btn:active { background: #444; }
+        .take-btn:active { background: #fff; color: #000; }
 
-        /* Active Debt Cards */
+        /* Debt Cards */
         .debt-card {
-            background: rgba(40, 0, 0, 0.5); border: 1px solid #ff3333; border-radius: 8px;
-            padding: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;
-            animation: pulse-red 2s infinite;
+            background: rgba(40, 5, 5, 0.8); border: 1px solid #ff3333; border-radius: 6px;
+            padding: 12px 15px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 4px 15px rgba(255,0,0,0.1); animation: debtPulse 2s infinite; position: relative; overflow: hidden;
         }
-        @keyframes pulse-red { 0% { box-shadow: 0 0 5px rgba(255,0,0,0.1); } 50% { box-shadow: 0 0 15px rgba(255,0,0,0.3); } 100% { box-shadow: 0 0 5px rgba(255,0,0,0.1); } }
+        .debt-card::after {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,0,0,0.05) 10px, rgba(255,0,0,0.05) 20px); pointer-events: none;
+        }
+        @keyframes debtPulse { 0% { box-shadow: 0 0 5px rgba(255,0,0,0.1); } 50% { box-shadow: 0 0 15px rgba(255,0,0,0.4); } 100% { box-shadow: 0 0 5px rgba(255,0,0,0.1); } }
         
         .payoff-btn {
-            background: #00aa55; border: none; color: #fff;
-            padding: 10px 15px; border-radius: 6px; font-weight: bold; cursor: pointer;
+            background: rgba(0, 255, 136, 0.2); border: 1px solid #00ff88; color: #00ff88;
+            padding: 10px 15px; border-radius: 4px; font-weight: 900; cursor: pointer; text-transform: uppercase; font-size: 12px;
+            box-shadow: 0 0 10px rgba(0,255,136,0.2); transition: 0.2s; z-index: 2; position: relative;
         }
-        .payoff-btn:disabled { background: #333; color: #666; cursor: not-allowed; }
+        .payoff-btn:disabled { background: rgba(0,0,0,0.5); border-color: #333; color: #555; box-shadow: none; }
+        .payoff-btn:not(:disabled):active { background: #00ff88; color: #000; }
 
-        /* --- EFFECTS --- */
-        .floating-text {
-            position: absolute; font-weight: bold; font-size: 24px; pointer-events: none;
-            animation: floatUp 1s ease-out forwards; z-index: 100; text-shadow: 0 2px 4px rgba(0,0,0,0.8);
-        }
-        @keyframes floatUp { 0% { transform: translateY(0) scale(1); opacity: 1; } 100% { transform: translateY(-50px) scale(1.2); opacity: 0; } }
+        /* Terminal Loading Bar */
+        .processing-bar { width: 100%; height: 4px; background: rgba(0,0,0,0.5); margin-top: 8px; border-radius: 2px; overflow: hidden; display: none; border: 1px solid rgba(0,170,255,0.3); }
+        .processing-fill { height: 100%; background: #00aaff; width: 0%; box-shadow: 0 0 10px #00aaff; }
 
-        .screen-flash {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255,0,0,0.3); pointer-events: none; z-index: 999;
-            opacity: 0; transition: opacity 0.1s;
-        }
-
-        .empty-state { text-align: center; color: #666; font-style: italic; margin-top: 30px; font-size: 14px; }
-        
-        /* Processing bar */
-        .processing-bar { width: 100%; height: 4px; background: #222; margin-top: 8px; display: none; }
-        .processing-fill { height: 100%; background: #00aaff; width: 0%; }
+        .empty-state { text-align: center; color: #557766; font-style: italic; margin-top: 40px; font-size: 14px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+        .empty-state i { font-size: 48px; opacity: 0.5; }
     </style>
 </head>
 <body>
 
-    <!-- FLASH EFFECT -->
-    <div class="screen-flash" id="flash"></div>
+    <!-- CANVASES FOR PARTICLES -->
+    <canvas id="bgCanvas"></canvas>
+    
+    <div class="scanlines"></div>
+    <div class="vignette" id="vignette"></div>
 
     <!-- TITLE SCREEN -->
     <div class="screen active" id="titleScreen">
         <div class="center-content">
+            <i class="material-icons" style="font-size: 64px; color: #00ff88; margin-bottom: 10px; text-shadow: 0 0 20px #00ff88;">account_balance_wallet</i>
             <h1>SMART<br>BORROWER</h1>
-            <p style="color: #aaa; margin-bottom: 30px; font-size: 14px; max-width: 300px; line-height: 1.5;">
-                Survive life's unexpected expenses.<br><br>
-                Tap <b>HUSTLE</b> to earn cash.<br>
-                If you can't afford a bill, take a loan... but beware the <b>Debt Bleed</b>.<br><br>
-                Payday loans save you today, but bleed you dry tomorrow.
-            </p>
-            <button class="btn" onclick="startGame()">START SURVIVAL</button>
-            <button class="btn" style="font-size:14px; background:transparent; border-color:#444; color:#888; box-shadow:none;" onclick="window.location.href='../moneybot-official/'">← BACK TO GAMES</button>
+            <div style="background: rgba(0,0,0,0.5); border: 1px solid rgba(0,255,136,0.3); padding: 20px; border-radius: 8px; margin-bottom: 30px; text-align: left; max-width: 320px;">
+                <p style="color: #ccc; font-size: 13px; line-height: 1.6; margin-bottom: 10px;">
+                    <b style="color:#00ff88;">OBJECTIVE:</b> Survive unexpected expenses.<br>
+                    <b style="color:#00ff88;">ACTION:</b> Tap <b style="color:#fff;">HUSTLE</b> to earn cash manually.<br>
+                    <b style="color:#00ff88;">DANGER:</b> If you can't afford a bill, you must take a loan. Beware the <b style="color:#ff3333;">Debt Bleed</b>.
+                </p>
+                <p style="color: #ffaa00; font-size: 12px; font-style: italic; text-align: center; margin-top: 15px;">
+                    "Payday loans save you today, but bleed you dry tomorrow."
+                </p>
+            </div>
+            <button class="btn" onclick="startGame()">INITIALIZE_RUN()</button>
+            <button class="btn" style="font-size:14px; background:transparent; border-color:transparent; color:#888; box-shadow:none; margin-top:0;" onclick="window.location.href='../moneybot-official/'">← ABORT TO MENU</button>
         </div>
     </div>
 
     <!-- GAME OVER SCREEN -->
     <div class="screen" id="gameOverScreen">
         <div class="center-content">
+            <i class="material-icons danger-text" style="font-size: 80px; margin-bottom: 10px;">warning</i>
             <h1 class="danger-text">BANKRUPT</h1>
-            <p style="color: #aaa; margin-bottom: 10px;">Your cash hit $0.</p>
-            <p style="font-size: 24px; margin-bottom: 30px;">Months Survived: <span id="finalMonths" style="color:#00ff88; font-weight:bold;">0</span></p>
-            <button class="btn" onclick="startGame()">TRY AGAIN</button>
-            <button class="btn" style="font-size:14px; background:transparent; border-color:#444; color:#888; box-shadow:none;" onclick="window.location.href='../moneybot-official/'">← BACK TO GAMES</button>
+            <p style="color: #aaa; margin-bottom: 10px; font-size: 18px;">Your cash hit $0.</p>
+            <div style="background: rgba(255,0,0,0.1); border: 1px solid #ff3333; padding: 15px 30px; border-radius: 8px; margin-bottom: 30px;">
+                <p style="font-size: 14px; color: #ffaa00; margin-bottom: 5px; text-transform: uppercase;">Survival Time</p>
+                <p style="font-size: 36px; font-family: 'Share Tech Mono', monospace; color: #fff;"><span id="finalMonths" style="color:#00ff88;">0</span> MONTHS</p>
+            </div>
+            <button class="btn" onclick="startGame()" style="border-color:#ff3333; color:#ff3333; box-shadow: 0 4px 0 #aa0000, 0 0 15px rgba(255,51,51,0.3);">REBOOT_SYSTEM()</button>
+            <button class="btn" style="font-size:14px; background:transparent; border-color:transparent; color:#888; box-shadow:none; margin-top:0;" onclick="window.location.href='../moneybot-official/'">← ABORT TO MENU</button>
         </div>
     </div>
 
     <!-- MAIN GAME UI -->
-    <div id="gameUI" style="display: none; flex-direction: column; height: 100%;">
+    <div id="gameUI">
         
-        <div class="top-bar">
-            <div class="stat">
-                <span class="stat-label">Net Cash</span>
-                <span class="stat-val cash-green" id="cashDisplay">$1,000</span>
+        <!-- DASHBOARD -->
+        <div class="dashboard">
+            <div class="stat-group">
+                <span class="stat-label"><i class="material-icons" style="font-size:12px;">account_balance</i> LIQUID CASH</span>
+                <span class="stat-val val-green" id="cashDisplay">$1,000</span>
             </div>
-            <div class="stat" style="text-align: right;">
-                <span class="stat-label">Cashflow (per sec)</span>
-                <span class="stat-val cash-green" id="flowDisplay">+$10</span>
+            <div class="stat-group" style="text-align: right; align-items: flex-end;">
+                <span class="stat-label">CASHFLOW/SEC <i class="material-icons" style="font-size:12px;">trending_up</i></span>
+                <span class="stat-val val-green" id="flowDisplay">+$10</span>
             </div>
         </div>
 
-        <div class="threat-container">
-            <div class="threat-title" id="expenseName">Upcoming: Rent Due</div>
-            <div class="threat-amount" id="expenseAmount">-$800</div>
-            <div class="threat-timer" id="expenseTimer">10.0s</div>
-            <div class="progress-bg"><div class="progress-fill" id="expenseProgress"></div></div>
+        <!-- THREAT INVOICE -->
+        <div class="threat-container" id="threatBox">
+            <div class="threat-header">
+                <span class="threat-title"><i class="material-icons">receipt_long</i> INCOMING INVOICE</span>
+                <span style="font-family: 'Share Tech Mono'; font-size: 12px; color: #888;">ID: <span id="invoiceId">#8921A</span></span>
+            </div>
+            <div class="threat-body">
+                <div>
+                    <div class="threat-name" id="expenseName">Rent Due</div>
+                    <div class="threat-amount" id="expenseAmount">-$800</div>
+                </div>
+            </div>
+            <div class="threat-timer-wrap">
+                <i class="material-icons" style="color:#aaa;">timer</i>
+                <div class="progress-bg"><div class="progress-fill" id="expenseProgress"></div></div>
+                <div class="threat-timer" id="expenseTimer">10.0s</div>
+            </div>
         </div>
 
+        <!-- HUSTLE ZONE -->
         <div class="hustle-zone" id="hustleZone">
-            <div style="position:absolute; top: 10px; left: 15px; font-weight:bold; color:#666;">MONTH <span id="monthDisplay" style="color:#fff;">1</span></div>
+            <div class="month-badge">MONTH <span id="monthDisplay">1</span></div>
+            <div class="btn-ring"></div>
             
-            <button class="hustle-btn" id="hustleBtn">
-                HUSTLE
-                <span class="hustle-sub">+$5 / TAP</span>
-            </button>
+            <div class="hustle-btn-wrapper" id="hustleBtn">
+                <div class="hustle-btn-base"></div>
+                <div class="hustle-btn-top">
+                    <i class="material-icons" style="font-size:36px; margin-bottom:5px; opacity:0.8;">touch_app</i>
+                    <div class="hustle-title">HUSTLE</div>
+                    <div class="hustle-sub">+$5 / TAP</div>
+                </div>
+            </div>
         </div>
 
-        <div class="bottom-zone">
+        <!-- TERMINAL (LOANS/DEBT) -->
+        <div class="terminal-zone">
             <div class="tabs">
-                <div class="tab active" onclick="switchTab('market')" id="tab-market">Loan Market</div>
-                <div class="tab" onclick="switchTab('debts')" id="tab-debts">Active Debts (<span id="debtCount">0</span>)</div>
+                <div class="tab active" onclick="switchTab('market')" id="tab-market"><i class="material-icons">storefront</i> LOAN MARKET</div>
+                <div class="tab" onclick="switchTab('debts')" id="tab-debts"><i class="material-icons">money_off</i> ACTIVE DEBTS (<span id="debtCount" style="color:#ff3333; font-weight:bold;">0</span>)</div>
             </div>
             
             <!-- MARKET TAB -->
@@ -227,27 +333,36 @@
                 
                 <div class="market-card payday">
                     <div class="market-info">
-                        <h3>Payday Loan <span style="font-size:10px; background:#ff00aa; color:#fff; padding:2px 4px; border-radius:3px;">INSTANT</span></h3>
-                        <p>Get: <b style="color:#fff;">$500</b> | Payoff: $650</p>
-                        <p>Rate: <span class="bleed-text">-$30/sec</span> bleed</p>
+                        <h3>Payday Loan <span class="badge instant">INSTANT</span></h3>
+                        <div class="market-stats">
+                            <span>Get: <b style="color:#fff;">$500</b></span>
+                            <span>Payoff: <b style="color:#fff;">$650</b></span>
+                            <span style="grid-column: 1 / 3;">Rate: <span class="bleed-text">-$30/sec</span> bleed</span>
+                        </div>
                     </div>
                     <button class="take-btn" onclick="takeLoan('payday')">TAKE</button>
                 </div>
 
                 <div class="market-card credit">
                     <div class="market-info">
-                        <h3>Credit Card <span style="font-size:10px; background:#ffaa00; color:#000; padding:2px 4px; border-radius:3px;">INSTANT</span></h3>
-                        <p>Get: <b style="color:#fff;">$1,000</b> | Payoff: $1,200</p>
-                        <p>Rate: <span class="bleed-text">-$15/sec</span> bleed</p>
+                        <h3>Credit Card <span class="badge instant">INSTANT</span></h3>
+                        <div class="market-stats">
+                            <span>Limit: <b style="color:#fff;">$1,000</b></span>
+                            <span>Payoff: <b style="color:#fff;">$1,200</b></span>
+                            <span style="grid-column: 1 / 3;">Rate: <span class="bleed-text">-$15/sec</span> bleed</span>
+                        </div>
                     </div>
                     <button class="take-btn" onclick="takeLoan('credit')">TAKE</button>
                 </div>
 
                 <div class="market-card bank">
                     <div class="market-info">
-                        <h3>Bank Loan <span style="font-size:10px; background:#00aaff; color:#fff; padding:2px 4px; border-radius:3px;">3s WAIT</span></h3>
-                        <p>Get: <b style="color:#fff;">$2,500</b> | Payoff: $2,800</p>
-                        <p>Rate: <span class="bleed-text">-$5/sec</span> bleed</p>
+                        <h3>Bank Loan <span class="badge wait">3S WAIT</span></h3>
+                        <div class="market-stats">
+                            <span>Get: <b style="color:#fff;">$2,500</b></span>
+                            <span>Payoff: <b style="color:#fff;">$2,800</b></span>
+                            <span style="grid-column: 1 / 3;">Rate: <span class="bleed-text">-$5/sec</span> bleed</span>
+                        </div>
                         <div class="processing-bar" id="bank-progress-bar"><div class="processing-fill" id="bank-progress-fill"></div></div>
                     </div>
                     <button class="take-btn" id="bank-btn" onclick="takeLoan('bank')">APPLY</button>
@@ -258,18 +373,107 @@
             <!-- DEBTS TAB -->
             <div class="tab-content" id="content-debts">
                 <div id="debtsContainer">
-                    <div class="empty-state">No active debts. Good job!</div>
+                    <div class="empty-state">
+                        <i class="material-icons">check_circle_outline</i>
+                        No active debts. Good job!
+                    </div>
                 </div>
             </div>
 
         </div>
     </div>
 
+    <!-- FOREGROUND FX CANVAS -->
+    <canvas id="fxCanvas"></canvas>
+
     <script>
+        // --- CANVAS GRAPHICS ENGINE ---
+        const bgCanvas = document.getElementById('bgCanvas');
+        const bgCtx = bgCanvas.getContext('2d');
+        const fxCanvas = document.getElementById('fxCanvas');
+        const fxCtx = fxCanvas.getContext('2d');
+        
+        let width, height;
+        let bgParticles = [];
+        let fxParticles = [];
+        
+        function resizeCanvas() {
+            width = window.innerWidth; height = window.innerHeight;
+            bgCanvas.width = width; bgCanvas.height = height;
+            fxCanvas.width = width; fxCanvas.height = height;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        // Initialize Background Matrix/Rain
+        for(let i=0; i<30; i++) {
+            bgParticles.push({
+                x: Math.random() * width, y: Math.random() * height,
+                speed: 0.5 + Math.random() * 1.5,
+                size: Math.random() * 10 + 10,
+                char: ['$', '0', '1', '%'][Math.floor(Math.random()*4)],
+                opacity: Math.random() * 0.15 + 0.05
+            });
+        }
+
+        function spawnTextParticle(x, y, text, color, isNegative=false) {
+            fxParticles.push({
+                x: x + (Math.random()*40-20), y: y + (Math.random()*20-10),
+                vx: (Math.random() - 0.5) * 2, vy: isNegative ? (Math.random() * 2 + 1) : -(Math.random() * 3 + 2),
+                text: text, color: color, life: 1.0, decay: 0.02 + Math.random()*0.02, size: isNegative ? 30 : 24
+            });
+        }
+
+        function spawnExplosion(x, y, color) {
+            for(let i=0; i<15; i++) {
+                fxParticles.push({
+                    x: x, y: y,
+                    vx: (Math.random() - 0.5) * 10, vy: (Math.random() - 0.5) * 10,
+                    text: '▪', color: color, life: 1.0, decay: 0.05, size: Math.random()*10 + 5
+                });
+            }
+        }
+
+        function drawCanvases() {
+            // BG Canvas
+            bgCtx.clearRect(0, 0, width, height);
+            bgCtx.font = "bold 14px monospace";
+            bgCtx.textAlign = "center";
+            bgParticles.forEach(p => {
+                p.y += p.speed;
+                if(p.y > height + 20) { p.y = -20; p.x = Math.random() * width; }
+                bgCtx.fillStyle = `rgba(0, 255, 136, ${p.opacity})`;
+                bgCtx.fillText(p.char, p.x, p.y);
+            });
+
+            // FX Canvas
+            fxCtx.clearRect(0, 0, width, height);
+            fxCtx.textAlign = "center";
+            fxCtx.textBaseline = "middle";
+            for(let i = fxParticles.length - 1; i >= 0; i--) {
+                let p = fxParticles[i];
+                p.x += p.vx; p.y += p.vy; p.life -= p.decay;
+                
+                if(p.text === '▪') {
+                    fxCtx.fillStyle = p.color; fxCtx.globalAlpha = p.life;
+                    fxCtx.fillRect(p.x, p.y, p.size, p.size);
+                } else {
+                    fxCtx.font = `900 ${p.size}px 'Share Tech Mono', monospace`;
+                    fxCtx.fillStyle = p.color; fxCtx.globalAlpha = p.life;
+                    fxCtx.shadowColor = p.color; fxCtx.shadowBlur = 10;
+                    fxCtx.fillText(p.text, p.x, p.y);
+                    fxCtx.shadowBlur = 0;
+                }
+                
+                if(p.life <= 0) fxParticles.splice(i, 1);
+            }
+            fxCtx.globalAlpha = 1.0;
+        }
+
         // --- GAME STATE ---
         let cash = 1000;
-        let baseIncome = 10; // per second
-        let debtBleed = 0;   // per second (absolute)
+        let baseIncome = 10; 
+        let debtBleed = 0;   
         let month = 1;
         let hustlePower = 5;
         
@@ -285,7 +489,7 @@
         let lastTime = 0;
         let animationFrameId;
 
-        let bankProcessing = 0; // countdown for bank loan
+        let bankProcessing = 0; 
         let bankActive = false;
 
         const EXPENSE_NAMES = [
@@ -309,8 +513,9 @@
         const uiMonth = document.getElementById('monthDisplay');
         const uiDebtCount = document.getElementById('debtCount');
         const uiDebtsContainer = document.getElementById('debtsContainer');
-        const flashScreen = document.getElementById('flash');
-        const hustleZone = document.getElementById('hustleZone');
+        const threatBox = document.getElementById('threatBox');
+        const vignette = document.getElementById('vignette');
+        const hustleBtn = document.getElementById('hustleBtn');
 
         // --- UI LOGIC ---
         function switchTab(tab) {
@@ -327,40 +532,26 @@
             return '$' + Math.floor(num).toLocaleString();
         }
 
-        function createFloatingText(x, y, text, color) {
-            const el = document.createElement('div');
-            el.className = 'floating-text';
-            el.style.left = x + 'px';
-            el.style.top = y + 'px';
-            el.style.color = color;
-            el.textContent = text;
-            hustleZone.appendChild(el);
-            setTimeout(() => { if(el.parentNode) el.parentNode.removeChild(el); }, 1000);
-        }
-
-        function flash() {
-            flashScreen.style.opacity = '1';
-            setTimeout(() => { flashScreen.style.opacity = '0'; }, 150);
+        function screenShake(intensity=10) {
+            const ui = document.getElementById('gameUI');
+            let shakes = 0;
+            const interval = setInterval(() => {
+                const dx = (Math.random() - 0.5) * intensity;
+                const dy = (Math.random() - 0.5) * intensity;
+                ui.style.transform = `translate(${dx}px, ${dy}px)`;
+                shakes++;
+                if(shakes > 5) { clearInterval(interval); ui.style.transform = 'translate(0,0)'; }
+            }, 30);
         }
 
         // --- INTERACTION ---
-        document.getElementById('hustleBtn').addEventListener('touchstart', (e) => {
-            e.preventDefault(); doHustle(e.touches[0].clientX, e.touches[0].clientY);
-        });
-        document.getElementById('hustleBtn').addEventListener('mousedown', (e) => {
-            doHustle(e.clientX, e.clientY);
-        });
+        hustleBtn.addEventListener('touchstart', (e) => { e.preventDefault(); doHustle(e.touches[0].clientX, e.touches[0].clientY); });
+        hustleBtn.addEventListener('mousedown', (e) => { doHustle(e.clientX, e.clientY); });
 
         function doHustle(x, y) {
             if(isGameOver) return;
             cash += hustlePower;
-            
-            // Adjust coordinates to be relative to hustleZone
-            const rect = hustleZone.getBoundingClientRect();
-            const relX = x - rect.left - 20;
-            const relY = y - rect.top - 20;
-            
-            createFloatingText(relX + (Math.random()*40-20), relY + (Math.random()*40-20), "+" + formatMoney(hustlePower), "#00ff88");
+            spawnTextParticle(x, y - 50, "+" + formatMoney(hustlePower), "#00ff88");
             updateHUD();
         }
 
@@ -370,13 +561,11 @@
             if(type === 'bank') {
                 if(bankActive) return;
                 bankActive = true;
-                bankProcessing = 3.0; // 3 seconds
-                document.getElementById('bank-btn').textContent = "WAIT...";
-                document.getElementById('bank-btn').style.background = "#555";
+                bankProcessing = 3.0;
+                document.getElementById('bank-btn').innerHTML = '<i class="material-icons" style="font-size:14px; animation: spin 2s linear infinite;">autorenew</i> WAIT';
                 document.getElementById('bank-progress-bar').style.display = "block";
                 return;
             }
-
             processLoan(type);
         }
 
@@ -386,21 +575,19 @@
             debtBleed += l.bleed;
             
             activeLoans.push({
-                id: loanIdCounter++,
-                type: type,
-                name: l.name,
-                payoff: l.payoff,
-                bleed: l.bleed
+                id: loanIdCounter++, type: type, name: l.name, payoff: l.payoff, bleed: l.bleed
             });
+            
+            const rect = document.querySelector(`.market-card.${type} .take-btn`).getBoundingClientRect();
+            spawnTextParticle(rect.left, rect.top, "+" + formatMoney(l.cash), "#00ff88");
+            screenShake(5);
             
             renderDebts();
             updateHUD();
-            
-            // Auto switch to debts tab so they see the damage
             switchTab('debts');
         }
 
-        function payOffDebt(id) {
+        function payOffDebt(id, event) {
             if(isGameOver) return;
             const index = activeLoans.findIndex(l => l.id === id);
             if(index === -1) return;
@@ -410,6 +597,11 @@
                 cash -= l.payoff;
                 debtBleed -= l.bleed;
                 activeLoans.splice(index, 1);
+                
+                const rect = event.target.getBoundingClientRect();
+                spawnExplosion(rect.left + 20, rect.top + 10, "#00ff88");
+                spawnTextParticle(rect.left, rect.top, "CLEARED", "#00ff88");
+                
                 renderDebts();
                 updateHUD();
             }
@@ -418,9 +610,12 @@
         function renderDebts() {
             uiDebtCount.textContent = activeLoans.length;
             if(activeLoans.length === 0) {
-                uiDebtsContainer.innerHTML = '<div class="empty-state">No active debts. Good job!</div>';
+                uiDebtsContainer.innerHTML = '<div class="empty-state"><i class="material-icons">check_circle_outline</i>No active debts. Good job!</div>';
+                vignette.classList.remove('danger');
                 return;
             }
+            
+            vignette.classList.add('danger'); // Screen edges glow red when in debt
             
             let html = '';
             activeLoans.forEach(l => {
@@ -428,11 +623,13 @@
                 html += `
                     <div class="debt-card">
                         <div class="market-info">
-                            <h3 style="color:#ff3333;">${l.name}</h3>
-                            <p>Owe: <b style="color:#fff;">${formatMoney(l.payoff)}</b></p>
-                            <p>Bleeding: <span class="bleed-text">-${formatMoney(l.bleed)}/sec</span></p>
+                            <h3 style="color:#ff3333; font-size:14px; margin-bottom:4px; text-transform:uppercase;"><i class="material-icons" style="font-size:14px;">warning</i> ${l.name}</h3>
+                            <div class="market-stats" style="grid-template-columns: 1fr;">
+                                <span>Owe: <b style="color:#fff; font-size:16px;">${formatMoney(l.payoff)}</b></span>
+                                <span>Bleeding: <span class="bleed-text">-${formatMoney(l.bleed)}/sec</span></span>
+                            </div>
                         </div>
-                        <button class="payoff-btn" ${canPay ? '' : 'disabled'} onclick="payOffDebt(${l.id})">PAY OFF</button>
+                        <button class="payoff-btn" ${canPay ? '' : 'disabled'} onclick="payOffDebt(${l.id}, event)">PAY OFF</button>
                     </div>
                 `;
             });
@@ -442,22 +639,20 @@
         // --- GAME LOOP ---
         function triggerExpense() {
             cash -= currentExpenseAmount;
-            flash();
             
-            // Create big red text in center
-            const rect = hustleZone.getBoundingClientRect();
-            createFloatingText(rect.width/2 - 50, rect.height/2 - 50, "-" + formatMoney(currentExpenseAmount), "#ff3333");
+            const rect = threatBox.getBoundingClientRect();
+            spawnTextParticle(width/2, rect.bottom, "-" + formatMoney(currentExpenseAmount), "#ff3333", true);
+            spawnExplosion(width/2, rect.bottom, "#ff3333");
+            screenShake(20);
             
-            // Setup next month
             month++;
             uiMonth.textContent = month;
             
-            // Increase difficulty
             currentExpenseName = EXPENSE_NAMES[Math.floor(Math.random() * EXPENSE_NAMES.length)];
             currentExpenseAmount = 500 + (month * 250) + Math.floor(Math.random() * 300);
+            document.getElementById('invoiceId').textContent = '#' + Math.floor(Math.random()*90000 + 10000) + ['A','B','C','X'][Math.floor(Math.random()*4)];
             
-            // Timer gets slightly faster over time, down to 6 seconds minimum
-            expenseTimerMax = Math.max(6.0, 10.0 - (month * 0.2));
+            expenseTimerMax = Math.max(5.0, 10.0 - (month * 0.25));
             expenseTimer = expenseTimerMax;
         }
 
@@ -467,15 +662,15 @@
             const netFlow = baseIncome - debtBleed;
             if(netFlow >= 0) {
                 uiFlow.textContent = "+" + formatMoney(netFlow);
-                uiFlow.className = "stat-val cash-green";
-                uiCash.className = "stat-val cash-green";
+                uiFlow.className = "stat-val val-green";
+                uiCash.className = "stat-val val-green";
             } else {
                 uiFlow.textContent = formatMoney(netFlow);
-                uiFlow.className = "stat-val cash-red";
-                uiCash.className = "stat-val cash-red";
+                uiFlow.className = "stat-val val-red";
+                uiCash.className = "stat-val val-red";
             }
 
-            uiExpName.textContent = "Upcoming: " + currentExpenseName;
+            uiExpName.textContent = currentExpenseName;
             uiExpAmt.textContent = "-" + formatMoney(currentExpenseAmount);
             uiExpTimer.textContent = expenseTimer.toFixed(1) + "s";
             
@@ -483,20 +678,17 @@
             uiExpProg.style.width = pct + "%";
             
             if(expenseTimer < 3.0) {
+                threatBox.classList.add('critical-flash');
                 uiExpProg.style.background = "#ff3333";
                 uiExpTimer.style.color = "#ff3333";
             } else {
-                uiExpProg.style.background = "#00ff88";
+                threatBox.classList.remove('critical-flash');
+                uiExpProg.style.background = "linear-gradient(90deg, #ffaa00, #ff3333)";
                 uiExpTimer.style.color = "#fff";
             }
             
-            // Update payoff buttons state without full re-render
             const btns = document.querySelectorAll('.payoff-btn');
-            btns.forEach((btn, i) => {
-                if(activeLoans[i]) {
-                    btn.disabled = cash < activeLoans[i].payoff;
-                }
-            });
+            btns.forEach((btn, i) => { if(activeLoans[i]) btn.disabled = cash < activeLoans[i].payoff; });
         }
 
         function gameLoop(time) {
@@ -510,23 +702,22 @@
             const netFlow = baseIncome - debtBleed;
             cash += netFlow * dt;
 
-            // Check Bankrupt
-            if (cash < 0) {
-                cash = 0;
-                endGame();
-                return;
+            // Ambient debt bleed particles
+            if(debtBleed > 0 && Math.random() < 0.1) {
+                spawnTextParticle(width/2 + (Math.random()*200-100), height - 100, "-$", "#ff3333");
             }
+
+            // Check Bankrupt
+            if (cash < 0) { cash = 0; endGame(); return; }
 
             // Bank Loan Processing
             if (bankActive) {
                 bankProcessing -= dt;
                 const fill = document.getElementById('bank-progress-fill');
                 fill.style.width = ((3.0 - bankProcessing) / 3.0 * 100) + "%";
-                
                 if (bankProcessing <= 0) {
                     bankActive = false;
                     document.getElementById('bank-btn').textContent = "APPLY";
-                    document.getElementById('bank-btn').style.background = "#222";
                     document.getElementById('bank-progress-bar').style.display = "none";
                     processLoan('bank');
                 }
@@ -534,31 +725,20 @@
 
             // Expense Timer
             expenseTimer -= dt;
-            if (expenseTimer <= 0) {
-                triggerExpense();
-            }
+            if (expenseTimer <= 0) triggerExpense();
 
             updateHUD();
+            drawCanvases();
             animationFrameId = requestAnimationFrame(gameLoop);
         }
 
         function startGame() {
-            cash = 1000;
-            baseIncome = 10;
-            debtBleed = 0;
-            month = 1;
-            hustlePower = 5;
-            
-            expenseTimerMax = 10.0;
-            expenseTimer = 10.0;
-            currentExpenseName = "Rent Due";
-            currentExpenseAmount = 800;
-            
-            activeLoans = [];
-            bankActive = false;
+            cash = 1000; baseIncome = 10; debtBleed = 0; month = 1; hustlePower = 5;
+            expenseTimerMax = 10.0; expenseTimer = 10.0;
+            currentExpenseName = "Rent Due"; currentExpenseAmount = 800;
+            activeLoans = []; bankActive = false; fxParticles = [];
             
             document.getElementById('bank-btn').textContent = "APPLY";
-            document.getElementById('bank-btn').style.background = "#222";
             document.getElementById('bank-progress-bar').style.display = "none";
 
             document.getElementById('titleScreen').classList.remove('active');
@@ -570,8 +750,7 @@
             updateHUD();
             uiMonth.textContent = month;
 
-            isGameOver = false;
-            lastTime = 0;
+            isGameOver = false; lastTime = 0;
             cancelAnimationFrame(animationFrameId);
             animationFrameId = requestAnimationFrame(gameLoop);
         }
@@ -582,6 +761,13 @@
             document.getElementById('gameUI').style.display = 'none';
             document.getElementById('gameOverScreen').classList.add('active');
         }
+
+        // Run background animation even on menu
+        function menuLoop() {
+            if(isGameOver) drawCanvases();
+            requestAnimationFrame(menuLoop);
+        }
+        menuLoop();
     </script>
 </body>
 </html>
