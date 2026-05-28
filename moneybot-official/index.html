@@ -114,17 +114,7 @@
                 </div>
             </div>
 
-            <!-- Money Glitch Party Game -->
-            <div class="game-card" onclick="window.location.href='../money-glitch-party/public/host.html'">
-                <div class="game-thumbnail">
-                    <img src="./assets/thumbnails/moneybot-official.svg" alt="Money Glitch Party" style="width:100%; height:100%; object-fit:cover;">
-                    <div class="game-badge">MULTIPLAYER</div>
-                </div>
-                <div class="game-info">
-                    <h3 class="game-title">Money Glitch Party</h3>
-                    <p class="game-desc">A Jackbox-style multiplayer gameshow! Host on the big screen, buzz in with your phones.</p>
-                </div>
-            </div>
+
 
         </div>
     </nav>
@@ -164,24 +154,7 @@
         
         <!-- SECTIONS -->
         <div id="sections">
-            <!-- Add Money Glitch Party to the top -->
-            <div class="category">
-                <div class="category-header">
-                    <h2 class="category-title">Multiplayer Gameshows</h2>
-                </div>
-                <div class="game-grid">
-                    <div class="game-card" onclick="window.location.href='../money-glitch-party/public/host.html'">
-                        <div class="game-thumbnail" style="background: linear-gradient(135deg, #060CE9, #000);">
-                            <div style="color: #FFCC00; font-family: 'Oswald', sans-serif; font-size: 2rem; font-weight: bold; height: 100%; display: flex; align-items: center; justify-content: center; text-align: center; text-transform: uppercase; padding: 10px;">Money Glitch</div>
-                            <div class="game-badge" style="background: #39FF14; color: #000;">MULTIPLAYER</div>
-                        </div>
-                        <div class="game-info">
-                            <h3 class="game-title">Money Glitch Party</h3>
-                            <p class="game-desc">A Jackbox-style multiplayer gameshow! Host on the big screen, buzz in with your phones.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+
         </div>
     </main>
     
@@ -347,15 +320,16 @@
         // ===== HERO =====
         function renderHero() {
             const heroGames = filteredGames.filter(g => g.section === 'featured').slice(0, 6);
-            document.getElementById('hero').innerHTML = heroGames.map(g => `
-                <a href="../${g.id}/" class="hero-card" onclick="trackPlay('${g.title.replace(/'/g,"\\'")}','../${g.id}/','${g.tags[0]}','${g.diff}')">
+            document.getElementById('hero').innerHTML = heroGames.map(g => {
+                const linkUrl = g.customUrl ? g.id : `../${g.id}/`;
+                return `<a href="${linkUrl}" class="hero-card" onclick="trackPlay('${g.title.replace(/'/g,"\\'")}','${linkUrl}','${g.tags[0]}','${g.diff}')">
                     <img src="${g.thumb}" alt="${g.title}">
                     <div class="overlay">
                         <div class="title">${g.title}</div>
                         <div class="tag">${g.tags[0].toUpperCase()} · ${g.diff.toUpperCase()}</div>
                     </div>
-                </a>
-            `).join('');
+                </a>`;
+            }).join('');
         }
 
         // ===== SECTIONS =====
