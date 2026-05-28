@@ -1,16 +1,17 @@
 :root {
-  --mb-green: #00E676;
-  --mb-green-dark: #00C853;
+  --mb-green: #00ff88;
+  --mb-green-dark: #00cc66;
   --mb-green-soft: #69F0AE;
-  --mb-ink: #07111F;
-  --mb-panel: rgba(15, 27, 46, 0.9);
-  --mb-line: rgba(255, 255, 255, 0.1);
-  --mb-white: #F8FAFC;
-  --mb-muted: #94A3B8;
-  --mb-gold: #FBBF24;
-  --mb-red: #FB7185;
-  --mb-radius: 16px;
-  --mb-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  --mb-ink: #020205;
+  --mb-panel: rgba(10, 15, 20, 0.95);
+  --mb-line: rgba(0, 255, 136, 0.2);
+  --mb-white: #ffffff;
+  --mb-muted: #88aadd;
+  --mb-gold: #ffaa00;
+  --mb-red: #ff3333;
+  --mb-radius: 6px;
+  --mb-shadow: 0 4px 20px rgba(0,0,0,0.5), inset 0 0 15px rgba(0,255,136,0.05);
+  font-family: 'Share Tech Mono', 'Inter', sans-serif;
 }
 
 * { box-sizing: border-box; }
@@ -19,9 +20,29 @@ body, html {
   margin: 0; padding: 0; width: 100%; height: 100%;
   background-color: var(--mb-ink);
   color: var(--mb-white);
-  font-family: 'Outfit', sans-serif;
+  font-family: 'Inter', sans-serif;
   user-select: none; touch-action: none;
   overflow: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    linear-gradient(rgba(0,255,136,0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,255,136,0.1) 1px, transparent 1px);
+  background-size: 50px 50px;
+  pointer-events: none;
+  z-index: 0;
+  transform: perspective(500px) rotateX(60deg) scale(2);
+  transform-origin: top;
+  animation: gridMove 20s linear infinite;
+}
+
+@keyframes gridMove {
+  0% { transform: perspective(500px) rotateX(60deg) scale(2) translateY(0); }
+  100% { transform: perspective(500px) rotateX(60deg) scale(2) translateY(50px); }
 }
 
 #app {
@@ -47,15 +68,15 @@ canvas {
 .hud-top { display: flex; gap: 10px; }
 .stat-box {
   flex: 1; background: var(--mb-panel); border: 1px solid var(--mb-line);
-  padding: 10px; border-radius: 12px; display: flex; flex-direction: column;
-  backdrop-filter: blur(10px);
+  padding: 10px; border-radius: 6px; display: flex; flex-direction: column;
+  backdrop-filter: blur(5px); box-shadow: 0 4px 10px rgba(0,0,0,0.5);
 }
 .stat-box.warning { border-color: rgba(251, 113, 133, 0.5); }
 .stat-box .label { font-size: 10px; font-weight: 800; color: var(--mb-muted); letter-spacing: 1px; }
 .stat-box .val { font-size: 20px; font-weight: 900; color: var(--mb-white); }
 .stat-box.warning .val { color: var(--mb-red); }
 
-.runway-container { background: var(--mb-panel); padding: 12px; border-radius: 12px; border: 1px solid var(--mb-line); backdrop-filter: blur(10px); }
+.runway-container { background: var(--mb-panel); padding: 12px; border-radius: 6px; border: 1px solid var(--mb-line); backdrop-filter: blur(5px); box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
 .runway-label { display: flex; justify-content: space-between; font-size: 12px; font-weight: 800; margin-bottom: 8px; color: var(--mb-white); }
 #runway-val { color: var(--mb-green); }
 .runway-bar-bg { height: 12px; background: rgba(0,0,0,0.5); border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); }
@@ -66,7 +87,7 @@ canvas {
 .screen {
   position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 20;
   padding: 30px 20px; display: none; flex-direction: column; justify-content: center;
-  background: rgba(7, 17, 31, 0.85); backdrop-filter: blur(15px);
+  background: rgba(5, 10, 15, 0.9); backdrop-filter: blur(15px);
   animation: fadeIn 0.3s ease-out;
 }
 .screen.active { display: flex; }
@@ -78,7 +99,7 @@ h1 .highlight { color: var(--mb-green); }
 h1.danger { color: var(--mb-red); text-shadow: 0 0 20px rgba(251,113,133,0.4); margin-bottom: 10px; }
 .subtitle { text-align: center; color: var(--mb-muted); font-size: 18px; margin-bottom: 30px; }
 
-.instructions { background: rgba(0,0,0,0.4); border: 1px solid var(--mb-line); border-radius: var(--mb-radius); padding: 20px; margin-bottom: 30px; }
+.instructions { background: rgba(10,15,20,0.9); border: 1px solid rgba(0,255,136,0.3); border-radius: 6px; padding: 20px; margin-bottom: 30px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); backdrop-filter: blur(5px); }
 .instruction-row { display: flex; align-items: center; margin-bottom: 15px; font-size: 15px; font-weight: 600; }
 .instruction-row:last-child { margin-bottom: 0; }
 .dot { width: 12px; height: 12px; border-radius: 50%; margin-right: 15px; flex-shrink: 0; }
@@ -96,15 +117,15 @@ h1.danger { color: var(--mb-red); text-shadow: 0 0 20px rgba(251,113,133,0.4); m
 .stat-value.highlight { color: var(--mb-green); }
 .stat-value.danger { color: var(--mb-red); }
 
-.tips { background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); padding: 15px; border-radius: 12px; color: #7DD3FC; margin-bottom: 30px; font-size: 15px; font-weight: 600; line-height: 1.4; text-align: center; }
+.tips { background: rgba(0, 170, 255, 0.1); border: 1px solid rgba(0, 170, 255, 0.3); padding: 15px; border-radius: 6px; color: #00aaff; margin-bottom: 30px; font-size: 15px; font-weight: 600; line-height: 1.4; text-align: center; }
 
 .btn-primary { 
-  background: linear-gradient(135deg, var(--mb-green-soft), var(--mb-green-dark));
-  color: var(--mb-ink); font-family: 'Outfit', sans-serif; font-weight: 900; font-size: 20px;
-  padding: 20px; border-radius: 14px; border: none; width: 100%; cursor: pointer;
-  text-transform: uppercase; letter-spacing: 1px;
-  box-shadow: 0 8px 25px rgba(0,230,118,0.3), inset 0 2px 0 rgba(255,255,255,0.3);
-  transition: transform 0.1s;
+  background: linear-gradient(180deg, #004422 0%, #001100 100%);
+  color: var(--mb-green); font-family: 'Share Tech Mono', sans-serif; font-weight: 900; font-size: 20px;
+  padding: 20px; border-radius: 6px; border: 1px solid var(--mb-green); width: 100%; cursor: pointer;
+  text-transform: uppercase; letter-spacing: 2px;
+  box-shadow: 0 4px 0 #00aa55, 0 0 15px rgba(0,255,136,0.3);
+  transition: 0.1s;
 }
-.btn-primary:active { transform: scale(0.96) translateY(2px); box-shadow: 0 4px 10px rgba(0,230,118,0.2); }
+.btn-primary:active { transform: translateY(4px); box-shadow: 0 0 0 #00aa55, 0 0 15px rgba(0,255,136,0.6); background: var(--mb-green); color: #000; }
 .hidden { display: none !important; }
