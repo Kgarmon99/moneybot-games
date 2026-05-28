@@ -3,39 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Bot Shot</title>
+    <title>Bot Shot: Algo Trader</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
         * { margin: 0; padding: 0; box-sizing: border-box; touch-action: none; }
-        body { font-family: sans-serif; background: #000; overflow: hidden; user-select: none; }
+        body { font-family: 'Share Tech Mono', monospace; background: #050510; overflow: hidden; user-select: none; color: #0f0; }
         #gameCanvas { display: block; position: absolute; top: 0; left: 0; z-index: 0; }
         #gameCanvas.playing { z-index: 1; pointer-events: auto; }
+        
         .screen {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             display: none; flex-direction: column; align-items: center; justify-content: center;
-            background: #111; color: #fff; z-index: 10; pointer-events: auto;
+            background: rgba(5, 5, 16, 0.9); z-index: 10; pointer-events: auto;
+            text-align: center; padding: 20px;
         }
         .screen.active { display: flex; }
-        .btn { padding: 20px 50px; font-size: 24px; border: none; border-radius: 10px; cursor: pointer; background: #0f0; color: #000; font-weight: bold; pointer-events: auto; }
-        .hud { position: absolute; top: 20px; left: 20px; color: #fff; font-size: 20px; z-index: 5; pointer-events: auto; }
+        
+        h1 { font-size: 60px; margin-bottom: 10px; color: #00ff88; text-shadow: 0 0 20px #00ff88; }
+        h2 { font-size: 24px; margin-bottom: 30px; color: #aaa; }
+        
+        .btn { 
+            padding: 15px 40px; font-size: 24px; border: 2px solid #00ff88; border-radius: 8px; 
+            cursor: pointer; background: #002211; color: #00ff88; font-family: 'Share Tech Mono', monospace;
+            font-weight: bold; pointer-events: auto; transition: all 0.2s;
+            text-transform: uppercase; margin: 10px; box-shadow: 0 0 15px rgba(0,255,136,0.3);
+        }
+        .btn:hover { background: #00ff88; color: #000; }
+        
+        .hud { 
+            position: absolute; top: 15px; left: 15px; right: 15px;
+            display: flex; justify-content: space-between; align-items: flex-start;
+            z-index: 5; pointer-events: auto;
+        }
+        
+        .stat-box {
+            background: rgba(0, 50, 20, 0.8); border: 1px solid #00ff88;
+            padding: 10px 15px; border-radius: 6px; text-transform: uppercase;
+        }
+        .stat-val { font-size: 24px; color: #fff; font-weight: bold; display: block; margin-top: 5px; }
+        
+        .message {
+            position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%);
+            font-size: 40px; font-weight: bold; opacity: 0; transition: opacity 0.3s;
+            pointer-events: none; z-index: 20; text-shadow: 0 0 10px #000;
+        }
     </style>
 </head>
 <body>
     <canvas id="gameCanvas"></canvas>
+    
     <div class="screen active" id="titleScreen">
-        <h1 style="font-size: 60px; margin-bottom: 30px;">BOT SHOT</h1>
-        <button class="btn" onclick="startGame()">PLAY</button>
-        <button class="btn" onclick="window.location.href='../moneybot-official/'" style="margin-top: 15px; background: #444;">BACK TO GAMES</button>
+        <h1>BOT SHOT</h1>
+        <h2>ALGORITHMIC TRADING SIM</h2>
+        <p style="margin-bottom: 30px; max-width: 400px; color: #ccc; line-height: 1.5;">
+            You are a trading bot. Drag and aim to deploy your <b>Capital</b> into market assets.<br><br>
+            <span style="color:#00aaff">Bonds (Wide):</span> Safe, Low Yield<br>
+            <span style="color:#00ff55">Stocks (Moving):</span> Medium Risk/Reward<br>
+            <span style="color:#ff00aa">Crypto (Fast/Small):</span> High Risk/Reward<br><br>
+            Each shot costs 1 Capital. Don't go bankrupt!
+        </p>
+        <button class="btn" onclick="startGame()">INITIALIZE_BOT()</button>
+        <button class="btn" onclick="window.location.href='../moneybot-official/'" style="font-size:16px; padding:10px 20px; border-color:#444; color:#aaa; background:#111;">← BACK TO GAMES</button>
     </div>
+    
     <div class="screen" id="gameOverScreen">
-        <h1 style="font-size: 40px; margin-bottom: 20px;">GAME OVER</h1>
-        <p style="font-size: 24px; margin-bottom: 30px;">Score: <span id="finalScore">0</span></p>
-        <button class="btn" onclick="startGame()">PLAY AGAIN</button>
-        <button class="btn" onclick="window.location.href='../moneybot-official/'" style="margin-top: 15px; background: #444;">BACK TO GAMES</button>
+        <h1 style="color: #ff3333; text-shadow: 0 0 20px #ff3333;">BANKRUPT</h1>
+        <p style="font-size: 20px; margin-bottom: 10px; color:#aaa;">You ran out of deployable capital.</p>
+        <p style="font-size: 30px; margin-bottom: 30px; color:#fff;">Final Net Worth: <span id="finalScore" style="color:#00ff88">$0</span></p>
+        <button class="btn" onclick="startGame()">REBOOT_SYSTEM()</button>
+        <button class="btn" onclick="window.location.href='../moneybot-official/'" style="font-size:16px; padding:10px 20px; border-color:#444; color:#aaa; background:#111;">← BACK TO GAMES</button>
     </div>
+
     <div class="hud" id="hud" style="display: none;">
-        Score: <span id="score">0</span> | Level: <span id="level">1</span> | Shots: <span id="shots">5</span>
-        <button onclick="window.location.href='../moneybot-official/'" style="margin-left: 20px; padding: 6px 12px; font-size: 12px; background: #444; color: #fff; border: none; border-radius: 6px; cursor: pointer;">← BACK</button>
+        <div class="stat-box">
+            Net Worth
+            <span class="stat-val" style="color:#00ff88">$<span id="score">0</span></span>
+        </div>
+        <div class="stat-box" style="text-align: right;">
+            Capital <span style="font-size:12px; color:#aaa;">($10k/shot)</span>
+            <span class="stat-val" style="color:#ffaa00"><span id="shots">5</span> Shots</span>
+        </div>
     </div>
+    
+    <div id="floatMessage" class="message"></div>
 
     <script>
         const canvas = document.getElementById('gameCanvas');
@@ -45,15 +95,45 @@
         let score = 0, level = 1, shots = 5;
         let scoredThisShot = false;
         
-        const ball = { x: 80, y: 0, r: 20, vx: 0, vy: 0, flying: false };
-        const hoop = { x: 300, y: 200, w: 80 };
+        const ball = { x: 80, y: 0, r: 15, vx: 0, vy: 0, flying: false };
+        let targets = [];
+        let particles = [];
         
         function resize() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
+            if(!ball.flying) {
+                ball.x = 80;
+                ball.y = canvas.height - 120;
+            }
         }
         window.addEventListener('resize', resize);
         resize();
+        
+        function showFloatMessage(text, color) {
+            const msg = document.getElementById('floatMessage');
+            msg.textContent = text;
+            msg.style.color = color;
+            msg.style.opacity = 1;
+            msg.style.top = '40%';
+            
+            setTimeout(() => {
+                msg.style.opacity = 0;
+                msg.style.top = '35%';
+            }, 1000);
+        }
+
+        function createParticles(x, y, color) {
+            for(let i=0; i<30; i++) {
+                particles.push({
+                    x: x, y: y,
+                    vx: (Math.random() - 0.5) * 10,
+                    vy: (Math.random() - 0.5) * 10,
+                    life: 1.0,
+                    color: color
+                });
+            }
+        }
         
         // Touch/mouse handling
         let dragStart = null;
@@ -61,8 +141,10 @@
         
         function handleStart(x, y) {
             if (gameState !== 'playing' || ball.flying) return;
-            if (Math.abs(x - ball.x) < 50 && Math.abs(y - ball.y) < 50) {
+            // Expanded hit area for mobile
+            if (Math.abs(x - ball.x) < 80 && Math.abs(y - ball.y) < 80) {
                 dragStart = { x, y };
+                dragCurr = { x, y };
             }
         }
         
@@ -73,18 +155,23 @@
         
         function handleEnd() {
             if (!dragStart || !dragCurr) {
-                dragStart = null;
-                dragCurr = null;
-                return;
+                dragStart = null; dragCurr = null; return;
             }
             const dx = dragStart.x - dragCurr.x;
             const dy = dragStart.y - dragCurr.y;
-            const power = Math.min(Math.sqrt(dx*dx + dy*dy) / 3, 40);
-            const angle = Math.atan2(dy, dx);
-            ball.vx = Math.cos(angle) * power;
-            ball.vy = Math.sin(angle) * power;
-            ball.flying = true;
-            scoredThisShot = false;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+            
+            if (dist > 10) { // Minimum pull
+                const power = Math.min(dist / 4, 35); // Adjusted for mobile screens
+                const angle = Math.atan2(dy, dx);
+                ball.vx = Math.cos(angle) * power;
+                ball.vy = Math.sin(angle) * power;
+                ball.flying = true;
+                scoredThisShot = false;
+                shots--; // Deduct capital on launch
+                updateHUD();
+            }
+            
             dragStart = null;
             dragCurr = null;
         }
@@ -92,19 +179,13 @@
         canvas.addEventListener('mousedown', e => handleStart(e.clientX, e.clientY));
         canvas.addEventListener('mousemove', e => handleMove(e.clientX, e.clientY));
         canvas.addEventListener('mouseup', handleEnd);
-        canvas.addEventListener('touchstart', e => {
-            e.preventDefault();
-            handleStart(e.touches[0].clientX, e.touches[0].clientY);
-        });
-        canvas.addEventListener('touchmove', e => {
-            e.preventDefault();
-            handleMove(e.touches[0].clientX, e.touches[0].clientY);
-        });
-        canvas.addEventListener('touchend', handleEnd);
+        canvas.addEventListener('touchstart', e => { e.preventDefault(); handleStart(e.touches[0].clientX, e.touches[0].clientY); }, {passive: false});
+        canvas.addEventListener('touchmove', e => { e.preventDefault(); handleMove(e.touches[0].clientX, e.touches[0].clientY); }, {passive: false});
+        canvas.addEventListener('touchend', e => { e.preventDefault(); handleEnd(); }, {passive: false});
         
         function resetBall() {
             ball.x = 80;
-            ball.y = canvas.height - 100;
+            ball.y = canvas.height - 120;
             ball.vx = 0;
             ball.vy = 0;
             ball.flying = false;
@@ -113,17 +194,40 @@
         
         function setupLevel() {
             resetBall();
-            // Hoop gets 40px further each level
-            hoop.x = canvas.width - 150 - (level - 1) * 40;
-            if (hoop.x < 250) hoop.x = 250;
-            hoop.y = 180 + ((level - 1) % 3) * 50;
-            shots = 5;
+            
+            // Generate Risk Buckets (Hoops)
+            const rightEdge = canvas.width - 50;
+            const safeX = Math.max(rightEdge - 150, 200);
+            
+            targets = [];
+            
+            // 1. Bonds (Safe, Low Yield, Static)
+            targets.push({
+                x: safeX, y: canvas.height - 250, w: 100, h: 10,
+                speed: 0, dir: 1, type: 'Bonds', value: 10, cap: 2, color: '#00aaff'
+            });
+            
+            // 2. Stocks (Med Risk, Med Yield, Moving)
+            const stockSpeed = 1 + (level * 0.5);
+            targets.push({
+                x: safeX - 50, y: canvas.height - 400, w: 70, h: 10,
+                speed: stockSpeed, dir: 1, type: 'Index Funds', value: 30, cap: 3, color: '#00ff55'
+            });
+            
+            // 3. Crypto (High Risk, High Yield, Fast & Small)
+            if (level >= 2 || canvas.height > 600) {
+                const cryptoSpeed = 3 + level;
+                targets.push({
+                    x: safeX - 100, y: Math.max(100, canvas.height - 550), w: 40, h: 10,
+                    speed: cryptoSpeed, dir: -1, type: 'Crypto/VC', value: 100, cap: 5, color: '#ff00aa'
+                });
+            }
+            
             updateHUD();
         }
         
         function updateHUD() {
-            document.getElementById('score').textContent = score;
-            document.getElementById('level').textContent = level;
+            document.getElementById('score').textContent = score.toLocaleString() + "k";
             document.getElementById('shots').textContent = shots;
         }
         
@@ -131,83 +235,143 @@
             gameState = 'playing';
             score = 0;
             level = 1;
+            shots = 5; // Start with 50k capital
             document.getElementById('titleScreen').classList.remove('active');
             document.getElementById('gameOverScreen').classList.remove('active');
-            document.getElementById('hud').style.display = 'block';
+            document.getElementById('hud').style.display = 'flex';
             document.getElementById('gameCanvas').classList.add('playing');
             setupLevel();
         }
         
         function gameOver() {
             gameState = 'gameover';
-            document.getElementById('finalScore').textContent = score;
+            document.getElementById('finalScore').textContent = "$" + score.toLocaleString() + "k";
             document.getElementById('gameOverScreen').classList.add('active');
             document.getElementById('hud').style.display = 'none';
             document.getElementById('gameCanvas').classList.remove('playing');
         }
         
-        function nextLevel() {
-            score += 100 * level;
-            level++;
-            setupLevel();
+        function drawBackground() {
+            ctx.fillStyle = '#050510';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Grid lines
+            ctx.strokeStyle = '#112211';
+            ctx.lineWidth = 1;
+            for(let x=0; x<canvas.width; x+=50) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,canvas.height); ctx.stroke(); }
+            for(let y=0; y<canvas.height; y+=50) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(canvas.width,y); ctx.stroke(); }
+            
+            // Floor
+            ctx.fillStyle = '#002211';
+            ctx.fillRect(0, canvas.height - 100, canvas.width, 100);
+            ctx.strokeStyle = '#00ff88';
+            ctx.beginPath(); ctx.moveTo(0, canvas.height - 100); ctx.lineTo(canvas.width, canvas.height - 100); ctx.stroke();
+            
+            // Launch Pad
+            ctx.fillStyle = '#222';
+            ctx.fillRect(60, canvas.height - 100, 40, 20);
         }
         
         function draw() {
-            // Background
-            ctx.fillStyle = '#0a0a1e';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
-            // Floor
-            ctx.fillStyle = '#1a1a3e';
-            ctx.fillRect(0, canvas.height - 80, canvas.width, 80);
+            drawBackground();
             
             // Aim line
-            if (dragStart && dragCurr) {
-                ctx.strokeStyle = '#ff0';
-                ctx.lineWidth = 3;
-                ctx.beginPath();
-                ctx.moveTo(ball.x, ball.y);
+            if (dragStart && dragCurr && !ball.flying) {
                 const dx = dragStart.x - dragCurr.x;
                 const dy = dragStart.y - dragCurr.y;
                 const angle = Math.atan2(dy, dx);
-                ctx.lineTo(ball.x + Math.cos(angle) * 80, ball.y + Math.sin(angle) * 80);
+                const dist = Math.min(Math.sqrt(dx*dx + dy*dy), 150);
+                
+                ctx.strokeStyle = 'rgba(255, 170, 0, 0.5)';
+                ctx.lineWidth = 4;
+                ctx.setLineDash([10, 10]);
+                ctx.beginPath();
+                ctx.moveTo(ball.x, ball.y);
+                ctx.lineTo(ball.x + Math.cos(angle) * dist, ball.y + Math.sin(angle) * dist);
                 ctx.stroke();
+                ctx.setLineDash([]);
             }
             
-            // Hoop
-            ctx.fillStyle = '#f80';
-            ctx.fillRect(hoop.x, hoop.y, hoop.w, 6);
+            // Targets
+            targets.forEach(t => {
+                ctx.fillStyle = t.color;
+                ctx.shadowColor = t.color;
+                ctx.shadowBlur = 10;
+                ctx.fillRect(t.x, t.y, t.w, t.h);
+                
+                // Asset Label
+                ctx.shadowBlur = 0;
+                ctx.fillStyle = '#fff';
+                ctx.font = '12px Share Tech Mono';
+                ctx.textAlign = 'center';
+                ctx.fillText(t.type, t.x + t.w/2, t.y - 10);
+            });
             
-            // Ball
-            ctx.fillStyle = '#0af';
+            // Ball (Coin)
+            ctx.shadowBlur = 0;
+            ctx.fillStyle = '#ffaa00';
             ctx.beginPath();
             ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI * 2);
             ctx.fill();
+            ctx.fillStyle = '#000';
+            ctx.font = '18px monospace';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('$', ball.x, ball.y + 1);
+            
+            // Particles
+            particles.forEach(p => {
+                ctx.fillStyle = p.color;
+                ctx.globalAlpha = p.life;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, 3, 0, Math.PI*2);
+                ctx.fill();
+            });
+            ctx.globalAlpha = 1.0;
         }
         
         function update() {
-            if (gameState !== 'playing' || !ball.flying) return;
+            if (gameState !== 'playing') return;
+            
+            // Move targets
+            targets.forEach(t => {
+                if (t.speed > 0) {
+                    t.x += t.speed * t.dir;
+                    if (t.x < 150) { t.x = 150; t.dir = 1; }
+                    if (t.x + t.w > canvas.width - 20) { t.x = canvas.width - t.w - 20; t.dir = -1; }
+                }
+            });
+            
+            // Update particles
+            for(let i=particles.length-1; i>=0; i--) {
+                let p = particles[i];
+                p.x += p.vx; p.y += p.vy;
+                p.life -= 0.05;
+                if(p.life <= 0) particles.splice(i, 1);
+            }
+            
+            if (!ball.flying) return;
             
             // Physics
-            ball.vy += 0.6;
+            ball.vy += 0.5; // Gravity
             ball.x += ball.vx;
             ball.y += ball.vy;
             
             // Floor bounce
-            if (ball.y + ball.r > canvas.height - 80) {
-                ball.y = canvas.height - 80 - ball.r;
-                ball.vy *= -0.6;
-                ball.vx *= 0.8;
+            if (ball.y + ball.r > canvas.height - 100) {
+                ball.y = canvas.height - 100 - ball.r;
+                ball.vy *= -0.5;
+                ball.vx *= 0.7;
                 
                 // Stop check
-                if (Math.abs(ball.vy) < 1) {
+                if (Math.abs(ball.vy) < 2 && Math.abs(ball.vx) < 2) {
                     ball.flying = false;
-                    shots--;
-                    updateHUD();
-                    if (shots <= 0) {
-                        setTimeout(gameOver, 500);
-                    } else {
-                        setTimeout(resetBall, 300);
+                    
+                    if (shots <= 0 && !scoredThisShot) {
+                        setTimeout(gameOver, 800);
+                    } else if (!scoredThisShot) {
+                        showFloatMessage("MISSED OPPORTUNITY", "#ff3333");
+                        setTimeout(resetBall, 600);
                     }
                 }
             }
@@ -217,10 +381,27 @@
             if (ball.x > canvas.width - ball.r) { ball.x = canvas.width - ball.r; ball.vx *= -0.8; }
             if (ball.y < ball.r) { ball.y = ball.r; ball.vy *= -0.8; }
             
-            // Score - ONLY if falling and not already scored
-            if (!scoredThisShot && ball.vy > 0 && ball.x > hoop.x && ball.x < hoop.x + hoop.w && ball.y > hoop.y && ball.y < hoop.y + 20) {
-                scoredThisShot = true;
-                nextLevel();
+            // Target Collision (passing downward through the hoop)
+            if (!scoredThisShot && ball.vy > 0) {
+                for (let t of targets) {
+                    if (ball.x > t.x && ball.x < t.x + t.w && ball.y + ball.r > t.y && ball.y - ball.r < t.y + t.h) {
+                        scoredThisShot = true;
+                        
+                        score += t.value;
+                        shots += t.cap; // Return capital + profit
+                        level++;
+                        
+                        createParticles(ball.x, ball.y, t.color);
+                        showFloatMessage(`+${t.value}k ROI!`, t.color);
+                        updateHUD();
+                        
+                        // Bounce off the net slightly
+                        ball.vy *= -0.3;
+                        
+                        setTimeout(setupLevel, 1200);
+                        break;
+                    }
+                }
             }
         }
         
