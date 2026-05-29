@@ -258,7 +258,29 @@ function update() {
     }
 }
 
+// Load images
+const imgCar = new Image(); imgCar.src = '../assets/moneybot-driving.svg';
+const imgFirebot = new Image(); imgFirebot.src = '../assets/firebot.jpg';
+
 function drawCar(x, y, w, h, color) {
+    if (color === COLORS.car && imgCar.complete) {
+        ctx.drawImage(imgCar, x - w*1.5, y - h*1.5, w*3, h*3);
+        return;
+    } else if (color === COLORS.enemy && imgFirebot.complete) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(x, y, w*1.5, 0, Math.PI*2);
+        ctx.clip();
+        ctx.fillStyle = '#fff';
+        ctx.fill();
+        ctx.drawImage(imgFirebot, x - w*1.5, y - w*1.5, w*3, w*3);
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = '#EF4444';
+        ctx.stroke();
+        ctx.restore();
+        return;
+    }
+
     ctx.fillStyle = color;
     ctx.beginPath(); ctx.roundRect(x - w/2, y - h/2, w, h, 8); ctx.fill();
     

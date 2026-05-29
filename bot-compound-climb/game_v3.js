@@ -79,9 +79,14 @@ let cameraY = 0;
 // Parallax Stars
 let stars = [];
 
-// Mascot image
-const mascotImg = new Image();
-mascotImg.src = 'assets/mascot/operator-transparent.png?v=2';
+// Mascot images
+const goldBotImg = new Image();
+goldBotImg.src = '../assets/goldbot.jpg';
+
+const moneyBotImg = new Image();
+moneyBotImg.src = '../assets/moneybot-super.jpg';
+
+let currentMascot = moneyBotImg;
 
 // Colors (Premium MoneyBot Palette)
 const COLORS = {
@@ -127,6 +132,8 @@ function initGame() {
     player.vy = 0;
     player.vx = 0;
     player.rotation = 0;
+    
+    currentMascot = moneyBotImg;
     
     cameraY = 0;
     highestY = player.y;
@@ -259,6 +266,14 @@ function update() {
         let oldScore = score;
         score += diff;
         scoreEl.innerText = formatMoney(score);
+        
+        // Upgrade to GoldBot at 10,000 net worth
+        if (score >= 10000 && currentMascot !== goldBotImg) {
+            currentMascot = goldBotImg;
+            spawnText(width/2, 100, "GOLD STATUS ACHIEVED!", COLORS.gold);
+            playSound('spring');
+            for(let i=0; i<30; i++) spawnParticle(player.x, player.y - cameraY, COLORS.gold);
+        }
         
         // Pulse animation on major milestones
         if(Math.floor(score/5000) > Math.floor(oldScore/5000)) {
@@ -474,15 +489,30 @@ function draw() {
     let stretchX = 1 / stretchY; // preserve volume
     ctx.scale(stretchX, stretchY);
 
-    if(mascotImg.complete && mascotImg.naturalHeight > 0) {
+    if(currentMascot.complete && currentMascot.naturalHeight > 0) {
         // Draw mascot shadow
         ctx.shadowColor = 'rgba(0,0,0,0.5)';
         ctx.shadowBlur = 15;
         ctx.shadowOffsetY = 10;
         
-        // Draw the image significantly larger than the physical hitbox for better visibility
+        // Setup clip circle to make the jpeg round
+        ctx.beginPath();
         let visRadius = player.radius * 1.6; 
-        ctx.drawImage(mascotImg, -visRadius, -visRadius, visRadius*2, visRadius*2);
+        ctx.arc(0, 0, visRadius, 0, Math.PI*2);
+        ctx.clip();
+        
+        ctx.drawImage(currentMascot, -visRadius, -visRadius, visRadius*2, visRadius*2);
+        
+        // Draw gold ring if it's GoldBot
+        if (currentMascot === goldBotImg) {
+            ctx.lineWidth = 4;
+            ctx.strokeStyle = '#FBBF24';
+            ctx.stroke();
+        } else {
+            ctx.lineWidth = 4;
+            ctx.strokeStyle = '#00E676';
+            ctx.stroke();
+        }
         
         ctx.shadowBlur = 0;
         ctx.shadowOffsetY = 0;
