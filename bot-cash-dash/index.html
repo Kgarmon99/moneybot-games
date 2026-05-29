@@ -153,9 +153,9 @@
         let lanes = []; // Calculated in resize()
         
         // Load SVG Assets
-        const imgPlayer = new Image(); imgPlayer.src = '../assets/moneybot-running.svg';
+        const imgPlayer = new Image(); imgPlayer.src = '../assets/moneybot-running-3d.jpg';
         const imgCoin = new Image(); imgCoin.src = '../assets/game-coin-green.svg';
-        const imgDebt = new Image(); imgDebt.src = '../assets/game-obstacle-debt.svg';
+        const imgDebt = new Image(); imgDebt.src = '../assets/brokebot.jpg';
         const player = { laneIndex: 1, x: 0, y: 0, size: 24, color: '#00ff88' };
         let items = [];
         let particles = [];
@@ -343,7 +343,19 @@
                     
                     if (item.type === 'expense') {
                         if (imgDebt.complete) {
+                            ctx.save();
+                            ctx.beginPath();
+                            ctx.arc(0, 0, item.size * 1.5, 0, Math.PI * 2);
+                            ctx.clip();
+                            
+                            ctx.fillStyle = '#fff';
+                            ctx.fill();
                             ctx.drawImage(imgDebt, -item.size * 1.5, -item.size * 1.5, item.size * 3, item.size * 3);
+                            
+                            ctx.lineWidth = 4;
+                            ctx.strokeStyle = '#ff3366';
+                            ctx.stroke();
+                            ctx.restore();
                         } else {
                             ctx.fillStyle = '#ff3366';
                             ctx.fillRect(-item.size, -item.size, item.size*2, item.size*2);
@@ -403,7 +415,19 @@
 
                 // Draw Player
                 if (imgPlayer.complete) {
-                    ctx.drawImage(imgPlayer, player.x - player.size * 1.5, player.y - player.size * 2, player.size * 3, player.size * 4);
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.arc(player.x, player.y, player.size * 1.5, 0, Math.PI * 2);
+                    ctx.clip();
+                    ctx.fillStyle = '#fff';
+                    ctx.fill();
+                    
+                    ctx.drawImage(imgPlayer, player.x - player.size * 1.5, player.y - player.size * 1.5, player.size * 3, player.size * 3);
+                    
+                    ctx.lineWidth = 4;
+                    ctx.strokeStyle = '#00ff88';
+                    ctx.stroke();
+                    ctx.restore();
                 } else {
                     ctx.shadowColor = player.color;
                     ctx.shadowBlur = 20;
