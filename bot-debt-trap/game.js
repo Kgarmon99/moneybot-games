@@ -18,8 +18,10 @@ imgBrokeBot.src = '../assets/brokebot.jpg';
 // Game State
 let gameState = 'START';
 let netWorth = 5000;
+let displayNetWorth = 5000; // For rolling numbers
 let timeRemaining = 60;
 let stuckDebts = 0;
+let hitPauseTimer = 0; // For freeze-frame impacts
 
 let lastTime = 0;
 let secondTimer = 0;
@@ -100,7 +102,8 @@ function createParticles(x, y, color, count, speedFactor = 1) {
             vx: (Math.random() - 0.5) * 15 * speedFactor,
             vy: (Math.random() - 0.5) * 15 * speedFactor,
             life: 1,
-            color
+            color,
+            radius: Math.random() * 4 + 2 // Dynamic sizing
         });
     }
 }
@@ -111,6 +114,20 @@ function createFloatingText(x, y, text, color) {
 
 function updateGame(dt) {
     if (gameState !== 'PLAYING') return;
+
+    // Hit Pause (Freeze frame effect)
+    if (hitPauseTimer > 0) {
+        hitPauseTimer -= dt;
+        return; // Skip game updates to freeze time
+    }
+
+    // Rolling Numbers (Lerp display Net Worth)
+    const diff = netWorth - displayNetWorth;
+    if (Math.abs(diff) > 1) {
+        displayNetWorth += diff * 0.1; // Smooth rolling effect
+    } else {
+        displayNetWorth = netWorth;
+    }
 
     // Time & Interest Deduction
     secondTimer += dt;
@@ -133,7 +150,7 @@ function updateGame(dt) {
         }
     }
 
-    nwDisplay.innerText = `$${Math.floor(netWorth).toLocaleString()}`;
+    nwDisplay.innerText = `$${Math.floor(displayNetWorth).toLocaleString()}`;
     debtDisplay.innerText = `${stuckDebts} CARDS`;
 
     // Hustle timer logic
@@ -246,6 +263,7 @@ function updateGame(dt) {
             if (player.shield) {
                 // Shield blocks the card!
                 player.shield = false;
+                hitPauseTimer = 50; // Freeze frame for 50ms
                 createParticles(p.x, p.y, '#00ccff', 20, 1.5);
                 createFloatingText(p.x, p.y, "SHIELD BROKEN!", '#00ccff');
                 if (window.mbAudio) window.mbAudio.playHit(); // Crunch sound
@@ -255,7 +273,8 @@ function updateGame(dt) {
             } else {
                 // Card sticks
                 stuckDebts++;
-                createParticles(p.x, p.y, '#ff3366', 10);
+                hitPauseTimer = 80; // Heavy freeze frame on taking damage
+                createParticles(p.x, p.y, '#ff3366', 15, 1.5);
                 createFloatingText(p.x, p.y, "DEBT ADDED!", '#ff3366');
                 if (window.mbAudio) window.mbAudio.playHit();
                 
@@ -284,13 +303,18 @@ function updateGame(dt) {
         if (dist < player.radius + p.radius) {
             netWorth += 1000;
             if (stuckDebts > 0) {
+                hitPauseTimer = 100; // Massive freeze frame on explosion
                 createFloatingText(player.x, player.y, "DEBT CLEARED!", '#00ff88');
-                createParticles(player.x, player.y, '#00ff88', 30, 2);
+                createParticles(player.x, player.y, '#00ff88', 40, 3);
                 if (window.mbAudio) window.mbAudio.playNoise(0.3, 0.5); // Explosion sound
+                
+                gameContainer.classList.add('flash-blue');
+                setTimeout(() => gameContainer.classList.remove('flash-blue'), 300);
+                
                 stuckDebts = 0; // Clear all debt
             } else {
                 createFloatingText(player.x, player.y, "+$1000", '#00ff88');
-                createParticles(p.x, p.y, '#00ff88', 10);
+                createParticles(p.x, p.y, '#00ff88', 15, 1.5);
                 if (window.mbAudio) window.mbAudio.playCoin();
             }
             
@@ -338,21 +362,31 @@ function updateGame(dt) {
         let p = particles[i];
         p.x += p.vx;
         p.y += p.vy;
+        
+        // Physics: friction
+        p.vx *= 0.95;
+        p.vy *= 0.95;
+        
+        // Physics: shrink
+        p.radius *= 0.95;
+        
         p.life -= dt / 500;
-        if (p.life <= 0) particles.splice(i, 1);
+        if (p.life <= 0 || p.radius < 0.5) particles.splice(i, 1);
     }
     
-    // Floating Text
+    // Floating Text (with easing)
     for (let i = floatingTexts.length - 1; i >= 0; i--) {
         let ft = floatingTexts[i];
-        ft.y -= dt * 0.05;
+        ft.y -= dt * (0.05 * ft.life); // Slows down as it fades
         ft.life -= dt / 1000;
         if (ft.life <= 0) floatingTexts.splice(i, 1);
     }
 }
 
 function draw() {
-    ctx.clearRect(0, 0, cw, ch);
+    // Advanced trail effect instead of hard clear
+    ctx.fillStyle = 'rgba(5, 5, 5, 0.4)'; // Cyberpunk motion blur
+    ctx.fillRect(0, 0, cw, ch);
     
     // Background Radial Lines (Focus on center)
     ctx.save();
@@ -499,18 +533,26 @@ function draw() {
         ctx.fillStyle = p.color;
         ctx.globalAlpha = Math.max(0, p.life);
         ctx.beginPath();
-        ctx.arc(p.x, p.y, 3, 0, Math.PI*2);
+        ctx.arc(p.x, p.y, p.radius || 3, 0, Math.PI*2);
         ctx.fill();
     }
     ctx.globalAlpha = 1;
 
     // Floating Texts
-    ctx.font = 'bold 20px Courier New';
     ctx.textAlign = 'center';
     for (let ft of floatingTexts) {
+        // Pop-in scale effect
+        const scale = ft.life > 0.8 ? 1 + (ft.life - 0.8) * 2 : 1;
+        ctx.save();
+        ctx.translate(ft.x, ft.y);
+        ctx.scale(scale, scale);
+        
         ctx.fillStyle = ft.color;
         ctx.globalAlpha = Math.max(0, ft.life);
-        ctx.fillText(ft.text, ft.x, ft.y);
+        ctx.font = 'bold 24px Courier New';
+        ctx.fillText(ft.text, 0, 0);
+        
+        ctx.restore();
     }
     ctx.globalAlpha = 1;
 }
