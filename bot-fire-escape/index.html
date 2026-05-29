@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>FIRE Escape | MoneyBot Games</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        
+        body {
+            margin: 0; padding: 0; background: #050505; color: #fff;
+            font-family: 'Inter', sans-serif; overflow: hidden; touch-action: none;
+            user-select: none; -webkit-user-select: none;
+        }
+
+        canvas { display: block; width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; z-index: 1; }
+
+        .ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; }
+
+        .hud {
+            position: absolute; top: 20px; left: 20px; right: 20px;
+            display: flex; justify-content: space-between;
+        }
+
+        .stat-box {
+            background: rgba(10, 10, 10, 0.85); border: 2px solid #ff4500;
+            padding: 10px 15px; border-radius: 12px; box-shadow: 0 0 15px rgba(255, 69, 0, 0.2);
+            transition: transform 0.1s;
+        }
+        .stat-box.pulse { transform: scale(1.1); box-shadow: 0 0 30px rgba(255, 69, 0, 0.6); }
+
+        .stat-label { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+        .stat-value { font-size: 24px; font-weight: 900; color: #ff4500; text-shadow: 0 0 10px rgba(255, 69, 0, 0.5); }
+        .age-value { color: #00ccff; text-shadow: 0 0 10px rgba(0, 204, 255, 0.5); border-color: #00ccff; }
+
+        #screens { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 20; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(5,5,5,0.9); pointer-events: auto; }
+
+        .title-glow {
+            font-size: 64px; font-weight: 900; color: #ff4500; text-transform: uppercase;
+            text-shadow: 0 0 40px rgba(255, 69, 0, 0.6); margin-bottom: 15px; text-align: center; line-height: 1.1;
+        }
+
+        .subtitle { font-size: 16px; color: #aaa; margin-bottom: 40px; text-align: center; max-width: 450px; line-height: 1.5; }
+
+        button {
+            background: linear-gradient(90deg, #ff4500, #ff8c00); border: none;
+            padding: 16px 48px; border-radius: 30px; font-size: 20px; font-weight: 900;
+            color: #000; cursor: pointer; box-shadow: 0 0 30px rgba(255, 69, 0, 0.4);
+            text-transform: uppercase; letter-spacing: 1px; transition: all 0.1s;
+        }
+        button:active { transform: scale(0.95); }
+
+        .progress-bar-container {
+            position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
+            width: 80%; max-width: 400px; height: 12px; background: #222; border-radius: 6px;
+            overflow: hidden; border: 2px solid #ff4500; box-shadow: 0 0 15px rgba(255, 69, 0, 0.3);
+            display: none;
+        }
+        .progress-bar-fill {
+            height: 100%; width: 0%; background: linear-gradient(90deg, #ff4500, #ff8c00);
+            transition: width 0.2s ease-out;
+        }
+        .progress-label {
+            position: absolute; bottom: 60px; left: 50%; transform: translateX(-50%);
+            font-size: 14px; font-weight: 900; color: #ff4500; text-transform: uppercase; letter-spacing: 2px;
+            display: none; text-shadow: 0 0 10px rgba(255, 69, 0, 0.8);
+        }
+
+        #damageFlash { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #ff3366; opacity: 0; pointer-events: none; z-index: 15; transition: opacity 0.1s; }
+        
+        .floating-text { position: absolute; font-size: 24px; font-weight: 900; text-shadow: 0 0 10px currentColor; pointer-events: none; animation: floatUp 0.8s ease-out forwards; opacity: 1; z-index: 15; text-align: center; width: 100px; margin-left: -50px; }
+        @keyframes floatUp { 0% { transform: translateY(0) scale(1); opacity: 1; } 100% { transform: translateY(-40px) scale(1.2); opacity: 0; } }
+    </style>
+</head>
+<body>
+
+    <div id="damageFlash"></div>
+
+    <div class="ui-layer">
+        <div class="hud" id="hud" style="display:none;">
+            <div class="stat-box" id="nwBox">
+                <div class="stat-label">Net Worth</div>
+                <div class="stat-value" id="nwDisplay">$0</div>
+            </div>
+            <div class="stat-box age-value" id="ageBox">
+                <div class="stat-label">Age</div>
+                <div class="stat-value" id="ageDisplay" style="color:#00ccff;">22</div>
+            </div>
+        </div>
+        
+        <div class="progress-label" id="progLabel">FIRE Number: $2.5M</div>
+        <div class="progress-bar-container" id="progBar"><div class="progress-bar-fill" id="progFill"></div></div>
+    </div>
+
+    <div id="screens">
+        <div class="title-glow" id="mainTitle">FIRE ESCAPE</div>
+        <div class="subtitle" id="mainSub">
+            Play as <strong style="color:#ff4500">FireBot</strong>!<br>
+            Achieve Financial Independence and Retire Early.<br><br>
+            <span style="color:#00ff88;font-weight:bold;">🟩 Assets:</span> Grow your portfolio<br>
+            <span style="color:#ff3366;font-weight:bold;">🟥 Lifestyle Creep:</span> Drains your wealth<br><br>
+            Reach <strong>$2.5M</strong> before you turn <strong>65</strong>.<br>
+            Drag to fly!
+        </div>
+        <button id="mainBtn" onclick="startGame()">Start Career</button>
+    </div>
+
+    <canvas id="gameCanvas"></canvas>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+
+        function resize() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        // Assets
+        const imgFirebot = new Image(); imgFirebot.src = '../assets/firebot.jpg';
+        const imgCoin = new Image(); imgCoin.src = '../assets/game-coin-green.svg';
+
+        // --- GAME STATE ---
+        let state = 'menu'; 
+        let netWorth = 0;
+        let fireNumber = 2500000;
+        let age = 22.0;
+        let frameCount = 0;
+        let difficulty = 1;
+        let shakeTime = 0;
+        let bgOffsetY = 0;
+        let isDragging = false;
+
+        // --- ENTITIES ---
+        const player = { x: width/2, y: height - 120, targetX: width/2, targetY: height - 120, size: 28 };
+        let items = [];
+        let particles = [];
+        let stars = [];
+
+        for(let i=0; i<40; i++) stars.push({x: Math.random()*width, y: Math.random()*height, speed: Math.random()*5+2});
+
+        // --- INPUT ---
+        function updatePlayerPos(cx, cy) { player.targetX = cx; player.targetY = cy - 50; }
+        
+        canvas.addEventListener('touchstart', e => { if(state === 'play') { isDragging = true; updatePlayerPos(e.touches[0].clientX, e.touches[0].clientY); }});
+        canvas.addEventListener('touchmove', e => { if(isDragging && state === 'play') updatePlayerPos(e.touches[0].clientX, e.touches[0].clientY); });
+        canvas.addEventListener('touchend', () => isDragging = false);
+        canvas.addEventListener('mousedown', e => { if(state === 'play') { isDragging = true; updatePlayerPos(e.clientX, e.clientY); }});
+        canvas.addEventListener('mousemove', e => { if(isDragging && state === 'play') updatePlayerPos(e.clientX, e.clientY); });
+        canvas.addEventListener('mouseup', () => isDragging = false);
+
+        // --- FLOW ---
+        function startGame() {
+            document.getElementById('screens').style.display = 'none';
+            document.getElementById('hud').style.display = 'flex';
+            document.getElementById('progBar').style.display = 'block';
+            document.getElementById('progLabel').style.display = 'block';
+            
+            netWorth = 10000;
+            age = 22.0;
+            frameCount = 0;
+            difficulty = 1;
+            items = [];
+            particles = [];
+            
+            player.x = width/2; player.y = height - 120;
+            player.targetX = width/2; player.targetY = height - 120;
+            
+            state = 'play';
+            updateUI();
+            requestAnimationFrame(loop);
+        }
+
+        function gameOver(win) {
+            state = 'over';
+            shakeTime = win ? 0 : 30;
+            if(!win) triggerFlash();
+            
+            document.getElementById('screens').style.display = 'flex';
+            document.getElementById('hud').style.display = 'none';
+            document.getElementById('progBar').style.display = 'none';
+            document.getElementById('progLabel').style.display = 'none';
+            
+            if (win) {
+                document.getElementById('mainTitle').innerHTML = 'FIRE ACHIEVED!<br><span style="font-size:32px;color:#00ff88;">Retired Early!</span>';
+                document.getElementById('mainSub').innerHTML = `You escaped the rat race at age <span style="color:#00ccff;font-weight:bold;">${Math.floor(age)}</span>!<br>Final Net Worth: <span style="color:#00ff88;font-weight:bold;">$${Math.floor(netWorth).toLocaleString()}</span>`;
+            } else {
+                document.getElementById('mainTitle').innerHTML = 'STANDARD RETIREMENT<br><span style="font-size:32px;color:#ff3366;">Age 65 Reached</span>';
+                document.getElementById('mainSub').innerHTML = `You didn't reach the $2.5M FIRE number in time.<br>Final Net Worth: <span style="color:#ff3366;font-weight:bold;">$${Math.floor(netWorth).toLocaleString()}</span>`;
+            }
+            document.getElementById('mainBtn').innerText = 'Play Again';
+        }
+
+        // --- JUICE ---
+        function pulseUI(id) {
+            const el = document.getElementById(id);
+            el.classList.add('pulse');
+            setTimeout(() => el.classList.remove('pulse'), 150);
+        }
+
+        function triggerFlash() {
+            const flash = document.getElementById('damageFlash');
+            flash.style.opacity = '0.4';
+            setTimeout(() => flash.style.opacity = '0', 100);
+        }
+
+        function spawnParticles(x, y, color, count, speed=10) {
+            for(let i=0; i<count; i++) {
+                particles.push({
+                    x: x, y: y,
+                    vx: (Math.random() - 0.5) * speed,
+                    vy: (Math.random() - 0.5) * speed,
+                    life: 1, color: color, size: Math.random() * 4 + 2
+                });
+            }
+        }
+
+        function spawnText(x, y, text, color) {
+            const el = document.createElement('div');
+            el.className = 'floating-text';
+            el.style.left = x + 'px'; el.style.top = y + 'px';
+            el.style.color = color; el.innerText = text;
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 800);
+        }
+
+        function updateUI() {
+            document.getElementById('nwDisplay').innerText = '$' + Math.floor(netWorth).toLocaleString();
+            document.getElementById('ageDisplay').innerText = Math.floor(age);
+            
+            let pct = Math.min(100, (netWorth / fireNumber) * 100);
+            document.getElementById('progFill').style.width = pct + '%';
+        }
+
+        // --- LOOP ---
+        function loop() {
+            if (state !== 'play' && state !== 'over') return;
+
+            // --- RENDER BACKGROUND ---
+            ctx.fillStyle = '#050505';
+            ctx.fillRect(0, 0, width, height);
+
+            ctx.save();
+            if (shakeTime > 0) {
+                ctx.translate((Math.random()-0.5)*15, (Math.random()-0.5)*15);
+                shakeTime--;
+            }
+
+            // Draw Stars
+            ctx.fillStyle = 'rgba(255, 69, 0, 0.3)';
+            for (let s of stars) {
+                s.y += s.speed;
+                if (s.y > height) { s.y = 0; s.x = Math.random() * width; }
+                ctx.fillRect(s.x, s.y, 2, 8);
+            }
+
+            if (state === 'play') {
+                frameCount++;
+                
+                // Age progression (1 year = ~8 seconds)
+                age += 0.002;
+                if (age >= 65.0) { gameOver(false); return; }
+                
+                // Compound Interest
+                netWorth *= 1.0005; // Passive growth
+                
+                if (netWorth >= fireNumber) { gameOver(true); return; }
+                
+                updateUI();
+                
+                difficulty = 1 + ((age - 22) / 20); // Harder as you age
+
+                // Player Movement
+                player.x += (player.targetX - player.x) * 0.2;
+                player.y += (player.targetY - player.y) * 0.2;
+                player.x = Math.max(player.size, Math.min(width - player.size, player.x));
+                player.y = Math.max(player.size, Math.min(height - player.size, player.y));
+
+                // Spawn Items
+                if (Math.random() < 0.08 * difficulty) {
+                    const isExpense = Math.random() > 0.4; // 60% bad, 40% good
+                    const size = isExpense ? 18 + Math.random() * 15 : 20;
+                    
+                    items.push({
+                        x: Math.random() * (width - size*2) + size,
+                        y: -50,
+                        size: size,
+                        type: isExpense ? 'expense' : 'asset',
+                        speed: (4 + Math.random() * 5) * difficulty,
+                        rot: 0
+                    });
+                }
+
+                // Update Items
+                for(let i=items.length-1; i>=0; i--) {
+                    let item = items[i];
+                    item.y += item.speed;
+                    item.rot += 0.05;
+
+                    ctx.save();
+                    ctx.translate(item.x, item.y);
+                    ctx.rotate(item.rot);
+
+                    if (item.type === 'expense') {
+                        ctx.shadowColor = '#ff3366'; ctx.shadowBlur = 15;
+                        ctx.fillStyle = '#ff3366';
+                        ctx.fillRect(-item.size, -item.size, item.size*2, item.size*2);
+                        ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
+                        ctx.strokeRect(-item.size, -item.size, item.size*2, item.size*2);
+                    } else {
+                        if (imgCoin.complete) {
+                            ctx.drawImage(imgCoin, -item.size * 1.5, -item.size * 1.5, item.size * 3, item.size * 3);
+                        } else {
+                            ctx.shadowColor = '#00ff88'; ctx.shadowBlur = 15;
+                            ctx.fillStyle = '#00ff88';
+                            ctx.beginPath(); ctx.arc(0, 0, item.size, 0, Math.PI*2); ctx.fill();
+                        }
+                    }
+                    ctx.restore();
+
+                    // Collision Check
+                    const dx = player.x - item.x;
+                    const dy = player.y - item.y;
+                    if (Math.sqrt(dx*dx + dy*dy) < player.size + item.size) {
+                        if (item.type === 'expense') {
+                            const penalty = 15000 * difficulty;
+                            netWorth -= penalty;
+                            if(netWorth < 0) netWorth = 0;
+                            shakeTime = 10;
+                            triggerFlash();
+                            pulseUI('nwBox');
+                            spawnParticles(item.x, item.y, '#ff3366', 20);
+                            spawnText(item.x, item.y - 20, `-$${Math.floor(penalty/1000)}k`, '#ff3366');
+                        } else {
+                            const bonus = 25000 * difficulty;
+                            netWorth += bonus;
+                            pulseUI('nwBox');
+                            spawnParticles(item.x, item.y, '#00ff88', 15);
+                            spawnText(item.x, item.y - 20, `+$${Math.floor(bonus/1000)}k`, '#00ff88');
+                        }
+                        items.splice(i, 1);
+                    } else if (item.y > height + 50) {
+                        items.splice(i, 1);
+                    }
+                }
+
+                // Draw FireBot Player
+                if (imgFirebot.complete) {
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.arc(player.x, player.y, player.size * 1.5, 0, Math.PI * 2);
+                    ctx.clip();
+                    ctx.fillStyle = '#fff'; ctx.fill();
+                    ctx.drawImage(imgFirebot, player.x - player.size*1.5, player.y - player.size*1.5, player.size*3, player.size*3);
+                    
+                    ctx.lineWidth = 4;
+                    ctx.strokeStyle = '#ff4500';
+                    ctx.stroke();
+                    ctx.restore();
+                    
+                    // Flame trail
+                    ctx.fillStyle = 'rgba(255, 69, 0, 0.6)';
+                    ctx.beginPath();
+                    ctx.moveTo(player.x - 10, player.y + player.size);
+                    ctx.lineTo(player.x + 10, player.y + player.size);
+                    ctx.lineTo(player.x, player.y + player.size + 20 + Math.random()*20);
+                    ctx.fill();
+                } else {
+                    ctx.shadowColor = '#ff4500'; ctx.shadowBlur = 20;
+                    ctx.fillStyle = '#ff4500';
+                    ctx.beginPath(); ctx.arc(player.x, player.y, player.size, 0, Math.PI*2); ctx.fill();
+                    ctx.shadowBlur = 0; ctx.strokeStyle = '#fff'; ctx.lineWidth = 3; ctx.stroke();
+                }
+            }
+
+            // Draw Particles
+            ctx.shadowBlur = 0;
+            for (let i = particles.length - 1; i >= 0; i--) {
+                let p = particles[i];
+                p.x += p.vx; p.y += p.vy;
+                p.life -= 0.05;
+                if (p.life <= 0) { particles.splice(i, 1); continue; }
+                ctx.globalAlpha = p.life;
+                ctx.fillStyle = p.color;
+                ctx.fillRect(p.x, p.y, p.size, p.size);
+            }
+            ctx.globalAlpha = 1;
+
+            ctx.restore();
+            requestAnimationFrame(loop);
+        }
+    </script>
+</body>
+</html>
