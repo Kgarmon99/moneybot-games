@@ -14,6 +14,11 @@ assets/
 ├── moneybot-jumping.svg       # Mascot jumping (platformers)
 ├── moneybot-running.svg       # Mascot running (runners)
 ├── moneybot-3d.gltf          # 3D model for advanced games
+├── moneybot-super.jpg        # 3D Render - Super MoneyBot
+├── moneybot-running-3d.jpg   # 3D Render - Side-view running
+├── brokebot.jpg              # 3D Render - BrokeBot (Villain)
+├── firebot.jpg               # 3D Render - FireBot (Burn Rate/Hazard)
+├── goldbot.jpg               # 3D Render - GoldBot (High Net Worth/Reward)
 ├── moneybot-logo-1.jpg       # Logo variant 1
 ├── moneybot-logo-2.jpg       # Logo variant 2
 ├── moneybot-logo-3.jpg       # Logo variant 3
