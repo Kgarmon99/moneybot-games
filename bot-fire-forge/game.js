@@ -16,12 +16,15 @@ const imgGoldBot = new Image();
 imgGoldBot.src = '../assets/goldbot.jpg';
 
 // Game State
-let gameState = 'START'; // START, PLAYING, GAMEOVER
+let gameState = 'START';
 let age = 22;
 let activeCash = 0;
+let displayActiveCash = 0;
 let passiveIncome = 0;
+let displayPassiveIncome = 0;
 let forgeXP = 0;
 let forgeLevel = 1;
+let hitPauseTimer = 0;
 const FIRE_GOAL = 10000; // $10,000/mo passive income to FIRE
 
 let lastTime = 0;
@@ -142,6 +145,24 @@ function createFloatingText(x, y, text, color) {
 function updateGame(dt) {
     if (gameState !== 'PLAYING') return;
 
+    // Hit Pause (Freeze frame effect)
+    if (hitPauseTimer > 0) {
+        hitPauseTimer -= dt;
+        return; // Skip game updates to freeze time
+    }
+
+    // Rolling Numbers
+    let activeDiff = activeCash - displayActiveCash;
+    if (Math.abs(activeDiff) > 1) displayActiveCash += activeDiff * 0.1;
+    else displayActiveCash = activeCash;
+
+    let passiveDiff = passiveIncome - displayPassiveIncome;
+    if (Math.abs(passiveDiff) > 1) displayPassiveIncome += passiveDiff * 0.1;
+    else displayPassiveIncome = passiveIncome;
+
+    activeCashDisplay.innerText = `$${Math.floor(displayActiveCash).toLocaleString()}`;
+    passiveIncomeDisplay.innerText = `$${Math.floor(displayPassiveIncome).toLocaleString()}/mo`;
+
     // Age
     ageTimer += dt;
     if (ageTimer > 2000) { // 2 seconds = 1 year
@@ -200,7 +221,7 @@ function updateGame(dt) {
         
         if (dist < player.radius + 15) {
             activeCash += c.value;
-            activeCashDisplay.innerText = `$${activeCash.toLocaleString()}`;
+            hitPauseTimer = 30; // Small pause on collection
             createFloatingText(c.x, c.y, `+$${c.value}`, '#00ff88');
             createParticles(c.x, c.y, '#00ff88', 5);
             if(window.parent && window.parent.mbAudio) window.parent.mbAudio.playSelect();
@@ -228,7 +249,7 @@ function updateGame(dt) {
             // Penalize
             const penalty = Math.min(activeCash, 500);
             activeCash -= penalty;
-            activeCashDisplay.innerText = `$${activeCash.toLocaleString()}`;
+            hitPauseTimer = 80;
             createFloatingText(h.x, h.y, `-$${penalty} BURN RATE!`, '#ff3366');
             createParticles(h.x, h.y, '#ff3366', 15);
             if(window.parent && window.parent.mbAudio) window.parent.mbAudio.playHit();
@@ -270,8 +291,8 @@ function updateGame(dt) {
             forgeLevel++;
             forgeXP -= xpRequired;
             passiveIncome += 250 + (forgeLevel * 100);
+            hitPauseTimer = 100; // Big pause on level up
             forgeLevelDisplay.innerText = forgeLevel;
-            passiveIncomeDisplay.innerText = `$${passiveIncome.toLocaleString()}/mo`;
             createFloatingText(forge.x, forge.y - 80, "FORGE UPGRADE!", '#ffaa00');
             if(window.parent && window.parent.mbAudio) window.parent.mbAudio.playLevelUp();
             
@@ -286,21 +307,28 @@ function updateGame(dt) {
         let p = particles[i];
         p.x += p.vx;
         p.y += p.vy;
+        
+        // Physics: friction
+        p.vx *= 0.95;
+        p.vy *= 0.95;
+        
         p.life -= dt / 500;
         if (p.life <= 0) particles.splice(i, 1);
     }
     
-    // Floating Text
+    // Floating Text (easing)
     for (let i = floatingTexts.length - 1; i >= 0; i--) {
         let ft = floatingTexts[i];
-        ft.y -= dt * 0.05;
+        ft.y -= dt * (0.05 * ft.life);
         ft.life -= dt / 1000;
         if (ft.life <= 0) floatingTexts.splice(i, 1);
     }
 }
 
 function draw() {
-    ctx.clearRect(0, 0, cw, ch);
+    // Advanced trail effect instead of hard clear
+    ctx.fillStyle = 'rgba(13, 17, 23, 0.4)'; // Cyberpunk motion blur
+    ctx.fillRect(0, 0, cw, ch);
     
     // Background Grid effect
     ctx.strokeStyle = 'rgba(0, 255, 136, 0.05)';
@@ -393,12 +421,20 @@ function draw() {
     ctx.globalAlpha = 1;
 
     // Floating Texts
-    ctx.font = 'bold 20px Courier New';
     ctx.textAlign = 'center';
     for (let ft of floatingTexts) {
+        // Pop-in scale effect
+        const scale = ft.life > 0.8 ? 1 + (ft.life - 0.8) * 2 : 1;
+        ctx.save();
+        ctx.translate(ft.x, ft.y);
+        ctx.scale(scale, scale);
+        
         ctx.fillStyle = ft.color;
         ctx.globalAlpha = Math.max(0, ft.life);
-        ctx.fillText(ft.text, ft.x, ft.y);
+        ctx.font = 'bold 24px Courier New';
+        ctx.fillText(ft.text, 0, 0);
+        
+        ctx.restore();
     }
     ctx.globalAlpha = 1;
 }

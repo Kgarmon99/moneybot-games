@@ -13,6 +13,18 @@
             user-select: none; -webkit-user-select: none;
         }
 
+        body::after {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 20;
+            background-size: 100% 4px, 6px 100%;
+            pointer-events: none;
+            opacity: 0.8;
+        }
+
         canvas { display: block; width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; z-index: 1; }
 
         .ui-layer {
@@ -62,23 +74,27 @@
             color: #000; cursor: pointer; box-shadow: 0 0 30px rgba(0, 255, 136, 0.4);
             text-transform: uppercase; letter-spacing: 1px; transition: all 0.1s;
         }
-        button:active { transform: scale(0.95); }
-
         .floating-text {
-            position: absolute; font-size: 32px; font-weight: 900; text-shadow: 0 0 20px currentColor;
-            pointer-events: none; animation: floatUp 1s ease-out forwards; opacity: 1; z-index: 15; text-align: center; width: 100px; margin-left: -50px;
+            position: absolute;
+            font-size: 24px;
+            font-weight: 900;
+            pointer-events: none;
+            z-index: 100;
+            animation: floatUp 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+            text-shadow: 0 0 10px currentColor;
         }
 
         @keyframes floatUp {
-            0% { transform: translateY(0) scale(1); opacity: 1; }
-            100% { transform: translateY(-100px) scale(1.5); opacity: 0; }
+            0% { transform: translate(-50%, 0) scale(0.5); opacity: 0; }
+            20% { transform: translate(-50%, -20px) scale(1.2); opacity: 1; }
+            100% { transform: translate(-50%, -80px) scale(1); opacity: 0; }
         }
-        
-        #damageFlash {
+
+        .damage-flash {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: #ff3366; opacity: 0; pointer-events: none; z-index: 15; transition: opacity 0.1s;
+            background: #ff3366; opacity: 0; pointer-events: none; z-index: 15;
+            transition: opacity 0.1s;
         }
-        
         .controls-hint {
             position: absolute; bottom: 40px; left: 0; width: 100%; text-align: center;
             color: rgba(255,255,255,0.4); font-size: 14px; text-transform: uppercase; letter-spacing: 2px;
@@ -141,11 +157,14 @@
 
         // --- GAME STATE ---
         let state = 'menu'; 
-        let score = 1000; 
+        let score = 1000;
+        let displayScore = 1000; 
         let speed = 5;
         let speedMult = 1.0;
         let distance = 0;
+        let displayDistance = 0;
         let shakeTime = 0;
+        let hitPauseTimer = 0;
         let combos = 0;
         let frameCount = 0;
         let bgOffsetY = 0;
@@ -251,16 +270,17 @@
         }
 
         function spawnParticles(x, y, color, count) {
-            for(let i=0; i<count; i++) {
+            for (let i=0; i<count; i++) {
                 particles.push({
                     x: x, y: y,
-                    vx: (Math.random() - 0.5) * 15,
-                    vy: (Math.random() - 0.5) * 15,
-                    life: 1, color: color, size: Math.random() * 4 + 2
+                    vx: (Math.random()-0.5)*15,
+                    vy: (Math.random()-0.5)*15,
+                    life: 1.0,
+                    color: color,
+                    radius: Math.random() * 4 + 2
                 });
             }
         }
-
         function spawnText(x, y, text, color) {
             const el = document.createElement('div');
             el.className = 'floating-text';
@@ -268,12 +288,29 @@
             el.style.top = y + 'px';
             el.style.color = color;
             el.innerText = text;
-            document.body.appendChild(el);
-            setTimeout(() => el.remove(), 1000);
+            
+            // Pop in animation
+            el.style.transform = 'translate(-50%, -50%) scale(1)';
+            el.style.transition = 'transform 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+            
+            document.getElementById('screens').appendChild(el);
+            
+            setTimeout(() => {
+                el.style.transform = 'translate(-50%, -50%) scale(1.2)';
+            }, 10);
+            
+            setTimeout(() => {
+                el.remove();
+            }, 1000);
         }
 
         function updateUI() {
-            document.getElementById('scoreDisplay').innerText = '$' + score.toLocaleString();
+            // Rolling Numbers
+            let scoreDiff = score - displayScore;
+            if (Math.abs(scoreDiff) > 1) displayScore += scoreDiff * 0.15;
+            else displayScore = score;
+            
+            document.getElementById('scoreDisplay').innerText = '$' + Math.floor(displayScore).toLocaleString();
             document.getElementById('distDisplay').innerText = speedMult.toFixed(1) + 'x';
             
             const comboEl = document.getElementById('comboDisplay');
@@ -289,8 +326,27 @@
         function loop() {
             if (state !== 'play' && state !== 'over') return;
 
+            // Hit Pause
+            if (hitPauseTimer > 0) {
+                hitPauseTimer -= 16.6; // approx 1 frame at 60fps
+                
+                // Still need to draw the freeze frame
+                // Advanced trail effect
+                ctx.fillStyle = 'rgba(5, 5, 5, 0.4)';
+                ctx.fillRect(0, 0, width, height);
+                // Draw entities while frozen
+                items.forEach(item => {
+                    if (item.type === 'coin') drawToken(ctx, imgGood, lanes[item.lane], item.y, Math.min(width*0.1, 35), '#00ff88');
+                    else drawToken(ctx, imgBad, lanes[item.lane], item.y, Math.min(width*0.1, 35), '#ff3366');
+                });
+                drawToken(ctx, imgBot, player.x, player.y, Math.min(width*0.1, 45), '#00ccff');
+                requestAnimationFrame(loop);
+                return;
+            }
+
             // --- RENDER BACKGROUND ---
-            ctx.fillStyle = '#050505';
+            // Advanced motion blur
+            ctx.fillStyle = 'rgba(5, 5, 5, 0.4)';
             ctx.fillRect(0, 0, width, height);
 
             ctx.save();
@@ -392,8 +448,10 @@
                             score -= penalty;
                             combos = 0;
                             shakeTime = 15;
+                            hitPauseTimer = 80; // Heavy freeze frame
                             triggerFlash();
                             pulseUI('scoreBox');
+                            if(window.mbAudio) window.mbAudio.playHit();
                             spawnParticles(item.x, item.y, '#ff3366', 20);
                             spawnText(item.x, item.y - 20, `-$${Math.floor(penalty)}`, '#ff3366');
                             
@@ -404,11 +462,13 @@
                             const multi = Math.min(combos, 5);
                             const bonus = 100 * multi;
                             score += bonus;
+                            hitPauseTimer = 30; // Light freeze frame
+                            if(window.mbAudio) window.mbAudio.playCoin();
                             spawnParticles(item.x, item.y, '#00ff88', 10);
-                            spawnText(item.x, item.y - 20, `+$${bonus}`, '#00ff88');
-                            pulseUI('scoreBox');
+                            spawnText(item.x, item.y - 20, `+$${Math.floor(bonus)}`, '#00ff88');
+                            
+                            if (combos > 2) pulseUI('distBox');
                         }
-                        
                         items.splice(i, 1);
                         updateUI();
                         continue;
@@ -453,11 +513,16 @@
             for (let i = particles.length - 1; i >= 0; i--) {
                 let p = particles[i];
                 p.x += p.vx; p.y += p.vy;
-                p.life -= 0.05;
-                if (p.life <= 0) { particles.splice(i, 1); continue; }
+                p.vx *= 0.95; // friction
+                p.vy *= 0.95;
+                p.radius *= 0.95; // shrink
+                p.life -= 0.03;
+                if (p.life <= 0 || p.radius < 0.5) { particles.splice(i, 1); continue; }
                 ctx.globalAlpha = p.life;
                 ctx.fillStyle = p.color;
-                ctx.fillRect(p.x, p.y, p.size, p.size);
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.radius, 0, Math.PI*2);
+                ctx.fill();
             }
             ctx.globalAlpha = 1;
 
