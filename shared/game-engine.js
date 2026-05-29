@@ -320,7 +320,9 @@ class MoneyBotGame {
     this.touch.originalElement = null;
   }
   
-  processDrop(item, categoryId, zone) {
+    // Drop and Process Drop additions to hook audio into the drag and drop games globally
+    
+    processDrop(item, categoryId, zone) {
     const isCorrect = item.category === categoryId;
     
     // Mark as placed
@@ -331,10 +333,12 @@ class MoneyBotGame {
       this.state.correct++;
       this.state.score += 100;
       zone.classList.add('correct');
+      if(window.mbAudio) window.mbAudio.playCoin();
       setTimeout(() => zone.classList.remove('correct'), 400);
     } else {
       this.state.incorrect++;
       zone.classList.add('incorrect');
+      if(window.mbAudio) window.mbAudio.playHit();
       setTimeout(() => zone.classList.remove('incorrect'), 400);
     }
     
@@ -357,6 +361,13 @@ class MoneyBotGame {
     
     // Check completion
     if (this.state.placed.size === this.config.items.length) {
+      if(window.mbAudio) {
+         if (this.state.correct / this.config.items.length >= 0.7) {
+            window.mbAudio.playLevelUp();
+         } else {
+            window.mbAudio.playGameOver();
+         }
+      }
       setTimeout(() => this.showCompletion(), 600);
     }
   }
@@ -432,3 +443,13 @@ class MoneyBotGame {
 
 // Export for use in game files
 window.MoneyBotGame = MoneyBotGame;
+
+// Automatically inject Audio Engine logic if mbAudio exists
+document.addEventListener('DOMContentLoaded', () => {
+    // Inject script tag if not present
+    if (!document.querySelector('script[src*="audio-engine.js"]')) {
+        const script = document.createElement('script');
+        script.src = '../shared/audio-engine.js';
+        document.head.appendChild(script);
+    }
+});

@@ -64,6 +64,7 @@ const forge = {
 };
 
 let activeCoins = [];
+let hazards = []; // NEW: Expenses/Burn Rate hazards
 let passiveParticles = [];
 let floatingTexts = [];
 let particles = [];
@@ -108,8 +109,17 @@ function spawnCoin() {
     activeCoins.push({
         x: Math.random() * (cw - 40) + 20,
         y: -20,
-        speed: 2 + Math.random() * 3 + (age - 22) * 0.1, // Speeds up as you age
+        speed: 2 + Math.random() * 3 + (age - 22) * 0.15, // Speeds up FASTER as you age
         value: 100 + Math.floor(Math.random() * 100)
+    });
+}
+
+function spawnHazard() {
+    hazards.push({
+        x: Math.random() * (cw - 40) + 20,
+        y: -20,
+        speed: 3 + Math.random() * 4 + (age - 22) * 0.1, 
+        radius: 12
     });
 }
 
@@ -170,9 +180,12 @@ function updateGame(dt) {
     player.x += (mouse.x - player.x) * 0.1;
     player.y += (mouse.y - player.y) * 0.1;
 
-    // Spawning active coins
+    // Spawning active coins and hazards
     if (Math.random() < 0.05 + (forgeLevel * 0.01)) {
         spawnCoin();
+    }
+    if (Math.random() < 0.02 + (age - 22) * 0.001) { // More hazards as you age
+        spawnHazard();
     }
 
     // Update Active Coins
@@ -190,6 +203,7 @@ function updateGame(dt) {
             activeCashDisplay.innerText = `$${activeCash.toLocaleString()}`;
             createFloatingText(c.x, c.y, `+$${c.value}`, '#00ff88');
             createParticles(c.x, c.y, '#00ff88', 5);
+            if(window.parent && window.parent.mbAudio) window.parent.mbAudio.playSelect();
             activeCoins.splice(i, 1);
             continue;
         }
@@ -197,6 +211,38 @@ function updateGame(dt) {
         // Missed coin
         if (c.y > ch + 20) {
             activeCoins.splice(i, 1);
+        }
+    }
+
+    // Update Hazards
+    for (let i = hazards.length - 1; i >= 0; i--) {
+        let h = hazards[i];
+        h.y += h.speed;
+        
+        // Collision with player
+        const dx = h.x - player.x;
+        const dy = h.y - player.y;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        
+        if (dist < player.radius + h.radius) {
+            // Penalize
+            const penalty = Math.min(activeCash, 500);
+            activeCash -= penalty;
+            activeCashDisplay.innerText = `$${activeCash.toLocaleString()}`;
+            createFloatingText(h.x, h.y, `-$${penalty} BURN RATE!`, '#ff3366');
+            createParticles(h.x, h.y, '#ff3366', 15);
+            if(window.parent && window.parent.mbAudio) window.parent.mbAudio.playHit();
+            
+            // Screen shake (CSS class toggling approach)
+            document.getElementById('game-container').classList.add('shake');
+            setTimeout(() => document.getElementById('game-container').classList.remove('shake'), 200);
+
+            hazards.splice(i, 1);
+            continue;
+        }
+
+        if (h.y > ch + 20) {
+            hazards.splice(i, 1);
         }
     }
 
@@ -227,6 +273,7 @@ function updateGame(dt) {
             forgeLevelDisplay.innerText = forgeLevel;
             passiveIncomeDisplay.innerText = `$${passiveIncome.toLocaleString()}/mo`;
             createFloatingText(forge.x, forge.y - 80, "FORGE UPGRADE!", '#ffaa00');
+            if(window.parent && window.parent.mbAudio) window.parent.mbAudio.playLevelUp();
             
             if (passiveIncome >= FIRE_GOAL) {
                 endGame(true);
@@ -317,6 +364,21 @@ function draw() {
     }
     ctx.shadowBlur = 0;
 
+    // Hazards (Red Burn Rate)
+    ctx.fillStyle = '#ff3366';
+    ctx.shadowColor = '#ff3366';
+    ctx.shadowBlur = 15;
+    for (let h of hazards) {
+        ctx.beginPath();
+        ctx.moveTo(h.x, h.y - h.radius);
+        ctx.lineTo(h.x + h.radius, h.y);
+        ctx.lineTo(h.x, h.y + h.radius);
+        ctx.lineTo(h.x - h.radius, h.y);
+        ctx.closePath();
+        ctx.fill();
+    }
+    ctx.shadowBlur = 0;
+
     // Player (Super MoneyBot)
     drawToken(imgMoneyBot, player.x, player.y, player.radius, '#00ff88');
 
@@ -359,6 +421,7 @@ function startGame() {
     forgeXP = 0;
     forgeLevel = 1;
     activeCoins = [];
+    hazards = [];
     particles = [];
     floatingTexts = [];
     passiveParticles = [];
@@ -379,10 +442,12 @@ function endGame(won) {
     gameOverScreen.classList.remove('hidden');
     
     if (won) {
+        if(window.parent && window.parent.mbAudio) window.parent.mbAudio.playLevelUp();
         endTitle.innerText = "FIRE ACHIEVED!";
         endTitle.style.color = "#ffaa00";
         endSubtitle.innerText = `You escaped the rat race at age ${age} with $${passiveIncome.toLocaleString()}/mo in passive income!`;
     } else {
+        if(window.parent && window.parent.mbAudio) window.parent.mbAudio.playGameOver();
         endTitle.innerText = "TRADITIONAL RETIREMENT";
         endTitle.style.color = "#888";
         endSubtitle.innerText = `You reached 65, but didn't hit FIRE. Time to rely on Social Security!`;
