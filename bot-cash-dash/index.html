@@ -3,205 +3,438 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MoneyBot - Cash Dash | MoneyBot Gaming</title>
-    <link rel="icon" type="image/svg+xml" href="../assets/moneybot-idle.svg">
+    <title>Cash Dash 2.0 | High Speed Runner</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: none; user-select: none; }
-        :root { --moneybot-green: #00E676; --moneybot-green-light: #69F0AE; --moneybot-green-dark: #00C853; --moneybot-glow: rgba(0, 230, 118, 0.4); }
-        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: #FFFFFF; min-height: 100vh; overflow: hidden; }
-        body::before { content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-image: #FFFFFF 1px, transparent 1px), #FFFFFF 1px, transparent 1px); background-size: 50px 50px; pointer-events: none; z-index: 0; }
-        body::after { content: ''; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 600px; height: 600px; background: radial-gradient(circle, var(--moneybot-glow) 0%, transparent 70%); pointer-events: none; z-index: 0; animation: pulse 4s ease-in-out infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 0.3; transform: translate(-50%, -50%) scale(1); } 50% { opacity: 0.6; transform: translate(-50%, -50%) scale(1.2); } }
-        .app { max-width: 430px; margin: 0 auto; min-height: 100vh; position: relative; z-index: 1; display: flex; flex-direction: column; }
-        .header { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); padding: 16px; display: flex; justify-content: space-between; align-items: center; z-index: 100; border-bottom: 1px solid rgba(255, 255, 255, 0.3); box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-        .header-logo { display: flex; align-items: center; gap: 12px; }
-        .back-btn { width: 44px; height: 44px; border-radius: 8px; background: rgba(0, 230, 118, 0.1); border: none; color: var(--moneybot-green); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 20px; text-decoration: none; transition: all 0.2s; }
-        .back-btn:active { transform: scale(0.95); }
-        .header-title { font-weight: 800; font-size: 20px; color: #1e293b; }
-        .score-pill { background: #FFFFFF, var(--moneybot-green-dark)); color: #0F172A; padding: 10px 20px; border-radius: 25px; font-weight: 700; font-size: 16px; box-shadow: 0 4px 15px rgba(0, 230, 118, 0.3); }
-        .game-area { flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px; }
-        #gameCanvas { background: #FFFFFF; border-radius: 16px; box-shadow: 0 0 40px rgba(0, 230, 118, 0.2); }
-        .overlay-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(255, 255, 255, 0.95);  z-index: 200; padding: 40px; }
-        .overlay-screen.hidden { display: none; }
-        .game-icon { width: 80px; height: 80px; background: #FFFFFF, var(--moneybot-green-dark)); border-radius: 32px; display: flex; align-items: center; justify-content: center; font-size: 40px; margin-bottom: 30px; box-shadow: 0 0 40px rgba(0, 230, 118, 0.5); animation: dash 0.5s ease-in-out infinite; }
-        @keyframes dash { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(10px); } }
-        .game-title { font-size: 40px; font-weight: 800; color: #1e293b; margin-bottom: 12px; }
-        .game-subtitle { color: #64748b; font-size: 17px; margin-bottom: 40px; text-align: center; }
-        .stats-card { background: white; border-radius: 16px; padding: 24px 40px; margin-bottom: 30px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
-        .stats-label { font-size: 13px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
-        .stats-value { font-size: 40px; font-weight: 800; color: var(--moneybot-green); }
-        .primary-btn { background: #FFFFFF, var(--moneybot-green-dark)); color: #0F172A; border: none; padding: 16px 32px; font-size: 18px; font-weight: 700; border-radius: 16px; cursor: pointer; box-shadow: 0 0 30px rgba(0, 230, 118, 0.4); transition: all 0.3s; width: 100%; max-width: 280px; }
-        .primary-btn:hover { transform: translateY(-2px); box-shadow: 0 0 40px rgba(0, 230, 118, 0.6); }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        
+        body {
+            margin: 0; padding: 0; background: #050505; color: #fff;
+            font-family: 'Inter', sans-serif; overflow: hidden; touch-action: none;
+            user-select: none; -webkit-user-select: none;
+        }
+
+        canvas { display: block; width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; z-index: 1; }
+
+        .ui-layer {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10;
+        }
+
+        .hud {
+            position: absolute; top: 20px; left: 20px; right: 20px;
+            display: flex; justify-content: space-between;
+        }
+
+        .stat-box {
+            background: rgba(10, 10, 10, 0.85); border: 2px solid #00ff88;
+            padding: 10px 15px; border-radius: 12px; box-shadow: 0 0 15px rgba(0, 255, 136, 0.2);
+            transition: transform 0.1s;
+        }
+        .stat-box.pulse { transform: scale(1.1); box-shadow: 0 0 30px rgba(0, 255, 136, 0.6); }
+
+        .stat-label { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+        .stat-value { font-size: 24px; font-weight: 900; color: #00ff88; text-shadow: 0 0 10px rgba(0, 255, 136, 0.5); }
+        .distance-value { color: #00ccff; text-shadow: 0 0 10px rgba(0, 204, 255, 0.5); border-color: #00ccff; }
+
+        #centerUI {
+            position: absolute; top: 100px; left: 50%; transform: translateX(-50%);
+            text-align: center; pointer-events: none; z-index: 10;
+        }
+
+        .combo-text {
+            font-size: 36px; font-weight: 900; color: #ffcc00;
+            text-shadow: 0 0 20px rgba(255, 204, 0, 0.8);
+            opacity: 0; transition: opacity 0.2s, transform 0.1s;
+        }
+        .combo-text.active { opacity: 1; transform: scale(1.2); }
+
+        #screens { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 20; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(5,5,5,0.9); pointer-events: auto; }
+
+        .title-glow {
+            font-size: 64px; font-weight: 900; color: #00ff88; text-transform: uppercase;
+            text-shadow: 0 0 40px rgba(0, 255, 136, 0.6); margin-bottom: 15px; text-align: center; line-height: 1.1;
+        }
+
+        .subtitle { font-size: 16px; color: #aaa; margin-bottom: 40px; text-align: center; max-width: 400px; line-height: 1.5; }
+
+        button {
+            background: linear-gradient(90deg, #00ff88, #00cc66); border: none;
+            padding: 16px 48px; border-radius: 30px; font-size: 20px; font-weight: 900;
+            color: #000; cursor: pointer; box-shadow: 0 0 30px rgba(0, 255, 136, 0.4);
+            text-transform: uppercase; letter-spacing: 1px; transition: all 0.1s;
+        }
+        button:active { transform: scale(0.95); }
+
+        .floating-text {
+            position: absolute; font-size: 32px; font-weight: 900; text-shadow: 0 0 20px currentColor;
+            pointer-events: none; animation: floatUp 1s ease-out forwards; opacity: 1; z-index: 15; text-align: center; width: 100px; margin-left: -50px;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-100px) scale(1.5); opacity: 0; }
+        }
+        
+        #damageFlash {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: #ff3366; opacity: 0; pointer-events: none; z-index: 15; transition: opacity 0.1s;
+        }
+        
+        .controls-hint {
+            position: absolute; bottom: 40px; left: 0; width: 100%; text-align: center;
+            color: rgba(255,255,255,0.4); font-size: 14px; text-transform: uppercase; letter-spacing: 2px;
+            pointer-events: none; z-index: 10;
+        }
     </style>
 </head>
 <body>
-    <div class="app">
-        <div class="header">
-            <div class="header-logo">
-                <a href="../moneybot-official/" class="back-btn">←</a>
-                <span class="header-title">MoneyBot</span>
+
+    <div id="damageFlash"></div>
+
+    <div class="ui-layer">
+        <div class="hud" id="hud" style="display:none;">
+            <div class="stat-box" id="scoreBox">
+                <div class="stat-label">Net Worth</div>
+                <div class="stat-value" id="scoreDisplay">$0</div>
             </div>
-            <div class="score-pill">$<span id="score">0</span></div>
+            <div class="stat-box distance-value" id="distBox" style="border-color:#00ccff;">
+                <div class="stat-label">Velocity</div>
+                <div class="stat-value" id="distDisplay" style="color:#00ccff;">1.0x</div>
+            </div>
         </div>
-        <div class="game-area">
-            <canvas id="gameCanvas" width="350" height="500"></canvas>
+        
+        <div id="centerUI" style="display:none;">
+            <div class="combo-text" id="comboDisplay">2x COMBO!</div>
+        </div>
+        
+        <div class="controls-hint" id="controlsHint" style="display:none;">
+            Tap Left / Right to Switch Lanes
         </div>
     </div>
-    <div class="overlay-screen" id="startScreen">
-        <div class="game-icon">💨</div>
-        <div class="game-title">Cash Dash</div>
-        <div class="game-subtitle">Dash for cash!<br>Collect paychecks, avoid bills</div>
-        <div class="stats-card">
-            <div class="stats-label">Best Run</div>
-            <div class="stats-value" id="highScore">$0</div>
+
+    <div id="screens">
+        <div class="title-glow" id="mainTitle">CASH DASH<br><span style="font-size:32px; color:#00ccff;">High Speed</span></div>
+        <div class="subtitle" id="mainSub">
+            Tap Left or Right to switch lanes.<br><br>
+            <span style="color:#00ff88;font-weight:bold;">🟩 Collect Yield:</span> Build Combos<br>
+            <span style="color:#ff3366;font-weight:bold;">🟥 Dodge Expenses:</span> Avoid going broke!<br><br>
+            Speed increases over time. Don't hit zero!
         </div>
-        <button class="primary-btn" onclick="startGame()">Start Dashing</button>
+        <button id="mainBtn" onclick="startGame()">Start Sprint</button>
     </div>
-    <div class="overlay-screen hidden" id="gameOverScreen">
-        <div class="game-icon" style="background: #FFFFFF;">💸</div>
-        <div class="game-title">Out of Cash!</div>
-        <div class="game-subtitle">You collected $<span id="finalScore" style="color: var(--moneybot-green); font-weight: 800;">0</span></div>
-        <button class="primary-btn" onclick="restartGame()">Dash Again</button>
-    </div>
+
+    <canvas id="gameCanvas"></canvas>
+
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
-        let gameRunning = false;
-        let score = 0;
-        let highScore = localStorage.getItem('cashDashHighScore') || 0;
-        let player = { x: 175, y: 400, lane: 1, width: 40, height: 60 };
-        let items = [];
+        let width, height;
+
+        function resize() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+            // Recalculate lanes
+            lanes = [width*0.25, width*0.5, width*0.75];
+        }
+        window.addEventListener('resize', resize);
+
+        // --- GAME STATE ---
+        let state = 'menu'; 
+        let score = 1000; 
         let speed = 5;
+        let speedMult = 1.0;
+        let distance = 0;
+        let shakeTime = 0;
+        let combos = 0;
+        let frameCount = 0;
+        let bgOffsetY = 0;
+        
+        let lanes = []; // Calculated in resize()
+        
+        // --- ENTITIES ---
+        const player = { laneIndex: 1, x: 0, y: 0, size: 24, color: '#00ff88' };
+        let items = [];
         let particles = [];
-        let gameLoop;
-        document.getElementById('highScore').textContent = '$' + highScore;
-        const lanes = [70, 175, 280];
+        let speedLines = [];
+
+        // --- INPUT ---
+        canvas.addEventListener('touchstart', handleInput);
+        canvas.addEventListener('mousedown', handleInput);
+
+        function handleInput(e) {
+            if (state !== 'play') return;
+            let cx = e.touches ? e.touches[0].clientX : e.clientX;
+            
+            // Tap left half = move left, Tap right half = move right
+            if (cx < width/2 && player.laneIndex > 0) {
+                player.laneIndex--;
+            } else if (cx >= width/2 && player.laneIndex < 2) {
+                player.laneIndex++;
+            }
+        }
+
+        // --- FLOW ---
         function startGame() {
-            document.getElementById('startScreen').classList.add('hidden');
-            document.getElementById('gameOverScreen').classList.add('hidden');
-            gameRunning = true;
-            score = 0;
-            player.lane = 1;
+            resize();
+            document.getElementById('screens').style.display = 'none';
+            document.getElementById('hud').style.display = 'flex';
+            document.getElementById('centerUI').style.display = 'block';
+            document.getElementById('controlsHint').style.display = 'block';
+            
+            score = 1000;
+            speed = 8;
+            speedMult = 1.0;
+            distance = 0;
+            combos = 0;
+            frameCount = 0;
             items = [];
-            speed = 5;
             particles = [];
-            updateScore();
-            gameLoop = requestAnimationFrame(update);
+            
+            player.laneIndex = 1;
+            player.x = lanes[1];
+            player.y = height - 120;
+            
+            state = 'play';
+            updateUI();
+            requestAnimationFrame(loop);
         }
-        function restartGame() {
-            startGame();
+
+        function gameOver() {
+            state = 'over';
+            shakeTime = 20;
+            triggerFlash();
+            document.getElementById('screens').style.display = 'flex';
+            document.getElementById('hud').style.display = 'none';
+            document.getElementById('centerUI').style.display = 'none';
+            document.getElementById('controlsHint').style.display = 'none';
+            
+            document.getElementById('mainTitle').innerHTML = 'BANKRUPT<br><span style="font-size:32px;color:#ff3366;">Out of Cash</span>';
+            document.getElementById('mainSub').innerHTML = `Final Distance: <span style="color:#00ccff;font-weight:bold;">${Math.floor(distance)}m</span><br>Max Combo: ${combos}x`;
+            document.getElementById('mainBtn').innerText = 'Sprint Again';
         }
-        function update() {
-            if (!gameRunning) return;
-            score += Math.floor(speed / 2);
-            speed += 0.01;
-            if (Math.random() < 0.03) {
-                const type = Math.random() > 0.3 ? 'cash' : 'bill';
-                items.push({
-                    x: lanes[Math.floor(Math.random() * 3)],
-                    y: -50,
-                    type: type,
-                    value: type === 'cash' ? 50 + Math.floor(Math.random() * 100) : -100
+
+        // --- JUICE ---
+        function pulseUI(id) {
+            const el = document.getElementById(id);
+            el.classList.add('pulse');
+            setTimeout(() => el.classList.remove('pulse'), 150);
+        }
+
+        function triggerFlash() {
+            const flash = document.getElementById('damageFlash');
+            flash.style.opacity = '0.5';
+            setTimeout(() => flash.style.opacity = '0', 100);
+        }
+
+        function spawnParticles(x, y, color, count) {
+            for(let i=0; i<count; i++) {
+                particles.push({
+                    x: x, y: y,
+                    vx: (Math.random() - 0.5) * 15,
+                    vy: (Math.random() - 0.5) * 15,
+                    life: 1, color: color, size: Math.random() * 4 + 2
                 });
             }
-            items = items.filter(item => {
-                item.y += speed;
-                if (Math.abs(item.x - lanes[player.lane]) < 30 && Math.abs(item.y - player.y) < 40) {
-                    score += item.value;
-                    if (item.value > 0) {
-                        for (let i = 0; i < 5; i++) {
-                            particles.push({ x: item.x, y: item.y, vx: (Math.random() - 0.5) * 6, vy: (Math.random() - 0.5) * 6, life: 1, color: '#00E676' });
-                        }
-                        if (navigator.vibrate) navigator.vibrate(10);
-                    } else {
-                        if (navigator.vibrate) navigator.vibrate(30);
-                    }
-                    return false;
-                }
-                return item.y < canvas.height + 50;
-            });
-            particles = particles.filter(p => {
-                p.x += p.vx;
-                p.y += p.vy;
-                p.life -= 0.05;
-                return p.life > 0;
-            });
-            if (score < 0) {
-                gameOver();
-                return;
+        }
+
+        function spawnText(x, y, text, color) {
+            const el = document.createElement('div');
+            el.className = 'floating-text';
+            el.style.left = x + 'px';
+            el.style.top = y + 'px';
+            el.style.color = color;
+            el.innerText = text;
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 1000);
+        }
+
+        function updateUI() {
+            document.getElementById('scoreDisplay').innerText = '$' + score.toLocaleString();
+            document.getElementById('distDisplay').innerText = speedMult.toFixed(1) + 'x';
+            
+            const comboEl = document.getElementById('comboDisplay');
+            if (combos >= 3) {
+                comboEl.innerText = `${combos}x COMBO!`;
+                comboEl.classList.add('active');
+            } else {
+                comboEl.classList.remove('active');
             }
-            updateScore();
-            draw();
-            gameLoop = requestAnimationFrame(update);
         }
-        function gameOver() {
-            gameRunning = false;
-            cancelAnimationFrame(gameLoop);
-            if (score > highScore) {
-                highScore = score;
-                localStorage.setItem('cashDashHighScore', highScore);
+
+        // --- LOOP ---
+        function loop() {
+            if (state !== 'play' && state !== 'over') return;
+
+            // --- RENDER BACKGROUND ---
+            ctx.fillStyle = '#050505';
+            ctx.fillRect(0, 0, width, height);
+
+            ctx.save();
+            if (shakeTime > 0) {
+                ctx.translate((Math.random()-0.5)*15, (Math.random()-0.5)*15);
+                shakeTime--;
             }
-            document.getElementById('finalScore').textContent = score;
-            document.getElementById('gameOverScreen').classList.remove('hidden');
-        }
-        function updateScore() {
-            document.getElementById('score').textContent = score;
-        }
-        function draw() {
-            ctx.fillStyle = '#0f172a';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.strokeStyle = 'rgba(0, 230, 118, 0.2)';
+
+            // Draw Parallax Grid & Lanes
+            bgOffsetY = (bgOffsetY + speed * speedMult) % 50;
+            ctx.strokeStyle = 'rgba(0, 255, 136, 0.05)';
+            ctx.lineWidth = 2;
+            
+            // Vertical Lanes
+            ctx.beginPath();
             ctx.setLineDash([20, 20]);
-            lanes.forEach(lane => {
-                ctx.beginPath();
-                ctx.moveTo(lane, 0);
-                ctx.lineTo(lane, canvas.height);
-                ctx.stroke();
-            });
+            ctx.moveTo(lanes[0] + (lanes[1]-lanes[0])/2, 0); ctx.lineTo(lanes[0] + (lanes[1]-lanes[0])/2, height);
+            ctx.moveTo(lanes[1] + (lanes[2]-lanes[1])/2, 0); ctx.lineTo(lanes[1] + (lanes[2]-lanes[1])/2, height);
+            ctx.stroke();
             ctx.setLineDash([]);
-            const offset = (Date.now() * speed * 0.1) % 40;
-            ctx.strokeStyle = 'transparent';
-            for (let i = -40; i < canvas.height; i += 40) {
+
+            // Speed Lines (Stars)
+            if (Math.random() < 0.2 * speedMult) {
+                speedLines.push({ x: Math.random()*width, y: -50, length: 20 + Math.random()*50, speed: speed * speedMult * 1.5 });
+            }
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+            ctx.lineWidth = 1;
+            for(let i=speedLines.length-1; i>=0; i--) {
+                let sl = speedLines[i];
+                sl.y += sl.speed;
+                ctx.beginPath(); ctx.moveTo(sl.x, sl.y); ctx.lineTo(sl.x, sl.y - sl.length); ctx.stroke();
+                if(sl.y > height + 100) speedLines.splice(i, 1);
+            }
+
+            if (state === 'play') {
+                frameCount++;
+                distance += (speed * speedMult) / 100;
+                
+                // Ramp difficulty
+                speedMult = 1 + (distance / 500);
+
+                // Spawn Items
+                const spawnRate = Math.max(10, 30 - speedMult*2);
+                if (frameCount % Math.floor(spawnRate) === 0) {
+                    const lane = Math.floor(Math.random() * 3);
+                    const isExpense = Math.random() > 0.6;
+                    
+                    items.push({
+                        laneIndex: lane,
+                        x: lanes[lane],
+                        y: -50,
+                        type: isExpense ? 'expense' : 'yield',
+                        size: isExpense ? 22 : 18,
+                        rot: 0
+                    });
+                }
+
+                // Player Movement (Lerp)
+                player.x += (lanes[player.laneIndex] - player.x) * 0.3;
+
+                // Update Items
+                for(let i=items.length-1; i>=0; i--) {
+                    let item = items[i];
+                    item.y += speed * speedMult;
+                    item.rot += 0.05;
+
+                    // Draw Item
+                    ctx.save();
+                    ctx.translate(item.x, item.y);
+                    ctx.rotate(item.rot);
+                    
+                    if (item.type === 'expense') {
+                        ctx.shadowColor = '#ff3366'; ctx.shadowBlur = 15;
+                        ctx.fillStyle = '#ff3366';
+                        ctx.fillRect(-item.size, -item.size, item.size*2, item.size*2);
+                        ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
+                        ctx.strokeRect(-item.size, -item.size, item.size*2, item.size*2);
+                    } else {
+                        ctx.shadowColor = '#00ff88'; ctx.shadowBlur = 15;
+                        ctx.fillStyle = '#00ff88';
+                        ctx.beginPath();
+                        ctx.moveTo(0, -item.size); ctx.lineTo(item.size, 0); ctx.lineTo(0, item.size); ctx.lineTo(-item.size, 0);
+                        ctx.fill();
+                        ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke();
+                    }
+                    ctx.restore();
+
+                    // Collision Check
+                    const dx = player.x - item.x;
+                    const dy = player.y - item.y;
+                    const dist = Math.sqrt(dx*dx + dy*dy);
+                    
+                    if (dist < player.size + item.size) {
+                        if (item.type === 'expense') {
+                            // Hit Expense
+                            const penalty = 200 * speedMult;
+                            score -= penalty;
+                            combos = 0;
+                            shakeTime = 15;
+                            triggerFlash();
+                            pulseUI('scoreBox');
+                            spawnParticles(item.x, item.y, '#ff3366', 20);
+                            spawnText(item.x, item.y - 20, `-$${Math.floor(penalty)}`, '#ff3366');
+                            
+                            if (score <= 0) { score = 0; updateUI(); gameOver(); return; }
+                        } else {
+                            // Hit Yield
+                            combos++;
+                            const multi = Math.min(combos, 5);
+                            const bonus = 100 * multi;
+                            score += bonus;
+                            spawnParticles(item.x, item.y, '#00ff88', 10);
+                            spawnText(item.x, item.y - 20, `+$${bonus}`, '#00ff88');
+                            pulseUI('scoreBox');
+                        }
+                        
+                        items.splice(i, 1);
+                        updateUI();
+                        continue;
+                    }
+
+                    // Missed item
+                    if (item.y > height + 50) {
+                        if (item.type === 'yield') combos = 0; // Break combo if you miss cash
+                        items.splice(i, 1);
+                    }
+                }
+
+                // Draw Player
+                ctx.shadowColor = player.color;
+                ctx.shadowBlur = 20;
+                ctx.fillStyle = player.color;
+                
+                // Add thrust tail
                 ctx.beginPath();
-                ctx.moveTo(0, i + offset);
-                ctx.lineTo(canvas.width, i + offset);
+                ctx.moveTo(player.x - player.size*0.8, player.y);
+                ctx.lineTo(player.x + player.size*0.8, player.y);
+                ctx.lineTo(player.x, player.y + player.size*2);
+                ctx.fillStyle = 'rgba(0, 255, 136, 0.5)';
+                ctx.fill();
+                
+                ctx.fillStyle = player.color;
+                ctx.beginPath();
+                ctx.arc(player.x, player.y, player.size, 0, Math.PI*2);
+                ctx.fill();
+                
+                ctx.shadowBlur = 0;
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 3;
                 ctx.stroke();
             }
-            ctx.font = '45px Arial';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText('🏃', lanes[player.lane], player.y);
-            items.forEach(item => {
-                ctx.font = '35px Arial';
-                ctx.fillText(item.type === 'cash' ? '💵' : '📄', item.x, item.y);
-            });
-            particles.forEach(p => {
-                ctx.save();
+
+            // Draw Particles
+            for (let i = particles.length - 1; i >= 0; i--) {
+                let p = particles[i];
+                p.x += p.vx; p.y += p.vy;
+                p.life -= 0.05;
+                if (p.life <= 0) { particles.splice(i, 1); continue; }
                 ctx.globalAlpha = p.life;
                 ctx.fillStyle = p.color;
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.restore();
-            });
+                ctx.fillRect(p.x, p.y, p.size, p.size);
+            }
+            ctx.globalAlpha = 1;
+
+            ctx.restore();
+            if(state === 'play' || state === 'over') requestAnimationFrame(loop);
         }
-        document.addEventListener('keydown', (e) => {
-            if (!gameRunning) return;
-            if (e.key === 'ArrowLeft' && player.lane > 0) player.lane--;
-            if (e.key === 'ArrowRight' && player.lane < 2) player.lane++;
-        });
-        let touchStartX = 0;
-        document.addEventListener('touchstart', (e) => {
-            touchStartX = e.touches[0].clientX;
-        });
-        document.addEventListener('touchend', (e) => {
-            if (!gameRunning) return;
-            const touchEndX = e.changedTouches[0].clientX;
-            const diff = touchEndX - touchStartX;
-            if (diff > 50 && player.lane < 2) player.lane++;
-            if (diff < -50 && player.lane > 0) player.lane--;
-        });
     </script>
 </body>
 </html>
