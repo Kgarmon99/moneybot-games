@@ -156,6 +156,34 @@
         const imgPlayer = new Image(); imgPlayer.src = '../assets/moneybot-running-3d.jpg';
         const imgCoin = new Image(); imgCoin.src = '../assets/game-coin-green.svg';
         const imgDebt = new Image(); imgDebt.src = '../assets/brokebot.jpg';
+        // Background Removal Helper
+        const processedImages = {};
+        function getProcessedImg(img) {
+            if (!img.complete || img.naturalWidth === 0) return img;
+            if (processedImages[img.src]) return processedImages[img.src];
+            
+            const c = document.createElement('canvas');
+            c.width = img.naturalWidth; c.height = img.naturalHeight;
+            const cx = c.getContext('2d', { willReadFrequently: true });
+            cx.drawImage(img, 0, 0);
+            
+            if (img.src.includes('.svg')) {
+                processedImages[img.src] = img;
+                return img;
+            }
+            
+            const imgData = cx.getImageData(0, 0, c.width, c.height);
+            const d = imgData.data;
+            const bgR = d[0], bgG = d[1], bgB = d[2];
+            for (let i = 0; i < d.length; i += 4) {
+                const r = d[i], g = d[i+1], b = d[i+2];
+                if (Math.abs(r-bgR) + Math.abs(g-bgG) + Math.abs(b-bgB) < 45) d[i+3] = 0;
+            }
+            cx.putImageData(imgData, 0, 0);
+            processedImages[img.src] = c;
+            return c;
+        }
+
         const player = { laneIndex: 1, x: 0, y: 0, size: 24, color: '#00ff88' };
         let items = [];
         let particles = [];
@@ -343,26 +371,16 @@
                     
                     if (item.type === 'expense') {
                         if (imgDebt.complete) {
-                            ctx.save();
-                            ctx.beginPath();
-                            ctx.arc(0, 0, item.size * 1.5, 0, Math.PI * 2);
-                            ctx.clip();
-                            
-                            ctx.fillStyle = '#fff';
-                            ctx.fill();
-                            ctx.drawImage(imgDebt, -item.size * 1.5, -item.size * 1.5, item.size * 3, item.size * 3);
-                            
-                            ctx.lineWidth = 4;
-                            ctx.strokeStyle = '#ff3366';
-                            ctx.stroke();
-                            ctx.restore();
+                            const pImg = getProcessedImg(imgDebt);
+                            ctx.drawImage(pImg, -item.size * 2.5, -item.size * 2.5, item.size * 5, item.size * 5);
                         } else {
                             ctx.fillStyle = '#ff3366';
                             ctx.fillRect(-item.size, -item.size, item.size*2, item.size*2);
                         }
                     } else {
                         if (imgCoin.complete) {
-                            ctx.drawImage(imgCoin, -item.size * 1.5, -item.size * 1.5, item.size * 3, item.size * 3);
+                            const pImg = getProcessedImg(imgCoin);
+                            ctx.drawImage(pImg, -item.size * 2, -item.size * 2, item.size * 4, item.size * 4);
                         } else {
                             ctx.fillStyle = '#00ff88';
                             ctx.beginPath();
@@ -415,19 +433,8 @@
 
                 // Draw Player
                 if (imgPlayer.complete) {
-                    ctx.save();
-                    ctx.beginPath();
-                    ctx.arc(player.x, player.y, player.size * 1.5, 0, Math.PI * 2);
-                    ctx.clip();
-                    ctx.fillStyle = '#fff';
-                    ctx.fill();
-                    
-                    ctx.drawImage(imgPlayer, player.x - player.size * 1.5, player.y - player.size * 1.5, player.size * 3, player.size * 3);
-                    
-                    ctx.lineWidth = 4;
-                    ctx.strokeStyle = '#00ff88';
-                    ctx.stroke();
-                    ctx.restore();
+                    const pImg = getProcessedImg(imgPlayer);
+                    ctx.drawImage(pImg, player.x - player.size * 2, player.y - player.size * 2, player.size * 4, player.size * 4);
                 } else {
                     ctx.shadowColor = player.color;
                     ctx.shadowBlur = 20;
