@@ -48,7 +48,9 @@ window.addEventListener('pointerup', () => mouse.isDown = false);
 const player = {
     x: cw/2,
     y: ch/2,
-    radius: 35
+    radius: 35,
+    shield: false,
+    hustleTimer: 0
 };
 
 const brokebot = {
@@ -56,11 +58,13 @@ const brokebot = {
     y: 80,
     radius: 45,
     targetX: cw/2,
-    fireTimer: 0
+    fireTimer: 0,
+    isPredatory: false
 };
 
 let projectiles = []; // Red credit cards
 let payments = []; // Green principal payments
+let powerups = []; // Emergency Fund & Side Hustle
 let particles = [];
 let floatingTexts = [];
 
@@ -132,9 +136,19 @@ function updateGame(dt) {
     nwDisplay.innerText = `$${Math.floor(netWorth).toLocaleString()}`;
     debtDisplay.innerText = `${stuckDebts} CARDS`;
 
-    // Player Movement (Debt makes you sluggish)
-    // Base lerp is 0.15. Each debt subtracts 0.02, min 0.02.
-    const friction = Math.max(0.015, 0.15 - (stuckDebts * 0.015));
+    // Hustle timer logic
+    if (player.hustleTimer > 0) {
+        player.hustleTimer -= dt;
+        if (Math.random() < 0.1) { // Passive income from hustle
+            netWorth += 10;
+            createParticles(player.x, player.y, '#ffaa00', 1);
+        }
+    }
+
+    // Player Movement (Debt makes you sluggish, Hustle gives you a boost)
+    let friction = Math.max(0.015, 0.15 - (stuckDebts * 0.015));
+    if (player.hustleTimer > 0) friction = 0.2; // Full speed during Side Hustle
+
     player.x += (mouse.x - player.x) * friction;
     player.y += (mouse.y - player.y) * friction;
 
@@ -144,7 +158,17 @@ function updateGame(dt) {
 
     // Brokebot Movement (Moves along the top, trying to align with player)
     brokebot.targetX = player.x;
-    brokebot.x += (brokebot.targetX - brokebot.x) * 0.03;
+    const botSpeed = brokebot.isPredatory ? 0.06 : 0.03;
+    brokebot.x += (brokebot.targetX - brokebot.x) * botSpeed;
+
+    // Predatory Lending Mode (under 30s)
+    if (timeRemaining <= 30 && !brokebot.isPredatory) {
+        brokebot.isPredatory = true;
+        createFloatingText(cw/2, ch/2, "PREDATORY MODE ENGAGED!", '#ff3366');
+        gameContainer.classList.add('flash-red');
+        setTimeout(() => gameContainer.classList.remove('flash-red'), 1000);
+        if (window.mbAudio) window.mbAudio.playGameOver(); // Ominous sound
+    }
 
     // Brokebot Firing
     brokebot.fireTimer += dt;
@@ -155,6 +179,7 @@ function updateGame(dt) {
         // Calculate angle to player
         const angle = Math.atan2(player.y - brokebot.y, player.x - brokebot.x);
         
+        // Base shot
         projectiles.push({
             x: brokebot.x,
             y: brokebot.y,
@@ -164,17 +189,44 @@ function updateGame(dt) {
             height: 16,
             rotation: angle
         });
+
+        // Predatory spread shot
+        if (brokebot.isPredatory) {
+            const spread = 0.3;
+            projectiles.push({
+                x: brokebot.x, y: brokebot.y,
+                vx: Math.cos(angle - spread) * 7, vy: Math.sin(angle - spread) * 7,
+                width: 24, height: 16, rotation: angle - spread
+            });
+            projectiles.push({
+                x: brokebot.x, y: brokebot.y,
+                vx: Math.cos(angle + spread) * 7, vy: Math.sin(angle + spread) * 7,
+                width: 24, height: 16, rotation: angle + spread
+            });
+        }
         
         if (window.mbAudio) window.mbAudio.playSelect(); // quiet blip for shooting
     }
 
     // Spawn Payments randomly
-    if (Math.random() < 0.01) {
+    if (Math.random() < 0.012) {
         payments.push({
             x: Math.random() * (cw - 60) + 30,
             y: -20,
             vy: 3 + Math.random() * 2,
             radius: 15
+        });
+    }
+
+    // Spawn Powerups randomly
+    if (Math.random() < 0.005) { // 0.5% chance per frame
+        const type = Math.random() > 0.5 ? 'SHIELD' : 'HUSTLE';
+        powerups.push({
+            x: Math.random() * (cw - 60) + 30,
+            y: -20,
+            vy: 2 + Math.random() * 2,
+            radius: 12,
+            type: type
         });
     }
 
@@ -191,14 +243,25 @@ function updateGame(dt) {
         const dist = Math.sqrt(dx*dx + dy*dy);
         
         if (dist < player.radius + 10) {
-            stuckDebts++;
-            createParticles(p.x, p.y, '#ff3366', 10);
-            createFloatingText(p.x, p.y, "DEBT ADDED!", '#ff3366');
-            if (window.mbAudio) window.mbAudio.playHit();
-            
-            gameContainer.classList.add('shake');
-            setTimeout(() => gameContainer.classList.remove('shake'), 300);
-            
+            if (player.shield) {
+                // Shield blocks the card!
+                player.shield = false;
+                createParticles(p.x, p.y, '#00ccff', 20, 1.5);
+                createFloatingText(p.x, p.y, "SHIELD BROKEN!", '#00ccff');
+                if (window.mbAudio) window.mbAudio.playHit(); // Crunch sound
+                
+                gameContainer.classList.add('flash-blue');
+                setTimeout(() => gameContainer.classList.remove('flash-blue'), 200);
+            } else {
+                // Card sticks
+                stuckDebts++;
+                createParticles(p.x, p.y, '#ff3366', 10);
+                createFloatingText(p.x, p.y, "DEBT ADDED!", '#ff3366');
+                if (window.mbAudio) window.mbAudio.playHit();
+                
+                gameContainer.classList.add('shake');
+                setTimeout(() => gameContainer.classList.remove('shake'), 300);
+            }
             projectiles.splice(i, 1);
             continue;
         }
@@ -237,6 +300,36 @@ function updateGame(dt) {
 
         if (p.y > ch + 20) {
             payments.splice(i, 1);
+        }
+    }
+
+    // Update Powerups
+    for (let i = powerups.length - 1; i >= 0; i--) {
+        let pu = powerups[i];
+        pu.y += pu.vy;
+        
+        const dx = pu.x - player.x;
+        const dy = pu.y - player.y;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        
+        if (dist < player.radius + pu.radius) {
+            if (pu.type === 'SHIELD') {
+                player.shield = true;
+                createFloatingText(player.x, player.y, "EMERGENCY FUND!", '#00ccff');
+                createParticles(pu.x, pu.y, '#00ccff', 15);
+            } else {
+                player.hustleTimer = 5000; // 5 seconds of side hustle
+                createFloatingText(player.x, player.y, "SIDE HUSTLE!", '#ffaa00');
+                createParticles(pu.x, pu.y, '#ffaa00', 15);
+            }
+            
+            if (window.mbAudio) window.mbAudio.playLevelUp(); // Powerup sound
+            powerups.splice(i, 1);
+            continue;
+        }
+
+        if (pu.y > ch + 20) {
+            powerups.splice(i, 1);
         }
     }
 
@@ -292,6 +385,28 @@ function draw() {
     }
     ctx.shadowBlur = 0;
 
+    // Draw Powerups
+    for (let pu of powerups) {
+        ctx.beginPath();
+        ctx.arc(pu.x, pu.y, pu.radius, 0, Math.PI*2);
+        if (pu.type === 'SHIELD') {
+            ctx.fillStyle = '#00ccff';
+            ctx.shadowColor = '#00ccff';
+        } else {
+            ctx.fillStyle = '#ffaa00';
+            ctx.shadowColor = '#ffaa00';
+        }
+        ctx.shadowBlur = 15;
+        ctx.fill();
+        
+        ctx.fillStyle = '#000';
+        ctx.font = 'bold 14px Courier New';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(pu.type === 'SHIELD' ? '🛡️' : '⚡', pu.x, pu.y);
+    }
+    ctx.shadowBlur = 0;
+
     // Draw Projectiles (Red Credit Cards)
     ctx.fillStyle = '#ff3366';
     ctx.shadowColor = '#ff3366';
@@ -300,6 +415,14 @@ function draw() {
         ctx.save();
         ctx.translate(p.x, p.y);
         ctx.rotate(p.rotation);
+        
+        // Add a subtle trail if predatory
+        if (brokebot.isPredatory) {
+            ctx.fillStyle = 'rgba(255, 51, 102, 0.3)';
+            ctx.fillRect(-p.width, -p.height/2, p.width, p.height);
+            ctx.fillStyle = '#ff3366'; // Reset for main card
+        }
+
         ctx.fillRect(-p.width/2, -p.height/2, p.width, p.height);
         
         // Chip detail
@@ -312,6 +435,30 @@ function draw() {
 
     // Draw Player (MoneyBot)
     drawToken(imgMoneyBot, player.x, player.y, player.radius, '#00ff88');
+    
+    // Draw Shield
+    if (player.shield) {
+        ctx.beginPath();
+        ctx.arc(player.x, player.y, player.radius + 8, 0, Math.PI*2);
+        ctx.lineWidth = 4;
+        ctx.strokeStyle = '#00ccff';
+        ctx.shadowColor = '#00ccff';
+        ctx.shadowBlur = 15;
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+    }
+
+    // Draw Hustle Glow
+    if (player.hustleTimer > 0) {
+        ctx.beginPath();
+        ctx.arc(player.x, player.y, player.radius + 4, 0, Math.PI*2);
+        ctx.lineWidth = 4;
+        ctx.strokeStyle = 'rgba(255, 170, 0, 0.6)';
+        ctx.shadowColor = '#ffaa00';
+        ctx.shadowBlur = 20;
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+    }
     
     // Draw Stuck Debts visually ON the player
     if (stuckDebts > 0) {
@@ -342,7 +489,8 @@ function draw() {
         ctx.moveTo(brokebot.x, brokebot.y);
         ctx.lineTo(player.x, player.y);
         ctx.strokeStyle = `rgba(255, 51, 102, ${(brokebot.fireTimer - 800) / 200 * 0.5})`;
-        ctx.lineWidth = 2;
+        if (brokebot.isPredatory) ctx.strokeStyle = `rgba(255, 51, 102, ${(brokebot.fireTimer - 800) / 200 * 0.8})`; // Thicker/more visible in predatory mode
+        ctx.lineWidth = brokebot.isPredatory ? 4 : 2;
         ctx.stroke();
     }
 
@@ -384,10 +532,14 @@ function startGame() {
     stuckDebts = 0;
     projectiles = [];
     payments = [];
+    powerups = [];
     particles = [];
     floatingTexts = [];
     secondTimer = 0;
     brokebot.fireTimer = 0;
+    brokebot.isPredatory = false;
+    player.shield = false;
+    player.hustleTimer = 0;
     
     timeDisplay.innerText = `${timeRemaining}s`;
     nwDisplay.innerText = `$${netWorth.toLocaleString()}`;
