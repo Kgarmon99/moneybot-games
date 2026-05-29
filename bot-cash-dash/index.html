@@ -152,7 +152,10 @@
         
         let lanes = []; // Calculated in resize()
         
-        // --- ENTITIES ---
+        // Load SVG Assets
+        const imgPlayer = new Image(); imgPlayer.src = '../assets/moneybot-running.svg';
+        const imgCoin = new Image(); imgCoin.src = '../assets/game-coin-green.svg';
+        const imgDebt = new Image(); imgDebt.src = '../assets/game-obstacle-debt.svg';
         const player = { laneIndex: 1, x: 0, y: 0, size: 24, color: '#00ff88' };
         let items = [];
         let particles = [];
@@ -337,21 +340,23 @@
                     // Draw Item
                     ctx.save();
                     ctx.translate(item.x, item.y);
-                    ctx.rotate(item.rot);
                     
                     if (item.type === 'expense') {
-                        ctx.shadowColor = '#ff3366'; ctx.shadowBlur = 15;
-                        ctx.fillStyle = '#ff3366';
-                        ctx.fillRect(-item.size, -item.size, item.size*2, item.size*2);
-                        ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
-                        ctx.strokeRect(-item.size, -item.size, item.size*2, item.size*2);
+                        if (imgDebt.complete) {
+                            ctx.drawImage(imgDebt, -item.size * 1.5, -item.size * 1.5, item.size * 3, item.size * 3);
+                        } else {
+                            ctx.fillStyle = '#ff3366';
+                            ctx.fillRect(-item.size, -item.size, item.size*2, item.size*2);
+                        }
                     } else {
-                        ctx.shadowColor = '#00ff88'; ctx.shadowBlur = 15;
-                        ctx.fillStyle = '#00ff88';
-                        ctx.beginPath();
-                        ctx.moveTo(0, -item.size); ctx.lineTo(item.size, 0); ctx.lineTo(0, item.size); ctx.lineTo(-item.size, 0);
-                        ctx.fill();
-                        ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke();
+                        if (imgCoin.complete) {
+                            ctx.drawImage(imgCoin, -item.size * 1.5, -item.size * 1.5, item.size * 3, item.size * 3);
+                        } else {
+                            ctx.fillStyle = '#00ff88';
+                            ctx.beginPath();
+                            ctx.arc(0, 0, item.size, 0, Math.PI*2);
+                            ctx.fill();
+                        }
                     }
                     ctx.restore();
 
@@ -397,27 +402,31 @@
                 }
 
                 // Draw Player
-                ctx.shadowColor = player.color;
-                ctx.shadowBlur = 20;
-                ctx.fillStyle = player.color;
-                
-                // Add thrust tail
-                ctx.beginPath();
-                ctx.moveTo(player.x - player.size*0.8, player.y);
-                ctx.lineTo(player.x + player.size*0.8, player.y);
-                ctx.lineTo(player.x, player.y + player.size*2);
-                ctx.fillStyle = 'rgba(0, 255, 136, 0.5)';
-                ctx.fill();
-                
-                ctx.fillStyle = player.color;
-                ctx.beginPath();
-                ctx.arc(player.x, player.y, player.size, 0, Math.PI*2);
-                ctx.fill();
-                
-                ctx.shadowBlur = 0;
-                ctx.strokeStyle = '#fff';
-                ctx.lineWidth = 3;
-                ctx.stroke();
+                if (imgPlayer.complete) {
+                    ctx.drawImage(imgPlayer, player.x - player.size * 1.5, player.y - player.size * 2, player.size * 3, player.size * 4);
+                } else {
+                    ctx.shadowColor = player.color;
+                    ctx.shadowBlur = 20;
+                    ctx.fillStyle = player.color;
+                    
+                    // Add thrust tail
+                    ctx.beginPath();
+                    ctx.moveTo(player.x - player.size*0.8, player.y);
+                    ctx.lineTo(player.x + player.size*0.8, player.y);
+                    ctx.lineTo(player.x, player.y + player.size*2);
+                    ctx.fillStyle = 'rgba(0, 255, 136, 0.5)';
+                    ctx.fill();
+                    
+                    ctx.fillStyle = player.color;
+                    ctx.beginPath();
+                    ctx.arc(player.x, player.y, player.size, 0, Math.PI*2);
+                    ctx.fill();
+                    
+                    ctx.shadowBlur = 0;
+                    ctx.strokeStyle = '#fff';
+                    ctx.lineWidth = 3;
+                    ctx.stroke();
+                }
             }
 
             // Draw Particles
