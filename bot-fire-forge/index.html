@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>GoldBot's FIRE Forge</title>
+    <link rel="stylesheet" href="../shared/game-engine.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="game-container">
+        <div id="ui-layer">
+            <div class="hud-top">
+                <div class="stat-box">
+                    <span class="label">AGE</span>
+                    <span id="ageDisplay" class="value">22</span>
+                </div>
+                <div class="stat-box">
+                    <span class="label">ACTIVE CASH</span>
+                    <span id="activeCashDisplay" class="value">$0</span>
+                </div>
+                <div class="stat-box glow-gold">
+                    <span class="label">PASSIVE INCOME</span>
+                    <span id="passiveIncomeDisplay" class="value">$0/mo</span>
+                </div>
+            </div>
+            
+            <div id="forge-status" class="forge-hud">
+                <div class="label">FIRE FORGE LEVEL <span id="forgeLevelDisplay">1</span></div>
+                <div class="progress-bar-container">
+                    <div id="forgeProgress" class="progress-bar-fill"></div>
+                </div>
+            </div>
+
+            <div id="game-over-screen" class="hidden overlay-screen">
+                <h1 id="endTitle">FIRE ACHIEVED!</h1>
+                <p id="endSubtitle">You escaped the rat race!</p>
+                <button id="restartBtn" class="neon-btn">Play Again</button>
+            </div>
+            
+            <div id="start-screen" class="overlay-screen">
+                <h1>FIRE FORGE</h1>
+                <p>Catch green Active Income.<br>Drag MoneyBot to GoldBot to deposit.<br>Build Passive Income to hit FIRE!</p>
+                <button id="startBtn" class="neon-btn">Start Working</button>
+            </div>
+        </div>
+        
+        <canvas id="gameCanvas"></canvas>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>
