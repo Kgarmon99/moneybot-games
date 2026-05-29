@@ -13,6 +13,9 @@ resize();
 const imgYield = new Image(); imgYield.src = '../assets/moneybot-running-3d.jpg';
 const imgGrowth = new Image(); imgGrowth.src = '../assets/moneybot-super.jpg';
 const imgGold = new Image(); imgGold.src = '../assets/goldbot.jpg';
+const imgVenture = new Image(); imgVenture.src = '../assets/moneybot-driving.svg';
+const imgIndex = new Image(); imgIndex.src = '../assets/moneybot-idle.svg';
+const imgFire = new Image(); imgFire.src = '../assets/moneybot-celebrating.svg';
 const imgBroke = new Image(); imgBroke.src = '../assets/brokebot.jpg';
 
 // Game State
@@ -23,7 +26,7 @@ let passiveIncome = 0;
 let displayPassiveIncome = 0;
 let hitPauseTimer = 0;
 
-const GOAL = 100000;
+const GOAL = 10000000;
 
 // Upgrades & Modifiers
 let clickValue = 10;
@@ -32,6 +35,11 @@ let autoClicker = false;
 let autoClickTimer = 0;
 let boughtAutoClicker = false;
 let boughtOverclock = false;
+let boughtCoffee = false;
+let boughtFrenzyCap = false;
+let boughtFirewall = false;
+let boughtQuantum = false;
+let boughtCompound = false;
 
 // Frenzy
 let frenzyMeter = 0;
@@ -51,24 +59,39 @@ const nwBox = document.getElementById('nwBox');
 const btnYield = document.getElementById('buyYieldBot');
 const btnGrowth = document.getElementById('buyGrowthBot');
 const btnGold = document.getElementById('buyGoldBot');
+const btnVenture = document.getElementById('buyVentureBot');
+const btnIndex = document.getElementById('buyIndexBot');
+const btnFire = document.getElementById('buyFireBot');
 
 const tabBots = document.getElementById('tabBots');
 const tabUpgrades = document.getElementById('tabUpgrades');
 const botsShop = document.getElementById('botsShop');
 const upgradesShop = document.getElementById('upgradesShop');
+
+const btnCoffee = document.getElementById('buyCoffee');
 const btnAutoClick = document.getElementById('buyAutoClick');
+const btnFrenzyCap = document.getElementById('buyFrenzyCap');
 const btnOverclock = document.getElementById('buyOverclock');
+const btnFirewall = document.getElementById('buyFirewall');
+const btnQuantum = document.getElementById('buyQuantum');
+const btnCompound = document.getElementById('buyCompound');
 
 const costs = {
     yield: 100,
     growth: 500,
-    gold: 5000
+    gold: 5000,
+    venture: 25000,
+    index: 100000,
+    fire: 1000000
 };
 
 const yields = {
     yield: 5,
     growth: 30,
-    gold: 500
+    gold: 500,
+    venture: 3000,
+    index: 15000,
+    fire: 200000
 };
 
 // Entities
@@ -137,6 +160,16 @@ tabUpgrades.addEventListener('click', () => {
     botsShop.classList.add('hidden');
 });
 
+function updateShopUI() {
+    // Update bot ROIs globally
+    document.getElementById('roi-yield').innerText = `+$${(yields.yield * globalMult).toLocaleString()} / sec`;
+    document.getElementById('roi-growth').innerText = `+$${(yields.growth * globalMult).toLocaleString()} / sec`;
+    document.getElementById('roi-gold').innerText = `+$${(yields.gold * globalMult).toLocaleString()} / sec`;
+    document.getElementById('roi-venture').innerText = `+$${(yields.venture * globalMult).toLocaleString()} / sec`;
+    document.getElementById('roi-index').innerText = `+$${(yields.index * globalMult).toLocaleString()} / sec`;
+    document.getElementById('roi-fire').innerText = `+$${(yields.fire * globalMult).toLocaleString()} / sec`;
+}
+
 // Interactions
 btnWork.addEventListener('pointerdown', (e) => {
     if (gameState !== 'PLAYING') return;
@@ -192,7 +225,10 @@ function buyBot(type) {
         let color, img;
         if (type === 'yield') { color = '#00ff88'; img = imgYield; }
         else if (type === 'growth') { color = '#ffaa00'; img = imgGrowth; }
-        else { color = '#ffcc00'; img = imgGold; }
+        else if (type === 'gold') { color = '#ffcc00'; img = imgGold; }
+        else if (type === 'venture') { color = '#cc00ff'; img = imgVenture; }
+        else if (type === 'index') { color = '#00ffff'; img = imgIndex; }
+        else { color = '#ff3300'; img = imgFire; }
         
         bots.push({
             x: Math.random() * (cw - 80) + 40,
@@ -214,6 +250,21 @@ function buyBot(type) {
 btnYield.addEventListener('click', () => buyBot('yield'));
 btnGrowth.addEventListener('click', () => buyBot('growth'));
 btnGold.addEventListener('click', () => buyBot('gold'));
+btnVenture.addEventListener('click', () => buyBot('venture'));
+btnIndex.addEventListener('click', () => buyBot('index'));
+btnFire.addEventListener('click', () => buyBot('fire'));
+
+btnCoffee.addEventListener('click', () => {
+    if (netWorth >= 500 && !boughtCoffee) {
+        netWorth -= 500;
+        boughtCoffee = true;
+        clickValue = 50;
+        btnCoffee.innerHTML = `<div class="bot-name">COFFEE MACHINE</div><div class="bot-roi">PURCHASED</div>`;
+        btnCoffee.disabled = true;
+        createFloatingText(cw/2, ch/2, "CAFFEINE BOOST!", "#00ff88");
+        if (window.mbAudio) window.mbAudio.playLevelUp();
+    }
+});
 
 btnAutoClick.addEventListener('click', () => {
     if (netWorth >= 2500 && !boughtAutoClicker) {
@@ -227,24 +278,69 @@ btnAutoClick.addEventListener('click', () => {
     }
 });
 
+btnFrenzyCap.addEventListener('click', () => {
+    if (netWorth >= 10000 && !boughtFrenzyCap) {
+        netWorth -= 10000;
+        boughtFrenzyCap = true;
+        btnFrenzyCap.innerHTML = `<div class="bot-name">FRENZY CAP</div><div class="bot-roi">PURCHASED</div>`;
+        btnFrenzyCap.disabled = true;
+        createFloatingText(cw/2, ch/2, "FRENZY CAPACITY UPGRADED!", "#00ccff");
+        if (window.mbAudio) window.mbAudio.playLevelUp();
+    }
+});
+
 btnOverclock.addEventListener('click', () => {
     if (netWorth >= 25000 && !boughtOverclock) {
         netWorth -= 25000;
         boughtOverclock = true;
-        globalMult = 2;
-        
-        // Double the displayed ROIs in shop
-        document.querySelectorAll('.bot-roi').forEach(el => {
-            if(el.innerText.includes('+$5 /')) el.innerText = '+$10 / sec';
-            if(el.innerText.includes('+$30 /')) el.innerText = '+$60 / sec';
-            if(el.innerText.includes('+$500 /')) el.innerText = '+$1000 / sec';
-        });
-        
+        globalMult *= 2;
         passiveIncome *= 2; 
+        updateShopUI();
         
         btnOverclock.innerHTML = `<div class="bot-name">OVERCLOCK</div><div class="bot-roi">PURCHASED</div>`;
         btnOverclock.disabled = true;
         createFloatingText(cw/2, ch/2, "SYSTEM OVERCLOCK ACTIVE!", "#ffaa00");
+        if (window.mbAudio) window.mbAudio.playLevelUp();
+    }
+});
+
+btnFirewall.addEventListener('click', () => {
+    if (netWorth >= 100000 && !boughtFirewall) {
+        netWorth -= 100000;
+        boughtFirewall = true;
+        btnFirewall.innerHTML = `<div class="bot-name">FIREWALL</div><div class="bot-roi">PURCHASED</div>`;
+        btnFirewall.disabled = true;
+        createFloatingText(cw/2, ch/2, "SECURITY FIREWALL ONLINE!", "#00ff88");
+        if (window.mbAudio) window.mbAudio.playLevelUp();
+    }
+});
+
+btnQuantum.addEventListener('click', () => {
+    if (netWorth >= 500000 && !boughtQuantum) {
+        netWorth -= 500000;
+        boughtQuantum = true;
+        globalMult *= 3;
+        passiveIncome *= 3; 
+        updateShopUI();
+        
+        btnQuantum.innerHTML = `<div class="bot-name">QUANTUM COMP</div><div class="bot-roi">PURCHASED</div>`;
+        btnQuantum.disabled = true;
+        createFloatingText(cw/2, ch/2, "QUANTUM ALGORITHMS ACTIVE!", "#cc00ff");
+        if (window.mbAudio) window.mbAudio.playLevelUp();
+    }
+});
+
+btnCompound.addEventListener('click', () => {
+    if (netWorth >= 5000000 && !boughtCompound) {
+        netWorth -= 5000000;
+        boughtCompound = true;
+        globalMult *= 5;
+        passiveIncome *= 5; 
+        updateShopUI();
+        
+        btnCompound.innerHTML = `<div class="bot-name">COMPOUND ENGINE</div><div class="bot-roi">PURCHASED</div>`;
+        btnCompound.disabled = true;
+        createFloatingText(cw/2, ch/2, "EXPONENTIAL GROWTH ACHIEVED!", "#ffaa00");
         if (window.mbAudio) window.mbAudio.playLevelUp();
     }
 });
@@ -288,9 +384,9 @@ function updateGame(dt) {
 
     // Frenzy Logic
     if (!isFrenzy) {
-        if (frenzyMeter > 0) frenzyMeter -= dt * 0.02; // Drain slowly
+        if (frenzyMeter > 0) frenzyMeter -= dt * (boughtFrenzyCap ? 0.01 : 0.02); // Drain slowly
     } else {
-        frenzyMeter -= dt * 0.05; // Frenzy drains over time
+        frenzyMeter -= dt * (boughtFrenzyCap ? 0.025 : 0.05); // Frenzy drains over time
         if (frenzyMeter <= 0) {
             isFrenzy = false;
             vignette.classList.remove('frenzy');
@@ -313,8 +409,17 @@ function updateGame(dt) {
     btnYield.disabled = netWorth < costs.yield;
     btnGrowth.disabled = netWorth < costs.growth;
     btnGold.disabled = netWorth < costs.gold;
+    btnVenture.disabled = netWorth < costs.venture;
+    btnIndex.disabled = netWorth < costs.index;
+    btnFire.disabled = netWorth < costs.fire;
+    
+    if (!boughtCoffee) btnCoffee.disabled = netWorth < 500;
     if (!boughtAutoClicker) btnAutoClick.disabled = netWorth < 2500;
+    if (!boughtFrenzyCap) btnFrenzyCap.disabled = netWorth < 10000;
     if (!boughtOverclock) btnOverclock.disabled = netWorth < 25000;
+    if (!boughtFirewall) btnFirewall.disabled = netWorth < 100000;
+    if (!boughtQuantum) btnQuantum.disabled = netWorth < 500000;
+    if (!boughtCompound) btnCompound.disabled = netWorth < 5000000;
 
     // Rolling Numbers
     let activeDiff = netWorth - displayNetWorth;
@@ -400,7 +505,7 @@ function updateGame(dt) {
     }
 
     // Spawn Liabilities (BrokeBots)
-    if (bots.length > 0 && Math.random() < 0.001 + (passiveIncome / 100000)) {
+    if (bots.length > 0 && Math.random() < 0.002 + (passiveIncome / 500000)) {
         const targetBot = bots[Math.floor(Math.random() * bots.length)];
         if (targetBot.landed) {
             liabilities.push({
@@ -439,7 +544,7 @@ function updateGame(dt) {
             l.y = l.target.y - 20;
             
             if (Math.random() < 0.05) { 
-                const drain = Math.floor(yields[l.target.type] * globalMult * 0.5);
+                const drain = Math.floor(yields[l.target.type] * globalMult * (boughtFirewall ? 0.1 : 0.5));
                 netWorth -= drain;
                 createFloatingText(l.x, l.y, `-$${drain}`, "#ff3366");
                 createParticles(l.x, l.y, '#ff3366', 2);
@@ -559,7 +664,7 @@ function draw() {
             ctx.moveTo(l.x, l.y);
             ctx.lineTo(l.target.x, l.target.y);
             ctx.strokeStyle = '#ff3366';
-            ctx.lineWidth = 3;
+            ctx.lineWidth = boughtFirewall ? 1 : 3;
             ctx.stroke();
         }
         drawToken(imgBroke, l.x, l.y, l.radius, '#ff3366');
@@ -607,6 +712,28 @@ function startGame() {
     gameState = 'PLAYING';
     netWorth = 0;
     passiveIncome = 0;
+    clickValue = 10;
+    globalMult = 1;
+    autoClicker = false;
+    autoClickTimer = 0;
+    boughtAutoClicker = false;
+    boughtOverclock = false;
+    boughtCoffee = false;
+    boughtFrenzyCap = false;
+    boughtFirewall = false;
+    boughtQuantum = false;
+    boughtCompound = false;
+    
+    // Reset Buttons text and state
+    btnCoffee.innerHTML = `<div class="bot-name">COFFEE MACHINE</div><div class="bot-roi">+$50 / Click</div><div class="bot-cost">Cost: $500</div>`;
+    btnAutoClick.innerHTML = `<div class="bot-name">AUTO-CLICKER</div><div class="bot-roi">5 Clicks / sec</div><div class="bot-cost">Cost: $2,500</div>`;
+    btnFrenzyCap.innerHTML = `<div class="bot-name">FRENZY CAP</div><div class="bot-roi">2x Frenzy Duration</div><div class="bot-cost">Cost: $10,000</div>`;
+    btnOverclock.innerHTML = `<div class="bot-name">OVERCLOCK</div><div class="bot-roi">Global 2x Yield</div><div class="bot-cost">Cost: $25,000</div>`;
+    btnFirewall.innerHTML = `<div class="bot-name">FIREWALL</div><div class="bot-roi">80% Less Virus Drain</div><div class="bot-cost">Cost: $100,000</div>`;
+    btnQuantum.innerHTML = `<div class="bot-name">QUANTUM COMP</div><div class="bot-roi">Global 3x Yield</div><div class="bot-cost">Cost: $500,000</div>`;
+    btnCompound.innerHTML = `<div class="bot-name">COMPOUND ENGINE</div><div class="bot-roi">Global 5x Yield</div><div class="bot-cost">Cost: $5,000,000</div>`;
+    
+    updateShopUI();
     bots = [];
     liabilities = [];
     particles = [];

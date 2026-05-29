@@ -267,6 +267,24 @@ canvas {
     box-shadow: 0 0 15px rgba(255, 170, 0, 0.3);
 }
 
+.shop-btn.venture:hover:not(:disabled) {
+    border-color: #cc00ff;
+    background: rgba(204, 0, 255, 0.1);
+    box-shadow: 0 0 15px rgba(204, 0, 255, 0.3);
+}
+
+.shop-btn.index:hover:not(:disabled) {
+    border-color: #00ffff;
+    background: rgba(0, 255, 255, 0.1);
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+}
+
+.shop-btn.fire:hover:not(:disabled) {
+    border-color: #ff3300;
+    background: rgba(255, 51, 0, 0.1);
+    box-shadow: 0 0 15px rgba(255, 51, 0, 0.3);
+}
+
 .shop-btn.upgrade {
     border-color: #00ccff;
 }
@@ -285,6 +303,9 @@ canvas {
 .shop-btn .bot-name { font-weight: bold; font-size: 13px; margin-bottom: 3px; color: #ccc; }
 .shop-btn .bot-roi { font-size: 13px; color: #00ff88; margin-bottom: 3px; }
 .shop-btn.gold .bot-roi { color: #ffaa00; }
+.shop-btn.venture .bot-roi { color: #cc00ff; }
+.shop-btn.index .bot-roi { color: #00ffff; }
+.shop-btn.fire .bot-roi { color: #ff3300; }
 .shop-btn.upgrade .bot-roi { color: #00ccff; }
 .shop-btn .bot-cost { font-size: 11px; color: #888; }
 
