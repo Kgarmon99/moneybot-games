@@ -273,6 +273,42 @@
         const imgCoin = new Image(); imgCoin.src = '../assets/game-coin-green.svg';
         const imgDebt = new Image(); imgDebt.src = '../assets/brokebot.jpg';
 
+        // Background Removal Helper
+        const processedImages = {};
+        function getProcessedImg(img) {
+            if (!img.complete || img.naturalWidth === 0) return img;
+            if (processedImages[img.src]) return processedImages[img.src];
+            
+            const c = document.createElement('canvas');
+            c.width = img.naturalWidth; c.height = img.naturalHeight;
+            const cx = c.getContext('2d', { willReadFrequently: true });
+            cx.drawImage(img, 0, 0);
+            
+            // Skip processing for SVGs to save performance
+            if (img.src.includes('.svg')) {
+                processedImages[img.src] = img;
+                return img;
+            }
+            
+            const imgData = cx.getImageData(0, 0, c.width, c.height);
+            const d = imgData.data;
+            
+            // Sample corners to find background color
+            const bgR = d[0], bgG = d[1], bgB = d[2];
+            
+            for (let i = 0; i < d.length; i += 4) {
+                const r = d[i], g = d[i+1], b = d[i+2];
+                // Distance from background color
+                const dist = Math.abs(r-bgR) + Math.abs(g-bgG) + Math.abs(b-bgB);
+                if (dist < 45) { // Tolerance
+                    d[i+3] = 0; // Make transparent
+                }
+            }
+            cx.putImageData(imgData, 0, 0);
+            processedImages[img.src] = c;
+            return c;
+        }
+
         // Player
         const player = {
             x: width / 2,
@@ -458,28 +494,14 @@
             if (imgPlayer.complete && imgPlayerBull.complete) {
                 const drawImg = isBullMarket ? imgPlayerBull : imgPlayer;
                 const offset = isBullMarket ? Math.sin(frameCount*0.2)*4 : 0;
+                const pImg = getProcessedImg(drawImg);
                 
-                ctx.save();
-                ctx.beginPath();
-                ctx.arc(player.x, player.y + offset, player.size * 1.5, 0, Math.PI * 2);
-                ctx.clip();
-                
-                // Draw shadow backing for the clipping mask
-                ctx.fillStyle = '#fff';
-                ctx.fill();
-                
-                // Draw image centered in clip
+                // Draw image directly (larger, no clipping)
                 if (drawImg === imgPlayer) {
-                    ctx.drawImage(drawImg, player.x - player.size * 1.5, player.y - player.size * 1.5 + offset, player.size * 3, player.size * 3);
+                    ctx.drawImage(pImg, player.x - player.size * 2, player.y - player.size * 2 + offset, player.size * 4, player.size * 4);
                 } else {
-                    ctx.drawImage(drawImg, player.x - player.size * 1.5, player.y - player.size * 2 + offset, player.size * 3, player.size * 4);
+                    ctx.drawImage(pImg, player.x - player.size * 2, player.y - player.size * 2.5 + offset, player.size * 4, player.size * 5);
                 }
-                
-                // Add ring around it
-                ctx.lineWidth = 4;
-                ctx.strokeStyle = isBullMarket ? '#00ffff' : '#00ff88';
-                ctx.stroke();
-                ctx.restore();
                 
             } else {
                 ctx.shadowBlur = 25;
@@ -547,21 +569,8 @@
 
                 if (e.type === 'debt') {
                     if (imgDebt.complete) {
-                        ctx.save();
-                        ctx.beginPath();
-                        ctx.arc(0, 0, e.size * 1.5, 0, Math.PI * 2);
-                        ctx.clip();
-                        
-                        // Fill white back
-                        ctx.fillStyle = '#fff';
-                        ctx.fill();
-                        
-                        ctx.drawImage(imgDebt, -e.size * 1.5, -e.size * 1.5, e.size * 3, e.size * 3);
-                        
-                        ctx.lineWidth = 4;
-                        ctx.strokeStyle = '#ff3366';
-                        ctx.stroke();
-                        ctx.restore();
+                        const pImg = getProcessedImg(imgDebt);
+                        ctx.drawImage(pImg, -e.size * 2, -e.size * 2, e.size * 4, e.size * 4);
                     } else {
                         ctx.shadowColor = '#ff3366';
                         ctx.shadowBlur = 15;
@@ -587,7 +596,8 @@
                 }
                 else { // Asset
                     if (imgCoin.complete) {
-                        ctx.drawImage(imgCoin, -e.size * 1.5, -e.size * 1.5, e.size * 3, e.size * 3);
+                        const pImg = getProcessedImg(imgCoin);
+                        ctx.drawImage(pImg, -e.size * 2, -e.size * 2, e.size * 4, e.size * 4);
                     } else {
                         ctx.shadowColor = '#00ff88';
                         ctx.shadowBlur = 15;
