@@ -268,10 +268,10 @@
         let floatingTexts = [];
 
         // Load SVG Assets
-        const imgPlayer = new Image(); imgPlayer.src = '../assets/moneybot-driving.svg';
+        const imgPlayer = new Image(); imgPlayer.src = '../assets/moneybot-super.jpg';
         const imgPlayerBull = new Image(); imgPlayerBull.src = '../assets/moneybot-celebrating.svg';
         const imgCoin = new Image(); imgCoin.src = '../assets/game-coin-green.svg';
-        const imgDebt = new Image(); imgDebt.src = '../assets/game-obstacle-debt.svg';
+        const imgDebt = new Image(); imgDebt.src = '../assets/brokebot.jpg';
 
         // Player
         const player = {
@@ -458,7 +458,29 @@
             if (imgPlayer.complete && imgPlayerBull.complete) {
                 const drawImg = isBullMarket ? imgPlayerBull : imgPlayer;
                 const offset = isBullMarket ? Math.sin(frameCount*0.2)*4 : 0;
-                ctx.drawImage(drawImg, player.x - player.size * 1.5, player.y - player.size * 2 + offset, player.size * 3, player.size * 4);
+                
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(player.x, player.y + offset, player.size * 1.5, 0, Math.PI * 2);
+                ctx.clip();
+                
+                // Draw shadow backing for the clipping mask
+                ctx.fillStyle = '#fff';
+                ctx.fill();
+                
+                // Draw image centered in clip
+                if (drawImg === imgPlayer) {
+                    ctx.drawImage(drawImg, player.x - player.size * 1.5, player.y - player.size * 1.5 + offset, player.size * 3, player.size * 3);
+                } else {
+                    ctx.drawImage(drawImg, player.x - player.size * 1.5, player.y - player.size * 2 + offset, player.size * 3, player.size * 4);
+                }
+                
+                // Add ring around it
+                ctx.lineWidth = 4;
+                ctx.strokeStyle = isBullMarket ? '#00ffff' : '#00ff88';
+                ctx.stroke();
+                ctx.restore();
+                
             } else {
                 ctx.shadowBlur = 25;
                 ctx.shadowColor = player.color;
@@ -525,7 +547,21 @@
 
                 if (e.type === 'debt') {
                     if (imgDebt.complete) {
+                        ctx.save();
+                        ctx.beginPath();
+                        ctx.arc(0, 0, e.size * 1.5, 0, Math.PI * 2);
+                        ctx.clip();
+                        
+                        // Fill white back
+                        ctx.fillStyle = '#fff';
+                        ctx.fill();
+                        
                         ctx.drawImage(imgDebt, -e.size * 1.5, -e.size * 1.5, e.size * 3, e.size * 3);
+                        
+                        ctx.lineWidth = 4;
+                        ctx.strokeStyle = '#ff3366';
+                        ctx.stroke();
+                        ctx.restore();
                     } else {
                         ctx.shadowColor = '#ff3366';
                         ctx.shadowBlur = 15;
