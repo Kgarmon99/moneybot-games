@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>BrokeBot's Debt Trap</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="game-container">
+        <div id="ui-layer">
+            <div class="hud-top">
+                <div class="stat-box">
+                    <span class="label">TIME LEFT</span>
+                    <span id="timeDisplay" class="value">60s</span>
+                </div>
+                <div class="stat-box">
+                    <span class="label">NET WORTH</span>
+                    <span id="nwDisplay" class="value">$5,000</span>
+                </div>
+                <div class="stat-box glow-red">
+                    <span class="label">DEBT LOAD</span>
+                    <span id="debtDisplay" class="value">0 CARDS</span>
+                </div>
+            </div>
+
+            <div id="game-over-screen" class="hidden overlay-screen">
+                <h1 id="endTitle">SURVIVED!</h1>
+                <p id="endSubtitle">You escaped the debt trap!</p>
+                <div class="score-summary">
+                    Final Net Worth: <span id="finalScore" style="color:#00ff88">$0</span>
+                </div>
+                <button id="restartBtn" class="neon-btn">Play Again</button>
+            </div>
+            
+            <div id="start-screen" class="overlay-screen">
+                <h1>BROKEBOT'S<br><span style="color:#ff3366">DEBT TRAP</span></h1>
+                <p>BrokeBot is shooting high-interest Credit Cards at you!<br><br>
+                🔴 Cards stick to you, making you heavy and draining your wealth.<br>
+                🟢 Catch Green Principal Payments to blast the debt away.<br><br>
+                Survive for 60 seconds!</p>
+                <button id="startBtn" class="neon-btn">Start Dodging</button>
+            </div>
+        </div>
+        
+        <canvas id="gameCanvas"></canvas>
+    </div>
+
+    <script src="../shared/audio-engine.js"></script>
+    <script src="game.js"></script>
+</body>
+</html>
