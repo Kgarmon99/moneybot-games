@@ -1,21 +1,22 @@
 :root {
-  --mb-green: #00E676;
-  --mb-green-dark: #00C853;
-  --mb-green-soft: #69F0AE;
-  --mb-ink: #07111F;
-  --mb-ink-2: #0B1628;
-  --mb-panel: rgba(10, 24, 42, 0.86);
-  --mb-line: rgba(105, 240, 174, 0.22);
-  --mb-white: #F8FAFC;
-  --mb-muted: #AAB8C8;
-  --mb-gold: #FBBF24;
-  --mb-red: #FB7185;
-  --mb-blue: #38BDF8;
-  --mb-radius-sm: 12px;
-  --mb-radius-md: 18px;
-  --mb-radius-lg: 28px;
-  --mb-shadow: 0 24px 80px rgba(0, 0, 0, 0.34);
-  --mb-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --mb-green: #00ff88;
+  --mb-green-dark: #00cc66;
+  --mb-green-soft: #1aff99;
+  --mb-ink: #050505;
+  --mb-ink-2: #111111;
+  --mb-panel: rgba(10, 10, 10, 0.95);
+  --mb-line: rgba(0, 255, 136, 0.4);
+  --mb-white: #ffffff;
+  --mb-muted: #888888;
+  --mb-gold: #ffcc00;
+  --mb-red: #ff3366;
+  --mb-blue: #00ccff;
+  --mb-radius-sm: 8px;
+  --mb-radius-md: 12px;
+  --mb-radius-lg: 24px;
+  --mb-shadow: 0 0 20px rgba(0, 255, 136, 0.2);
+  --mb-glow: 0 0 15px rgba(0, 255, 136, 0.4), inset 0 0 10px rgba(0, 255, 136, 0.1);
+  --mb-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 * {
@@ -26,11 +27,15 @@
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Inter, sans-serif;
-  background: var(--mb-white);
-  color: var(--mb-ink);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--mb-ink);
+  color: var(--mb-white);
   min-height: 100vh;
   overflow-x: hidden;
+  background-image: 
+    linear-gradient(rgba(0, 255, 136, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 255, 136, 0.03) 1px, transparent 1px);
+  background-size: 30px 30px;
 }
 
 .game-container {
@@ -102,7 +107,7 @@ body {
 }
 
 .drop-zone {
-  background: white;
+  background: rgba(10, 10, 10, 0.8);
   border: 2px dashed var(--mb-muted);
   border-radius: var(--mb-radius-md);
   padding: 20px 12px;
@@ -111,32 +116,38 @@ body {
   flex-direction: column;
   align-items: center;
   transition: all 0.2s var(--mb-spring);
+  box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
 }
 
 .drop-zone.drag-over {
-  border-color: var(--mb-green-dark);
-  background: rgba(0, 200, 83, 0.08);
+  border-color: var(--mb-green);
+  background: rgba(0, 255, 136, 0.1);
   transform: scale(1.02);
+  box-shadow: inset 0 0 30px rgba(0, 255, 136, 0.2), 0 0 20px rgba(0, 255, 136, 0.1);
 }
 
 .drop-zone.correct {
-  border-color: var(--mb-green-dark);
-  background: rgba(0, 200, 83, 0.12);
+  border-color: var(--mb-green);
+  background: rgba(0, 255, 136, 0.15);
   animation: pulse-green 0.4s var(--mb-spring);
+  box-shadow: var(--mb-glow);
 }
 
 .drop-zone.incorrect {
   border-color: var(--mb-red);
-  background: rgba(251, 113, 133, 0.08);
+  background: rgba(255, 51, 102, 0.15);
   animation: shake 0.4s var(--mb-spring);
+  box-shadow: 0 0 20px rgba(255, 51, 102, 0.3), inset 0 0 10px rgba(255, 51, 102, 0.2);
 }
 
 .drop-zone-title {
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--mb-ink);
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--mb-white);
   margin-bottom: 8px;
   text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .drop-zone-hint {
@@ -181,44 +192,51 @@ body {
 }
 
 .draggable-item {
-  background: white;
-  border: 2px solid var(--mb-green-dark);
+  background: rgba(15, 15, 15, 0.95);
+  border: 2px solid var(--mb-green);
   border-radius: var(--mb-radius-sm);
   padding: 12px 16px;
   font-size: 14px;
-  font-weight: 600;
-  color: var(--mb-ink);
+  font-weight: 800;
+  color: var(--mb-white);
   cursor: grab;
   user-select: none;
   touch-action: none;
   transition: all 0.15s var(--mb-spring);
-  box-shadow: 0 2px 8px rgba(0, 200, 83, 0.15);
+  box-shadow: 0 4px 12px rgba(0, 255, 136, 0.15);
   position: relative;
+  text-shadow: 0 0 10px rgba(255,255,255,0.2);
 }
 
 .draggable-item:active {
   cursor: grabbing;
   transform: scale(1.05);
-  box-shadow: 0 4px 16px rgba(0, 200, 83, 0.3);
+  box-shadow: 0 8px 24px rgba(0, 255, 136, 0.4), var(--mb-glow);
+  border-color: #fff;
 }
 
 .draggable-item.dragging {
-  opacity: 0.7;
-  transform: scale(1.1) rotate(2deg);
+  opacity: 0.9;
+  transform: scale(1.1) rotate(3deg);
   z-index: 1000;
+  box-shadow: 0 15px 30px rgba(0, 255, 136, 0.5), var(--mb-glow);
 }
 
 .draggable-item.placed {
-  background: var(--mb-green-soft);
-  border-color: var(--mb-green-dark);
+  background: var(--mb-green);
+  border-color: #fff;
+  color: #000;
   font-size: 12px;
   padding: 8px 12px;
+  box-shadow: 0 0 15px rgba(0,255,136,0.5);
+  text-shadow: none;
 }
 
 .draggable-item.placed.incorrect-item {
   background: var(--mb-red);
-  border-color: #e11d48;
+  border-color: #fff;
   color: white;
+  box-shadow: 0 0 15px rgba(255,51,102,0.5);
 }
 
 /* Feedback */
@@ -341,26 +359,29 @@ body {
 }
 
 .btn-primary {
-  background: var(--mb-green-dark);
-  color: white;
+  background: linear-gradient(90deg, #00ff88, #00cc66);
+  color: #000;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: 0 0 20px rgba(0, 255, 136, 0.4);
 }
 
 .btn-primary:hover {
-  background: var(--mb-green);
+  background: linear-gradient(90deg, #1aff99, #00e673);
   transform: translateY(-2px);
-  box-shadow: 0 4px 16px rgba(0, 200, 83, 0.4);
+  box-shadow: 0 4px 20px rgba(0, 255, 136, 0.6), var(--mb-glow);
 }
 
 .btn-secondary {
-  background: transparent;
-  color: var(--mb-ink);
-  border: 2px solid var(--mb-muted);
+  background: rgba(10,10,10,0.8);
+  color: var(--mb-white);
+  border: 2px solid var(--mb-green);
   margin-left: 12px;
 }
 
 .btn-secondary:hover {
-  border-color: var(--mb-green-dark);
-  color: var(--mb-green-dark);
+  background: rgba(0,255,136,0.1);
+  box-shadow: var(--mb-glow);
 }
 
 /* Start Screen */
@@ -370,7 +391,7 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  background: var(--mb-ink);
+  background: rgba(5,5,5,0.95);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -384,16 +405,20 @@ body {
 }
 
 .start-logo {
-  font-size: 56px;
+  font-size: 64px;
   margin-bottom: 16px;
+  text-shadow: 0 0 30px rgba(0,255,136,0.5);
 }
 
 .start-title {
-  font-size: 28px;
-  font-weight: 800;
+  font-size: 36px;
+  font-weight: 900;
   color: var(--mb-green);
   margin-bottom: 12px;
   text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  text-shadow: 0 0 20px rgba(0,255,136,0.5);
 }
 
 .start-subtitle {
