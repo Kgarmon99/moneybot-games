@@ -195,10 +195,10 @@ function buyBot(type) {
         else { color = '#ffcc00'; img = imgGold; }
         
         bots.push({
-            x: Math.random() * (cw - 100) + 50,
+            x: Math.random() * (cw - 80) + 40,
             y: -100, // Drop from sky
-            targetY: Math.random() * (ch - 350) + 200,
-            radius: 35,
+            targetY: Math.random() * (ch - 380) + 180,
+            radius: window.innerWidth < 600 ? 25 : 35, // Smaller bots on mobile
             type: type,
             color: color,
             img: img,
@@ -359,7 +359,7 @@ function updateGame(dt) {
                 packets.push({
                     x: b.x, y: b.y,
                     tx: nwRect.left + nwRect.width/2,
-                    ty: nwRect.top + nwRect.height/2,
+                    ty: nwRect.bottom, // Target bottom of HUD instead of middle for better tracking on mobile
                     amt: amt,
                     color: b.color,
                     speed: 15 + Math.random() * 10
@@ -484,12 +484,13 @@ function draw() {
     ctx.strokeStyle = 'rgba(0, 255, 136, 0.15)';
     ctx.lineWidth = 2;
     ctx.beginPath();
+    const connectDist = window.innerWidth < 600 ? 150 : 250; // Shorter lines on mobile
     for (let i = 0; i < bots.length; i++) {
         if (!bots[i].landed) continue;
         for (let j = i + 1; j < bots.length; j++) {
             if (!bots[j].landed) continue;
             const dist = Math.hypot(bots[i].x - bots[j].x, bots[i].y - bots[j].y);
-            if (dist < 250) {
+            if (dist < connectDist) {
                 ctx.moveTo(bots[i].x, bots[i].y);
                 ctx.lineTo(bots[j].x, bots[j].y);
             }
@@ -505,12 +506,12 @@ function draw() {
         for (let j = i + 1; j < bots.length; j++) {
             if (!bots[j].landed) continue;
             const dist = Math.hypot(bots[i].x - bots[j].x, bots[i].y - bots[j].y);
-            if (dist < 250) {
+            if (dist < connectDist) {
                 const t = (time * 2 + i + j) % 1; 
                 const px = bots[i].x + (bots[j].x - bots[i].x) * t;
                 const py = bots[i].y + (bots[j].y - bots[i].y) * t;
                 ctx.beginPath();
-                ctx.arc(px, py, 3, 0, Math.PI*2);
+                ctx.arc(px, py, window.innerWidth < 600 ? 2 : 3, 0, Math.PI*2);
                 ctx.fill();
             }
         }
@@ -584,7 +585,7 @@ function draw() {
         
         ctx.fillStyle = ft.color;
         ctx.globalAlpha = Math.max(0, ft.life);
-        ctx.font = 'bold 24px Courier New';
+        ctx.font = window.innerWidth < 600 ? 'bold 18px Courier New' : 'bold 24px Courier New';
         ctx.fillText(ft.text, 0, 0);
         
         ctx.restore();
