@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Bot Simulator: Capital Allocator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="game-container">
+        <div id="ui-layer">
+            <div class="hud-top">
+                <div class="stat-box">
+                    <span class="label">NET WORTH</span>
+                    <span id="nwDisplay" class="value">$0</span>
+                </div>
+                <div class="stat-box glow-gold">
+                    <span class="label">PASSIVE INCOME (ROI)</span>
+                    <span id="roiDisplay" class="value">$0/sec</span>
+                </div>
+            </div>
+
+            <!-- Manual Work Button -->
+            <button id="manualWorkBtn" class="manual-btn">
+                <div class="icon">⚡</div>
+                MANUAL LABOR<br>+$10
+            </button>
+
+            <!-- Factory Shop -->
+            <div class="shop-panel">
+                <div class="shop-title">BOT FACTORY (ASSETS)</div>
+                <div class="shop-buttons">
+                    <button class="shop-btn" id="buyYieldBot">
+                        <div class="bot-name">YIELD BOT</div>
+                        <div class="bot-roi">+$5 / sec</div>
+                        <div class="bot-cost">Cost: $100</div>
+                    </button>
+                    <button class="shop-btn" id="buyGrowthBot">
+                        <div class="bot-name">GROWTH BOT</div>
+                        <div class="bot-roi">+$30 / sec</div>
+                        <div class="bot-cost">Cost: $500</div>
+                    </button>
+                    <button class="shop-btn gold" id="buyGoldBot">
+                        <div class="bot-name">GOLD BOT</div>
+                        <div class="bot-roi">+$500 / sec</div>
+                        <div class="bot-cost">Cost: $5,000</div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Screens -->
+            <div id="game-over-screen" class="hidden overlay-screen">
+                <h1 id="endTitle" style="color:#ffaa00">FACTORY MASTER!</h1>
+                <p id="endSubtitle">You built a massive automated bot factory.</p>
+                <div class="score-summary">
+                    Final Net Worth: <span id="finalScore" style="color:#00ff88">$0</span>
+                </div>
+                <button id="restartBtn" class="neon-btn">Rebuild Factory</button>
+            </div>
+            
+            <div id="start-screen" class="overlay-screen">
+                <h1>BOT <span style="color:#00ccff">SIMULATOR</span></h1>
+                <p>Convert your active labor into passive assets!<br><br>
+                ⚡ Click <b>Manual Labor</b> to earn initial capital.<br>
+                🏭 <b>Buy Bots</b> to build passive income.<br>
+                🔴 Tap <b>BrokeBots (Liabilities)</b> to destroy them before they drain your bots!<br><br>
+                Goal: Reach $100,000 Net Worth.</p>
+                <button id="startBtn" class="neon-btn">Open Factory</button>
+            </div>
+        </div>
+        
+        <canvas id="gameCanvas"></canvas>
+    </div>
+
+    <script src="../shared/audio-engine.js"></script>
+    <script src="game.js"></script>
+</body>
+</html>
