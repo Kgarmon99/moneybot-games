@@ -3,469 +3,447 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Bot Shot: Algo Trader</title>
+    <title>Bot Shot 2.0 | High Frequency Trading</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
-        * { margin: 0; padding: 0; box-sizing: border-box; touch-action: none; }
-        body { font-family: 'Share Tech Mono', monospace; background: #020205; overflow: hidden; user-select: none; color: #0f0; }
-        #gameCanvas { display: block; position: absolute; top: 0; left: 0; z-index: 0; }
-        #gameCanvas.playing { z-index: 1; pointer-events: auto; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
         
-        .screen {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            display: none; flex-direction: column; align-items: center; justify-content: center;
-            background: radial-gradient(circle at center, rgba(5,10,20,0.85) 0%, rgba(0,0,0,0.95) 100%);
-            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-            z-index: 10; pointer-events: auto; text-align: center; padding: 20px;
+        body {
+            margin: 0; padding: 0; background: #050505; color: #fff;
+            font-family: 'Inter', sans-serif; overflow: hidden; touch-action: none;
+            user-select: none; -webkit-user-select: none;
         }
-        .screen.active { display: flex; }
-        
-        .glow-text {
-            font-size: 60px; margin-bottom: 10px; color: #fff;
-            text-shadow: 0 0 10px #00ff88, 0 0 20px #00ff88, 0 0 40px #00ff88;
-            letter-spacing: 4px;
+
+        canvas { display: block; width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; z-index: 1; }
+
+        .ui-layer {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10;
         }
-        h2 { font-size: 24px; margin-bottom: 30px; color: #00ff88; letter-spacing: 2px; }
-        
-        .btn { 
-            padding: 15px 40px; font-size: 22px; border: 1px solid #00ff88; border-radius: 8px; 
-            cursor: pointer; background: linear-gradient(180deg, #004422 0%, #001100 100%); color: #00ff88; 
-            font-family: 'Share Tech Mono', monospace; font-weight: bold; pointer-events: auto; 
-            transition: all 0.1s; text-transform: uppercase; margin: 10px; 
-            box-shadow: 0 4px 0 #00aa55, 0 0 15px rgba(0,255,136,0.3);
+
+        .hud {
+            position: absolute; top: 20px; left: 20px; right: 20px;
+            display: flex; justify-content: space-between;
         }
-        .btn:active { transform: translateY(4px); box-shadow: 0 0 0 #00aa55, 0 0 5px rgba(0,255,136,0.4); }
-        .btn:hover { background: linear-gradient(180deg, #005533 0%, #002200 100%); color: #fff; }
-        
-        .hud { 
-            position: absolute; top: 15px; left: 15px; right: 15px;
-            display: flex; justify-content: space-between; align-items: flex-start;
-            z-index: 5; pointer-events: auto;
-        }
-        
+
         .stat-box {
-            background: rgba(0, 20, 10, 0.6); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
-            border: 1px solid rgba(0, 255, 136, 0.4); box-shadow: 0 0 15px rgba(0, 255, 136, 0.1);
-            padding: 10px 15px; border-radius: 8px; text-transform: uppercase;
+            background: rgba(10, 10, 10, 0.85); border: 2px solid #00ff88;
+            padding: 10px 15px; border-radius: 12px; box-shadow: 0 0 15px rgba(0, 255, 136, 0.2);
+            transition: transform 0.1s;
         }
-        .stat-val { font-size: 26px; color: #fff; font-weight: bold; display: block; margin-top: 5px; text-shadow: 0 0 8px currentColor; }
-        
-        .message {
-            position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%);
-            font-size: 45px; font-weight: bold; opacity: 0; transition: opacity 0.3s, transform 0.3s;
-            pointer-events: none; z-index: 20; text-shadow: 0 0 15px currentColor; text-transform: uppercase;
-            letter-spacing: 2px; white-space: nowrap;
+        .stat-box.pulse { transform: scale(1.1); box-shadow: 0 0 30px rgba(0, 255, 136, 0.6); }
+
+        .stat-label { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+        .stat-value { font-size: 24px; font-weight: 900; color: #00ff88; text-shadow: 0 0 10px rgba(0, 255, 136, 0.5); }
+        .cap-value { color: #00ccff; text-shadow: 0 0 10px rgba(0, 204, 255, 0.5); border-color: #00ccff; }
+
+        #screens { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 20; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(5,5,5,0.9); pointer-events: auto; }
+
+        .title-glow {
+            font-size: 54px; font-weight: 900; color: #00ff88; text-transform: uppercase;
+            text-shadow: 0 0 40px rgba(0, 255, 136, 0.6); margin-bottom: 15px; text-align: center; line-height: 1.1;
         }
-        
-        .info-panel {
-            background: rgba(0,0,0,0.5); border: 1px solid #333; padding: 20px; border-radius: 10px;
-            margin-bottom: 30px; text-align: left; font-size: 14px; color: #ccc; max-width: 450px; line-height: 1.6;
+
+        .subtitle { font-size: 16px; color: #aaa; margin-bottom: 40px; text-align: center; max-width: 400px; line-height: 1.5; }
+
+        button {
+            background: linear-gradient(90deg, #00ff88, #00cc66); border: none;
+            padding: 16px 48px; border-radius: 30px; font-size: 20px; font-weight: 900;
+            color: #000; cursor: pointer; box-shadow: 0 0 30px rgba(0, 255, 136, 0.4);
+            text-transform: uppercase; letter-spacing: 1px; transition: all 0.1s;
         }
-        .info-panel span { font-weight: bold; }
+        button:active { transform: scale(0.95); }
+
+        .floating-text {
+            position: absolute; font-size: 32px; font-weight: 900; text-shadow: 0 0 20px currentColor;
+            pointer-events: none; animation: floatUp 1s ease-out forwards; opacity: 1; z-index: 15;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-100px) scale(1.5); opacity: 0; }
+        }
     </style>
 </head>
 <body>
-    <canvas id="gameCanvas"></canvas>
-    
-    <div class="screen active" id="titleScreen">
-        <h1 class="glow-text">BOT SHOT</h1>
-        <h2>ALGORITHMIC TRADING SIM</h2>
-        <div class="info-panel">
-            <div style="text-align: center; margin-bottom: 10px; color:#fff;">SYSTEM DIRECTIVES</div>
-            1. Drag to aim and deploy <b>Capital</b> into market assets.<br>
-            2. Each shot costs $10k Capital.<br>
-            3. Hitting an asset returns your capital + ROI.<br>
-            4. Do not run out of Capital.<br><br>
-            <span style="color:#00aaff; text-shadow: 0 0 5px #00aaff;">[BONDS]</span> Wide / Static / Safe Yield<br>
-            <span style="color:#00ff55; text-shadow: 0 0 5px #00ff55;">[INDEX]</span> Medium / Moving / Med Yield<br>
-            <span style="color:#ff00aa; text-shadow: 0 0 5px #ff00aa;">[CRYPTO]</span> Small / Fast / High Yield
+
+    <div class="ui-layer">
+        <div class="hud" id="hud" style="display:none;">
+            <div class="stat-box" id="scoreBox">
+                <div class="stat-label">AUM (Assets)</div>
+                <div class="stat-value" id="scoreDisplay">$0M</div>
+            </div>
+            <div class="stat-box cap-value" id="capBox" style="border-color:#00ccff;">
+                <div class="stat-label">Liquid Capital</div>
+                <div class="stat-value" id="capDisplay" style="color:#00ccff;">3 Shots</div>
+            </div>
         </div>
-        <button class="btn" onclick="startGame()">INITIALIZE_BOT()</button>
-        <button class="btn" onclick="window.location.href='../moneybot-official/'" style="font-size:16px; padding:12px 20px; border-color:#444; color:#aaa; background:#111; box-shadow: none;">← TERMINATE</button>
-    </div>
-    
-    <div class="screen" id="gameOverScreen">
-        <h1 class="glow-text" style="color: #ff3333; text-shadow: 0 0 10px #ff3333, 0 0 30px #ff3333;">BANKRUPT</h1>
-        <p style="font-size: 20px; margin-bottom: 10px; color:#aaa;">You ran out of deployable capital.</p>
-        <p style="font-size: 30px; margin-bottom: 30px; color:#fff;">Final Net Worth: <span id="finalScore" style="color:#00ff88; text-shadow: 0 0 10px #00ff88;">$0</span></p>
-        <button class="btn" onclick="startGame()">REBOOT_SYSTEM()</button>
-        <button class="btn" onclick="window.location.href='../moneybot-official/'" style="font-size:16px; padding:12px 20px; border-color:#444; color:#aaa; background:#111; box-shadow: none;">← TERMINATE</button>
     </div>
 
-    <div class="hud" id="hud" style="display: none;">
-        <div class="stat-box">
-            Net Worth
-            <span class="stat-val" style="color:#00ff88">$<span id="score">0</span></span>
+    <div id="screens">
+        <div class="title-glow" id="mainTitle">Bot Shot<br><span style="font-size:32px; color:#00ccff;">High Frequency</span></div>
+        <div class="subtitle" id="mainSub">
+            Drag to aim your Capital (Cyan) and shoot it into ROI Targets (Green).<br><br>
+            Hit targets directly for higher yields. Missing costs Capital!
         </div>
-        <div class="stat-box" style="text-align: right;">
-            Capital <span style="font-size:12px; color:#aaa;">($10k/shot)</span>
-            <span class="stat-val" style="color:#ffaa00"><span id="shots">5</span> SHOTS</span>
-        </div>
+        <button id="mainBtn" onclick="startGame()">Start Trading</button>
     </div>
-    
-    <div id="floatMessage" class="message"></div>
+
+    <canvas id="gameCanvas"></canvas>
 
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
-        
-        let gameState = 'title';
-        let score = 0, level = 1, shots = 5;
-        let scoredThisShot = false;
-        
-        const ball = { x: 80, y: 0, r: 14, vx: 0, vy: 0, flying: false };
-        let targets = [];
-        let particles = [];
-        let trail = [];
-        let bgOffset = 0;
-        let shake = 0;
-        
+        let width, height;
+
         function resize() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-            if(!ball.flying) {
-                ball.x = 80;
-                ball.y = canvas.height - 120;
-            }
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
         }
         window.addEventListener('resize', resize);
         resize();
-        
-        function showFloatMessage(text, color) {
-            const msg = document.getElementById('floatMessage');
-            msg.textContent = text;
-            msg.style.color = color;
-            msg.style.opacity = 1;
-            msg.style.transform = 'translate(-50%, -50%) scale(1.2)';
-            
-            setTimeout(() => {
-                msg.style.transform = 'translate(-50%, -100%) scale(1)';
-            }, 50);
-            
-            setTimeout(() => {
-                msg.style.opacity = 0;
-                msg.style.transform = 'translate(-50%, -150%) scale(0.8)';
-            }, 1000);
+
+        // --- GAME STATE ---
+        let state = 'menu'; // menu, aim, flying, reset, over
+        let score = 0; // AUM
+        let shots = 3; // Capital
+        let level = 1;
+        let shakeTime = 0;
+        let particles = [];
+        let trails = [];
+        let combos = 0;
+
+        // --- ENTITIES ---
+        const ball = { x: 0, y: 0, r: 15, vx: 0, vy: 0, color: '#00ccff' };
+        const anchor = { x: 0, y: 0 };
+        const drag = { x: 0, y: 0, active: false };
+        let targets = [];
+        let obstacles = [];
+
+        // --- INPUT ---
+        function getPos(e) {
+            if(e.touches) return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+            return { x: e.clientX, y: e.clientY };
         }
 
-        function createParticles(x, y, color, amount=30, speed=10) {
-            for(let i=0; i<amount; i++) {
+        function down(e) {
+            if (state !== 'aim') return;
+            const p = getPos(e);
+            const dx = p.x - ball.x;
+            const dy = p.y - ball.y;
+            if (dx*dx + dy*dy < 2500) { // Clicked near ball
+                drag.active = true;
+                drag.x = p.x; drag.y = p.y;
+            }
+        }
+
+        function move(e) {
+            if (!drag.active || state !== 'aim') return;
+            const p = getPos(e);
+            drag.x = p.x; drag.y = p.y;
+        }
+
+        function up() {
+            if (!drag.active || state !== 'aim') return;
+            drag.active = false;
+            
+            // Calculate velocity
+            const dx = anchor.x - drag.x;
+            const dy = anchor.y - drag.y;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+            
+            if (dist > 20) {
+                // Shoot!
+                ball.vx = dx * 0.18;
+                ball.vy = dy * 0.18;
+                state = 'flying';
+                shots--; // Spend capital
+                updateUI();
+                pulseUI('capBox');
+            }
+        }
+
+        canvas.addEventListener('mousedown', down); canvas.addEventListener('mousemove', move); canvas.addEventListener('mouseup', up);
+        canvas.addEventListener('touchstart', down); canvas.addEventListener('touchmove', move); canvas.addEventListener('touchend', up);
+
+        // --- FLOW ---
+        function startGame() {
+            document.getElementById('screens').style.display = 'none';
+            document.getElementById('hud').style.display = 'flex';
+            score = 0;
+            shots = 3;
+            level = 1;
+            combos = 0;
+            updateUI();
+            setupLevel();
+            requestAnimationFrame(loop);
+        }
+
+        function gameOver() {
+            state = 'over';
+            document.getElementById('screens').style.display = 'flex';
+            document.getElementById('mainTitle').innerHTML = 'MARGIN CALL<br><span style="font-size:32px;color:#ff3366;">Out of Capital</span>';
+            document.getElementById('mainSub').innerHTML = `Final AUM: <span style="color:#00ff88;font-weight:bold;">$${score}M</span><br>Levels Cleared: ${level-1}`;
+            document.getElementById('mainBtn').innerText = 'Reinvest';
+        }
+
+        function setupLevel() {
+            state = 'reset';
+            particles = [];
+            trails = [];
+            
+            // Anchor at bottom center
+            anchor.x = width / 2;
+            anchor.y = height - 100;
+            ball.x = anchor.x;
+            ball.y = anchor.y;
+            ball.vx = 0; ball.vy = 0;
+
+            // Generate Targets based on level
+            targets = [];
+            obstacles = [];
+
+            const numTargets = 1; // Keep it simple, 1 basket
+            const targetY = 150 + Math.random() * (height/3);
+            const targetX = width/2 + (Math.random() - 0.5) * (width - 150);
+            
+            targets.push({
+                x: targetX, y: targetY,
+                w: 80 - Math.min(level*2, 40), // Shrinks over time
+                h: 20,
+                color: '#00ff88',
+                value: 100 * level
+            });
+
+            // Generate Obstacles (Red walls)
+            if (level > 2) {
+                const numObs = Math.min(level - 1, 4);
+                for(let i=0; i<numObs; i++) {
+                    obstacles.push({
+                        x: Math.random() * (width - 100),
+                        y: height/2 + (Math.random() - 0.5) * 200,
+                        w: 60 + Math.random() * 100,
+                        h: 15,
+                        moveType: Math.random() > 0.5 ? 'h' : 'none',
+                        speed: (Math.random() > 0.5 ? 1 : -1) * (1 + level*0.2),
+                        origX: 0
+                    });
+                    obstacles[i].origX = obstacles[i].x;
+                }
+            }
+
+            setTimeout(() => { state = 'aim'; }, 500);
+        }
+
+        // --- JUICE ---
+        function pulseUI(id) {
+            const el = document.getElementById(id);
+            el.classList.add('pulse');
+            setTimeout(() => el.classList.remove('pulse'), 150);
+        }
+
+        function spawnParticles(x, y, color, count) {
+            for(let i=0; i<count; i++) {
                 particles.push({
                     x: x, y: y,
-                    vx: (Math.random() - 0.5) * speed,
-                    vy: (Math.random() - 0.5) * speed,
-                    life: 1.0,
-                    decay: 0.02 + Math.random() * 0.03,
-                    color: color,
-                    size: Math.random() * 4 + 2
+                    vx: (Math.random() - 0.5) * 15,
+                    vy: (Math.random() - 0.5) * 15,
+                    life: 1, color: color, size: Math.random() * 4 + 2
                 });
             }
         }
-        
-        // Input Handling
-        let dragStart = null;
-        let dragCurr = null;
-        
-        function handleStart(x, y) {
-            if (gameState !== 'playing' || ball.flying) return;
-            if (Math.abs(x - ball.x) < 80 && Math.abs(y - ball.y) < 80) {
-                dragStart = { x, y }; dragCurr = { x, y };
-            }
+
+        function spawnText(x, y, text, color) {
+            const el = document.createElement('div');
+            el.className = 'floating-text';
+            el.style.left = x + 'px';
+            el.style.top = y + 'px';
+            el.style.color = color;
+            el.innerText = text;
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 1000);
         }
-        function handleMove(x, y) { if (dragStart) dragCurr = { x, y }; }
-        function handleEnd() {
-            if (!dragStart || !dragCurr) { dragStart = null; dragCurr = null; return; }
-            const dx = dragStart.x - dragCurr.x;
-            const dy = dragStart.y - dragCurr.y;
-            const dist = Math.sqrt(dx*dx + dy*dy);
-            
-            if (dist > 10) { 
-                const power = Math.min(dist / 4, 38); 
-                const angle = Math.atan2(dy, dx);
-                ball.vx = Math.cos(angle) * power;
-                ball.vy = Math.sin(angle) * power;
-                ball.flying = true;
-                scoredThisShot = false;
-                shots--; 
-                trail = [];
-                updateHUD();
-                shake = 3; // Little kickback shake
-                createParticles(ball.x, ball.y, '#ffaa00', 10, 5); // Launch sparks
-            }
-            dragStart = null; dragCurr = null;
+
+        function updateUI() {
+            document.getElementById('scoreDisplay').innerText = '$' + score + 'M';
+            document.getElementById('capDisplay').innerText = shots + (shots === 1 ? ' Shot' : ' Shots');
         }
-        
-        canvas.addEventListener('mousedown', e => handleStart(e.clientX, e.clientY));
-        canvas.addEventListener('mousemove', e => handleMove(e.clientX, e.clientY));
-        canvas.addEventListener('mouseup', handleEnd);
-        canvas.addEventListener('touchstart', e => { e.preventDefault(); handleStart(e.touches[0].clientX, e.touches[0].clientY); }, {passive: false});
-        canvas.addEventListener('touchmove', e => { e.preventDefault(); handleMove(e.touches[0].clientX, e.touches[0].clientY); }, {passive: false});
-        canvas.addEventListener('touchend', e => { e.preventDefault(); handleEnd(); }, {passive: false});
-        
-        function resetBall() {
-            ball.x = 80;
-            ball.y = canvas.height - 120;
-            ball.vx = 0; ball.vy = 0;
-            ball.flying = false;
-            scoredThisShot = false;
-            trail = [];
-        }
-        
-        function setupLevel() {
-            resetBall();
-            const rightEdge = canvas.width - 50;
-            const safeX = Math.max(rightEdge - 150, 200);
-            targets = [];
-            
-            // Bonds
-            targets.push({ x: safeX, y: canvas.height - 250, w: 120, h: 30, speed: 0, dir: 1, type: 'BONDS', value: 10, cap: 2, color: '#00aaff' });
-            // Stocks
-            const stockSpeed = 1 + (level * 0.5);
-            targets.push({ x: safeX - 50, y: canvas.height - 400, w: 80, h: 30, speed: stockSpeed, dir: 1, type: 'INDEX', value: 30, cap: 3, color: '#00ff55' });
-            // Crypto
-            if (level >= 2 || canvas.height > 600) {
-                const cryptoSpeed = 3 + level;
-                targets.push({ x: safeX - 100, y: Math.max(120, canvas.height - 550), w: 50, h: 30, speed: cryptoSpeed, dir: -1, type: 'CRYPTO', value: 100, cap: 5, color: '#ff00aa' });
-            }
-            updateHUD();
-        }
-        
-        function updateHUD() {
-            document.getElementById('score').textContent = score.toLocaleString() + "k";
-            document.getElementById('shots').textContent = shots;
-        }
-        
-        function startGame() {
-            gameState = 'playing'; score = 0; level = 1; shots = 5;
-            document.getElementById('titleScreen').classList.remove('active');
-            document.getElementById('gameOverScreen').classList.remove('active');
-            document.getElementById('hud').style.display = 'flex';
-            document.getElementById('gameCanvas').classList.add('playing');
-            setupLevel();
-        }
-        
-        function gameOver() {
-            gameState = 'gameover';
-            document.getElementById('finalScore').textContent = "$" + score.toLocaleString() + "k";
-            document.getElementById('gameOverScreen').classList.add('active');
-            document.getElementById('hud').style.display = 'none';
-            document.getElementById('gameCanvas').classList.remove('playing');
-        }
-        
-        function drawBackground() {
-            // Dark Gradient
-            let grad = ctx.createLinearGradient(0,0,0,canvas.height);
-            grad.addColorStop(0, '#020208');
-            grad.addColorStop(1, '#051015');
-            ctx.fillStyle = grad;
-            ctx.fillRect(0,0,canvas.width,canvas.height);
-            
-            // Neon Perspective Grid
-            ctx.strokeStyle = 'rgba(0, 255, 136, 0.05)';
-            ctx.lineWidth = 1;
-            bgOffset = (bgOffset + 0.5) % 50;
-            
-            ctx.beginPath();
-            for(let x=0; x<canvas.width; x+=50) { ctx.moveTo(x,0); ctx.lineTo(x,canvas.height); }
-            for(let y=bgOffset; y<canvas.height; y+=50) { ctx.moveTo(0,y); ctx.lineTo(canvas.width,y); }
-            ctx.stroke();
-            
-            // Background Chart Line
-            ctx.beginPath();
-            ctx.strokeStyle = 'rgba(0, 255, 136, 0.1)';
-            ctx.lineWidth = 2;
-            ctx.moveTo(0, canvas.height/2);
-            for(let i=0; i<canvas.width; i+=20) {
-                ctx.lineTo(i, canvas.height/2 - Math.sin(i*0.01 + bgOffset*0.05)*60 - Math.cos(i*0.02)*40);
-            }
-            ctx.stroke();
-            
-            // Floor
-            ctx.fillStyle = 'rgba(0, 30, 15, 0.8)';
-            ctx.fillRect(0, canvas.height - 80, canvas.width, 80);
-            ctx.strokeStyle = '#00ff88'; ctx.lineWidth = 2;
-            ctx.beginPath(); ctx.moveTo(0, canvas.height - 80); ctx.lineTo(canvas.width, canvas.height - 80); ctx.stroke();
-            
-            // Launch Pad Base
-            ctx.shadowBlur = 15; ctx.shadowColor = '#00ff88';
-            ctx.fillStyle = '#001105'; ctx.strokeStyle = '#00ff88';
-            ctx.beginPath(); ctx.moveTo(40, canvas.height - 80); ctx.lineTo(60, canvas.height - 100); 
-            ctx.lineTo(100, canvas.height - 100); ctx.lineTo(120, canvas.height - 80); ctx.closePath();
-            ctx.fill(); ctx.stroke();
-            ctx.fillStyle = '#00ff88'; ctx.fillRect(70, canvas.height - 100, 20, 3);
-            ctx.shadowBlur = 0;
-        }
-        
-        function draw() {
-            // Apply Screen Shake
+
+        // --- LOOP ---
+        function loop() {
+            if (state === 'menu' || state === 'over') return;
+
+            // Background
+            ctx.fillStyle = '#050505';
+            ctx.fillRect(0, 0, width, height);
+
             ctx.save();
-            if (shake > 0) {
-                const dx = (Math.random() - 0.5) * shake;
-                const dy = (Math.random() - 0.5) * shake;
-                ctx.translate(dx, dy);
-                shake *= 0.9;
-                if (shake < 0.5) shake = 0;
+            if (shakeTime > 0) {
+                ctx.translate((Math.random()-0.5)*10, (Math.random()-0.5)*10);
+                shakeTime--;
             }
 
-            drawBackground();
-            
-            // Aim line & Tether
-            if (dragStart && dragCurr && !ball.flying) {
-                const dx = dragStart.x - dragCurr.x;
-                const dy = dragStart.y - dragCurr.y;
-                const angle = Math.atan2(dy, dx);
-                const dist = Math.min(Math.sqrt(dx*dx + dy*dy), 150);
-                
-                // Tether
-                ctx.strokeStyle = '#00ff88'; ctx.lineWidth = 2;
-                ctx.beginPath(); ctx.moveTo(80, canvas.height-100); ctx.lineTo(ball.x, ball.y); ctx.stroke();
-                
-                // Trajectory Prediction
-                ctx.strokeStyle = 'rgba(255, 170, 0, 0.6)'; ctx.lineWidth = 3; ctx.setLineDash([8, 8]);
-                ctx.beginPath(); ctx.moveTo(ball.x, ball.y);
-                ctx.lineTo(ball.x + Math.cos(angle) * dist * 1.5, ball.y + Math.sin(angle) * dist * 1.5);
-                ctx.stroke(); ctx.setLineDash([]);
-            }
-            
-            // Draw Targets (Neon Brackets)
-            targets.forEach(t => {
-                ctx.shadowColor = t.color; ctx.shadowBlur = 15;
-                ctx.strokeStyle = t.color; ctx.lineWidth = 3;
-                const b = 10; // bracket length
-                
-                // Top Left
-                ctx.beginPath(); ctx.moveTo(t.x+b, t.y); ctx.lineTo(t.x, t.y); ctx.lineTo(t.x, t.y+b); ctx.stroke();
-                // Top Right
-                ctx.beginPath(); ctx.moveTo(t.x+t.w-b, t.y); ctx.lineTo(t.x+t.w, t.y); ctx.lineTo(t.x+t.w, t.y+b); ctx.stroke();
-                // Bottom Left
-                ctx.beginPath(); ctx.moveTo(t.x+b, t.y+t.h); ctx.lineTo(t.x, t.y+t.h); ctx.lineTo(t.x, t.y+t.h-b); ctx.stroke();
-                // Bottom Right
-                ctx.beginPath(); ctx.moveTo(t.x+t.w-b, t.y+t.h); ctx.lineTo(t.x+t.w, t.y+t.h); ctx.lineTo(t.x+t.w, t.y+t.h-b); ctx.stroke();
-                
-                // Fill
-                ctx.globalAlpha = 0.15; ctx.fillStyle = t.color; ctx.fillRect(t.x, t.y, t.w, t.h); ctx.globalAlpha = 1.0;
-                
-                // Text
-                ctx.shadowBlur = 0; ctx.fillStyle = '#fff'; ctx.font = 'bold 12px Share Tech Mono'; ctx.textAlign = 'center';
-                ctx.fillText(t.type, t.x + t.w/2, t.y - 8);
-                ctx.fillStyle = t.color; ctx.fillText('$' + t.value + 'k', t.x + t.w/2, t.y + t.h/2 + 4);
-            });
-            
-            // Draw Trail
-            if (trail.length > 1) {
-                ctx.beginPath(); ctx.moveTo(trail[0].x, trail[0].y);
-                for(let i=1; i<trail.length; i++) ctx.lineTo(trail[i].x, trail[i].y);
-                ctx.strokeStyle = 'rgba(255, 170, 0, 0.4)'; ctx.lineWidth = ball.r * 1.5;
-                ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.shadowBlur = 10; ctx.shadowColor = '#ffaa00';
-                ctx.stroke(); ctx.shadowBlur = 0;
-            }
-            
-            // Draw Ball (Coin/Energy Sphere)
-            let rgrad = ctx.createRadialGradient(ball.x - ball.r/3, ball.y - ball.r/3, 2, ball.x, ball.y, ball.r);
-            rgrad.addColorStop(0, '#fff'); rgrad.addColorStop(0.3, '#ffcc00'); rgrad.addColorStop(1, '#aa6600');
-            ctx.fillStyle = rgrad; ctx.shadowColor = '#ffaa00'; ctx.shadowBlur = 15;
-            ctx.beginPath(); ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI * 2); ctx.fill();
-            
-            // Coin Symbol
-            ctx.shadowBlur = 0; ctx.fillStyle = '#442200'; ctx.font = 'bold 16px sans-serif'; 
-            ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('$', ball.x, ball.y + 1);
-            
-            // Draw Particles
-            particles.forEach(p => {
-                ctx.fillStyle = p.color; ctx.globalAlpha = Math.max(0, p.life);
-                ctx.shadowBlur = 10; ctx.shadowColor = p.color;
-                ctx.beginPath(); ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI*2); ctx.fill();
-            });
-            ctx.globalAlpha = 1.0; ctx.shadowBlur = 0;
-            
-            ctx.restore(); // End Screen Shake
-        }
-        
-        function update() {
-            if (gameState !== 'playing') return;
-            
-            // Move targets
-            targets.forEach(t => {
-                if (t.speed > 0) {
-                    t.x += t.speed * t.dir;
-                    if (t.x < 150) { t.x = 150; t.dir = 1; }
-                    if (t.x + t.w > canvas.width - 20) { t.x = canvas.width - t.w - 20; t.dir = -1; }
+            // Draw Obstacles
+            ctx.fillStyle = '#ff3366';
+            ctx.shadowColor = '#ff3366';
+            ctx.shadowBlur = 10;
+            for (let obs of obstacles) {
+                if (obs.moveType === 'h') {
+                    obs.x += obs.speed;
+                    if (obs.x < 0 || obs.x + obs.w > width) obs.speed *= -1;
                 }
-            });
-            
-            // Update particles
-            for(let i=particles.length-1; i>=0; i--) {
-                let p = particles[i];
-                p.x += p.vx; p.y += p.vy;
-                p.life -= p.decay;
-                if(p.life <= 0) particles.splice(i, 1);
+                ctx.fillRect(obs.x, obs.y, obs.w, obs.h);
             }
-            
-            if (!ball.flying) return;
-            
-            // Trail
-            trail.push({x: ball.x, y: ball.y});
-            if(trail.length > 15) trail.shift();
-            
-            // Physics
-            ball.vy += 0.5; // Gravity
-            ball.x += ball.vx;
-            ball.y += ball.vy;
-            
-            // Floor bounce
-            if (ball.y + ball.r > canvas.height - 80) {
-                ball.y = canvas.height - 80 - ball.r;
-                ball.vy *= -0.5; ball.vx *= 0.7;
-                shake = Math.min(Math.abs(ball.vy), 5); // Shake on impact
-                
-                // Stop check
-                if (Math.abs(ball.vy) < 2 && Math.abs(ball.vx) < 2) {
-                    ball.flying = false;
-                    
-                    if (shots <= 0 && !scoredThisShot) {
-                        setTimeout(gameOver, 800);
-                    } else if (!scoredThisShot) {
-                        showFloatMessage("MISSED OPPORTUNITY", "#ff3333");
-                        setTimeout(resetBall, 600);
+            ctx.shadowBlur = 0;
+
+            // Draw Targets
+            ctx.fillStyle = '#00ff88';
+            ctx.shadowColor = '#00ff88';
+            ctx.shadowBlur = 20;
+            for (let t of targets) {
+                ctx.fillRect(t.x - t.w/2, t.y, t.w, t.h);
+                // Draw holo beam upward
+                const grad = ctx.createLinearGradient(0, t.y, 0, t.y - 100);
+                grad.addColorStop(0, 'rgba(0,255,136,0.3)');
+                grad.addColorStop(1, 'rgba(0,255,136,0)');
+                ctx.fillStyle = grad;
+                ctx.fillRect(t.x - t.w/2 + 5, t.y - 100, t.w - 10, 100);
+            }
+            ctx.shadowBlur = 0;
+
+            // Draw Slingshot Band
+            if (state === 'aim' && drag.active) {
+                ctx.strokeStyle = 'rgba(0, 204, 255, 0.5)';
+                ctx.lineWidth = 4;
+                ctx.setLineDash([10, 10]);
+                ctx.beginPath();
+                ctx.moveTo(anchor.x, anchor.y);
+                ctx.lineTo(drag.x, drag.y);
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                // Trajectory Prediction
+                ctx.strokeStyle = 'rgba(0, 204, 255, 0.2)';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                let px = anchor.x; let py = anchor.y;
+                let pvx = (anchor.x - drag.x) * 0.18;
+                let pvy = (anchor.y - drag.y) * 0.18;
+                ctx.moveTo(px, py);
+                for(let i=0; i<15; i++) {
+                    pvy += 0.4; // gravity
+                    px += pvx; py += pvy;
+                    ctx.lineTo(px, py);
+                }
+                ctx.stroke();
+            }
+
+            // Ball Logic
+            if (state === 'flying') {
+                ball.vy += 0.4; // Gravity
+                ball.x += ball.vx;
+                ball.y += ball.vy;
+
+                // Trails
+                trails.push({x: ball.x, y: ball.y, life: 1});
+
+                // Wall Bounces
+                if (ball.x - ball.r < 0) { ball.x = ball.r; ball.vx *= -0.7; shakeTime=5; spawnParticles(ball.x, ball.y, '#00ccff', 5); }
+                if (ball.x + ball.r > width) { ball.x = width - ball.r; ball.vx *= -0.7; shakeTime=5; spawnParticles(ball.x, ball.y, '#00ccff', 5); }
+                if (ball.y - ball.r < 0) { ball.y = ball.r; ball.vy *= -0.7; shakeTime=5; spawnParticles(ball.x, ball.y, '#00ccff', 5); }
+
+                // Obstacle Bounce
+                for (let obs of obstacles) {
+                    if (ball.x > obs.x && ball.x < obs.x + obs.w && ball.y + ball.r > obs.y && ball.y - ball.r < obs.y + obs.h) {
+                        ball.vy *= -0.8;
+                        ball.y = ball.vy > 0 ? obs.y + obs.h + ball.r : obs.y - ball.r;
+                        shakeTime = 8;
+                        spawnParticles(ball.x, ball.y, '#ff3366', 15);
+                        combos = 0; // Lost combo
                     }
                 }
-            }
-            
-            // Walls
-            if (ball.x < ball.r) { ball.x = ball.r; ball.vx *= -0.8; shake = 3; }
-            if (ball.x > canvas.width - ball.r) { ball.x = canvas.width - ball.r; ball.vx *= -0.8; shake = 3; }
-            if (ball.y < ball.r) { ball.y = ball.r; ball.vy *= -0.8; shake = 3; }
-            
-            // Target Collision
-            if (!scoredThisShot && ball.vy > 0) { // Must fall into it
+
+                // Target Hit
+                let hitTarget = false;
                 for (let t of targets) {
-                    // Check bounding box
-                    if (ball.x > t.x && ball.x < t.x + t.w && ball.y + ball.r > t.y && ball.y - ball.r < t.y + t.h) {
-                        scoredThisShot = true;
+                    if (ball.vy > 0 && ball.x > t.x - t.w/2 && ball.x < t.x + t.w/2 && ball.y + ball.r > t.y && ball.y < t.y + t.h) {
+                        hitTarget = true;
+                        combos++;
+                        const multi = Math.min(combos, 4);
+                        const earned = t.value * multi;
                         
-                        score += t.value;
-                        shots += t.cap; // Return capital + profit
+                        score += earned;
+                        shots += 1; // Refund the shot + profit
                         level++;
                         
-                        shake = 15; // Big impact shake
-                        createParticles(ball.x, ball.y, t.color, 50, 15);
-                        showFloatMessage(`+${t.value}k ROI!`, t.color);
-                        updateHUD();
+                        shakeTime = 15;
+                        spawnParticles(ball.x, ball.y, '#00ff88', 40);
+                        spawnText(ball.x, ball.y - 30, multi > 1 ? `+$${earned}M (${multi}x!)` : `+$${earned}M`, '#00ff88');
                         
-                        ball.vy *= -0.5; // Bounce off
-                        setTimeout(setupLevel, 1200);
+                        pulseUI('scoreBox');
+                        updateUI();
+                        state = 'reset';
+                        setTimeout(setupLevel, 1000);
                         break;
                     }
                 }
+
+                // Floor (Miss)
+                if (!hitTarget && ball.y > height + 50) {
+                    combos = 0;
+                    spawnText(width/2, height - 100, "CAPITAL LOST", "#ff3366");
+                    if (shots <= 0) {
+                        setTimeout(gameOver, 800);
+                    } else {
+                        state = 'reset';
+                        setTimeout(setupLevel, 800);
+                    }
+                }
             }
-        }
-        
-        function loop() {
-            update();
-            draw();
+
+            // Draw Trails
+            ctx.beginPath();
+            for (let i=0; i<trails.length; i++) {
+                let t = trails[i];
+                t.life -= 0.05;
+                if(t.life <= 0) { trails.splice(i, 1); i--; continue; }
+                ctx.fillStyle = `rgba(0, 204, 255, ${t.life})`;
+                ctx.arc(t.x, t.y, ball.r * t.life, 0, Math.PI*2);
+                ctx.fill();
+            }
+
+            // Draw Ball
+            if (state !== 'reset') {
+                const renderX = (state==='aim' && drag.active) ? drag.x : ball.x;
+                const renderY = (state==='aim' && drag.active) ? drag.y : ball.y;
+                
+                ctx.shadowColor = '#00ccff';
+                ctx.shadowBlur = 20;
+                ctx.fillStyle = '#00ccff';
+                ctx.beginPath();
+                ctx.arc(renderX, renderY, ball.r, 0, Math.PI*2);
+                ctx.fill();
+                ctx.shadowBlur = 0;
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+
+            // Draw Particles
+            for (let i = particles.length - 1; i >= 0; i--) {
+                let p = particles[i];
+                p.x += p.vx; p.y += p.vy;
+                p.life -= 0.04;
+                if (p.life <= 0) { particles.splice(i, 1); continue; }
+                ctx.globalAlpha = p.life;
+                ctx.fillStyle = p.color;
+                ctx.fillRect(p.x, p.y, p.size, p.size);
+            }
+            ctx.globalAlpha = 1;
+
+            ctx.restore();
             requestAnimationFrame(loop);
         }
-        loop();
     </script>
 </body>
 </html>
