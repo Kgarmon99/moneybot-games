@@ -156,32 +156,24 @@
         const imgPlayer = new Image(); imgPlayer.src = '../assets/moneybot-running-3d.jpg';
         const imgCoin = new Image(); imgCoin.src = '../assets/game-coin-green.svg';
         const imgDebt = new Image(); imgDebt.src = '../assets/brokebot.jpg';
-        // Background Removal Helper
-        const processedImages = {};
-        function getProcessedImg(img) {
-            if (!img.complete || img.naturalWidth === 0) return img;
-            if (processedImages[img.src]) return processedImages[img.src];
+                function drawToken(ctx, img, cx, cy, radius, color) {
+            ctx.save();
+            ctx.shadowColor = color; ctx.shadowBlur = 15;
+            ctx.beginPath(); ctx.arc(cx, cy, radius, 0, Math.PI*2);
+            ctx.fillStyle = '#111'; ctx.fill();
+            ctx.shadowBlur = 0;
             
-            const c = document.createElement('canvas');
-            c.width = img.naturalWidth; c.height = img.naturalHeight;
-            const cx = c.getContext('2d', { willReadFrequently: true });
-            cx.drawImage(img, 0, 0);
+            ctx.save();
+            ctx.clip();
+            const aspect = img.width / img.height;
+            let dw = radius * 2.2, dh = radius * 2.2;
+            if (aspect > 1) dw = dh * aspect; else dh = dw / aspect;
+            ctx.drawImage(img, cx - dw/2, cy - dh/2, dw, dh);
+            ctx.restore();
             
-            if (img.src.includes('.svg')) {
-                processedImages[img.src] = img;
-                return img;
-            }
-            
-            const imgData = cx.getImageData(0, 0, c.width, c.height);
-            const d = imgData.data;
-            const bgR = d[0], bgG = d[1], bgB = d[2];
-            for (let i = 0; i < d.length; i += 4) {
-                const r = d[i], g = d[i+1], b = d[i+2];
-                if (Math.abs(r-bgR) + Math.abs(g-bgG) + Math.abs(b-bgB) < 45) d[i+3] = 0;
-            }
-            cx.putImageData(imgData, 0, 0);
-            processedImages[img.src] = c;
-            return c;
+            ctx.beginPath(); ctx.arc(cx, cy, radius, 0, Math.PI*2);
+            ctx.lineWidth = 3; ctx.strokeStyle = color; ctx.stroke();
+            ctx.restore();
         }
 
         const player = { laneIndex: 1, x: 0, y: 0, size: 24, color: '#00ff88' };
@@ -371,16 +363,14 @@
                     
                     if (item.type === 'expense') {
                         if (imgDebt.complete) {
-                            const pImg = getProcessedImg(imgDebt);
-                            ctx.drawImage(pImg, -item.size * 2.5, -item.size * 2.5, item.size * 5, item.size * 5);
+                            drawToken(ctx, imgDebt, 0, 0, item.size * 1.2, '#ff3366');
                         } else {
                             ctx.fillStyle = '#ff3366';
                             ctx.fillRect(-item.size, -item.size, item.size*2, item.size*2);
                         }
                     } else {
                         if (imgCoin.complete) {
-                            const pImg = getProcessedImg(imgCoin);
-                            ctx.drawImage(pImg, -item.size * 2, -item.size * 2, item.size * 4, item.size * 4);
+                            drawToken(ctx, imgCoin, 0, 0, item.size * 1.2, '#00ff88');
                         } else {
                             ctx.fillStyle = '#00ff88';
                             ctx.beginPath();
@@ -433,8 +423,7 @@
 
                 // Draw Player
                 if (imgPlayer.complete) {
-                    const pImg = getProcessedImg(imgPlayer);
-                    ctx.drawImage(pImg, player.x - player.size * 2, player.y - player.size * 2, player.size * 4, player.size * 4);
+                    drawToken(ctx, imgPlayer, player.x, player.y, player.size * 1.4, '#00ff88');
                 } else {
                     ctx.shadowColor = player.color;
                     ctx.shadowBlur = 20;

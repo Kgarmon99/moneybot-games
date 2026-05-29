@@ -260,24 +260,34 @@ function update() {
 
 // Load images
 const imgCar = new Image(); imgCar.src = '../assets/moneybot-driving.svg';
-const imgFirebot = new Image(); imgFirebot.src = '../assets/firebot.jpg';
+const imgEnemy = new Image(); imgEnemy.src = '../assets/brokebot.jpg';
+
+        function drawToken(ctx, img, cx, cy, radius, color) {
+            ctx.save();
+            ctx.shadowColor = color; ctx.shadowBlur = 15;
+            ctx.beginPath(); ctx.arc(cx, cy, radius, 0, Math.PI*2);
+            ctx.fillStyle = '#111'; ctx.fill();
+            ctx.shadowBlur = 0;
+            
+            ctx.save();
+            ctx.clip();
+            const aspect = img.width / img.height;
+            let dw = radius * 2.2, dh = radius * 2.2;
+            if (aspect > 1) dw = dh * aspect; else dh = dw / aspect;
+            ctx.drawImage(img, cx - dw/2, cy - dh/2, dw, dh);
+            ctx.restore();
+            
+            ctx.beginPath(); ctx.arc(cx, cy, radius, 0, Math.PI*2);
+            ctx.lineWidth = 3; ctx.strokeStyle = color; ctx.stroke();
+            ctx.restore();
+        }
 
 function drawCar(x, y, w, h, color) {
     if (color === COLORS.car && imgCar.complete) {
         ctx.drawImage(imgCar, x - w*1.5, y - h*1.5, w*3, h*3);
         return;
-    } else if (color === COLORS.enemy && imgFirebot.complete) {
-        ctx.save();
-        ctx.beginPath();
-        ctx.arc(x, y, w*1.5, 0, Math.PI*2);
-        ctx.clip();
-        ctx.fillStyle = '#fff';
-        ctx.fill();
-        ctx.drawImage(imgFirebot, x - w*1.5, y - w*1.5, w*3, w*3);
-        ctx.lineWidth = 3;
-        ctx.strokeStyle = '#EF4444';
-        ctx.stroke();
-        ctx.restore();
+    } else if (color === COLORS.enemy && imgEnemy.complete) {
+        drawToken(ctx, imgEnemy, x, y, w * 1.2, '#EF4444');
         return;
     }
 

@@ -273,40 +273,24 @@
         const imgCoin = new Image(); imgCoin.src = '../assets/game-coin-green.svg';
         const imgDebt = new Image(); imgDebt.src = '../assets/brokebot.jpg';
 
-        // Background Removal Helper
-        const processedImages = {};
-        function getProcessedImg(img) {
-            if (!img.complete || img.naturalWidth === 0) return img;
-            if (processedImages[img.src]) return processedImages[img.src];
+                function drawToken(ctx, img, cx, cy, radius, color) {
+            ctx.save();
+            ctx.shadowColor = color; ctx.shadowBlur = 15;
+            ctx.beginPath(); ctx.arc(cx, cy, radius, 0, Math.PI*2);
+            ctx.fillStyle = '#111'; ctx.fill();
+            ctx.shadowBlur = 0;
             
-            const c = document.createElement('canvas');
-            c.width = img.naturalWidth; c.height = img.naturalHeight;
-            const cx = c.getContext('2d', { willReadFrequently: true });
-            cx.drawImage(img, 0, 0);
+            ctx.save();
+            ctx.clip();
+            const aspect = img.width / img.height;
+            let dw = radius * 2.2, dh = radius * 2.2;
+            if (aspect > 1) dw = dh * aspect; else dh = dw / aspect;
+            ctx.drawImage(img, cx - dw/2, cy - dh/2, dw, dh);
+            ctx.restore();
             
-            // Skip processing for SVGs to save performance
-            if (img.src.includes('.svg')) {
-                processedImages[img.src] = img;
-                return img;
-            }
-            
-            const imgData = cx.getImageData(0, 0, c.width, c.height);
-            const d = imgData.data;
-            
-            // Sample corners to find background color
-            const bgR = d[0], bgG = d[1], bgB = d[2];
-            
-            for (let i = 0; i < d.length; i += 4) {
-                const r = d[i], g = d[i+1], b = d[i+2];
-                // Distance from background color
-                const dist = Math.abs(r-bgR) + Math.abs(g-bgG) + Math.abs(b-bgB);
-                if (dist < 45) { // Tolerance
-                    d[i+3] = 0; // Make transparent
-                }
-            }
-            cx.putImageData(imgData, 0, 0);
-            processedImages[img.src] = c;
-            return c;
+            ctx.beginPath(); ctx.arc(cx, cy, radius, 0, Math.PI*2);
+            ctx.lineWidth = 3; ctx.strokeStyle = color; ctx.stroke();
+            ctx.restore();
         }
 
         // Player
@@ -494,14 +478,7 @@
             if (imgPlayer.complete && imgPlayerBull.complete) {
                 const drawImg = isBullMarket ? imgPlayerBull : imgPlayer;
                 const offset = isBullMarket ? Math.sin(frameCount*0.2)*4 : 0;
-                const pImg = getProcessedImg(drawImg);
-                
-                // Draw image directly (larger, no clipping)
-                if (drawImg === imgPlayer) {
-                    ctx.drawImage(pImg, player.x - player.size * 2, player.y - player.size * 2 + offset, player.size * 4, player.size * 4);
-                } else {
-                    ctx.drawImage(pImg, player.x - player.size * 2, player.y - player.size * 2.5 + offset, player.size * 4, player.size * 5);
-                }
+                drawToken(ctx, drawImg, player.x, player.y + offset, player.size * 1.4, isBullMarket ? '#00ffff' : '#00ff88');
                 
             } else {
                 ctx.shadowBlur = 25;
@@ -569,8 +546,7 @@
 
                 if (e.type === 'debt') {
                     if (imgDebt.complete) {
-                        const pImg = getProcessedImg(imgDebt);
-                        ctx.drawImage(pImg, -e.size * 2, -e.size * 2, e.size * 4, e.size * 4);
+                        drawToken(ctx, imgDebt, 0, 0, e.size * 1.2, '#ff3366');
                     } else {
                         ctx.shadowColor = '#ff3366';
                         ctx.shadowBlur = 15;
@@ -596,8 +572,7 @@
                 }
                 else { // Asset
                     if (imgCoin.complete) {
-                        const pImg = getProcessedImg(imgCoin);
-                        ctx.drawImage(pImg, -e.size * 2, -e.size * 2, e.size * 4, e.size * 4);
+                        drawToken(ctx, imgCoin, 0, 0, e.size * 1.2, '#00ff88');
                     } else {
                         ctx.shadowColor = '#00ff88';
                         ctx.shadowBlur = 15;

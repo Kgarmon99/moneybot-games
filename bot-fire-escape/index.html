@@ -125,32 +125,24 @@
         const imgFirebot = new Image(); imgFirebot.src = '../assets/firebot.jpg';
         const imgCoin = new Image(); imgCoin.src = '../assets/game-coin-green.svg';
 
-        // Background Removal Helper
-        const processedImages = {};
-        function getProcessedImg(img) {
-            if (!img.complete || img.naturalWidth === 0) return img;
-            if (processedImages[img.src]) return processedImages[img.src];
+                function drawToken(ctx, img, cx, cy, radius, color) {
+            ctx.save();
+            ctx.shadowColor = color; ctx.shadowBlur = 15;
+            ctx.beginPath(); ctx.arc(cx, cy, radius, 0, Math.PI*2);
+            ctx.fillStyle = '#111'; ctx.fill();
+            ctx.shadowBlur = 0;
             
-            const c = document.createElement('canvas');
-            c.width = img.naturalWidth; c.height = img.naturalHeight;
-            const cx = c.getContext('2d', { willReadFrequently: true });
-            cx.drawImage(img, 0, 0);
+            ctx.save();
+            ctx.clip();
+            const aspect = img.width / img.height;
+            let dw = radius * 2.2, dh = radius * 2.2;
+            if (aspect > 1) dw = dh * aspect; else dh = dw / aspect;
+            ctx.drawImage(img, cx - dw/2, cy - dh/2, dw, dh);
+            ctx.restore();
             
-            if (img.src.includes('.svg')) {
-                processedImages[img.src] = img;
-                return img;
-            }
-            
-            const imgData = cx.getImageData(0, 0, c.width, c.height);
-            const d = imgData.data;
-            const bgR = d[0], bgG = d[1], bgB = d[2];
-            for (let i = 0; i < d.length; i += 4) {
-                const r = d[i], g = d[i+1], b = d[i+2];
-                if (Math.abs(r-bgR) + Math.abs(g-bgG) + Math.abs(b-bgB) < 45) d[i+3] = 0;
-            }
-            cx.putImageData(imgData, 0, 0);
-            processedImages[img.src] = c;
-            return c;
+            ctx.beginPath(); ctx.arc(cx, cy, radius, 0, Math.PI*2);
+            ctx.lineWidth = 3; ctx.strokeStyle = color; ctx.stroke();
+            ctx.restore();
         }
 
         // --- GAME STATE ---
@@ -342,8 +334,7 @@
                         ctx.strokeRect(-item.size, -item.size, item.size*2, item.size*2);
                     } else {
                         if (imgCoin.complete) {
-                            const pImg = getProcessedImg(imgCoin);
-                            ctx.drawImage(pImg, -item.size * 2, -item.size * 2, item.size * 4, item.size * 4);
+                            drawToken(ctx, imgCoin, 0, 0, item.size * 1.2, '#00ff88');
                         } else {
                             ctx.shadowColor = '#00ff88'; ctx.shadowBlur = 15;
                             ctx.fillStyle = '#00ff88';
@@ -380,8 +371,7 @@
 
                 // Draw FireBot Player
                 if (imgFirebot.complete) {
-                    const pImg = getProcessedImg(imgFirebot);
-                    ctx.drawImage(pImg, player.x - player.size*2, player.y - player.size*2, player.size*4, player.size*4);
+                    drawToken(ctx, imgFirebot, player.x, player.y, player.size * 1.4, '#ff4500');
                     
                     // Flame trail
                     ctx.fillStyle = 'rgba(255, 69, 0, 0.6)';

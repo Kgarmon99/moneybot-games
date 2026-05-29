@@ -495,15 +495,29 @@ function draw() {
         ctx.shadowBlur = 15;
         ctx.shadowOffsetY = 10;
         
-        // Setup clip circle to make the jpeg round
+        // Background for the token
         ctx.beginPath();
         let visRadius = player.radius * 1.6; 
         ctx.arc(0, 0, visRadius, 0, Math.PI*2);
+        ctx.fillStyle = '#111';
+        ctx.fill();
+        ctx.shadowBlur = 0;
+        ctx.shadowOffsetY = 0;
+        
+        ctx.save();
         ctx.clip();
         
-        ctx.drawImage(currentMascot, -visRadius, -visRadius, visRadius*2, visRadius*2);
+        // Maintain aspect ratio cover
+        const aspect = currentMascot.width / currentMascot.height;
+        let dw = visRadius * 2.2, dh = visRadius * 2.2;
+        if (aspect > 1) dw = dh * aspect; else dh = dw / aspect;
+        
+        ctx.drawImage(currentMascot, -dw/2, -dh/2, dw, dh);
+        ctx.restore();
         
         // Draw gold ring if it's GoldBot
+        ctx.beginPath();
+        ctx.arc(0, 0, visRadius, 0, Math.PI*2);
         if (currentMascot === goldBotImg) {
             ctx.lineWidth = 4;
             ctx.strokeStyle = '#FBBF24';
@@ -514,8 +528,6 @@ function draw() {
             ctx.stroke();
         }
         
-        ctx.shadowBlur = 0;
-        ctx.shadowOffsetY = 0;
     } else {
         // Fallback circle
         ctx.fillStyle = COLORS.player;
