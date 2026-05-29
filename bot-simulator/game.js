@@ -25,13 +25,39 @@ let hitPauseTimer = 0;
 
 const GOAL = 100000;
 
+// Upgrades & Modifiers
+let clickValue = 10;
+let globalMult = 1;
+let autoClicker = false;
+let autoClickTimer = 0;
+let boughtAutoClicker = false;
+let boughtOverclock = false;
+
+// Frenzy
+let frenzyMeter = 0;
+let isFrenzy = false;
+
 // UI
 const nwDisplay = document.getElementById('nwDisplay');
 const roiDisplay = document.getElementById('roiDisplay');
 const btnWork = document.getElementById('manualWorkBtn');
+const manualText = document.getElementById('manualText');
+const manualIcon = document.getElementById('manualIcon');
+const comboFill = document.getElementById('comboFill');
+const vignette = document.getElementById('vignette');
+const gameContainer = document.getElementById('game-container');
+const nwBox = document.getElementById('nwBox');
+
 const btnYield = document.getElementById('buyYieldBot');
 const btnGrowth = document.getElementById('buyGrowthBot');
 const btnGold = document.getElementById('buyGoldBot');
+
+const tabBots = document.getElementById('tabBots');
+const tabUpgrades = document.getElementById('tabUpgrades');
+const botsShop = document.getElementById('botsShop');
+const upgradesShop = document.getElementById('upgradesShop');
+const btnAutoClick = document.getElementById('buyAutoClick');
+const btnOverclock = document.getElementById('buyOverclock');
 
 const costs = {
     yield: 100,
@@ -50,6 +76,8 @@ let bots = [];
 let liabilities = [];
 let particles = [];
 let floatingTexts = [];
+let packets = [];
+let shockwaves = [];
 let lastTime = 0;
 
 // Token Drawer
@@ -94,23 +122,72 @@ function createFloatingText(x, y, text, color) {
     floatingTexts.push({ x, y, text, color, life: 1 });
 }
 
-// Interactions
-btnWork.addEventListener('mousedown', (e) => {
-    if (gameState !== 'PLAYING') return;
-    netWorth += 10;
-    hitPauseTimer = 20;
-    if (window.mbAudio) window.mbAudio.playSelect();
-    
-    // Spawn text at button center
-    const rect = btnWork.getBoundingClientRect();
-    createFloatingText(rect.left + rect.width/2, rect.top - 20, "+$10", "#00ccff");
-    createParticles(rect.left + rect.width/2, rect.top, '#00ccff', 5);
+// Shop Tabs
+tabBots.addEventListener('click', () => {
+    tabBots.classList.add('active');
+    tabUpgrades.classList.remove('active');
+    botsShop.classList.remove('hidden');
+    upgradesShop.classList.add('hidden');
 });
+
+tabUpgrades.addEventListener('click', () => {
+    tabUpgrades.classList.add('active');
+    tabBots.classList.remove('active');
+    upgradesShop.classList.remove('hidden');
+    botsShop.classList.add('hidden');
+});
+
+// Interactions
+btnWork.addEventListener('pointerdown', (e) => {
+    if (gameState !== 'PLAYING') return;
+    executeManualClick();
+});
+
+function executeManualClick() {
+    const amt = clickValue * globalMult * (isFrenzy ? 5 : 1);
+    netWorth += amt;
+    hitPauseTimer = isFrenzy ? 25 : 10;
+    
+    if (window.mbAudio) {
+        if (isFrenzy) window.mbAudio.playCoin(); 
+        else window.mbAudio.playSelect();
+    }
+    
+    // Add frenzy
+    if (!isFrenzy) {
+        frenzyMeter += 15;
+        if (frenzyMeter >= 100) {
+            isFrenzy = true;
+            frenzyMeter = 100;
+            vignette.classList.add('frenzy');
+            gameContainer.classList.add('frenzy-shake');
+            if (window.mbAudio) window.mbAudio.playLevelUp();
+            createFloatingText(cw/2, ch/2, "FRENZY MODE!", "#00ccff");
+        }
+    }
+    
+    // Visuals
+    const rect = btnWork.getBoundingClientRect();
+    const cx = rect.left + rect.width/2;
+    const cy = rect.top + rect.height/2;
+    
+    // Squeeze effect
+    btnWork.style.transform = 'scale(0.9)';
+    setTimeout(() => btnWork.style.transform = 'none', 50);
+
+    createFloatingText(cx + (Math.random()-0.5)*40, cy - 30 + (Math.random()-0.5)*20, `+$${amt}`, isFrenzy ? "#00ccff" : "#00ff88");
+    createParticles(cx, cy, isFrenzy ? '#00ccff' : '#00ff88', isFrenzy ? 10 : 5);
+    
+    // Pulse HUD immediately
+    nwBox.classList.remove('hud-pulse');
+    void nwBox.offsetWidth;
+    nwBox.classList.add('hud-pulse');
+}
 
 function buyBot(type) {
     if (netWorth >= costs[type]) {
         netWorth -= costs[type];
-        passiveIncome += yields[type];
+        passiveIncome += (yields[type] * globalMult);
         
         let color, img;
         if (type === 'yield') { color = '#00ff88'; img = imgYield; }
@@ -119,25 +196,58 @@ function buyBot(type) {
         
         bots.push({
             x: Math.random() * (cw - 100) + 50,
-            y: Math.random() * (ch - 350) + 200, // Below manual button, above shop
+            y: -100, // Drop from sky
+            targetY: Math.random() * (ch - 350) + 200,
             radius: 35,
             type: type,
             color: color,
             img: img,
             timer: 0,
-            pulse: 0
+            pulse: 0,
+            landed: false
         });
         
         if (window.mbAudio) window.mbAudio.playCoin();
-        createParticles(cw/2, ch/2, color, 20, 2);
-        document.getElementById('game-container').classList.add('flash-green');
-        setTimeout(() => document.getElementById('game-container').classList.remove('flash-green'), 300);
     }
 }
 
 btnYield.addEventListener('click', () => buyBot('yield'));
 btnGrowth.addEventListener('click', () => buyBot('growth'));
 btnGold.addEventListener('click', () => buyBot('gold'));
+
+btnAutoClick.addEventListener('click', () => {
+    if (netWorth >= 2500 && !boughtAutoClicker) {
+        netWorth -= 2500;
+        boughtAutoClicker = true;
+        autoClicker = true;
+        btnAutoClick.innerHTML = `<div class="bot-name">AUTO-CLICKER</div><div class="bot-roi">PURCHASED</div>`;
+        btnAutoClick.disabled = true;
+        createFloatingText(cw/2, ch/2, "AUTO-CLICKER ONLINE!", "#00ccff");
+        if (window.mbAudio) window.mbAudio.playLevelUp();
+    }
+});
+
+btnOverclock.addEventListener('click', () => {
+    if (netWorth >= 25000 && !boughtOverclock) {
+        netWorth -= 25000;
+        boughtOverclock = true;
+        globalMult = 2;
+        
+        // Double the displayed ROIs in shop
+        document.querySelectorAll('.bot-roi').forEach(el => {
+            if(el.innerText.includes('+$5 /')) el.innerText = '+$10 / sec';
+            if(el.innerText.includes('+$30 /')) el.innerText = '+$60 / sec';
+            if(el.innerText.includes('+$500 /')) el.innerText = '+$1000 / sec';
+        });
+        
+        passiveIncome *= 2; 
+        
+        btnOverclock.innerHTML = `<div class="bot-name">OVERCLOCK</div><div class="bot-roi">PURCHASED</div>`;
+        btnOverclock.disabled = true;
+        createFloatingText(cw/2, ch/2, "SYSTEM OVERCLOCK ACTIVE!", "#ffaa00");
+        if (window.mbAudio) window.mbAudio.playLevelUp();
+    }
+});
 
 // Click to destroy liabilities
 window.addEventListener('pointerdown', (e) => {
@@ -149,13 +259,12 @@ window.addEventListener('pointerdown', (e) => {
         let l = liabilities[i];
         const dist = Math.hypot(mx - l.x, my - l.y);
         if (dist < l.radius + 15) {
-            // Destroyed!
             liabilities.splice(i, 1);
-            createParticles(l.x, l.y, '#ff3366', 20, 2);
+            createParticles(l.x, l.y, '#ff3366', 30, 3);
             createFloatingText(l.x, l.y, "DESTROYED!", "#00ff88");
             if (window.mbAudio) window.mbAudio.playHit();
             hitPauseTimer = 50;
-            break; // Only click one at a time
+            break;
         }
     }
 });
@@ -168,10 +277,44 @@ function updateGame(dt) {
         return;
     }
 
+    // Auto Clicker
+    if (autoClicker) {
+        autoClickTimer += dt;
+        if (autoClickTimer >= 200) { // 5x sec
+            autoClickTimer -= 200;
+            executeManualClick();
+        }
+    }
+
+    // Frenzy Logic
+    if (!isFrenzy) {
+        if (frenzyMeter > 0) frenzyMeter -= dt * 0.02; // Drain slowly
+    } else {
+        frenzyMeter -= dt * 0.05; // Frenzy drains over time
+        if (frenzyMeter <= 0) {
+            isFrenzy = false;
+            vignette.classList.remove('frenzy');
+            gameContainer.classList.remove('frenzy-shake');
+        }
+    }
+    comboFill.style.width = Math.min(100, Math.max(0, frenzyMeter)) + '%';
+    
+    if (isFrenzy) {
+        manualText.innerHTML = `FRENZY MODE<br>+$${clickValue * globalMult * 5}`;
+        btnWork.style.borderColor = '#00ccff';
+        btnWork.style.color = '#fff';
+    } else {
+        manualText.innerHTML = `MANUAL LABOR<br>+$${clickValue * globalMult}`;
+        btnWork.style.borderColor = '#00ff88';
+        btnWork.style.color = '#00ff88';
+    }
+
     // Shop button states
     btnYield.disabled = netWorth < costs.yield;
     btnGrowth.disabled = netWorth < costs.growth;
     btnGold.disabled = netWorth < costs.gold;
+    if (!boughtAutoClicker) btnAutoClick.disabled = netWorth < 2500;
+    if (!boughtOverclock) btnOverclock.disabled = netWorth < 25000;
 
     // Rolling Numbers
     let activeDiff = netWorth - displayNetWorth;
@@ -190,38 +333,85 @@ function updateGame(dt) {
         endGame();
     }
 
-    // Update Bots (Generate Income)
+    // Update Bots (Generate Packets)
     for (let b of bots) {
-        b.timer += dt;
-        if (b.pulse > 0) b.pulse -= dt * 0.005;
-        
-        if (b.timer >= 1000) { // 1 second
-            b.timer -= 1000;
-            const amt = yields[b.type];
-            netWorth += amt;
-            b.pulse = 5;
-            createFloatingText(b.x, b.y - b.radius, `+$${amt}`, b.color);
+        if (!b.landed) {
+            b.y += (b.targetY - b.y) * 0.2;
+            if (Math.abs(b.targetY - b.y) < 2) {
+                b.y = b.targetY;
+                b.landed = true;
+                shockwaves.push({x: b.x, y: b.y, radius: b.radius, maxRadius: 150, life: 1, color: b.color});
+                createParticles(b.x, b.y, b.color, 30, 2);
+                if (window.mbAudio) window.mbAudio.playHit();
+                gameContainer.classList.add('shake');
+                setTimeout(() => gameContainer.classList.remove('shake'), 200);
+            }
+        } else {
+            b.timer += dt * (isFrenzy ? 2 : 1); // Overclock during frenzy
+            if (b.pulse > 0) b.pulse -= dt * 0.005;
+            
+            if (b.timer >= 1000) { 
+                b.timer -= 1000;
+                const amt = yields[b.type] * globalMult;
+                
+                // Shoot packet to HUD
+                const nwRect = nwBox.getBoundingClientRect();
+                packets.push({
+                    x: b.x, y: b.y,
+                    tx: nwRect.left + nwRect.width/2,
+                    ty: nwRect.top + nwRect.height/2,
+                    amt: amt,
+                    color: b.color,
+                    speed: 15 + Math.random() * 10
+                });
+                
+                b.pulse = 10;
+                createFloatingText(b.x, b.y - b.radius, `+$${amt}`, b.color);
+            }
+            
+            // Gentle float
+            b.y = b.targetY + Math.sin(Date.now() / 300 + b.x) * 5;
         }
+    }
+
+    // Update Packets (Visual Economy)
+    for (let i = packets.length - 1; i >= 0; i--) {
+        let p = packets[i];
+        const dx = p.tx - p.x;
+        const dy = p.ty - p.y;
+        const dist = Math.hypot(dx, dy);
         
-        // Gentle float
-        b.y += Math.sin(Date.now() / 300 + b.x) * 0.5;
+        if (dist < p.speed) {
+            netWorth += p.amt;
+            hitPauseTimer = 10;
+            
+            nwBox.classList.remove('hud-pulse');
+            void nwBox.offsetWidth;
+            nwBox.classList.add('hud-pulse');
+            
+            createParticles(p.tx, p.ty, p.color, 8);
+            if (window.mbAudio && Math.random() < 0.2) window.mbAudio.playCoin(); 
+            packets.splice(i, 1);
+        } else {
+            p.x += (dx/dist) * p.speed;
+            p.y += (dy/dist) * p.speed;
+            if (Math.random() > 0.5) createParticles(p.x, p.y, p.color, 1, 0.2); // Trail
+        }
     }
 
     // Spawn Liabilities (BrokeBots)
-    // Chance increases as passive income increases
     if (bots.length > 0 && Math.random() < 0.001 + (passiveIncome / 100000)) {
-        // Target a random bot
         const targetBot = bots[Math.floor(Math.random() * bots.length)];
-        
-        liabilities.push({
-            x: Math.random() < 0.5 ? -50 : cw + 50,
-            y: Math.random() * ch,
-            radius: 30,
-            target: targetBot,
-            attached: false
-        });
-        
-        if (window.mbAudio) window.mbAudio.playGameOver(); // Ominous warning
+        if (targetBot.landed) {
+            liabilities.push({
+                x: Math.random() < 0.5 ? -50 : cw + 50,
+                y: Math.random() * ch,
+                radius: 30,
+                target: targetBot,
+                attached: false
+            });
+            if (window.mbAudio) window.mbAudio.playGameOver();
+        }
     }
 
     // Update Liabilities
@@ -229,7 +419,6 @@ function updateGame(dt) {
         let l = liabilities[i];
         
         if (!l.attached) {
-            // Move toward target
             const dx = l.target.x - l.x;
             const dy = l.target.y - l.y;
             const dist = Math.hypot(dx, dy);
@@ -239,19 +428,18 @@ function updateGame(dt) {
                 l.x = l.target.x + 20;
                 l.y = l.target.y - 20;
                 createFloatingText(l.x, l.y, "VIRUS ATTACHED!", "#ff3366");
-                document.getElementById('game-container').classList.add('shake');
-                setTimeout(() => document.getElementById('game-container').classList.remove('shake'), 200);
+                gameContainer.classList.add('shake');
+                setTimeout(() => gameContainer.classList.remove('shake'), 200);
             } else {
                 l.x += (dx / dist) * 2;
                 l.y += (dy / dist) * 2;
             }
         } else {
-            // Drain the bot!
-            l.x = l.target.x + 20; // stick to it
+            l.x = l.target.x + 20; 
             l.y = l.target.y - 20;
             
-            if (Math.random() < 0.05) { // Frequent small drains
-                const drain = Math.floor(yields[l.target.type] * 0.5);
+            if (Math.random() < 0.05) { 
+                const drain = Math.floor(yields[l.target.type] * globalMult * 0.5);
                 netWorth -= drain;
                 createFloatingText(l.x, l.y, `-$${drain}`, "#ff3366");
                 createParticles(l.x, l.y, '#ff3366', 2);
@@ -271,6 +459,14 @@ function updateGame(dt) {
         if (p.life <= 0 || p.radius < 0.5) particles.splice(i, 1);
     }
     
+    // Update Shockwaves
+    for (let i = shockwaves.length - 1; i >= 0; i--) {
+        let s = shockwaves[i];
+        s.radius += (s.maxRadius - s.radius) * 0.1;
+        s.life -= 0.05;
+        if (s.life <= 0) shockwaves.splice(i, 1);
+    }
+
     // Update Floating Text
     for (let i = floatingTexts.length - 1; i >= 0; i--) {
         let ft = floatingTexts[i];
@@ -281,24 +477,66 @@ function updateGame(dt) {
 }
 
 function draw() {
-    // Cyberpunk motion blur
     ctx.fillStyle = 'rgba(5, 5, 8, 0.4)';
     ctx.fillRect(0, 0, cw, ch);
     
     // Draw Connections between bots (Factory Network)
-    ctx.strokeStyle = 'rgba(0, 255, 136, 0.1)';
-    ctx.lineWidth = 1;
+    ctx.strokeStyle = 'rgba(0, 255, 136, 0.15)';
+    ctx.lineWidth = 2;
     ctx.beginPath();
     for (let i = 0; i < bots.length; i++) {
+        if (!bots[i].landed) continue;
         for (let j = i + 1; j < bots.length; j++) {
+            if (!bots[j].landed) continue;
             const dist = Math.hypot(bots[i].x - bots[j].x, bots[i].y - bots[j].y);
-            if (dist < 200) {
+            if (dist < 250) {
                 ctx.moveTo(bots[i].x, bots[i].y);
                 ctx.lineTo(bots[j].x, bots[j].y);
             }
         }
     }
     ctx.stroke();
+
+    // Draw data pulses on the network lines
+    const time = Date.now() / 1000;
+    ctx.fillStyle = '#00ff88';
+    for (let i = 0; i < bots.length; i++) {
+        if (!bots[i].landed) continue;
+        for (let j = i + 1; j < bots.length; j++) {
+            if (!bots[j].landed) continue;
+            const dist = Math.hypot(bots[i].x - bots[j].x, bots[i].y - bots[j].y);
+            if (dist < 250) {
+                const t = (time * 2 + i + j) % 1; 
+                const px = bots[i].x + (bots[j].x - bots[i].x) * t;
+                const py = bots[i].y + (bots[j].y - bots[i].y) * t;
+                ctx.beginPath();
+                ctx.arc(px, py, 3, 0, Math.PI*2);
+                ctx.fill();
+            }
+        }
+    }
+
+    // Draw Shockwaves
+    for (let s of shockwaves) {
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.radius, 0, Math.PI*2);
+        ctx.strokeStyle = s.color;
+        ctx.globalAlpha = s.life;
+        ctx.lineWidth = 5 * s.life;
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+    }
+
+    // Draw Packets (Visual Economy)
+    for (let p of packets) {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 6, 0, Math.PI*2);
+        ctx.fillStyle = '#fff';
+        ctx.shadowColor = p.color;
+        ctx.shadowBlur = 15;
+        ctx.fill();
+        ctx.shadowBlur = 0;
+    }
 
     // Draw Bots
     for (let b of bots) {
@@ -315,7 +553,6 @@ function draw() {
 
     // Draw Liabilities
     for (let l of liabilities) {
-        // Red connection string if attached
         if (l.attached) {
             ctx.beginPath();
             ctx.moveTo(l.x, l.y);
@@ -327,7 +564,7 @@ function draw() {
         drawToken(imgBroke, l.x, l.y, l.radius, '#ff3366');
     }
 
-    // Generic Particles
+    // Particles
     for (let p of particles) {
         ctx.fillStyle = p.color;
         ctx.globalAlpha = Math.max(0, p.life);
@@ -373,7 +610,11 @@ function startGame() {
     liabilities = [];
     particles = [];
     floatingTexts = [];
+    packets = [];
+    shockwaves = [];
     hitPauseTimer = 0;
+    frenzyMeter = 0;
+    isFrenzy = false;
     
     document.getElementById('start-screen').classList.add('hidden');
     document.getElementById('game-over-screen').classList.add('hidden');

@@ -42,6 +42,17 @@ canvas {
     z-index: 1;
 }
 
+#vignette {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none; z-index: 5;
+    background: radial-gradient(circle, transparent 50%, rgba(0,0,0,0.8) 100%);
+    transition: background 0.3s;
+}
+
+#vignette.frenzy {
+    background: radial-gradient(circle, rgba(0,204,255,0.1) 40%, rgba(0,204,255,0.4) 100%);
+}
+
 #ui-layer {
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
@@ -63,6 +74,7 @@ canvas {
     padding: 10px 20px;
     text-align: center;
     box-shadow: 0 0 15px rgba(0, 255, 136, 0.3);
+    transition: all 0.1s;
 }
 
 .stat-box.glow-gold {
@@ -86,12 +98,61 @@ canvas {
     text-shadow: 0 0 5px #fff;
 }
 
-/* Manual Labor Button */
-.manual-btn {
+.hud-pulse {
+    animation: hudPulse 0.2s ease-out;
+}
+@keyframes hudPulse {
+    0% { transform: scale(1); box-shadow: 0 0 15px rgba(0, 255, 136, 0.3); }
+    50% { transform: scale(1.1); box-shadow: 0 0 40px rgba(0, 255, 136, 0.8), inset 0 0 20px rgba(0,255,136,0.4); border-color: #fff; }
+    100% { transform: scale(1); box-shadow: 0 0 15px rgba(0, 255, 136, 0.3); }
+}
+
+/* Manual Labor Button & Combo */
+.manual-container {
     position: absolute;
-    top: 120px;
+    top: 100px;
     left: 50%;
     transform: translateX(-50%);
+    width: 220px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 15;
+}
+
+.combo-meter {
+    width: 100%;
+    height: 12px;
+    background: rgba(0, 0, 0, 0.8);
+    border: 1px solid #00ccff;
+    border-radius: 6px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 0 10px rgba(0,204,255,0.2);
+}
+
+.combo-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #00ccff, #00ff88);
+    box-shadow: 0 0 10px #00ff88;
+    transition: width 0.1s linear;
+}
+
+.combo-text {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    text-align: center;
+    font-size: 9px;
+    line-height: 12px;
+    color: #fff;
+    font-weight: bold;
+    text-shadow: 1px 1px 0 #000;
+    letter-spacing: 2px;
+}
+
+.manual-btn {
+    position: relative;
     background: rgba(0, 204, 255, 0.1);
     border: 2px solid #00ccff;
     color: #00ccff;
@@ -105,12 +166,7 @@ canvas {
     box-shadow: 0 0 20px rgba(0, 204, 255, 0.3), inset 0 0 10px rgba(0, 204, 255, 0.2);
     transition: all 0.1s;
     text-align: center;
-}
-
-.manual-btn:active {
-    transform: translateX(-50%) scale(0.95);
-    background: #00ccff;
-    color: #000;
+    width: 100%;
 }
 
 .manual-btn .icon {
@@ -134,12 +190,31 @@ canvas {
     box-shadow: 0 -10px 30px rgba(0,0,0,0.8);
 }
 
-.shop-title {
-    color: #888;
-    font-size: 12px;
-    text-align: center;
-    letter-spacing: 2px;
+.shop-tabs {
+    display: flex;
+    gap: 10px;
     margin-bottom: 15px;
+    border-bottom: 1px solid #333;
+    padding-bottom: 10px;
+}
+
+.tab-btn {
+    background: transparent;
+    border: none;
+    color: #888;
+    font-family: inherit;
+    font-weight: bold;
+    font-size: 14px;
+    cursor: pointer;
+    padding: 5px 10px;
+    letter-spacing: 1px;
+    transition: all 0.2s;
+}
+
+.tab-btn.active {
+    color: #00ff88;
+    text-shadow: 0 0 10px rgba(0,255,136,0.5);
+    border-bottom: 2px solid #00ff88;
 }
 
 .shop-buttons {
@@ -173,6 +248,16 @@ canvas {
     box-shadow: 0 0 15px rgba(255, 170, 0, 0.3);
 }
 
+.shop-btn.upgrade {
+    border-color: #00ccff;
+}
+
+.shop-btn.upgrade:hover:not(:disabled) {
+    border-color: #00ccff;
+    background: rgba(0, 204, 255, 0.1);
+    box-shadow: 0 0 15px rgba(0, 204, 255, 0.3);
+}
+
 .shop-btn:disabled {
     opacity: 0.4;
     cursor: not-allowed;
@@ -181,6 +266,7 @@ canvas {
 .shop-btn .bot-name { font-weight: bold; font-size: 14px; margin-bottom: 5px; color: #ccc; }
 .shop-btn .bot-roi { font-size: 14px; color: #00ff88; margin-bottom: 5px; }
 .shop-btn.gold .bot-roi { color: #ffaa00; }
+.shop-btn.upgrade .bot-roi { color: #00ccff; }
 .shop-btn .bot-cost { font-size: 12px; color: #888; }
 
 /* Screens */
@@ -230,6 +316,16 @@ canvas {
 /* Juice */
 .shake {
     animation: shake-canvas 0.3s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+.frenzy-shake {
+    animation: frenzyShake 0.1s infinite;
+}
+
+@keyframes frenzyShake {
+    0% { transform: translate(1px, 1px) rotate(0deg); }
+    50% { transform: translate(-1px, -2px) rotate(-0.5deg); }
+    100% { transform: translate(-2px, 1px) rotate(0.5deg); }
 }
 
 .flash-red { animation: flash-r 0.5s ease-out both; }

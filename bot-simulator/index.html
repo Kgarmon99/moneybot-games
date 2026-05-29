@@ -8,28 +8,41 @@
 </head>
 <body>
     <div id="game-container">
+        <!-- Global CRT and Vignette overlays -->
+        <div id="vignette"></div>
+        
         <div id="ui-layer">
             <div class="hud-top">
-                <div class="stat-box">
+                <div class="stat-box" id="nwBox">
                     <span class="label">NET WORTH</span>
                     <span id="nwDisplay" class="value">$0</span>
                 </div>
-                <div class="stat-box glow-gold">
+                <div class="stat-box glow-gold" id="roiBox">
                     <span class="label">PASSIVE INCOME (ROI)</span>
                     <span id="roiDisplay" class="value">$0/sec</span>
                 </div>
             </div>
 
-            <!-- Manual Work Button -->
-            <button id="manualWorkBtn" class="manual-btn">
-                <div class="icon">⚡</div>
-                MANUAL LABOR<br>+$10
-            </button>
+            <!-- Manual Work Button with Combo -->
+            <div class="manual-container">
+                <div class="combo-meter">
+                    <div class="combo-fill" id="comboFill"></div>
+                    <div class="combo-text" id="comboText">FRENZY CHARGE</div>
+                </div>
+                <button id="manualWorkBtn" class="manual-btn">
+                    <div class="icon" id="manualIcon">⚡</div>
+                    <span id="manualText">MANUAL LABOR<br>+$10</span>
+                </button>
+            </div>
 
             <!-- Factory Shop -->
             <div class="shop-panel">
-                <div class="shop-title">BOT FACTORY (ASSETS)</div>
-                <div class="shop-buttons">
+                <div class="shop-tabs">
+                    <button class="tab-btn active" id="tabBots">ASSETS</button>
+                    <button class="tab-btn" id="tabUpgrades">UPGRADES</button>
+                </div>
+                
+                <div class="shop-buttons" id="botsShop">
                     <button class="shop-btn" id="buyYieldBot">
                         <div class="bot-name">YIELD BOT</div>
                         <div class="bot-roi">+$5 / sec</div>
@@ -46,12 +59,25 @@
                         <div class="bot-cost">Cost: $5,000</div>
                     </button>
                 </div>
+
+                <div class="shop-buttons hidden" id="upgradesShop">
+                    <button class="shop-btn upgrade" id="buyAutoClick">
+                        <div class="bot-name">AUTO-CLICKER</div>
+                        <div class="bot-roi">5 Clicks / sec</div>
+                        <div class="bot-cost">Cost: $2,500</div>
+                    </button>
+                    <button class="shop-btn upgrade" id="buyOverclock">
+                        <div class="bot-name">OVERCLOCK</div>
+                        <div class="bot-roi">Global 2x Yield</div>
+                        <div class="bot-cost">Cost: $25,000</div>
+                    </button>
+                </div>
             </div>
 
             <!-- Screens -->
             <div id="game-over-screen" class="hidden overlay-screen">
-                <h1 id="endTitle" style="color:#ffaa00">FACTORY MASTER!</h1>
-                <p id="endSubtitle">You built a massive automated bot factory.</p>
+                <h1 id="endTitle" style="color:#ffaa00; font-size:64px;">FACTORY MASTER!</h1>
+                <p id="endSubtitle">You reached the Capital Allocator endgame.</p>
                 <div class="score-summary">
                     Final Net Worth: <span id="finalScore" style="color:#00ff88">$0</span>
                 </div>
@@ -59,12 +85,13 @@
             </div>
             
             <div id="start-screen" class="overlay-screen">
-                <h1>BOT <span style="color:#00ccff">SIMULATOR</span></h1>
-                <p>Convert your active labor into passive assets!<br><br>
-                ⚡ Click <b>Manual Labor</b> to earn initial capital.<br>
-                🏭 <b>Buy Bots</b> to build passive income.<br>
-                🔴 Tap <b>BrokeBots (Liabilities)</b> to destroy them before they drain your bots!<br><br>
-                Goal: Reach $100,000 Net Worth.</p>
+                <h1 style="font-size: 60px; line-height:1.1; margin-bottom:10px;">BOT <span style="color:#00ccff">SIMULATOR</span></h1>
+                <p style="font-size: 16px; margin-bottom:30px;">Convert active labor into passive assets.<br><br>
+                ⚡ Click <b>Manual Labor</b> rapidly to trigger <b>FRENZY</b>.<br>
+                🏭 <b>Buy Bots</b> to physically extract value to your bank.<br>
+                🔴 Tap <b>BrokeBots</b> to crush liabilities.<br>
+                ⬆️ Buy <b>Upgrades</b> to scale infinitely.<br><br>
+                Goal: $100,000 Net Worth.</p>
                 <button id="startBtn" class="neon-btn">Open Factory</button>
             </div>
         </div>
