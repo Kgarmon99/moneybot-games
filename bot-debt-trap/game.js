@@ -17,6 +17,7 @@ imgBrokeBot.src = '../assets/brokebot.jpg';
 
 // Game State
 let gameState = 'START';
+let currentLevel = 1;
 let netWorth = 5000;
 let displayNetWorth = 5000; // For rolling numbers
 let timeRemaining = 60;
@@ -25,6 +26,15 @@ let hitPauseTimer = 0; // For freeze-frame impacts
 
 let lastTime = 0;
 let secondTimer = 0;
+
+// Level Configs
+const levels = {
+    1: { duration: 60, startNW: 5000, baseInterest: 100, baseFriction: 0.02, fireRateBase: 1000, fireRateMin: 200, botSpeed: 0.03 },
+    2: { duration: 60, startNW: 5000, baseInterest: 150, baseFriction: 0.025, fireRateBase: 800, fireRateMin: 150, botSpeed: 0.045 },
+    3: { duration: 60, startNW: 5000, baseInterest: 250, baseFriction: 0.03, fireRateBase: 600, fireRateMin: 100, botSpeed: 0.06 },
+    4: { duration: 60, startNW: 5000, baseInterest: 400, baseFriction: 0.04, fireRateBase: 400, fireRateMin: 80, botSpeed: 0.08 },
+    5: { duration: 60, startNW: 5000, baseInterest: 600, baseFriction: 0.05, fireRateBase: 300, fireRateMin: 50, botSpeed: 0.1 }
+};
 
 // Upgrades State
 let boughtEmergency = false;
@@ -56,6 +66,8 @@ const endSubtitle = document.getElementById('endSubtitle');
 const finalScore = document.getElementById('finalScore');
 const btnStart = document.getElementById('startBtn');
 const btnRestart = document.getElementById('restartBtn');
+const btnNextLevel = document.getElementById('nextLevelBtn');
+const levelDisplay = document.getElementById('levelDisplay');
 
 // Input
 const mouse = { x: cw/2, y: ch/2, isDown: false };
@@ -158,7 +170,8 @@ function updateGame(dt) {
         
         // Deduct interest based on debt load
         if (stuckDebts > 0) {
-            const interest = stuckDebts * 100; // Increased penalty to make debt hurt more
+            const config = levels[currentLevel] || levels[5];
+            const interest = stuckDebts * config.baseInterest;
             netWorth -= interest;
             createFloatingText(player.x, player.y - 50, `-$${interest} INTEREST`, '#ff3366');
             debtBox.classList.add('flash-red');
@@ -192,7 +205,8 @@ function updateGame(dt) {
     }
 
     // Player Movement (Debt makes you sluggish, Hustle gives you a boost)
-    let friction = Math.max(0.015, 0.15 - (stuckDebts * 0.02)); // Increased slug factor for debt
+    const config = levels[currentLevel] || levels[5];
+    let friction = Math.max(0.015, 0.15 - (stuckDebts * config.baseFriction));
     if (player.hustleTimer > 0) friction = 0.25; // Even faster full speed during Side Hustle
 
     player.x += (mouse.x - player.x) * friction;
@@ -204,7 +218,7 @@ function updateGame(dt) {
 
     // Brokebot Movement (Moves along the top, trying to align with player)
     brokebot.targetX = player.x;
-    const botSpeed = brokebot.isPredatory ? 0.06 : 0.03;
+    const botSpeed = brokebot.isPredatory ? config.botSpeed * 2 : config.botSpeed;
     brokebot.x += (brokebot.targetX - brokebot.x) * botSpeed;
 
     // Predatory Lending Mode (under 30s)
@@ -218,7 +232,7 @@ function updateGame(dt) {
 
     // Brokebot Firing
     brokebot.fireTimer += dt;
-    const fireRate = Math.max(200, 1000 - (60 - timeRemaining) * 15); // Shoots much faster as time goes on
+    const fireRate = Math.max(config.fireRateMin, config.fireRateBase - (config.duration - timeRemaining) * 15);
     if (brokebot.fireTimer > fireRate) {
         brokebot.fireTimer = 0;
         
@@ -678,18 +692,25 @@ btnHustle.addEventListener('click', () => {
         }
     });
 
-    btnStart.addEventListener('click', startGame);
-    btnRestart.addEventListener('click', startGame);
+    btnStart.addEventListener('click', () => startGame(true));
+    btnRestart.addEventListener('click', () => startGame(true));
 
-    function startGame() {
+    function startGame(startFromLevel1 = true) {
+        if (startFromLevel1) {
+            currentLevel = 1;
+        }
+        
+        const config = levels[currentLevel] || levels[5];
         gameState = 'PLAYING';
-        netWorth = 5000;
-        timeRemaining = 60;
+        netWorth = config.startNW;
+        timeRemaining = config.duration;
         stuckDebts = 0;
         hitPauseTimer = 0;
         player.shield = false;
         player.hustleTimer = 0;
         brokebot.isPredatory = false;
+        
+        levelDisplay.innerText = currentLevel;
     
         // Reset Shop
         boughtEmergency = false;
@@ -731,26 +752,45 @@ btnHustle.addEventListener('click', () => {
     }
 }
 
-function endGame(won) {
+function endGame(survived, reason = "") {
     gameState = 'GAMEOVER';
     gameOverScreen.classList.remove('hidden');
     
-    if (won) {
-        if (window.mbAudio) window.mbAudio.playLevelUp();
-        endTitle.innerText = "SURVIVED!";
-        endTitle.style.color = "#00ff88";
-        endSubtitle.innerText = "You successfully dodged BrokeBot's debt trap!";
+    if (survived) {
+        if (currentLevel < 5 && reason !== "BROKEBOT DESTROYED") {
+            endTitle.innerText = "LEVEL CLEARED!";
+            endTitle.style.color = '#ffaa00';
+            endSubtitle.innerText = `You survived Level ${currentLevel}. Ready for the next month?`;
+            btnNextLevel.classList.remove('hidden');
+            btnRestart.classList.add('hidden');
+        } else {
+            endTitle.innerText = "SURVIVED!";
+            endTitle.style.color = '#00ff88';
+            endSubtitle.innerText = reason ? reason : "You survived all the debt traps!";
+            btnNextLevel.classList.add('hidden');
+            btnRestart.classList.remove('hidden');
+        }
+        finalScore.innerText = `$${Math.floor(netWorth).toLocaleString()}`;
+        finalScore.style.color = '#00ff88';
+        if (window.mbAudio) window.mbAudio.playWin();
     } else {
-        if (window.mbAudio) window.mbAudio.playGameOver();
         endTitle.innerText = "BANKRUPT!";
-        endTitle.style.color = "#ff3366";
-        endSubtitle.innerText = "The interest payments completely drained you.";
+        endTitle.style.color = '#ff3366';
+        endSubtitle.innerText = "The debt load crushed you.";
+        finalScore.innerText = `-$${Math.abs(Math.floor(netWorth)).toLocaleString()}`;
+        finalScore.style.color = '#ff3366';
+        btnNextLevel.classList.add('hidden');
+        btnRestart.classList.remove('hidden');
+        if (window.mbAudio) window.mbAudio.playGameOver();
     }
-    finalScore.innerText = `$${Math.floor(netWorth).toLocaleString()}`;
 }
 
-document.getElementById('startBtn').addEventListener('click', startGame);
-document.getElementById('restartBtn').addEventListener('click', startGame);
+document.getElementById('startBtn').addEventListener('click', () => startGame(true));
+document.getElementById('restartBtn').addEventListener('click', () => startGame(true));
+btnNextLevel.addEventListener('click', () => {
+    currentLevel++;
+    startGame(false);
+});
 
 requestAnimationFrame(time => {
     lastTime = time;
