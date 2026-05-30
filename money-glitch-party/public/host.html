@@ -137,13 +137,21 @@
         const currentPath = window.location.pathname;
         const basePath = currentPath.substring(0, currentPath.lastIndexOf('/') + 1);
         
-        const serverUrl = window.location.hostname.includes('github.io') 
-            ? 'https://71f046c4b3e48a.lhr.life' 
-            : window.location.origin;
+        // Dynamic Server Connection Logic
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlServerParam = urlParams.get('server');
+        
+        let serverUrl = window.location.origin;
+        if (urlServerParam) {
+            serverUrl = urlServerParam;
+        } else if (window.location.hostname.includes('github.io')) {
+            serverUrl = 'https://money-glitch.onrender.com'; // Fallback if no param
+        }
 
         const socket = io(serverUrl, {
-            path: serverUrl.includes('github.io') ? basePath + 'socket.io' : '/socket.io'
+            path: (serverUrl.includes('github.io') || serverUrl.includes('render.com') || urlServerParam) ? '/socket.io' : basePath + 'socket.io'
         });
+        
         let lastState = null;
         let qrCodeObj = null;
 
@@ -282,10 +290,9 @@
                     namesContainer.appendChild(badge);
                 });
                 
-                // Initialize the QR Code to point to the GitHub Pages player.html, NOT the local IP
-                const playerUrl = window.location.hostname.includes('github.io') 
-                    ? window.location.href.replace('host.html', 'player.html')
-                    : state.joinUrl;
+                // Initialize the QR Code to point to the current URL, but replaced with player.html
+                // This ensures that any query parameters (like ?server=) are preserved!
+                const playerUrl = window.location.href.replace('host.html', 'player.html').split('#')[0];
 
                 if(!qrCodeObj && playerUrl) {
                     qrCodeObj = new QRCode(document.getElementById("qr-container"), {

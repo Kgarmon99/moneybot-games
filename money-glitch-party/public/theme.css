@@ -1,0 +1,79 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;700&family=VT323&display=swap');
+
+:root {
+    --mb-bg: #0b0b12;
+    --mb-panel: #161622;
+    --mb-green: #00ff88;
+    --mb-green-glow: rgba(0, 255, 136, 0.4);
+    --mb-purple: #cc00ff;
+    --mb-purple-glow: rgba(204, 0, 255, 0.4);
+    --mb-red: #ff3366;
+    --mb-red-glow: rgba(255, 51, 102, 0.4);
+    --mb-text: #e0e0ff;
+}
+
+body {
+    background-color: var(--mb-bg);
+    background-image: 
+        linear-gradient(rgba(0, 255, 136, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 255, 136, 0.05) 1px, transparent 1px);
+    background-size: 40px 40px;
+    background-position: center center;
+    color: var(--mb-text);
+    font-family: 'Rajdhani', sans-serif;
+    margin: 0;
+    overflow: hidden;
+}
+
+h1, h2, h3, .bot-name {
+    font-family: 'Orbitron', sans-serif;
+    text-transform: uppercase;
+}
+
+.neon-btn {
+    background: transparent;
+    border: 2px solid var(--mb-green);
+    color: var(--mb-green);
+    padding: 15px 30px;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    font-size: 1.2rem;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: all 0.2s;
+    box-shadow: 0 0 10px var(--mb-green-glow), inset 0 0 10px var(--mb-green-glow);
+    text-shadow: 0 0 5px var(--mb-green);
+}
+
+.neon-btn:hover:not(:disabled) {
+    background: var(--mb-green);
+    color: #000;
+    box-shadow: 0 0 20px var(--mb-green-glow), inset 0 0 20px var(--mb-green-glow);
+}
+
+.neon-btn:active:not(:disabled) {
+    transform: scale(0.95);
+}
+
+.neon-btn:disabled {
+    border-color: #444;
+    color: #444;
+    box-shadow: none;
+    text-shadow: none;
+    cursor: not-allowed;
+}
+
+/* CRT Overlay Effect */
+body::after {
+    content: " ";
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+    z-index: 999;
+    background-size: 100% 2px, 3px 100%;
+    pointer-events: none;
+}
