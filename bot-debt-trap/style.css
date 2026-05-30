@@ -91,6 +91,60 @@ canvas {
     text-shadow: 0 0 5px #fff;
 }
 
+.stat-box.glow-green {
+    border-color: #00ff88;
+    box-shadow: 0 0 15px rgba(0, 255, 136, 0.5);
+}
+
+/* Upgrades Shop */
+.shop-buttons {
+    background: rgba(0, 0, 0, 0.6);
+    border-top: 2px solid #333;
+    border-bottom: 2px solid #333;
+    border-radius: 10px;
+    backdrop-filter: blur(5px);
+    -webkit-overflow-scrolling: touch;
+}
+
+.shop-btn {
+    background: #111;
+    border: 2px solid #444;
+    color: #fff;
+    padding: 10px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: inherit;
+    text-align: left;
+    transition: all 0.2s;
+    min-width: 160px;
+    flex-shrink: 0;
+}
+
+.shop-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    filter: grayscale(1);
+}
+
+.shop-btn.upgrade {
+    border-color: #00ccff;
+}
+
+.shop-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    background: #222;
+}
+
+.shop-btn.upgrade:hover:not(:disabled) {
+    border-color: #00ccff;
+    background: rgba(0, 204, 255, 0.1);
+    box-shadow: 0 0 15px rgba(0, 204, 255, 0.3);
+}
+
+.shop-btn .bot-name { font-weight: bold; font-size: 13px; margin-bottom: 3px; color: #ccc; text-transform: uppercase;}
+.shop-btn .bot-roi { font-size: 13px; margin-bottom: 3px; }
+.shop-btn .bot-cost { font-size: 11px; color: #888; }
+
 .overlay-screen {
     position: absolute;
     top: 0;

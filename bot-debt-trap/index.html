@@ -14,14 +14,42 @@
                     <span class="label">TIME LEFT</span>
                     <span id="timeDisplay" class="value">60s</span>
                 </div>
-                <div class="stat-box">
+                <div class="stat-box glow-green" id="nwBox">
                     <span class="label">NET WORTH</span>
                     <span id="nwDisplay" class="value">$5,000</span>
                 </div>
-                <div class="stat-box glow-red">
+                <div class="stat-box glow-red" id="debtBox">
                     <span class="label">DEBT LOAD</span>
                     <span id="debtDisplay" class="value">0 CARDS</span>
                 </div>
+            </div>
+
+            <div class="shop-buttons scrollable" id="upgradesShop" style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; width: 90%; max-width: 800px; padding: 10px; overflow-x: auto; scrollbar-width: none; z-index: 15;">
+                <button class="shop-btn upgrade" id="buyEmergency">
+                    <div class="bot-name">EMERGENCY FUND</div>
+                    <div class="bot-roi" style="color: #00ccff">Block 1 Attack</div>
+                    <div class="bot-cost">Cost: $1,000</div>
+                </button>
+                <button class="shop-btn upgrade" id="buyRefinance">
+                    <div class="bot-name">REFINANCE</div>
+                    <div class="bot-roi" style="color: #ffaa00">Clear 2 Debt Cards</div>
+                    <div class="bot-cost">Cost: $2,500</div>
+                </button>
+                <button class="shop-btn upgrade" id="buyHustle">
+                    <div class="bot-name">SIDE HUSTLE</div>
+                    <div class="bot-roi" style="color: #00ff88">+Speed & Income (5s)</div>
+                    <div class="bot-cost">Cost: $3,000</div>
+                </button>
+                <button class="shop-btn upgrade" id="buyLawyer">
+                    <div class="bot-name">BANKRUPTCY LAWYER</div>
+                    <div class="bot-roi" style="color: #cc00ff">Clear ALL DEBT</div>
+                    <div class="bot-cost">Cost: $10,000</div>
+                </button>
+                <button class="shop-btn upgrade" id="buyEMP">
+                    <div class="bot-name">SHOCKWAVE EMP</div>
+                    <div class="bot-roi" style="color: #00ffff">Destroy BrokeBot (Win)</div>
+                    <div class="bot-cost">Cost: $50,000</div>
+                </button>
             </div>
 
             <div id="game-over-screen" class="hidden overlay-screen">

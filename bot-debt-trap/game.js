@@ -26,16 +26,36 @@ let hitPauseTimer = 0; // For freeze-frame impacts
 let lastTime = 0;
 let secondTimer = 0;
 
+// Upgrades State
+let boughtEmergency = false;
+let boughtRefinance = false;
+let boughtHustle = false;
+let boughtLawyer = false;
+let boughtEMP = false;
+
 // UI Elements
 const timeDisplay = document.getElementById('timeDisplay');
 const nwDisplay = document.getElementById('nwDisplay');
 const debtDisplay = document.getElementById('debtDisplay');
+const nwBox = document.getElementById('nwBox');
+const debtBox = document.getElementById('debtBox');
+const gameContainer = document.getElementById('game-container');
+const upgradesShop = document.getElementById('upgradesShop');
+
+// Shop Buttons
+const btnEmergency = document.getElementById('buyEmergency');
+const btnRefinance = document.getElementById('buyRefinance');
+const btnHustle = document.getElementById('buyHustle');
+const btnLawyer = document.getElementById('buyLawyer');
+const btnEMP = document.getElementById('buyEMP');
+
 const startScreen = document.getElementById('start-screen');
 const gameOverScreen = document.getElementById('game-over-screen');
 const endTitle = document.getElementById('endTitle');
 const endSubtitle = document.getElementById('endSubtitle');
 const finalScore = document.getElementById('finalScore');
-const gameContainer = document.getElementById('game-container');
+const btnStart = document.getElementById('startBtn');
+const btnRestart = document.getElementById('restartBtn');
 
 // Input
 const mouse = { x: cw/2, y: ch/2, isDown: false };
@@ -138,9 +158,11 @@ function updateGame(dt) {
         
         // Deduct interest based on debt load
         if (stuckDebts > 0) {
-            const interest = stuckDebts * 50;
+            const interest = stuckDebts * 100; // Increased penalty to make debt hurt more
             netWorth -= interest;
             createFloatingText(player.x, player.y - 50, `-$${interest} INTEREST`, '#ff3366');
+            debtBox.classList.add('flash-red');
+            setTimeout(() => debtBox.classList.remove('flash-red'), 300);
         }
 
         if (timeRemaining <= 0) {
@@ -153,6 +175,13 @@ function updateGame(dt) {
     nwDisplay.innerText = `$${Math.floor(displayNetWorth).toLocaleString()}`;
     debtDisplay.innerText = `${stuckDebts} CARDS`;
 
+    // Shop Button States
+    if (!boughtEmergency) btnEmergency.disabled = netWorth < 1000;
+    if (!boughtRefinance) btnRefinance.disabled = netWorth < 2500;
+    if (!boughtHustle) btnHustle.disabled = netWorth < 3000;
+    if (!boughtLawyer) btnLawyer.disabled = netWorth < 10000;
+    if (!boughtEMP) btnEMP.disabled = netWorth < 50000;
+
     // Hustle timer logic
     if (player.hustleTimer > 0) {
         player.hustleTimer -= dt;
@@ -163,8 +192,8 @@ function updateGame(dt) {
     }
 
     // Player Movement (Debt makes you sluggish, Hustle gives you a boost)
-    let friction = Math.max(0.015, 0.15 - (stuckDebts * 0.015));
-    if (player.hustleTimer > 0) friction = 0.2; // Full speed during Side Hustle
+    let friction = Math.max(0.015, 0.15 - (stuckDebts * 0.02)); // Increased slug factor for debt
+    if (player.hustleTimer > 0) friction = 0.25; // Even faster full speed during Side Hustle
 
     player.x += (mouse.x - player.x) * friction;
     player.y += (mouse.y - player.y) * friction;
@@ -189,7 +218,7 @@ function updateGame(dt) {
 
     // Brokebot Firing
     brokebot.fireTimer += dt;
-    const fireRate = Math.max(300, 1000 - (60 - timeRemaining) * 10); // Shoots faster as time goes on
+    const fireRate = Math.max(200, 1000 - (60 - timeRemaining) * 15); // Shoots much faster as time goes on
     if (brokebot.fireTimer > fireRate) {
         brokebot.fireTimer = 0;
         
@@ -236,7 +265,7 @@ function updateGame(dt) {
     }
 
     // Spawn Powerups randomly
-    if (Math.random() < 0.005) { // 0.5% chance per frame
+    if (Math.random() < 0.015) { // 1.5% chance per frame (3x more often)
         const type = Math.random() > 0.5 ? 'SHIELD' : 'HUSTLE';
         powerups.push({
             x: Math.random() * (cw - 60) + 30,
@@ -270,6 +299,9 @@ function updateGame(dt) {
                 
                 gameContainer.classList.add('flash-blue');
                 setTimeout(() => gameContainer.classList.remove('flash-blue'), 200);
+                
+                boughtEmergency = false;
+                btnEmergency.innerHTML = `<div class="bot-name">EMERGENCY FUND</div><div class="bot-roi" style="color: #00ccff">Block 1 Attack</div><div class="bot-cost">Cost: $1,000</div>`;
             } else {
                 // Card sticks
                 stuckDebts++;
@@ -341,10 +373,16 @@ function updateGame(dt) {
                 player.shield = true;
                 createFloatingText(player.x, player.y, "EMERGENCY FUND!", '#00ccff');
                 createParticles(pu.x, pu.y, '#00ccff', 15);
+                btnEmergency.innerHTML = `<div class="bot-name">EMERGENCY FUND</div><div class="bot-roi" style="color:#00ccff">ACTIVE</div>`;
+                btnEmergency.disabled = true;
+                boughtEmergency = true;
             } else {
                 player.hustleTimer = 5000; // 5 seconds of side hustle
-                createFloatingText(player.x, player.y, "SIDE HUSTLE!", '#ffaa00');
-                createParticles(pu.x, pu.y, '#ffaa00', 15);
+                createFloatingText(player.x, player.y, "SIDE HUSTLE!", '#00ff88');
+                createParticles(pu.x, pu.y, '#00ff88', 15);
+                btnHustle.innerHTML = `<div class="bot-name">SIDE HUSTLE</div><div class="bot-roi" style="color:#00ff88">ACTIVE</div>`;
+                btnHustle.disabled = true;
+                boughtHustle = true;
             }
             
             if (window.mbAudio) window.mbAudio.playLevelUp(); // Powerup sound
@@ -556,29 +594,125 @@ function draw() {
     }
     ctx.globalAlpha = 1;
 }
+function loop(timestamp) {
+    if (!lastTime) lastTime = timestamp;
+    const dt = timestamp - lastTime;
+    lastTime = timestamp;
 
-function loop(time) {
-    const dt = time - lastTime;
-    lastTime = time;
-    
     updateGame(dt);
     draw();
     
     requestAnimationFrame(loop);
 }
 
-function startGame() {
-    gameState = 'PLAYING';
-    netWorth = 5000;
-    timeRemaining = 60;
-    stuckDebts = 0;
-    projectiles = [];
-    payments = [];
-    powerups = [];
-    particles = [];
-    floatingTexts = [];
-    secondTimer = 0;
-    brokebot.fireTimer = 0;
+btnEmergency.addEventListener('click', () => {
+    if (netWorth >= 1000 && !boughtEmergency) {
+        netWorth -= 1000;
+        boughtEmergency = true;
+        btnEmergency.innerHTML = `<div class="bot-name">EMERGENCY FUND</div><div class="bot-roi" style="color:#00ccff">PURCHASED</div>`;
+        btnEmergency.disabled = true;
+        player.shield = true;
+        createFloatingText(cw/2, ch/2, "EMERGENCY SHIELD ACTIVE!", "#00ccff");
+        if (window.mbAudio) window.mbAudio.playLevelUp();
+    }
+});
+
+btnRefinance.addEventListener('click', () => {
+    if (netWorth >= 2500 && !boughtRefinance) {
+        netWorth -= 2500;
+        boughtRefinance = true;
+        btnRefinance.innerHTML = `<div class="bot-name">REFINANCE</div><div class="bot-roi" style="color:#ffaa00">PURCHASED</div>`;
+        btnRefinance.disabled = true;
+        
+        stuckDebts = Math.max(0, stuckDebts - 2);
+        if (stuckDebts === 0) debtBox.classList.remove('glow-red');
+        createFloatingText(cw/2, ch/2, "-2 DEBT CARDS REFINANCED!", "#ffaa00");
+        createParticles(cw/2, ch/2, '#ffaa00', 20);
+        if (window.mbAudio) window.mbAudio.playLevelUp();
+    }
+});
+
+btnHustle.addEventListener('click', () => {
+        if (netWorth >= 3000 && !boughtHustle) {
+            netWorth -= 3000;
+            boughtHustle = true;
+            btnHustle.innerHTML = `<div class="bot-name">SIDE HUSTLE</div><div class="bot-roi" style="color:#00ff88">PURCHASED</div>`;
+            btnHustle.disabled = true;
+            player.hustleTimer += 5000; // Adds 5 seconds to hustle mode
+            createFloatingText(cw/2, ch/2, "SIDE HUSTLE ACTIVATED!", "#00ff88");
+            if (window.mbAudio) window.mbAudio.playLevelUp();
+        }
+    });
+
+    btnLawyer.addEventListener('click', () => {
+        if (netWorth >= 10000 && !boughtLawyer) {
+            netWorth -= 10000;
+            boughtLawyer = true;
+            btnLawyer.innerHTML = `<div class="bot-name">BANKRUPTCY LAWYER</div><div class="bot-roi" style="color:#cc00ff">PURCHASED</div>`;
+            btnLawyer.disabled = true;
+        
+            stuckDebts = 0;
+            debtBox.classList.remove('glow-red');
+            createFloatingText(cw/2, ch/2, "BANKRUPTCY DECLARED. DEBT CLEARED!", "#cc00ff");
+            createParticles(cw/2, ch/2, '#cc00ff', 30);
+            if (window.mbAudio) window.mbAudio.playLevelUp();
+        }
+    });
+
+    btnEMP.addEventListener('click', () => {
+        if (netWorth >= 50000 && !boughtEMP) {
+            netWorth -= 50000;
+            boughtEMP = true;
+            btnEMP.innerHTML = `<div class="bot-name">SHOCKWAVE EMP</div><div class="bot-roi" style="color:#00ffff">PURCHASED</div>`;
+            btnEMP.disabled = true;
+        
+            createFloatingText(brokebot.x, brokebot.y, "EMP SHOCKWAVE!", "#00ffff");
+            createParticles(brokebot.x, brokebot.y, '#00ffff', 50);
+            gameContainer.classList.add('flash-blue');
+        
+            setTimeout(() => {
+                endGame(true, "BROKEBOT DESTROYED");
+            }, 1500);
+        
+            if (window.mbAudio) window.mbAudio.playLevelUp();
+        }
+    });
+
+    btnStart.addEventListener('click', startGame);
+    btnRestart.addEventListener('click', startGame);
+
+    function startGame() {
+        gameState = 'PLAYING';
+        netWorth = 5000;
+        timeRemaining = 60;
+        stuckDebts = 0;
+        hitPauseTimer = 0;
+        player.shield = false;
+        player.hustleTimer = 0;
+        brokebot.isPredatory = false;
+    
+        // Reset Shop
+        boughtEmergency = false;
+        boughtRefinance = false;
+        boughtHustle = false;
+        boughtLawyer = false;
+        boughtEMP = false;
+
+        btnEmergency.innerHTML = `<div class="bot-name">EMERGENCY FUND</div><div class="bot-roi" style="color: #00ccff">Block 1 Attack</div><div class="bot-cost">Cost: $1,000</div>`;
+        btnRefinance.innerHTML = `<div class="bot-name">REFINANCE</div><div class="bot-roi" style="color: #ffaa00">Clear 2 Debt Cards</div><div class="bot-cost">Cost: $2,500</div>`;
+        btnHustle.innerHTML = `<div class="bot-name">SIDE HUSTLE</div><div class="bot-roi" style="color: #00ff88">+Speed & Income (5s)</div><div class="bot-cost">Cost: $3,000</div>`;
+        btnLawyer.innerHTML = `<div class="bot-name">BANKRUPTCY LAWYER</div><div class="bot-roi" style="color: #cc00ff">Clear ALL DEBT</div><div class="bot-cost">Cost: $10,000</div>`;
+        btnEMP.innerHTML = `<div class="bot-name">SHOCKWAVE EMP</div><div class="bot-roi" style="color: #00ffff">Destroy BrokeBot (Win)</div><div class="bot-cost">Cost: $50,000</div>`;
+    
+        [btnEmergency, btnRefinance, btnHustle, btnLawyer, btnEMP].forEach(b => b.disabled = true);
+    
+        projectiles = [];
+        payments = [];
+        powerups = [];
+        particles = [];
+        floatingTexts = [];
+        secondTimer = 0;
+        brokebot.fireTimer = 0;
     brokebot.isPredatory = false;
     player.shield = false;
     player.hustleTimer = 0;
