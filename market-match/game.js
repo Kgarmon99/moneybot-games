@@ -48,6 +48,10 @@ const gameContainer = document.getElementById('game-container');
 function resize() {
     cw = canvas.width = window.innerWidth;
     ch = canvas.height = window.innerHeight;
+    
+    // Fix iOS 100vh issue dynamically if 100dvh isn't supported perfectly
+    const doc = document.documentElement;
+    doc.style.setProperty('--app-height', `${window.innerHeight}px`);
 }
 window.addEventListener('resize', resize);
 resize();
