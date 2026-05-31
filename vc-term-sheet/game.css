@@ -1,0 +1,288 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&family=Space+Mono:wght@400;700&display=swap');
+
+:root {
+  --bg-color: #050505;
+  --panel-bg: #111111;
+  --neon-green: #00ff66;
+  --neon-red: #ff0055;
+  --neon-purple: #9d00ff;
+  --text-main: #ffffff;
+  --text-muted: #888888;
+  --border-color: #333333;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-main);
+  font-family: 'Inter', sans-serif;
+  overflow: hidden;
+  touch-action: none;
+}
+
+#game-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+  max-width: 500px;
+  margin: 0 auto;
+  position: relative;
+  border-left: 1px solid var(--border-color);
+  border-right: 1px solid var(--border-color);
+}
+
+/* HUD */
+.hud {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: var(--panel-bg);
+  border-bottom: 1px solid var(--border-color);
+  z-index: 10;
+}
+
+.hud-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.logo { font-size: 1.5rem; }
+.title { font-weight: 800; font-size: 1.1rem; letter-spacing: -0.5px; }
+
+.hud-stats {
+  display: flex;
+  gap: 1rem;
+}
+
+.stat-pill {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.stat-label {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+.stat-value {
+  font-family: 'Space Mono', monospace;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--neon-green);
+}
+
+/* Play Area */
+.play-area {
+  flex: 1;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  overflow: hidden;
+}
+
+.card-stack {
+  position: relative;
+  width: 100%;
+  height: 60%;
+  max-height: 400px;
+  perspective: 1000px;
+}
+
+/* Pitch Card */
+.pitch-card {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: #1a1a1a;
+  border: 2px solid var(--border-color);
+  border-radius: 16px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  transform-origin: 50% 100%;
+  will-change: transform;
+}
+
+.pitch-card.swiping-right { border-color: var(--neon-green); box-shadow: 0 0 20px rgba(0,255,102,0.2); }
+.pitch-card.swiping-left { border-color: var(--neon-red); box-shadow: 0 0 20px rgba(255,0,85,0.2); }
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+.company-icon { font-size: 2.5rem; }
+.company-name { font-size: 1.5rem; font-weight: 800; }
+.company-tagline { font-size: 0.85rem; color: var(--text-muted); }
+
+.card-details {
+  background: var(--bg-color);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.detail-label {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 0.25rem;
+}
+
+.detail-value {
+  font-family: 'Space Mono', monospace;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.card-term {
+  flex: 1;
+  background: rgba(157, 0, 255, 0.1);
+  border-left: 4px solid var(--neon-purple);
+  padding: 1rem;
+  border-radius: 4px;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.term-label {
+  font-size: 0.65rem;
+  color: var(--neon-purple);
+  text-transform: uppercase;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+}
+
+/* Controls */
+.controls {
+  display: flex;
+  width: 100%;
+  gap: 1rem;
+  margin-top: 2rem;
+  height: 70px;
+}
+
+.btn-action {
+  flex: 1;
+  border: none;
+  border-radius: 12px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 800;
+  font-size: 1.2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: transform 0.1s;
+}
+
+.btn-action:active { transform: scale(0.95); }
+
+.btn-pass {
+  background: transparent;
+  color: var(--neon-red);
+  border: 2px solid var(--neon-red);
+}
+
+.btn-fund {
+  background: var(--neon-green);
+  color: #000;
+  box-shadow: 0 0 15px rgba(0, 255, 102, 0.3);
+}
+
+/* Modals & Overlays */
+.modal-overlay, .feedback-overlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.85);
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 1rem;
+}
+
+.modal-overlay.hidden, .feedback-overlay.hidden {
+  display: none;
+}
+
+.modal-card, .feedback-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 2rem;
+  text-align: center;
+  width: 100%;
+  max-width: 360px;
+}
+
+.modal-mascot { font-size: 4rem; margin-bottom: 1rem; }
+h1 { font-size: 2rem; margin-bottom: 0.5rem; font-weight: 900; }
+.modal-subtitle { color: var(--text-muted); margin-bottom: 1.5rem; }
+
+.instructions p {
+  margin-bottom: 0.75rem;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+.instructions strong { color: var(--neon-purple); }
+
+.btn-primary, .btn-next {
+  background: #fff;
+  color: #000;
+  border: none;
+  border-radius: 8px;
+  padding: 1rem 2rem;
+  font-family: 'Inter', sans-serif;
+  font-weight: 800;
+  font-size: 1.1rem;
+  cursor: pointer;
+  width: 100%;
+  margin-top: 1rem;
+}
+
+.btn-next { background: var(--neon-green); }
+
+.feedback-card h2 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+#feedback-desc { font-size: 1rem; margin-bottom: 1.5rem; color: #ddd; line-height: 1.4; }
+.feedback-impact {
+  font-family: 'Space Mono', monospace;
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+}
+
+.final-score {
+  font-family: 'Space Mono', monospace;
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--neon-green);
+  margin-bottom: 1rem;
+}
+.end-desc { margin-bottom: 1.5rem; color: #ddd; }

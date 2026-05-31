@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Neon VC: The Term Sheet</title>
+  <link rel="stylesheet" href="game.css">
+</head>
+<body>
+  <div id="game-shell">
+    <header class="hud">
+      <div class="hud-brand">
+        <span class="logo">🏦</span>
+        <span class="title">Neon VC Fund</span>
+      </div>
+      <div class="hud-stats">
+        <div class="stat-pill">
+          <span class="stat-label">FUND CAPITAL</span>
+          <span class="stat-value" id="capital-display">$10.0M</span>
+        </div>
+        <div class="stat-pill">
+          <span class="stat-label">DEALS LEFT</span>
+          <span class="stat-value" id="deals-display">20</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="play-area" id="play-area">
+      
+      <div class="card-stack" id="card-stack">
+        <!-- Cards injected by JS -->
+      </div>
+
+      <div class="controls" id="controls" style="display: none;">
+        <button class="btn-action btn-pass" id="btn-pass">
+          <span class="icon">❌</span> PASS
+        </button>
+        <button class="btn-action btn-fund" id="btn-fund">
+          <span class="icon">💰</span> FUND
+        </button>
+      </div>
+      
+    </main>
+
+    <!-- Feedback Overlay -->
+    <div class="feedback-overlay hidden" id="feedback-overlay">
+      <div class="feedback-card" id="feedback-card">
+        <h2 id="feedback-title">Result</h2>
+        <p id="feedback-desc">Description here...</p>
+        <div class="feedback-impact" id="feedback-impact">+$5.0M</div>
+        <button class="btn-next" id="btn-next">Next Pitch ➔</button>
+      </div>
+    </div>
+
+    <!-- Start Screen -->
+    <div class="modal-overlay" id="start-screen">
+      <div class="modal-card">
+        <div class="modal-mascot">🕶️</div>
+        <h1>Neon VC</h1>
+        <p class="modal-subtitle">You manage a $10M Venture Capital fund.</p>
+        <div class="instructions">
+          <p>Read the pitch and the <strong>fine print</strong>.</p>
+          <p>Swipe or tap to <strong>FUND</strong> or <strong>PASS</strong>.</p>
+          <p>Avoid bad terms, vaporware, and scams. Grow the fund!</p>
+        </div>
+        <button class="btn-primary" id="start-btn">Start Investing</button>
+      </div>
+    </div>
+
+    <!-- End Screen -->
+    <div class="modal-overlay hidden" id="end-screen">
+      <div class="modal-card">
+        <div class="modal-mascot" id="end-mascot">🏆</div>
+        <h1 id="end-title">Fund Closed</h1>
+        <p class="modal-subtitle">Your final fund value:</p>
+        <div class="final-score" id="final-score">$0M</div>
+        <p class="end-desc" id="end-desc">You are a legendary investor.</p>
+        <button class="btn-primary" id="replay-btn">Play Again</button>
+      </div>
+    </div>
+  </div>
+  <script src="game.js"></script>
+</body>
+</html>
