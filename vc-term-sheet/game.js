@@ -297,3 +297,21 @@ function endGame() {
     endDesc.textContent = "You lost money overall. LPs won't back Fund II.";
   }
 }
+// Swipe Support
+let touchStartX = 0;
+let touchEndX = 0;
+
+cardStack.addEventListener('touchstart', e => {
+  touchStartX = e.changedTouches[0].screenX;
+});
+
+cardStack.addEventListener('touchend', e => {
+  touchEndX = e.changedTouches[0].screenX;
+  handleSwipe();
+});
+
+function handleSwipe() {
+  const threshold = 50;
+  if (touchEndX < touchStartX - threshold) handleDecision('pass');
+  if (touchEndX > touchStartX + threshold) handleDecision('fund');
+}
