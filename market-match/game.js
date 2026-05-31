@@ -1,18 +1,40 @@
 // game.js
-// --- Stock Pool ---
+// --- Realistic Asset Pool ---
 const stockPool = [
-    { ticker: "PEPL", name: "People's Coffee", pe: 15, div: "3.5%", growth: "+8%", hype: "Solid quarterly earnings.", isGood: true },
-    { ticker: "DOGE", name: "DogeCoinz", pe: "N/A", div: "0%", growth: "???", hype: "Elon tweeted a meme about a dog!", isGood: false },
-    { ticker: "AMZN", name: "River Corp", pe: 45, div: "0%", growth: "+25%", hype: "Building new fulfillment centers.", isGood: true },
-    { ticker: "GME", name: "GameSpot", pe: -20, div: "0%", growth: "-10%", hype: "Reddit is going crazy! Short squeeze!!!", isGood: false },
-    { ticker: "AAPL", name: "Fruit Computers", pe: 28, div: "0.5%", growth: "+15%", hype: "Releasing a new VR headset.", isGood: true },
-    { ticker: "SPAC", name: "Blank Check Inc.", pe: "N/A", div: "0%", growth: "0%", hype: "We promise we will buy something cool.", isGood: false },
-    { ticker: "JNJ", name: "Johnson Products", pe: 18, div: "2.8%", growth: "+5%", hype: "Boring, stable, consumer goods.", isGood: true },
-    { ticker: "WE", name: "WeDesk", pe: -100, div: "0%", growth: "-50%", hype: "The CEO says we are a tech company, not real estate.", isGood: false },
-    { ticker: "VTI", name: "Total Market Index", pe: 20, div: "1.5%", growth: "+10%", hype: "Owns a piece of every company in America.", isGood: true },
-    { ticker: "TSLA", name: "E-Motors", pe: 65, div: "0%", growth: "+40%", hype: "Self-driving taxis coming next year... maybe.", isGood: false },
-    { ticker: "NVDA", name: "AI Chips Ltd", pe: 70, div: "0.1%", growth: "+60%", hype: "AI is eating the world! Buy buy buy!", isGood: true },
-    { ticker: "TULP", name: "Dutch Tulips", pe: "N/A", div: "0%", growth: "-99%", hype: "These flowers are the future of finance.", isGood: false }
+    // --- Index Funds (Low Risk, Steady) ---
+    { ticker: "VOO", name: "S&P 500 ETF", pe: 24, div: "1.4%", risk: "low", drift: 0.003, vol: 0.015, hype: "The Warren Buffett special. Boring but prints money.", isGood: true },
+    { ticker: "QQQ", name: "Nasdaq 100", pe: 32, div: "0.6%", risk: "med", drift: 0.004, vol: 0.025, hype: "Heavy on tech. High growth, higher drops.", isGood: true },
+    { ticker: "SCHD", name: "US Dividend Equity", pe: 15, div: "3.5%", risk: "low", drift: 0.002, vol: 0.012, hype: "Boomer stocks that pay you cash every quarter.", isGood: true },
+    
+    // --- Mega-Cap Tech (High Quality, Medium Risk) ---
+    { ticker: "AAPL", name: "Apple Inc.", pe: 28, div: "0.5%", risk: "med", drift: 0.0035, vol: 0.02, hype: "They sell $1000 phones to everyone on Earth.", isGood: true },
+    { ticker: "MSFT", name: "Microsoft", pe: 35, div: "0.8%", risk: "med", drift: 0.004, vol: 0.02, hype: "Owning enterprise software and AI.", isGood: true },
+    { ticker: "NVDA", name: "NVIDIA", pe: 75, div: "0.02%", risk: "high", drift: 0.006, vol: 0.04, hype: "AI GPUs go brrrrr. Priced for absolute perfection.", isGood: true },
+    { ticker: "AMZN", name: "Amazon", pe: 60, div: "0%", risk: "med", drift: 0.0035, vol: 0.025, hype: "They control the cloud and your front porch.", isGood: true },
+    { ticker: "META", name: "Meta Platforms", pe: 26, div: "0.4%", risk: "med", drift: 0.003, vol: 0.03, hype: "Billions of users, printing ad revenue.", isGood: true },
+    
+    // --- Value & Blue Chip (Low Volatility, Dividends) ---
+    { ticker: "JNJ", name: "Johnson Products", pe: 14, div: "3.0%", risk: "low", drift: 0.0015, vol: 0.01, hype: "Band-aids and baby powder. Recession proof.", isGood: true },
+    { ticker: "KO", name: "Coca-Cola", pe: 23, div: "3.1%", risk: "low", drift: 0.0015, vol: 0.01, hype: "Sugar water that pays a reliable dividend.", isGood: true },
+    { ticker: "JPM", name: "JPMorgan Chase", pe: 12, div: "2.5%", risk: "med", drift: 0.0025, vol: 0.02, hype: "The fortress bank. Too big to fail.", isGood: true },
+    { ticker: "XOM", name: "Exxon Mobil", pe: 13, div: "3.2%", risk: "med", drift: 0.002, vol: 0.025, hype: "Oil money. Highly tied to commodities.", isGood: true },
+
+    // --- High Growth / Speculative (High Risk) ---
+    { ticker: "TSLA", name: "Tesla Inc.", pe: 65, div: "0%", risk: "high", drift: 0.003, vol: 0.05, hype: "It's an AI company, not a car company!!", isGood: false },
+    { ticker: "PLTR", name: "Palantir", pe: 250, div: "0%", risk: "high", drift: 0.004, vol: 0.06, hype: "Government AI contracts. Cult following.", isGood: false },
+    { ticker: "UBER", name: "Uber Tech", pe: 85, div: "0%", risk: "med", drift: 0.003, vol: 0.035, hype: "Finally profitable, but margins are thin.", isGood: true },
+    { ticker: "HOOD", name: "Robinhood", pe: 40, div: "0%", risk: "high", drift: 0.002, vol: 0.05, hype: "The casino where retail traders lose money.", isGood: false },
+
+    // --- Meme Stocks & Crypto (Extreme Risk, Rug Pulls) ---
+    { ticker: "GME", name: "GameStop", pe: "N/A", div: "0%", risk: "extreme", drift: -0.005, vol: 0.15, hype: "DIAMOND HANDS! APES TOGETHER STRONG!", isGood: false },
+    { ticker: "AMC", name: "AMC Entertainment", pe: "N/A", div: "0%", risk: "extreme", drift: -0.008, vol: 0.12, hype: "Free popcorn for shareholders!", isGood: false },
+    { ticker: "DJT", name: "Trump Media", pe: "N/A", div: "0%", risk: "extreme", drift: -0.01, vol: 0.20, hype: "Fundamentals do not matter here.", isGood: false },
+    { ticker: "BTC", name: "Bitcoin", pe: "N/A", div: "0%", risk: "high", drift: 0.005, vol: 0.06, hype: "Digital gold. Halving cycle incoming.", isGood: true },
+    { ticker: "DOGE", name: "Dogecoin", pe: "N/A", div: "0%", risk: "extreme", drift: -0.002, vol: 0.18, hype: "Much wow. Very currency.", isGood: false },
+    
+    // --- Value Traps & Bankruptcies (The Losers) ---
+    { ticker: "WE", name: "WeWork", pe: "N/A", div: "0%", risk: "extreme", drift: -0.05, vol: 0.1, hype: "Community-adjusted EBITDA is the future.", isGood: false },
+    { ticker: "PTON", name: "Peloton", pe: "N/A", div: "0%", risk: "high", drift: -0.01, vol: 0.08, hype: "Everyone bought one in 2020. Now they are coat racks.", isGood: false }
 ];
 
 // --- State ---
@@ -116,34 +138,40 @@ function loop(timestamp) {
 function simulateMarket() {
     let dayProfit = 0;
     currentDay++;
+    
+    // Simulate macro market sentiment (-2% to +2% daily market baseline)
+    const macroSentiment = (Math.random() - 0.45) * 0.04;
 
     portfolio.forEach(pos => {
-        if (pos.stock.isGood) {
-            // Steady compounding + dividends
-            const gain = pos.value * 0.05; // 5% growth tick
-            pos.value += gain;
-            dayProfit += gain;
-            
-            // Random chance for dividend payout directly to cash
-            if (Math.random() < 0.2) {
-                const div = pos.value * 0.02;
-                cash += div;
-                createFloatingText(cw/2 - 50, 50, `+DIVIDEND`, '#00ff88');
+        const divString = pos.stock.div.replace('%', '');
+        const divYield = parseFloat(divString) || 0;
+
+        // Realistic Price Action (Random Walk with Drift)
+        // drift = expected daily return. vol = daily volatility spread.
+        const stockNoise = (Math.random() - 0.5) * pos.stock.vol;
+        let percentChange = pos.stock.drift + stockNoise + macroSentiment;
+        
+        // Meme stocks have a rare chance to violently squeeze, but generally bleed out
+        if (pos.stock.risk === 'extreme') {
+            if (Math.random() < 0.05) { // 5% chance of a massive pump
+                percentChange += (Math.random() * 0.5 + 0.2);
+                createFloatingText(cw/2, ch/2 - 100, `🚀 ${pos.stock.ticker} MOON!`, '#cc00ff');
+            } else if (Math.random() < 0.15) { // 15% chance of a heavy 20% rug pull
+                percentChange -= 0.20;
+                gameContainer.classList.add('glitch');
+                setTimeout(() => gameContainer.classList.remove('glitch'), 300);
             }
-        } else {
-            // Meme stock logic: It might moon briefly, but mostly rugs
-            if (Math.random() < 0.1) {
-                // The Moon
-                const pump = pos.value * 1.5;
-                pos.value += pump;
-                dayProfit += pump;
-                createFloatingText(cw/2, ch/2 - 100, `🚀 MOON!`, '#cc00ff');
-            } else {
-                // The Rug Pull
-                const loss = pos.value * 0.3; // Loses 30% per tick
-                pos.value -= loss;
-                dayProfit -= loss;
-            }
+        }
+
+        const gain = pos.value * percentChange;
+        pos.value += gain;
+        dayProfit += gain;
+        
+        // Dividend payout logic (simulate quarterly dividend spread across random days)
+        if (divYield > 0 && Math.random() < 0.05) { // 5% chance per tick to pay out
+            const payout = pos.value * (divYield / 100 / 4); // roughly quarterly slice
+            cash += payout;
+            createFloatingText(cw/2 - 50, 50, `+$${Math.floor(payout)} DIV (${pos.stock.ticker})`, '#00ff88');
         }
     });
 
@@ -198,8 +226,8 @@ function createCardHTML(stock) {
                 <span class="data-value">${stock.div}</span>
             </div>
             <div class="data-row">
-                <span class="data-label">Proj. Growth</span>
-                <span class="data-value">${stock.growth}</span>
+                <span class="data-label">Risk Profile</span>
+                <span class="data-value" style="text-transform: uppercase;">${stock.risk}</span>
             </div>
             <div class="hype-meter">
                 <span class="hype-label">SOCIAL HYPE</span>
