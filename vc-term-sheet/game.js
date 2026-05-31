@@ -214,6 +214,7 @@ function loadNextPitch() {
   
   cardStack.appendChild(card);
   currentCardEl = card;
+  addTiltEffect(card);
 }
 
 function handleDecision(action) {
@@ -314,4 +315,57 @@ function handleSwipe() {
   const threshold = 50;
   if (touchEndX < touchStartX - threshold) handleDecision('pass');
   if (touchEndX > touchStartX + threshold) handleDecision('fund');
+}
+
+// 3D Tilt Effect Setup
+function addTiltEffect(element) {
+  // Desktop mouse movement
+  element.addEventListener('mousemove', (e) => {
+    if(element.classList.contains('swiping-left') || element.classList.contains('swiping-right')) return;
+    
+    const rect = element.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    
+    // Calculate rotation (-12 to 12 degrees)
+    const rotateX = ((y - centerY) / centerY) * -12; 
+    const rotateY = ((x - centerX) / centerX) * 12;
+    
+    // Add dynamic lighting glow based on mouse position
+    const glowX = (x / rect.width) * 100;
+    const glowY = (y / rect.height) * 100;
+    
+    element.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+    element.style.background = `linear-gradient(145deg, rgba(30,30,30,0.85), rgba(10,10,10,0.95)), radial-gradient(circle at ${glowX}% ${glowY}%, rgba(255,255,255,0.08) 0%, transparent 60%)`;
+  });
+  
+  element.addEventListener('mouseleave', () => {
+    if(element.classList.contains('swiping-left') || element.classList.contains('swiping-right')) return;
+    element.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
+    element.style.background = 'linear-gradient(145deg, rgba(30,30,30,0.85), rgba(10,10,10,0.95))';
+  });
+
+  // Mobile Touch Movement (Tilt + slight drag visual)
+  element.addEventListener('touchmove', (e) => {
+    if(element.classList.contains('swiping-left') || element.classList.contains('swiping-right')) return;
+    
+    const touch = e.touches[0];
+    const rect = element.getBoundingClientRect();
+    const x = touch.clientX - rect.left;
+    const y = touch.clientY - rect.top;
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    
+    const rotateX = ((y - centerY) / centerY) * -15;
+    const rotateY = ((x - centerX) / centerX) * 15;
+    
+    element.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+  });
+  
+  element.addEventListener('touchend', () => {
+    if(element.classList.contains('swiping-left') || element.classList.contains('swiping-right')) return;
+    element.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
+  });
 }
