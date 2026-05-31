@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Market Match (Tinder for Stocks)</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="game-container">
+        
+        <!-- UI Header -->
+        <div id="header">
+            <div class="stat-box glow-green">
+                <span class="label">PORTFOLIO</span>
+                <span id="nwDisplay" class="value">$10,000</span>
+            </div>
+            <div class="stat-box">
+                <span class="label">YEAR</span>
+                <span id="yearDisplay" class="value">2026</span>
+            </div>
+            <div class="stat-box glow-purple">
+                <span class="label">STOCKS</span>
+                <span id="stockCount" class="value">0</span>
+            </div>
+        </div>
+
+        <!-- Start Screen -->
+        <div id="start-screen" class="overlay">
+            <h1>MARKET <span style="color:#00ff88">MATCH</span></h1>
+            <p>Swipe Right to Buy. Swipe Left to Pass.</p>
+            <p style="color:#aaa; font-size: 14px;">Don't just buy the hype. Look at the P/E ratio, Dividends, and real business value before you swipe.</p>
+            <button id="start-btn" class="neon-btn">START TRADING</button>
+        </div>
+
+        <!-- End Screen -->
+        <div id="end-screen" class="overlay hidden">
+            <h1 id="end-title">PORTFOLIO REVIEW</h1>
+            <p id="end-desc">Let's see how your picks performed after 5 years.</p>
+            <div class="stat-box glow-green" style="margin-bottom: 30px;">
+                <span class="label">FINAL VALUE</span>
+                <span id="final-score" class="value">$0</span>
+            </div>
+            <button id="restart-btn" class="neon-btn">PLAY AGAIN</button>
+        </div>
+
+        <!-- Card Container -->
+        <div id="card-container">
+            <!-- Cards are injected here by JS -->
+        </div>
+        
+        <!-- Controls -->
+        <div id="controls">
+            <button class="action-btn pass" id="btn-pass">✖ PASS</button>
+            <button class="action-btn buy" id="btn-buy">♥ BUY ($1k)</button>
+        </div>
+        
+    </div>
+    
+    <script src="../shared/audio-engine.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
+    <script src="game.js"></script>
+</body>
+</html>

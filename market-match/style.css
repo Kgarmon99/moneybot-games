@@ -1,0 +1,233 @@
+:root {
+    --mb-bg: #0b0b12;
+    --mb-panel: #161622;
+    --mb-green: #00ff88;
+    --mb-purple: #cc00ff;
+    --mb-red: #ff3366;
+    --mb-text: #e0e0ff;
+}
+
+body {
+    background-color: var(--mb-bg);
+    background-image: 
+        linear-gradient(rgba(0, 255, 136, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 255, 136, 0.05) 1px, transparent 1px);
+    background-size: 40px 40px;
+    color: var(--mb-text);
+    font-family: 'Rajdhani', sans-serif;
+    margin: 0;
+    overflow: hidden;
+    user-select: none;
+    -webkit-touch-callout: none;
+}
+
+#game-container {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    max-width: 500px;
+    margin: 0 auto;
+    background: rgba(0,0,0,0.5);
+    box-shadow: 0 0 50px rgba(0,255,136,0.1);
+}
+
+/* Header */
+#header {
+    display: flex;
+    justify-content: space-between;
+    padding: 15px;
+    z-index: 10;
+}
+
+.stat-box {
+    background: rgba(0, 0, 0, 0.8);
+    border: 2px solid #444;
+    border-radius: 8px;
+    padding: 8px 12px;
+    text-align: center;
+    flex: 1;
+    margin: 0 5px;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
+}
+
+.stat-box.glow-green { border-color: var(--mb-green); box-shadow: 0 0 10px rgba(0,255,136,0.3); }
+.stat-box.glow-purple { border-color: var(--mb-purple); box-shadow: 0 0 10px rgba(204,0,255,0.3); }
+
+.stat-box .label { display: block; font-size: 11px; color: #888; font-family: 'Orbitron', sans-serif; }
+.stat-box .value { display: block; font-size: 18px; font-weight: bold; color: #fff; font-family: 'Orbitron', sans-serif;}
+.stat-box.glow-green .value { color: var(--mb-green); text-shadow: 0 0 5px var(--mb-green);}
+
+/* Overlay Screens */
+.overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(11, 11, 18, 0.95);
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 30px;
+    backdrop-filter: blur(10px);
+}
+
+.overlay h1 { font-family: 'Orbitron', sans-serif; font-size: 3rem; margin-bottom: 20px; line-height: 1.1; text-shadow: 0 0 20px rgba(0,255,136,0.5);}
+.overlay p { font-size: 1.2rem; color: #ccc; margin-bottom: 40px; }
+
+.hidden { display: none !important; }
+
+/* Cards */
+#card-container {
+    flex-grow: 1;
+    position: relative;
+    perspective: 1000px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.stock-card {
+    position: absolute;
+    width: 85%;
+    height: 80%;
+    background: var(--mb-panel);
+    border: 2px solid #333;
+    border-radius: 15px;
+    box-shadow: 0 15px 30px rgba(0,0,0,0.5);
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+    transform-origin: 50% 100%;
+    will-change: transform;
+    overflow: hidden;
+}
+
+.card-header {
+    padding: 20px;
+    background: #000;
+    border-bottom: 2px solid #333;
+    text-align: center;
+}
+
+.card-ticker {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 2.5rem;
+    color: var(--mb-green);
+    font-weight: 900;
+    margin: 0;
+    text-shadow: 0 0 10px rgba(0,255,136,0.5);
+}
+
+.card-company {
+    color: #888;
+    font-size: 1.2rem;
+    margin: 5px 0 0 0;
+}
+
+.card-body {
+    padding: 20px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.data-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #000;
+    padding: 15px;
+    border-radius: 8px;
+    border-left: 4px solid #555;
+}
+
+.data-row.good { border-left-color: var(--mb-green); }
+.data-row.bad { border-left-color: var(--mb-red); }
+.data-row.hype { border-left-color: var(--mb-purple); }
+
+.data-label { font-size: 1.1rem; color: #aaa; }
+.data-value { font-family: 'Orbitron', sans-serif; font-size: 1.3rem; font-weight: bold; }
+
+.hype-meter {
+    margin-top: auto;
+    background: #000;
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.hype-label { color: var(--mb-purple); font-weight: bold; margin-bottom: 10px; display: block;}
+.hype-quote { font-style: italic; color: #ccc; font-size: 1.1rem;}
+
+/* Stamps */
+.stamp {
+    position: absolute;
+    top: 50px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 4rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    padding: 10px 20px;
+    border: 6px solid;
+    border-radius: 15px;
+    opacity: 0;
+    transform: scale(1.5) rotate(-15deg);
+    transition: opacity 0.2s, transform 0.2s;
+    pointer-events: none;
+    z-index: 10;
+}
+
+.stamp.buy { color: var(--mb-green); border-color: var(--mb-green); left: 20px; transform: scale(1.5) rotate(-15deg);}
+.stamp.pass { color: var(--mb-red); border-color: var(--mb-red); right: 20px; transform: scale(1.5) rotate(15deg);}
+
+/* Controls */
+#controls {
+    display: flex;
+    justify-content: space-around;
+    padding: 20px;
+    background: #000;
+    border-top: 2px solid #333;
+    z-index: 10;
+}
+
+.action-btn {
+    border: none;
+    border-radius: 50px;
+    padding: 15px 30px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+    transition: transform 0.1s;
+    width: 45%;
+}
+
+.action-btn:active { transform: scale(0.95); }
+.action-btn.pass { background: transparent; border: 2px solid var(--mb-red); color: var(--mb-red); }
+.action-btn.buy { background: transparent; border: 2px solid var(--mb-green); color: var(--mb-green); }
+
+.neon-btn {
+    background: transparent;
+    border: 2px solid var(--mb-green);
+    color: var(--mb-green);
+    padding: 15px 40px;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    font-size: 1.2rem;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: all 0.2s;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,255,136,0.2), inset 0 0 10px rgba(0,255,136,0.2);
+}
+
+.neon-btn:hover {
+    background: var(--mb-green);
+    color: #000;
+}
