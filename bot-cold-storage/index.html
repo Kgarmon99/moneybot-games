@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Crypto Cold Storage</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="game-container">
+        
+        <!-- UI Header -->
+        <div id="header">
+            <div class="stat-box glow-green">
+                <span class="label">WALLET VALUE</span>
+                <span id="valueDisplay" class="value">$10,000</span>
+            </div>
+            <div class="stat-box glow-purple">
+                <span class="label">SEED PHRASE</span>
+                <span id="seedDisplay" class="value">12 / 12</span>
+            </div>
+            <div class="stat-box">
+                <span class="label">TIME UNTIL SECURE</span>
+                <span id="timeDisplay" class="value">60s</span>
+            </div>
+        </div>
+
+        <canvas id="gameCanvas"></canvas>
+
+        <!-- Start Screen -->
+        <div id="start-screen" class="overlay">
+            <h1>COLD <span style="color:#00ff88">STORAGE</span></h1>
+            <p>Hackers and Phishers are trying to steal your 12-word seed phrase!</p>
+            <p style="color:#aaa; font-size: 14px;">Tap the red viruses to destroy them before they breach the hardware wallet in the center.</p>
+            <button id="start-btn" class="neon-btn">LOCK VAULT</button>
+        </div>
+
+        <!-- End Screen -->
+        <div id="end-screen" class="overlay hidden">
+            <h1 id="end-title">VAULT SECURED</h1>
+            <p id="end-desc">Your crypto is safe.</p>
+            <div class="stat-box glow-green" style="margin-bottom: 30px;">
+                <span class="label">FINAL VALUE</span>
+                <span id="final-score" class="value">$0</span>
+            </div>
+            <button id="restart-btn" class="neon-btn">PLAY AGAIN</button>
+        </div>
+        
+    </div>
+    
+    <script src="../shared/audio-engine.js"></script>
+    <script src="game.js"></script>
+</body>
+</html>
