@@ -289,24 +289,29 @@ body {
 }
 
 /* Mobile Optimizations */
-@media (max-width: 400px) {
-    #header { padding: 10px 5px; }
-    .stat-box { padding: 5px 8px; margin: 0 2px; }
-    .stat-box .label { font-size: 9px; }
-    .stat-box .value { font-size: 14px; }
+@media (max-width: 450px) {
+    #header { padding: 8px 4px; }
+    .stat-box { padding: 4px 4px; margin: 0 2px; border-width: 1px; }
+    .stat-box .label { font-size: 8px; letter-spacing: 0.5px; }
+    .stat-box .value { font-size: 13px; }
     
-    .card-header { padding: 10px; }
-    .card-ticker { font-size: 2rem; }
-    .card-body { padding: 10px; gap: 10px; }
-    .data-row { padding: 10px; }
-    .data-label { font-size: 0.95rem; }
-    .data-value { font-size: 1.1rem; }
-    .hype-meter { padding: 10px; }
-    .hype-quote { font-size: 0.95rem; }
+    .stock-card { width: 92%; height: 75%; border-width: 1px; }
+    .card-header { padding: 8px; }
+    .card-ticker { font-size: 1.8rem; }
+    .card-company { font-size: 1rem; }
     
-    #controls { padding: 15px 10px; }
-    .action-btn { padding: 12px 20px; font-size: 1rem; }
+    .card-body { padding: 8px; gap: 8px; }
+    .data-row { padding: 8px; border-radius: 6px; }
+    .data-label { font-size: 0.85rem; }
+    .data-value { font-size: 1rem; }
     
-    #combo-meter { font-size: 2rem; top: 70px; right: 10px; }
-    .stamp { font-size: 3rem; }
+    .hype-meter { padding: 8px; border-radius: 6px; margin-top: 5px; }
+    .hype-quote { font-size: 0.85rem; line-height: 1.2; }
+    .hype-label { margin-bottom: 5px; font-size: 0.9rem; }
+    
+    #controls { padding: 10px 5px; }
+    .action-btn { padding: 10px 10px; font-size: 0.95rem; width: 48%; border-width: 2px; }
+    
+    #combo-meter { font-size: 1.8rem; top: 60px; right: 10px; }
+    .stamp { font-size: 2.5rem; top: 30px; }
 }
