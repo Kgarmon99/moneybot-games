@@ -42,7 +42,7 @@ function resize() {
     const rect = document.getElementById('game-container').getBoundingClientRect();
     cw = canvas.width = rect.width;
     ch = canvas.height = rect.height;
-    document.documentElement.style.setProperty('--app-height', \`\${window.innerHeight}px\`);
+    document.documentElement.style.setProperty('--app-height', `${window.innerHeight}px`);
 }
 window.addEventListener('resize', resize);
 resize();
@@ -90,7 +90,7 @@ function generateNewListing() {
     condWrapper.classList.add('hidden');
     
     btnBuy.classList.remove('hidden');
-    btnBuy.innerHTML = \`BUY WITH HARD MONEY<br><span>\$\${(basePrice).toLocaleString()}</span>\`;
+    btnBuy.innerHTML = `BUY WITH HARD MONEY<br><span>$${(basePrice).toLocaleString()}</span>`;
     btnBuy.disabled = false;
     
     btnReno.classList.add('hidden');
@@ -127,7 +127,7 @@ function renovateProperty() {
         
         // Visual updates
         createParticles(cw/2, ch/2 + 50, '#ffaa00', 15);
-        createFloatingText(cw/2, ch/2, "+\$" + RENO_VALUE_ADD.toLocaleString(), '#00ff88');
+        createFloatingText(cw/2, ch/2, "+$" + RENO_VALUE_ADD.toLocaleString(), '#00ff88');
         
         houseVisual.classList.remove('shake');
         void houseVisual.offsetWidth;
@@ -156,7 +156,7 @@ function sellProperty() {
     if (window.mbAudio) window.mbAudio.playWin();
     
     createParticles(cw/2, ch/2, profit >= 0 ? '#00ff88' : '#ff3366', 40);
-    createFloatingText(cw/2, ch/2 - 50, profit >= 0 ? "PROFIT: +\$" + profit.toLocaleString() : "LOSS: -\$" + Math.abs(profit).toLocaleString(), profit >= 0 ? '#00ff88' : '#ff3366');
+    createFloatingText(cw/2, ch/2 - 50, profit >= 0 ? "PROFIT: +$" + profit.toLocaleString() : "LOSS: -$" + Math.abs(profit).toLocaleString(), profit >= 0 ? '#00ff88' : '#ff3366');
     
     flips++;
     generateNewListing();
@@ -191,7 +191,7 @@ function update(dt) {
             void document.getElementById('debt-box').offsetWidth;
             document.getElementById('debt-box').classList.add('pulse-red');
             
-            createFloatingText(cw/2 + 50, 100, "-\$" + interest + " INT", '#ff3366');
+            createFloatingText(cw/2 + 50, 100, "-$" + interest + " INT", '#ff3366');
             
             updateUI();
             
@@ -216,7 +216,7 @@ function updateUI() {
         else if (condition < 80) condFill.style.backgroundColor = 'var(--mb-orange)';
         else condFill.style.backgroundColor = 'var(--mb-green)';
         
-        btnSell.innerHTML = \`SELL PROPERTY<br><span>Lock Value</span>\`;
+        btnSell.innerHTML = `SELL PROPERTY<br><span>Lock Value</span>`;
         
         // Color debt red if underwater
         if (debt > propValue) {
