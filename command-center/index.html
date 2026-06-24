@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MoneyBot Command Center</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #030508;
+      --panel: #0a0d12;
+      --panel-2: #11151c;
+      --money: #00d084;
+      --money-dim: rgba(0, 208, 132, 0.15);
+      --accent: #3b82f6;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --text: #e5e7eb;
+      --muted: #6b7280;
+      --border: rgba(255,255,255,0.08);
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0; padding: 0;
+      width: 100%; height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      overflow: hidden;
+    }
+    .screen {
+      width: 100vw; height: 100vh;
+      padding: 2.5vh 2.5vw;
+      display: flex;
+      flex-direction: column;
+      gap: 2vh;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1.5vh;
+    }
+    .brand {
+      display: flex; align-items: baseline; gap: 1vw;
+    }
+    .brand h1 {
+      margin: 0;
+      font-size: 4vh;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      text-transform: uppercase;
+    }
+    .brand .pill {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.4vh;
+      padding: 0.4vh 1vh;
+      background: var(--money-dim);
+      color: var(--money);
+      border: 1px solid rgba(0,208,132,0.3);
+      border-radius: 999px;
+    }
+    .clock {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 2.2vh;
+      color: var(--muted);
+      text-align: right;
+    }
+    .clock .sync {
+      font-size: 1.4vh;
+      margin-top: 0.5vh;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: repeat(2, 1fr) auto;
+      gap: 1.8vh;
+      flex: 1;
+      min-height: 0;
+    }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 1.2vh;
+      padding: 2vh;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      position: relative;
+      overflow: hidden;
+    }
+    .panel::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 3px;
+      background: var(--money);
+      opacity: 0.6;
+    }
+    .panel.warning::before { background: var(--warning); }
+    .panel.danger::before { background: var(--danger); }
+    .panel.accent::before { background: var(--accent); }
+    .panel-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.5vh;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+      margin-bottom: 1.5vh;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .panel-title .badge {
+      font-size: 1.2vh;
+      padding: 0.3vh 0.8vh;
+      border-radius: 999px;
+      background: var(--panel-2);
+      color: var(--text);
+    }
+    .big-number {
+      font-size: 7vh;
+      font-weight: 900;
+      line-height: 1;
+      margin-bottom: 1vh;
+      white-space: nowrap;
+    }
+    .big-number.money { color: var(--money); }
+    .big-number.accent { color: var(--accent); }
+    .big-number.warning { color: var(--warning); }
+    .big-number.danger { color: var(--danger); }
+    .sub-metric {
+      font-size: 1.8vh;
+      color: var(--muted);
+      margin-bottom: 0.6vh;
+    }
+    .sub-metric b { color: var(--text); font-weight: 600; }
+    .row-list {
+      flex: 1;
+      overflow-y: auto;
+      margin-top: 1vh;
+      padding-right: 0.5vh;
+    }
+    .row-list::-webkit-scrollbar { width: 4px; }
+    .row-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+    .row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.9vh 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 1.6vh;
+    }
+    .row:last-child { border-bottom: none; }
+    .row .name {
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      margin-right: 1vw;
+    }
+    .row .meta {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.3vh;
+      color: var(--muted);
+    }
+    .row .amount {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      color: var(--money);
+      margin-left: 1vw;
+    }
+    .attention-bar {
+      display: flex;
+      gap: 1.5vh;
+      align-items: center;
+      padding: 1.5vh 2vh;
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 1vh;
+      font-size: 1.7vh;
+      min-height: 6vh;
+    }
+    .attention-bar .label {
+      font-family: 'JetBrains Mono', monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    .attention-item {
+      display: flex;
+      align-items: center;
+      gap: 0.8vh;
+      padding: 0.6vh 1.2vh;
+      border-radius: 0.6vh;
+      background: var(--panel);
+      border: 1px solid var(--border);
+    }
+    .dot { width: 0.7vh; height: 0.7vh; border-radius: 50%; }
+    .dot.ok { background: var(--money); box-shadow: 0 0 8px var(--money); }
+    .dot.warning { background: var(--warning); box-shadow: 0 0 8px var(--warning); }
+    .dot.danger { background: var(--danger); box-shadow: 0 0 8px var(--danger); }
+    .dot.info { background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+    .empty-state {
+      color: var(--muted);
+      font-size: 1.5vh;
+      text-align: center;
+      padding: 2vh 0;
+    }
+    .panel.full-height { grid-row: span 2; }
+    .panel.span-2 { grid-column: span 2; }
+    .right-col { text-align: right; }
+    .mono { font-family: 'JetBrains Mono', monospace; }
+    @media (max-width: 1200px) {
+      .grid { grid-template-columns: repeat(2, 1fr); }
+      .big-number { font-size: 5vh; }
+    }
+  </style>
+</head>
+<body>
+  <div class="screen">
+    <header>
+      <div class="brand">
+        <h1>MoneyBot Command Center</h1>
+        <span class="pill">TV EDITION</span>
+      </div>
+      <div class="clock">
+        <div id="clock">--:--</div>
+        <div class="sync">Synced: <span id="sync-time">--</span></div>
+      </div>
+    </header>
+
+    <main class="grid">
+      <!-- Schools -->
+      <section class="panel full-height">
+        <div class="panel-title">School Pipeline <span class="badge" id="school-count">0</span></div>
+        <div class="big-number accent" id="school-count-big">0</div>
+        <div class="sub-metric">Target districts & principals</div>
+        <div class="row-list" id="school-list"><div class="empty-state">Loading…</div></div>
+      </section>
+
+      <!-- Pilots -->
+      <section class="panel full-height">
+        <div class="panel-title">Active Pilots <span class="badge" id="pilot-count">0</span></div>
+        <div class="big-number accent" id="pilot-count-big">0</div>
+        <div class="sub-metric">Schools running MoneyBot now</div>
+        <div class="row-list" id="pilot-list"><div class="empty-state">Loading…</div></div>
+      </section>
+
+      <!-- Revenue -->
+      <section class="panel span-2">
+        <div class="panel-title">Revenue & Runway</div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 2vh;">
+          <div>
+            <div class="big-number money" id="cash">$0</div>
+            <div class="sub-metric">Cash</div>
+          </div>
+          <div>
+            <div class="big-number" id="mrr">$0</div>
+            <div class="sub-metric">MRR</div>
+          </div>
+          <div class="right-col">
+            <div class="big-number" id="runway">∞</div>
+            <div class="sub-metric">Runway (mo)</div>
+          </div>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1vh; margin-top: 2vh; font-size: 1.5vh;">
+          <div class="sub-metric">Rev 30d: <b id="rev30">$0</b></div>
+          <div class="sub-metric">Burn 30d: <b id="burn30">$0</b></div>
+          <div class="sub-metric right-col">Net: <b id="net30">$0</b></div>
+        </div>
+      </section>
+
+      <!-- Mobile -->
+      <section class="panel">
+        <div class="panel-title">Mobile</div>
+        <div class="big-number" id="app-downloads">0</div>
+        <div class="sub-metric">App Downloads</div>
+        <div class="big-number warning" id="testflight-users" style="font-size: 5vh; margin-top: 1.5vh;">0</div>
+        <div class="sub-metric">TestFlight Users</div>
+      </section>
+
+      <!-- Investor Pipeline -->
+      <section class="panel">
+        <div class="panel-title">Investor Pipeline</div>
+        <div class="big-number" id="investor-count">0</div>
+        <div class="sub-metric">Open investor conversations</div>
+        <div class="sub-metric" style="margin-top: 1vh;">Weighted: <b id="investor-weighted">$0</b></div>
+        <div class="sub-metric">Unweighted: <b id="investor-unweighted">$0</b></div>
+      </section>
+
+      <!-- GitHub Deployments -->
+      <section class="panel span-2">
+        <div class="panel-title">GitHub Deployments</div>
+        <div class="row-list" id="deploy-list"><div class="empty-state">Loading…</div></div>
+      </section>
+    </main>
+
+    <footer class="attention-bar">
+      <span class="label">Needs Attention</span>
+      <div id="attention-list" style="display: flex; gap: 1.5vh; flex-wrap: wrap;">
+        <span class="attention-item"><span class="dot info"></span>Loading…</span>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    function fmtMoney(n) {
+      if (n === null || n === undefined) return '$—';
+      const abs = Math.abs(n);
+      if (abs >= 1_000_000) return '$' + (n / 1_000_000).toFixed(2) + 'M';
+      if (abs >= 1_000) return '$' + (n / 1_000).toFixed(1) + 'k';
+      return '$' + Math.round(n).toLocaleString();
+    }
+    function fmtNumber(n) { return n === null ? '—' : Number(n).toLocaleString(); }
+
+    function renderList(elId, items, render) {
+      const el = document.getElementById(elId);
+      if (!items || items.length === 0) {
+        el.innerHTML = '<div class="empty-state">No items yet</div>';
+        return;
+      }
+      el.innerHTML = items.map(render).join('');
+    }
+
+    function render(data) {
+      document.getElementById('sync-time').textContent = data.generatedAt
+        ? new Date(data.generatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        : '—';
+
+      // Schools
+      document.getElementById('school-count').textContent = fmtNumber(data.schools.count);
+      document.getElementById('school-count-big').textContent = fmtNumber(data.schools.count);
+      renderList('school-list', data.schools.top, s => `
+        <div class="row">
+          <div class="name">${s.name || s.company || 'Unknown'}</div>
+          <div class="meta">${s.district || s.title || s.stage || ''}</div>
+        </div>
+      `);
+
+      // Pilots
+      document.getElementById('pilot-count').textContent = fmtNumber(data.pilots.count);
+      document.getElementById('pilot-count-big').textContent = fmtNumber(data.pilots.count);
+      renderList('pilot-list', data.pilots.top, p => `
+        <div class="row">
+          <div class="name">${p.name || p.company || 'Unknown'}</div>
+          <div class="meta">${p.stage || 'pilot'}</div>
+        </div>
+      `);
+
+      // Revenue
+      const rev = data.revenue || {};
+      document.getElementById('cash').textContent = fmtMoney(rev.cash);
+      document.getElementById('mrr').textContent = fmtMoney(rev.mrr);
+      document.getElementById('runway').textContent = rev.runwayMonths === null ? '∞' : fmtNumber(rev.runwayMonths);
+      document.getElementById('rev30').textContent = fmtMoney(rev.revenue30d);
+      document.getElementById('burn30').textContent = fmtMoney(rev.expenses30d);
+      document.getElementById('net30').textContent = fmtMoney(rev.netCashFlow30d);
+
+      // Mobile
+      const mob = data.mobile || {};
+      document.getElementById('app-downloads').textContent = fmtNumber(mob.appDownloads);
+      document.getElementById('testflight-users').textContent = fmtNumber(mob.testFlightUsers);
+
+      // Investors
+      const inv = data.investors || {};
+      document.getElementById('investor-count').textContent = fmtNumber(inv.count);
+      document.getElementById('investor-weighted').textContent = fmtMoney(inv.weighted);
+      document.getElementById('investor-unweighted').textContent = fmtMoney(inv.unweighted);
+
+      // Deployments
+      renderList('deploy-list', data.deployments, d => `
+        <div class="row">
+          <div class="name">${d.environment || 'unknown'}</div>
+          <div class="meta mono">${(d.ref || '').slice(0, 8)}</div>
+          <div class="meta">${d.created_at ? new Date(d.created_at).toLocaleDateString() : ''}</div>
+        </div>
+      `);
+
+      // Attention
+      const att = data.attention || [];
+      const attEl = document.getElementById('attention-list');
+      if (att.length === 0) {
+        attEl.innerHTML = '<span class="attention-item"><span class="dot ok"></span>All systems green</span>';
+      } else {
+        attEl.innerHTML = att.map(a => `
+          <span class="attention-item"><span class="dot ${a.level}"></span>${a.text}</span>
+        `).join('');
+      }
+    }
+
+    async function load() {
+      try {
+        const res = await fetch('dashboard-data.json?t=' + Date.now());
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+        render(data);
+      } catch (err) {
+        console.error('Command Center load failed:', err);
+        document.getElementById('attention-list').innerHTML =
+          `<span class="attention-item"><span class="dot danger"></span>Data load failed: ${err.message}</span>`;
+      }
+    }
+
+    function updateClock() {
+      document.getElementById('clock').textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+
+    load();
+    setInterval(load, 60000);
+    updateClock();
+    setInterval(updateClock, 1000);
+  </script>
+</body>
+</html>
