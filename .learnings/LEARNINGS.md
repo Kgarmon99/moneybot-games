@@ -43,3 +43,19 @@ Docker build fails on Apple Silicon due to platform mismatch
 
 ---
 
+## [LRN-20260624-001] best_practice
+
+**Logged**: 2026-06-24T01:50:00Z
+**Priority**: low
+**Status**: resolved
+**Area**: backend
+
+### Summary
+`~/.openclaw/workspace/crm/contacts.ndjson` contains concatenated JSON objects on single lines in some places, so naive `json.loads(line)` fails. Use `json.JSONDecoder.raw_decode` in a loop to safely parse multi-object JSON/JSONL streams.
+
+### Resolution
+Updated `command-center/aggregate-data.sh` to use a streaming `iter_objects()` helper that skips whitespace and calls `raw_decode` repeatedly.
+
+### Reference
+- File: `command-center/aggregate-data.sh`
+
