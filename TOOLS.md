@@ -1,6 +1,8 @@
 # TOOLS.md — Quick reference
 
-Account: `kahlil@getmoneybot.com` — on EVERY `gog` command.
+Google accounts — pass `--account "<email>"` on EVERY `gog` command:
+- **Work (default):** `kahlil@getmoneybot.com`
+- **Personal:** `kahlilgarmon@gmail.com`
 
 ## Email (gog gmail)
 

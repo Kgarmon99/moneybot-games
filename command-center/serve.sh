@@ -20,4 +20,4 @@ echo "Press Ctrl+C to stop"
 echo
 
 cd "$ROOT"
-exec python3 -m http.server "$PORT"
+exec python3 -m http.server --bind 0.0.0.0 "$PORT"

@@ -5,6 +5,63 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>The Pivot — YC Startup School</title>
   <link rel="stylesheet" href="../yc-dark-theme.css">
+  <style>
+    #game-canvas {
+      flex: 1;
+      width: 100%;
+      background: radial-gradient(ellipse at center, #1a1a2e 0%, #0f0f1a 100%);
+      border-top: 1px solid rgba(0,255,136,0.1);
+    }
+    .play-area { padding: 0; overflow: hidden; }
+    .tower-panel {
+      position: absolute;
+      bottom: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 12px;
+      z-index: 50;
+    }
+    .tower-btn {
+      width: 56px;
+      height: 56px;
+      border-radius: 12px;
+      background: rgba(0,255,136,0.1);
+      border: 2px solid var(--neon);
+      color: var(--neon);
+      font-family: 'Orbitron', sans-serif;
+      font-size: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .tower-btn:hover, .tower-btn.active {
+      background: rgba(0,255,136,0.25);
+      box-shadow: 0 0 20px rgba(0,255,136,0.3);
+    }
+    .tower-btn .cost {
+      font-size: 9px;
+      opacity: 0.7;
+    }
+    .wave-info {
+      position: absolute;
+      top: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(15,15,26,0.9);
+      border: 1px solid var(--neon-dim);
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 12px;
+      color: var(--neon);
+      z-index: 50;
+      text-align: center;
+    }
+  </style>
 </head>
 <body>
   <div id="game-shell">
@@ -22,14 +79,29 @@
           <span class="stat-label">Week</span>
           <span class="stat-value" id="round">1</span>
         </div>
+        <div class="stat-pill">
+          <span class="stat-label">Cash</span>
+          <span class="stat-value" id="cash">$50K</span>
+        </div>
       </div>
     </header>
 
-    <main class="play-area">
-      <div class="decision-panel">
-        <div class="panel-title" id="card-category">Talk to users</div>
-        <div class="scenario-text" id="card-question">Loading...</div>
-        <div class="choice-grid" id="choices"></div>
+    <main class="play-area" style="position:relative;">
+      <div class="wave-info" id="wave-info">Wave 1: Talk to users</div>
+      <canvas id="game-canvas"></canvas>
+      <div class="tower-panel" id="tower-panel">
+        <div class="tower-btn active" data-type="interview">
+          <span>INT</span>
+          <span class="cost">$500</span>
+        </div>
+        <div class="tower-btn" data-type="survey">
+          <span>SUR</span>
+          <span class="cost">$300</span>
+        </div>
+        <div class="tower-btn" data-type="mvp">
+          <span>MVP</span>
+          <span class="cost">$2K</span>
+        </div>
       </div>
     </main>
 
@@ -42,6 +114,11 @@
           <span class="lesson-label">YC Lesson</span>
           <span class="lesson-text">Talk to users</span>
         </div>
+        <p style="color:var(--text-dim);font-size:14px;margin-bottom:20px;">
+          Place interview towers to capture customer signals.<br>
+          Build MVPs to test hypotheses.<br>
+          Reach 100 signal before running out of cash.
+        </p>
         <button class="btn-primary" id="start-btn">Start</button>
       </div>
     </div>
@@ -49,8 +126,8 @@
     <div class="modal-overlay hidden" id="win-screen">
       <div class="modal-card">
         <div class="modal-mascot">✓</div>
-        <h1>Success!</h1>
-        <p class="modal-subtitle" id="win-reason">You mastered this lesson.</p>
+        <h1>PMF Found!</h1>
+        <p class="modal-subtitle" id="win-reason">You validated your idea.</p>
         <button class="btn-primary" id="replay-btn">Play Again</button>
       </div>
     </div>

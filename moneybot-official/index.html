@@ -3,628 +3,928 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MoneyBot Games - Financial Literacy Through Play</title>
+    <title>MoneyBot Arcade - Financial Literacy Through Play</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-        
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            touch-action: manipulation;
-            -webkit-touch-callout: none;
-            -webkit-user-select: none;
-            user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
-        
+
         :root {
-            --moneybot-green: #00E676;
-            --moneybot-green-light: #69F0AE;
-            --moneybot-green-dark: #00C853;
-            --moneybot-dark: #1A1A2E;
-            --moneybot-gray: #F5F5F7;
-            --moneybot-text: #1A1A2E;
-            --moneybot-text-secondary: #6B7280;
-            --shadow-soft: 0 2px 8px rgba(0, 0, 0, 0.08);
-            --shadow-medium: 0 4px 16px rgba(0, 0, 0, 0.12);
-            --shadow-strong: 0 8px 32px rgba(0, 230, 118, 0.2);
+            --mb-green: #00E676;
+            --mb-green-soft: #69F0AE;
+            --mb-green-dark: #00C853;
+            --mb-ink: #07111F;
+            --mb-ink-2: #0B1628;
+            --mb-panel: rgba(10, 24, 42, 0.82);
+            --mb-panel-strong: rgba(12, 28, 48, 0.96);
+            --mb-line: rgba(105, 240, 174, 0.2);
+            --mb-white: #F8FAFC;
+            --mb-muted: #AAB8C8;
+            --mb-gold: #FBBF24;
+            --mb-red: #FB7185;
+            --mb-blue: #38BDF8;
+            --mb-violet: #A78BFA;
+            --mb-radius-sm: 12px;
+            --mb-radius-md: 18px;
+            --mb-radius-lg: 28px;
+            --mb-shadow: 0 24px 80px rgba(0, 0, 0, 0.34);
         }
-        
+
+        html {
+            scroll-behavior: smooth;
+        }
+
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: var(--moneybot-gray);
             min-height: 100vh;
-            color: var(--moneybot-text);
+            font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            color: var(--mb-white);
+            background:
+                radial-gradient(circle at 16% 8%, rgba(0, 230, 118, 0.18), transparent 30%),
+                radial-gradient(circle at 84% 0%, rgba(56, 189, 248, 0.16), transparent 28%),
+                linear-gradient(180deg, #07111F 0%, #0B1628 46%, #08111E 100%);
+            overflow-x: hidden;
         }
-        
-        /* Header */
+
+        a {
+            color: inherit;
+        }
+
+        .app-shell {
+            width: min(1240px, calc(100% - 32px));
+            margin: 0 auto;
+            padding: 18px 0 44px;
+        }
+
         .header {
-            background: white;
-            padding: 16px 24px;
+            position: sticky;
+            top: 12px;
+            z-index: 20;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            box-shadow: var(--shadow-soft);
-            position: sticky;
-            top: 0;
-            z-index: 100;
+            gap: 16px;
+            padding: 12px 14px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: var(--mb-radius-md);
+            background: rgba(7, 17, 31, 0.78);
+            backdrop-filter: blur(18px);
+            box-shadow: 0 16px 44px rgba(0, 0, 0, 0.28);
         }
-        
-        .logo {
+
+        .brand {
             display: flex;
             align-items: center;
             gap: 12px;
+            min-width: 0;
         }
-        
-        .logo-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 12px;
+
+        .brand-mark {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
             overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0, 230, 118, 0.3);
+            border: 1px solid rgba(105, 240, 174, 0.35);
+            box-shadow: 0 0 0 6px rgba(0, 230, 118, 0.08);
+            flex: 0 0 auto;
         }
-        
-        .logo-icon img {
+
+        .brand-mark img {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
-        
-        .logo-text {
-            font-weight: 700;
-            font-size: 1.25rem;
-            color: var(--moneybot-text);
+
+        .brand-title {
+            font-size: 15px;
+            font-weight: 800;
+            line-height: 1.1;
         }
-        
-        .user-menu {
+
+        .brand-subtitle {
+            margin-top: 3px;
+            color: var(--mb-muted);
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .header-actions {
             display: flex;
             align-items: center;
-            gap: 16px;
+            gap: 10px;
         }
-        
-        .stat-badge {
-            background: white;
-            border: 1px solid #E5E7EB;
-            padding: 8px 16px;
-            border-radius: 20px;
-            display: flex;
+
+        .stat-pill,
+        .nav-pill,
+        .filter-button {
+            min-height: 42px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.055);
+            color: var(--mb-white);
+            font: inherit;
+            font-size: 13px;
+            font-weight: 800;
+            text-decoration: none;
+            display: inline-flex;
             align-items: center;
+            justify-content: center;
             gap: 8px;
-            font-size: 0.875rem;
-            font-weight: 600;
+            padding: 0 14px;
+            white-space: nowrap;
         }
-        
-        .stat-badge.coins {
-            color: var(--moneybot-green-dark);
-            border-color: var(--moneybot-green);
+
+        .stat-pill strong {
+            color: var(--mb-green-soft);
         }
-        
-        /* Main Container */
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 32px 24px;
-        }
-        
-        /* Welcome Section */
-        .welcome {
-            margin-bottom: 32px;
-        }
-        
-        .welcome-title {
-            font-size: 1.75rem;
-            font-weight: 700;
-            color: var(--moneybot-text);
-            margin-bottom: 8px;
-        }
-        
-        .welcome-subtitle {
-            color: var(--moneybot-text-secondary);
-            font-size: 1rem;
-        }
-        
-        /* Quick Actions */
-        .quick-actions {
-            margin-bottom: 40px;
-        }
-        
-        .section-title {
-            font-size: 1.125rem;
-            font-weight: 600;
-            margin-bottom: 16px;
-            color: var(--moneybot-text);
-        }
-        
-        .actions-grid {
+
+        .hero {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 16px;
+            grid-template-columns: minmax(0, 1.12fr) minmax(320px, 0.88fr);
+            gap: 18px;
+            align-items: stretch;
+            padding: 28px 0 18px;
         }
-        
-        .action-card {
-            background: white;
-            border-radius: 16px;
-            padding: 20px;
-            cursor: pointer;
-            transition: all 0.2s;
-            border: 1px solid transparent;
-        }
-        
-        .action-card:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-medium);
-        }
-        
-        .action-card.primary {
-            background: var(--moneybot-green);
-            color: white;
-        }
-        
-        .action-card.primary:hover {
-            background: var(--moneybot-green-dark);
-        }
-        
-        .action-icon {
-            width: 48px;
-            height: 48px;
-            background: rgba(0, 230, 118, 0.1);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            margin-bottom: 12px;
-        }
-        
-        .action-card.primary .action-icon {
-            background: rgba(255, 255, 255, 0.2);
-        }
-        
-        .action-title {
-            font-weight: 600;
-            font-size: 0.9375rem;
-            margin-bottom: 4px;
-        }
-        
-        .action-desc {
-            font-size: 0.8125rem;
-            color: var(--moneybot-text-secondary);
-        }
-        
-        .action-card.primary .action-desc {
-            color: rgba(255, 255, 255, 0.8);
-        }
-        
-        /* Games Section */
-        .games-section {
-            margin-bottom: 40px;
-        }
-        
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        
-        .view-all {
-            color: var(--moneybot-green);
-            font-weight: 600;
-            font-size: 0.875rem;
-            text-decoration: none;
-        }
-        
-        .games-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
-        }
-        
-        .game-card {
-            background: white;
-            border-radius: 16px;
-            overflow: hidden;
-            transition: all 0.2s;
-            border: 1px solid #E5E7EB;
-        }
-        
-        .game-card:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-strong);
-            border-color: var(--moneybot-green);
-        }
-        
-        .game-preview {
-            height: 140px;
-            background: linear-gradient(135deg, #1A1A2E 0%, #2D2D44 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 3rem;
+
+        .hero-main,
+        .featured-card,
+        .progress-panel {
             position: relative;
-        }
-        
-        .game-preview::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: radial-gradient(circle at center, rgba(0, 230, 118, 0.15) 0%, transparent 70%);
-        }
-        
-        .game-badge {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            background: var(--moneybot-green);
-            color: white;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 0.6875rem;
-            font-weight: 700;
-            text-transform: uppercase;
-        }
-        
-        .game-info {
-            padding: 16px;
-        }
-        
-        .game-title {
-            font-weight: 600;
-            font-size: 1rem;
-            margin-bottom: 6px;
-            color: var(--moneybot-text);
-        }
-        
-        .game-desc {
-            font-size: 0.8125rem;
-            color: var(--moneybot-text-secondary);
-            margin-bottom: 12px;
-            line-height: 1.4;
-        }
-        
-        .game-meta {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .game-players {
-            font-size: 0.75rem;
-            color: var(--moneybot-text-secondary);
-        }
-        
-        .game-players span {
-            color: var(--moneybot-green);
-            font-weight: 600;
-        }
-        
-        .play-btn {
-            background: var(--moneybot-green);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 0.8125rem;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-decoration: none;
-            display: inline-block;
-        }
-        
-        .play-btn:hover {
-            background: var(--moneybot-green-dark);
-        }
-        
-        /* Progress Section */
-        .progress-section {
-            background: white;
-            border-radius: 16px;
-            padding: 24px;
-            margin-bottom: 40px;
-        }
-        
-        .progress-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
-        }
-        
-        .progress-title {
-            font-weight: 600;
-            font-size: 1rem;
-        }
-        
-        .progress-stats {
-            font-size: 0.875rem;
-            color: var(--moneybot-text-secondary);
-        }
-        
-        .progress-stats span {
-            color: var(--moneybot-green);
-            font-weight: 700;
-        }
-        
-        .progress-bar {
-            height: 8px;
-            background: #E5E7EB;
-            border-radius: 4px;
             overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: var(--mb-radius-lg);
+            background: linear-gradient(145deg, rgba(15, 37, 64, 0.92), rgba(8, 19, 34, 0.94));
+            box-shadow: var(--mb-shadow);
         }
-        
+
+        .hero-main {
+            min-height: 360px;
+            padding: 28px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .hero-main::before,
+        .featured-card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                linear-gradient(120deg, rgba(0, 230, 118, 0.14), transparent 34%),
+                radial-gradient(circle at 78% 22%, rgba(56, 189, 248, 0.18), transparent 28%);
+            pointer-events: none;
+        }
+
+        .hero-copy,
+        .hero-actions,
+        .hero-stats {
+            position: relative;
+            z-index: 1;
+        }
+
+        .eyebrow {
+            width: fit-content;
+            margin-bottom: 16px;
+            padding: 7px 10px;
+            border: 1px solid rgba(105, 240, 174, 0.28);
+            border-radius: 999px;
+            color: var(--mb-green-soft);
+            background: rgba(0, 230, 118, 0.08);
+            font-size: 12px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .hero h1 {
+            max-width: 760px;
+            font-size: clamp(42px, 6vw, 82px);
+            line-height: 0.92;
+            letter-spacing: 0;
+            font-weight: 900;
+        }
+
+        .hero p {
+            max-width: 620px;
+            margin-top: 18px;
+            color: #C5D2E2;
+            font-size: 17px;
+            line-height: 1.55;
+            font-weight: 600;
+        }
+
+        .hero-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 26px;
+        }
+
+        .primary-button,
+        .secondary-button,
+        .play-button {
+            min-height: 46px;
+            border: 0;
+            border-radius: 999px;
+            font: inherit;
+            font-size: 14px;
+            font-weight: 900;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 0 18px;
+            cursor: pointer;
+            transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+        }
+
+        .primary-button,
+        .play-button {
+            color: #04120B;
+            background: linear-gradient(135deg, var(--mb-green), var(--mb-green-soft));
+            box-shadow: 0 14px 36px rgba(0, 230, 118, 0.25);
+        }
+
+        .secondary-button {
+            color: var(--mb-white);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.07);
+        }
+
+        .primary-button:hover,
+        .secondary-button:hover,
+        .play-button:hover,
+        .game-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .hero-stats {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        .hero-stat {
+            min-height: 88px;
+            padding: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: var(--mb-radius-sm);
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .hero-stat strong {
+            display: block;
+            color: var(--mb-white);
+            font-size: 27px;
+            line-height: 1;
+        }
+
+        .hero-stat span {
+            display: block;
+            margin-top: 8px;
+            color: var(--mb-muted);
+            font-size: 12px;
+            font-weight: 800;
+            line-height: 1.3;
+        }
+
+        .hero-side {
+            display: grid;
+            gap: 18px;
+        }
+
+        .featured-card {
+            min-height: 232px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .featured-top,
+        .featured-bottom,
+        .progress-panel > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        .featured-top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 18px;
+        }
+
+        .mascot-orb {
+            width: 92px;
+            height: 92px;
+            border-radius: 28px;
+            overflow: hidden;
+            border: 1px solid rgba(105, 240, 174, 0.28);
+            background: rgba(255, 255, 255, 0.08);
+            flex: 0 0 auto;
+        }
+
+        .mascot-orb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .label {
+            color: var(--mb-green-soft);
+            font-size: 12px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .featured-card h2 {
+            margin-top: 10px;
+            font-size: 27px;
+            line-height: 1.06;
+            letter-spacing: 0;
+        }
+
+        .featured-card p {
+            margin-top: 10px;
+            color: #C5D2E2;
+            font-size: 14px;
+            line-height: 1.5;
+            font-weight: 600;
+        }
+
+        .progress-panel {
+            padding: 18px;
+        }
+
+        .progress-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            margin-bottom: 14px;
+        }
+
+        .progress-title {
+            font-size: 15px;
+            font-weight: 900;
+        }
+
+        .progress-copy {
+            color: var(--mb-muted);
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .progress-track {
+            height: 10px;
+            overflow: hidden;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.08);
+        }
+
         .progress-fill {
             height: 100%;
-            background: linear-gradient(90deg, var(--moneybot-green), var(--moneybot-green-light));
-            border-radius: 4px;
-            transition: width 0.5s ease;
+            width: 0%;
+            border-radius: inherit;
+            background: linear-gradient(90deg, var(--mb-green), var(--mb-blue), var(--mb-gold));
+            transition: width 0.45s ease;
         }
-        
-        /* Mascot */
-        .mascot {
-            position: fixed;
-            bottom: 24px;
-            right: 24px;
-            width: 60px;
-            height: 60px;
-            background: white;
-            border-radius: 50%;
-            box-shadow: var(--shadow-medium);
+
+        .section {
+            margin-top: 24px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: end;
+            justify-content: space-between;
+            gap: 18px;
+            margin-bottom: 14px;
+        }
+
+        .section-title {
+            font-size: 22px;
+            line-height: 1.1;
+            font-weight: 900;
+            letter-spacing: 0;
+        }
+
+        .section-subtitle {
+            margin-top: 6px;
+            color: var(--mb-muted);
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+
+        .filter-button {
+            cursor: pointer;
+        }
+
+        .filter-button.active {
+            color: #04120B;
+            border-color: transparent;
+            background: linear-gradient(135deg, var(--mb-green), var(--mb-green-soft));
+        }
+
+        .game-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .game-card {
+            position: relative;
+            min-height: 288px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: var(--mb-radius-md);
+            background:
+                linear-gradient(180deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.035)),
+                rgba(9, 22, 39, 0.88);
+            box-shadow: 0 20px 46px rgba(0, 0, 0, 0.22);
+            transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+        }
+
+        .game-card:hover {
+            border-color: color-mix(in srgb, var(--accent) 62%, white 0%);
+            box-shadow: 0 22px 56px rgba(0, 0, 0, 0.34);
+        }
+
+        .game-art {
+            position: relative;
+            height: 126px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2rem;
-            cursor: pointer;
-            transition: all 0.3s;
-            z-index: 1000;
+            background:
+                radial-gradient(circle at 50% 54%, color-mix(in srgb, var(--accent) 26%, transparent), transparent 44%),
+                linear-gradient(135deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02));
         }
-        
-        .mascot:hover {
-            transform: scale(1.1);
-            box-shadow: var(--shadow-strong);
+
+        .game-art::before {
+            content: "";
+            position: absolute;
+            width: 86px;
+            height: 86px;
+            border-radius: 28px;
+            border: 1px solid color-mix(in srgb, var(--accent) 48%, transparent);
+            background:
+                linear-gradient(135deg, color-mix(in srgb, var(--accent) 24%, transparent), rgba(255, 255, 255, 0.035));
+            transform: rotate(10deg);
         }
-        
-        /* Footer */
+
+        .game-code {
+            position: relative;
+            z-index: 1;
+            color: var(--mb-white);
+            font-size: 30px;
+            font-weight: 900;
+            letter-spacing: 0;
+            text-shadow: 0 12px 28px rgba(0, 0, 0, 0.42);
+        }
+
+        .game-body {
+            padding: 16px;
+        }
+
+        .game-meta-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .tag {
+            min-height: 26px;
+            display: inline-flex;
+            align-items: center;
+            border-radius: 999px;
+            padding: 0 9px;
+            color: color-mix(in srgb, var(--accent) 78%, white 22%);
+            background: color-mix(in srgb, var(--accent) 14%, transparent);
+            border: 1px solid color-mix(in srgb, var(--accent) 28%, transparent);
+            font-size: 11px;
+            font-weight: 900;
+        }
+
+        .game-card h3 {
+            min-height: 44px;
+            color: var(--mb-white);
+            font-size: 18px;
+            line-height: 1.18;
+            letter-spacing: 0;
+        }
+
+        .game-card p {
+            min-height: 58px;
+            margin-top: 8px;
+            color: #B9C6D5;
+            font-size: 13px;
+            line-height: 1.45;
+            font-weight: 600;
+        }
+
+        .game-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        .concept {
+            color: var(--mb-muted);
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .play-button {
+            min-height: 38px;
+            padding: 0 14px;
+            font-size: 13px;
+        }
+
+        .collection-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .collection-card {
+            position: relative;
+            overflow: hidden;
+            min-height: 168px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: var(--mb-radius-md);
+            background: linear-gradient(145deg, rgba(15, 37, 64, 0.94), rgba(9, 22, 39, 0.9));
+            text-decoration: none;
+        }
+
+        .collection-card::after {
+            content: "";
+            position: absolute;
+            width: 140px;
+            height: 140px;
+            right: -34px;
+            top: -34px;
+            border-radius: 42px;
+            background: color-mix(in srgb, var(--accent) 18%, transparent);
+            transform: rotate(16deg);
+        }
+
+        .collection-card h3,
+        .collection-card p,
+        .collection-card span {
+            position: relative;
+            z-index: 1;
+        }
+
+        .collection-card h3 {
+            max-width: 260px;
+            font-size: 22px;
+            line-height: 1.12;
+        }
+
+        .collection-card p {
+            max-width: 320px;
+            margin-top: 10px;
+            color: var(--mb-muted);
+            font-size: 14px;
+            line-height: 1.45;
+            font-weight: 650;
+        }
+
+        .collection-card span {
+            display: inline-flex;
+            margin-top: 18px;
+            color: color-mix(in srgb, var(--accent) 82%, white 18%);
+            font-size: 13px;
+            font-weight: 900;
+        }
+
         .footer {
+            margin-top: 36px;
+            padding: 24px 0 0;
+            color: var(--mb-muted);
             text-align: center;
-            padding: 32px 24px;
-            color: var(--moneybot-text-secondary);
-            font-size: 0.875rem;
-        }
-        
-        .footer-brand {
+            font-size: 13px;
             font-weight: 700;
-            color: var(--moneybot-green);
         }
-        
-        /* Responsive */
-        @media (max-width: 768px) {
-            .header { padding: 12px 16px; }
-            .container { padding: 20px 16px; }
-            .welcome-title { font-size: 1.5rem; }
-            .actions-grid { grid-template-columns: 1fr; }
-            .games-grid { grid-template-columns: 1fr; }
-            .stat-badge { display: none; }
+
+        @media (max-width: 1040px) {
+            .hero {
+                grid-template-columns: 1fr;
+            }
+
+            .game-grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 760px) {
+            .app-shell {
+                width: min(100% - 20px, 560px);
+                padding-top: 10px;
+            }
+
+            .header {
+                top: 8px;
+            }
+
+            .brand-subtitle,
+            .nav-pill {
+                display: none;
+            }
+
+            .stat-pill {
+                padding: 0 11px;
+            }
+
+            .hero {
+                padding-top: 18px;
+            }
+
+            .hero-main {
+                min-height: auto;
+                padding: 22px;
+            }
+
+            .hero h1 {
+                font-size: 44px;
+            }
+
+            .hero p {
+                font-size: 15px;
+            }
+
+            .hero-stats,
+            .collection-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .section-header {
+                display: block;
+            }
+
+            .filters {
+                justify-content: flex-start;
+                margin-top: 12px;
+            }
+
+            .game-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .game-card {
+                min-height: 254px;
+            }
+
+            .game-card h3,
+            .game-card p {
+                min-height: auto;
+            }
         }
     </style>
 </head>
 <body>
-    <header class="header">
-        <div class="logo">
-            <div class="logo-icon"><img src="assets/logo.jpg" alt="MoneyBot"></div>
-            <div class="logo-text">MoneyBot</div>
-        </div>
-        <div class="user-menu">
-            <div class="stat-badge coins">
-                <span>🪙</span>
-                <span id="totalCoins">0</span>
+    <div class="app-shell">
+        <header class="header">
+            <a class="brand" href="../" aria-label="MoneyBot Arcade home">
+                <span class="brand-mark"><img src="assets/logo.jpg" alt="MoneyBot"></span>
+                <span>
+                    <span class="brand-title">MoneyBot Arcade</span>
+                    <span class="brand-subtitle">Financial literacy through play</span>
+                </span>
+            </a>
+            <div class="header-actions">
+                <a class="nav-pill" href="#all-games">All games</a>
+                <span class="stat-pill"><strong id="game-count">20</strong> games</span>
             </div>
-        </div>
-    </header>
-    
-    <div class="container">
-        <section class="welcome">
-            <h1 class="welcome-title">Welcome back, Player!</h1>
-            <p class="welcome-subtitle">Master financial literacy through play. Choose a game to begin.</p>
-        </section>
-        
-        <section class="quick-actions">
-            <h2 class="section-title">Quick Actions</h2>
-            <div class="actions-grid">
-                <div class="action-card primary" onclick="scrollToGames()">
-                    <div class="action-icon">🎮</div>
-                    <div class="action-title">Start Playing</div>
-                    <div class="action-desc">Jump into a game</div>
-                </div>
-                <div class="action-card">
-                    <div class="action-icon">📊</div>
-                    <div class="action-title">View Progress</div>
-                    <div class="action-desc">Track your learning</div>
-                </div>
-                <div class="action-card">
-                    <div class="action-icon">🏆</div>
-                    <div class="action-title">Achievements</div>
-                    <div class="action-desc">See your badges</div>
-                </div>
-                <div class="action-card">
-                    <div class="action-icon">👥</div>
-                    <div class="action-title">Leaderboard</div>
-                    <div class="action-desc">Compete with friends</div>
-                </div>
-            </div>
-        </section>
-        
-        <section class="progress-section">
-            <div class="progress-header">
-                <div class="progress-title">🏆 Your Journey</div>
-                <div class="progress-stats"><span id="gamesCompleted">0</span>/8 games played</div>
-            </div>
-            <div class="progress-bar">
-                <div class="progress-fill" id="progressFill" style="width: 0%"></div>
-            </div>
-        </section>
-        
-        <section class="games-section" id="games">
-            <div class="section-header">
-                <h2 class="section-title">Available Games</h2>
-                <a href="#" class="view-all">View All →</a>
-            </div>
-            <div class="games-grid">
-                <div class="game-card">
-                    <div class="game-preview">
-                        📈
-                        <span class="game-badge">Popular</span>
+        </header>
+
+        <main>
+            <section class="hero">
+                <div class="hero-main">
+                    <div class="hero-copy">
+                        <div class="eyebrow">MoneyBot game suite</div>
+                        <h1>Play your way to sharper money instincts.</h1>
+                        <p>Classic finance games, startup school challenges, arcade experiments, and practice labs now live in one polished dashboard.</p>
+                        <div class="hero-actions">
+                            <a class="primary-button" href="../games/cashflow-runner/">Play Cashflow Runner</a>
+                            <a class="secondary-button" href="#all-games">Browse all games</a>
+                        </div>
                     </div>
-                    <div class="game-info">
-                        <div class="game-title">Investment Tycoon</div>
-                        <div class="game-desc">Build a financial empire from scratch</div>
-                        <div class="game-meta">
-                            <div class="game-players"><span>12.5K</span> players</div>
-                            <a href="http://127.0.0.1:5190/" class="play-btn" target="_blank">Play</a>
+                    <div class="hero-stats">
+                        <div class="hero-stat">
+                            <strong id="classic-count">8</strong>
+                            <span>Classic finance games</span>
+                        </div>
+                        <div class="hero-stat">
+                            <strong>9</strong>
+                            <span>Startup school games</span>
+                        </div>
+                        <div class="hero-stat">
+                            <strong id="games-completed">0</strong>
+                            <span>Classic games with local progress</span>
                         </div>
                     </div>
                 </div>
-                
-                <div class="game-card">
-                    <div class="game-preview">💎</div>
-                    <div class="game-info">
-                        <div class="game-title">Portfolio Balancer</div>
-                        <div class="game-desc">Match assets, build wealth</div>
-                        <div class="game-meta">
-                            <div class="game-players"><span>8.2K</span> players</div>
-                            <a href="http://127.0.0.1:5191/" class="play-btn" target="_blank">Play</a>
+
+                <aside class="hero-side">
+                    <div class="featured-card">
+                        <div class="featured-top">
+                            <div>
+                                <div class="label">Featured</div>
+                                <h2>Cashflow Runner</h2>
+                                <p>Collect recurring income, dodge debt pressure, and finish the quarter with runway intact.</p>
+                            </div>
+                            <div class="mascot-orb"><img src="assets/mascot.jpg" alt="MoneyBot mascot"></div>
+                        </div>
+                        <div class="featured-bottom">
+                            <a class="play-button" href="../games/cashflow-runner/">Play now</a>
                         </div>
                     </div>
-                </div>
-                
-                <div class="game-card">
-                    <div class="game-preview">🏢</div>
-                    <div class="game-info">
-                        <div class="game-title">Wealth Tower</div>
-                        <div class="game-desc">Stack your way to the top</div>
-                        <div class="game-meta">
-                            <div class="game-players"><span>6.7K</span> players</div>
-                            <a href="http://127.0.0.1:5192/" class="play-btn" target="_blank">Play</a>
+
+                    <div class="progress-panel">
+                        <div class="progress-head">
+                            <div>
+                                <div class="progress-title">Classic progress</div>
+                                <div class="progress-copy"><span id="progress-label">0</span> of 8 tracked locally</div>
+                            </div>
+                            <span class="tag" style="--accent: var(--mb-gold);">local</span>
+                        </div>
+                        <div class="progress-track">
+                            <div class="progress-fill" id="progress-fill"></div>
                         </div>
                     </div>
-                </div>
-                
-                <div class="game-card">
-                    <div class="game-preview">
-                        🎯
-                        <span class="game-badge">New</span>
-                    </div>
-                    <div class="game-info">
-                        <div class="game-title">Financial Wordle</div>
-                        <div class="game-desc">Master finance vocabulary</div>
-                        <div class="game-meta">
-                            <div class="game-players"><span>15.1K</span> players</div>
-                            <a href="http://127.0.0.1:5193/" class="play-btn" target="_blank">Play</a>
-                        </div>
+                </aside>
+            </section>
+
+            <section class="section">
+                <div class="section-header">
+                    <div>
+                        <h2 class="section-title">Collections</h2>
+                        <p class="section-subtitle">Quick paths into the biggest game groups.</p>
                     </div>
                 </div>
-                
-                <div class="game-card">
-                    <div class="game-preview">🏎️</div>
-                    <div class="game-info">
-                        <div class="game-title">Market Racer</div>
-                        <div class="game-desc">Race through market trends</div>
-                        <div class="game-meta">
-                            <div class="game-players"><span>9.3K</span> players</div>
-                            <a href="http://127.0.0.1:5194/" class="play-btn" target="_blank">Play</a>
-                        </div>
+                <div class="collection-grid" id="collections"></div>
+            </section>
+
+            <section class="section" id="all-games">
+                <div class="section-header">
+                    <div>
+                        <h2 class="section-title">All Games</h2>
+                        <p class="section-subtitle">Every playable MoneyBot build currently deployed.</p>
+                    </div>
+                    <div class="filters" aria-label="Game filters">
+                        <button class="filter-button active" type="button" data-filter="all">All</button>
+                        <button class="filter-button" type="button" data-filter="classic">Classic</button>
+                        <button class="filter-button" type="button" data-filter="startup">Startup</button>
+                        <button class="filter-button" type="button" data-filter="arcade">Arcade</button>
+                        <button class="filter-button" type="button" data-filter="lab">Labs</button>
                     </div>
                 </div>
-                
-                <div class="game-card">
-                    <div class="game-preview">🔢</div>
-                    <div class="game-info">
-                        <div class="game-title">Compound 2048</div>
-                        <div class="game-desc">Merge to millions</div>
-                        <div class="game-meta">
-                            <div class="game-players"><span>11.8K</span> players</div>
-                            <a href="http://127.0.0.1:5195/" class="play-btn" target="_blank">Play</a>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="game-card">
-                    <div class="game-preview">🎲</div>
-                    <div class="game-info">
-                        <div class="game-title">Diversification Drop</div>
-                        <div class="game-desc">Risk vs reward physics</div>
-                        <div class="game-meta">
-                            <div class="game-players"><span>7.5K</span> players</div>
-                            <a href="http://127.0.0.1:5196/" class="play-btn" target="_blank">Play</a>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="game-card">
-                    <div class="game-preview">⚠️</div>
-                    <div class="game-info">
-                        <div class="game-title">Risk Tetris</div>
-                        <div class="game-desc">Balance your portfolio</div>
-                        <div class="game-meta">
-                            <div class="game-players"><span>5.9K</span> players</div>
-                            <a href="http://127.0.0.1:5197/" class="play-btn" target="_blank">Play</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
+                <div class="game-grid" id="game-grid"></div>
+            </section>
+        </main>
+
+        <footer class="footer">
+            Powered by MoneyBot. Educational content only, not investment advice.
+        </footer>
     </div>
-    
-    <div class="mascot" onclick="showMascotMessage()"><img src="assets/mascot.jpg" alt="MoneyBot" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;"></div>
-    
-    <footer class="footer">
-        <p>Powered by <span class="footer-brand">MoneyBot</span> — Financial Literacy Through Play</p>
-        <p style="margin-top: 8px;">© 2026 MoneyBot. All rights reserved.</p>
-    </footer>
-    
+
     <script>
-        function scrollToGames() {
-            document.getElementById('games').scrollIntoView({ behavior: 'smooth' });
+        const collections = [
+            {
+                title: 'Classic Finance',
+                desc: 'Portfolio, compounding, risk, markets, and core money vocabulary.',
+                path: '#all-games',
+                cta: '8 games',
+                accent: '#00E676'
+            },
+            {
+                title: 'Startup School',
+                desc: 'Runway, pivots, hiring, growth, users, and founder finance.',
+                path: '../games/',
+                cta: 'Open hub',
+                accent: '#38BDF8'
+            },
+            {
+                title: 'Arcade & Labs',
+                desc: 'Fast experiments and skill-building practice surfaces.',
+                path: '../market-surfers/',
+                cta: 'Play extras',
+                accent: '#FBBF24'
+            }
+        ];
+
+        const games = [
+            { title: 'Investment Tycoon', code: 'IT', path: '../moneybot-rush-pro/', group: 'classic', concept: 'Investing', desc: 'Build a financial empire from scratch.', accent: '#00E676' },
+            { title: 'Portfolio Balancer', code: 'PB', path: '../portfolio-balancer/', group: 'classic', concept: 'Allocation', desc: 'Match assets and keep your portfolio balanced.', accent: '#38BDF8' },
+            { title: 'Wealth Tower', code: 'WT', path: '../wealth-tower/', group: 'classic', concept: 'Wealth building', desc: 'Stack smart choices into a taller financial base.', accent: '#A78BFA' },
+            { title: 'Financial Wordle', code: 'FW', path: '../financial-wordle/', group: 'classic', concept: 'Vocabulary', desc: 'Sharpen finance terms through fast puzzle reps.', accent: '#FBBF24' },
+            { title: 'Market Racer', code: 'MR', path: '../market-racer/', group: 'classic', concept: 'Markets', desc: 'Race through market trends and timing shifts.', accent: '#FB7185' },
+            { title: 'Compound 2048', code: 'C2', path: '../compound-2048/', group: 'classic', concept: 'Compounding', desc: 'Merge small gains into bigger outcomes.', accent: '#69F0AE' },
+            { title: 'Diversification Drop', code: 'DD', path: '../diversification-drop/', group: 'classic', concept: 'Diversification', desc: 'Balance risk and reward as assets fall into play.', accent: '#38BDF8' },
+            { title: 'Risk Tetris', code: 'RT', path: '../risk-tetris/', group: 'classic', concept: 'Risk', desc: 'Manage exposure before the stack gets unstable.', accent: '#FBBF24' },
+            { title: 'Cashflow Runner', code: 'CR', path: '../games/cashflow-runner/', group: 'arcade', concept: 'Cashflow', desc: 'Collect income, dodge debt, and survive the quarter.', accent: '#00E676' },
+            { title: 'Burn Rate', code: 'BR', path: '../games/runway-rush/', group: 'startup', concept: 'Runway', desc: 'Manage burn before your cash hits zero.', accent: '#FB7185' },
+            { title: 'The Pivot', code: 'PV', path: '../games/the-pivot/', group: 'startup', concept: 'Customer signals', desc: 'Read the market and find product-market fit.', accent: '#38BDF8' },
+            { title: "Do Things That Don't Scale", code: 'DS', path: '../games/do-things-that-dont-scale/', group: 'startup', concept: 'Early users', desc: 'Win early traction through direct founder work.', accent: '#A78BFA' },
+            { title: 'Demo Day Dash', code: 'DD', path: '../games/demo-day-dash/', group: 'startup', concept: 'Pitching', desc: 'Keep attention high and communicate the business clearly.', accent: '#FBBF24' },
+            { title: 'The First Hire', code: 'FH', path: '../games/the-first-hire/', group: 'startup', concept: 'Hiring', desc: 'Pick the teammate who matches the company stage.', accent: '#69F0AE' },
+            { title: 'Ramen Profitability', code: 'RP', path: '../games/ramen-profitability/', group: 'startup', concept: 'Default alive', desc: 'Get lean enough to survive without panic funding.', accent: '#FBBF24' },
+            { title: '100 Fans', code: '100', path: '../games/100-fans/', group: 'startup', concept: 'True fans', desc: 'Find the first users who care enough to pull you forward.', accent: '#38BDF8' },
+            { title: 'The Term Sheet', code: 'TS', path: '../games/the-term-sheet/', group: 'startup', concept: 'Fundraising', desc: 'Understand dilution, valuation, and deal structure.', accent: '#A78BFA' },
+            { title: 'Growth Loops', code: 'GL', path: '../games/growth-loops/', group: 'startup', concept: 'Distribution', desc: 'Build compounding growth into the product itself.', accent: '#00E676' },
+            { title: 'Market Surfers', code: 'MS', path: '../market-surfers/', group: 'arcade', concept: 'Reaction', desc: 'Ride market movement in a fast arcade loop.', accent: '#38BDF8' },
+            { title: 'Speaking Mastery', code: 'SM', path: '../apps/speaking-mastery/', group: 'lab', concept: 'Communication', desc: 'Practice clear delivery and sharper speaking reps.', accent: '#FBBF24' }
+        ];
+
+        const collectionGrid = document.getElementById('collections');
+        const gameGrid = document.getElementById('game-grid');
+        const filterButtons = Array.from(document.querySelectorAll('.filter-button'));
+
+        function renderCollections() {
+            collectionGrid.innerHTML = collections.map((item) => `
+                <a class="collection-card" href="${item.path}" style="--accent: ${item.accent}">
+                    <h3>${item.title}</h3>
+                    <p>${item.desc}</p>
+                    <span>${item.cta}</span>
+                </a>
+            `).join('');
         }
-        
-        function showMascotMessage() {
-            const messages = [
-                "Ready to learn about money? 🎮",
-                "Let's build wealth together! 📈",
-                "Try a new game today! 💎",
-                "You're doing great! 🌟"
-            ];
-            alert(messages[Math.floor(Math.random() * messages.length)]);
+
+        function renderGames(filter = 'all') {
+            const visibleGames = filter === 'all' ? games : games.filter((game) => game.group === filter);
+            gameGrid.innerHTML = visibleGames.map((game) => `
+                <article class="game-card" style="--accent: ${game.accent}">
+                    <div class="game-art" aria-hidden="true">
+                        <div class="game-code">${game.code}</div>
+                    </div>
+                    <div class="game-body">
+                        <div class="game-meta-row">
+                            <span class="tag">${game.group}</span>
+                            <span class="concept">${game.concept}</span>
+                        </div>
+                        <h3>${game.title}</h3>
+                        <p>${game.desc}</p>
+                        <div class="game-footer">
+                            <span class="concept">MoneyBot</span>
+                            <a class="play-button" href="${game.path}">Play</a>
+                        </div>
+                    </div>
+                </article>
+            `).join('');
         }
-        
-        // Load stats
-        function loadStats() {
-            let totalCoins = 0;
+
+        function loadProgress() {
+            const progressKeys = ['tycoon-save', 'portfolio-balancer-score', 'wealth-tower-score', 'moneybotHighScore', 'market-racer-score', 'compound2048-score', 'diversification-drop-score', 'risk-tetris-score'];
             let gamesCompleted = 0;
-            
-            try {
-                const games = ['tycoon-save', 'moneybotHighScore', 'compound2048-score'];
-                games.forEach(key => {
-                    const saved = localStorage.getItem(key);
-                    if (saved) {
-                        const data = JSON.parse(saved);
-                        if (data.cash) totalCoins += data.cash;
-                        if (data.score) totalCoins += data.score;
-                        gamesCompleted++;
-                    }
-                });
-            } catch (e) {}
-            
-            document.getElementById('totalCoins').textContent = totalCoins.toLocaleString();
-            document.getElementById('gamesCompleted').textContent = gamesCompleted;
-            document.getElementById('progressFill').style.width = (gamesCompleted / 8 * 100) + '%';
+
+            progressKeys.forEach((key) => {
+                if (localStorage.getItem(key)) {
+                    gamesCompleted += 1;
+                }
+            });
+
+            const percent = Math.min(100, Math.round((gamesCompleted / 8) * 100));
+            document.getElementById('games-completed').textContent = gamesCompleted;
+            document.getElementById('progress-label').textContent = gamesCompleted;
+            document.getElementById('progress-fill').style.width = percent + '%';
+            document.getElementById('game-count').textContent = games.length;
         }
-        
-        loadStats();
-        setInterval(loadStats, 5000);
+
+        filterButtons.forEach((button) => {
+            button.addEventListener('click', () => {
+                filterButtons.forEach((item) => item.classList.remove('active'));
+                button.classList.add('active');
+                renderGames(button.dataset.filter);
+            });
+        });
+
+        renderCollections();
+        renderGames();
+        loadProgress();
+        setInterval(loadProgress, 5000);
     </script>
 </body>
 </html>

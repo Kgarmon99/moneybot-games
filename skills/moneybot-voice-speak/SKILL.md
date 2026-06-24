@@ -54,9 +54,18 @@ bash scripts/voice/install-piper.sh --list
 bash scripts/voice/speak.sh --text "Cash is 14,558. Net cashflow positive." --agent cfo-bot
 bash scripts/voice/speak.sh -f briefing.txt --agent cfo-bot --speed 1.05
 echo "from stdin" | bash scripts/voice/speak.sh - --agent moneybot-curator
+bash scripts/voice/speak.sh --text "Preview this." --agent moneybot-code --preview
 ```
 
 `--agent` selects both the **voice profile** (e.g. cfo-bot → ryan-high) and the **Telegram bot account** that sends the message (so cfo-bot speaks via @your-cfo-bot, not the main bot).
+
+Useful flags:
+
+- `--preview` renders audio but does not send it.
+- `--dry-run` is an alias for `--preview`.
+- `--max-chars <n>` caps spoken length; default is `VOICE_DEFAULT_MAX_CHARS` (`1800`).
+- `--no-truncate` disables length capping for deliberately long audio.
+- `--silent` sends without notification.
 
 ### Render-only (no send)
 
@@ -65,6 +74,17 @@ bash scripts/voice/tts.sh --text "Hello world" --out /tmp/hi.ogg
 bash scripts/voice/tts.sh -f reply.txt --voice en_US-ryan-high --out /tmp/cfo.ogg
 bash scripts/voice/tts.sh --text "Hi" --wav --out /tmp/hi.wav    # raw WAV instead of opus
 ```
+
+### Health check all agents
+
+```bash
+bash scripts/voice/doctor.sh
+bash scripts/voice/doctor.sh --render-smoke
+bash scripts/voice/doctor.sh --telegram-probe
+```
+
+`doctor.sh` checks local dependencies, installed voices, Telegram account routing,
+Telegram token reachability, and optional render smoke tests without sending anything.
 
 ### Send a pre-rendered file
 
@@ -100,11 +120,11 @@ bash scripts/voice/speak.sh --text "Hello." --voice clone:kahlil --account cfo-b
 
 # 6. Make it the default for one agent...
 bash scripts/voice/clone-voice.sh --name kahlil --set-agent cfo-bot
-# ...or for ALL agents
+# ...or for ALL agents when you explicitly opt in to slower cloned voice rendering
 bash scripts/voice/clone-voice.sh --name kahlil --set-default
 ```
 
-Once `--set-default` is on, `voice_for_agent` returns `clone:kahlil` for every agent unless overridden via `VOICE_OVERRIDE_<AGENT>=<voice>` or per-call `--voice <other>`.
+For reliability, built-in Piper voices remain the default for every agent. A global clone file is used only when `VOICE_USE_GLOBAL_CLONE=1` is set, because F5-TTS is slower and can make multi-agent voice checks look stuck. Per-agent clone files and `VOICE_OVERRIDE_<AGENT>=clone:<name>` still take priority.
 
 ## Microsoft VibeVoice (optional advanced model)
 
@@ -161,8 +181,14 @@ Defined in `scripts/voice/_lib.sh::voice_for_agent`. Override per-call with `--v
 | `moneybot-telemetry`          | `en_US-amy-medium`         | Friendly female     |
 | `moneybot-adaptation`         | `en_US-amy-medium`         | Friendly female     |
 | `moneybot-capital`            | `en_US-amy-medium`         | Friendly female     |
+| `moneybot-media`              | `en_US-amy-medium`         | Friendly female     |
 | `moneybot-code` (GameDesign)  | `en_US-amy-medium`         | Friendly female     |
+| `moneybot-labor`              | `en_US-lessac-medium`      | Neutral operator    |
+| `ultimate-code-bot`           | `en_US-lessac-medium`      | Neutral operator    |
+| `main` / default              | `en_US-lessac-medium`      | Neutral newscaster  |
 | (anything else)               | `en_US-lessac-medium`      | Neutral newscaster  |
+
+Per-agent cloned voices override this map when configured under `~/.openclaw/voice/clones/agents/<agent>.txt`.
 
 ## Composing with the transcription skill
 
@@ -175,7 +201,7 @@ For full voice-to-voice loops, pair with `moneybot-voice-transcribe`:
 ## Voice content rules
 
 - **Spoken text ≠ written text.** Strip markdown, emoji, URLs, code fences, and tables before sending to TTS — they read aloud poorly. Keep numbers, replace `$14,558.52` with `fourteen thousand five hundred fifty-eight dollars` when natural, or just `$14,558` for brevity.
-- **Keep voice replies short** — under 60 seconds is ideal. Long monologues lose the user. If output is long, send a short voice summary + the full text as a follow-up message.
+- **Keep voice replies short** — under 60 seconds is ideal. `speak.sh` now caps long spoken replies by default; if output is long, send a short voice summary + the full text as a follow-up message.
 - **Re-attach safety disclaimers in voice form** for moneybot-* agents (educational only). Capital Bot is operator-only and may give personalized advice.
 - **Never speak secrets, tokens, full account numbers, or full transaction memos** — summarize.
 
@@ -184,7 +210,7 @@ For full voice-to-voice loops, pair with `moneybot-voice-transcribe`:
 - **Piper not installed** → `tts.sh` falls back to macOS `say` (lower quality, still functional). Tell the user to run `bash scripts/voice/install-piper.sh` for high-quality voices.
 - **Voice model not downloaded** → script tells user the install command for that specific voice.
 - **ffmpeg missing** → `brew install ffmpeg`.
-- **Telegram account not found** → falls back to the `default` bot account; warn user if the agent's dedicated bot wasn't configured.
+- **Telegram account not found** → falls back to the `default` bot account and prints a warning so routing is visible.
 
 ## Hard guardrails
 

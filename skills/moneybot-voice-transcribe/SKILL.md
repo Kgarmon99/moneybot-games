@@ -28,6 +28,15 @@ If language is known, add:
 
 `--language en`
 
+The local transcriber uses `faster-whisper` with VAD/noise filtering enabled by default. Override defaults with environment variables when needed:
+
+- `MONEYBOT_WHISPER_MODEL` (default `small`)
+- `MONEYBOT_WHISPER_LANGUAGE` (optional, e.g. `en`)
+- `MONEYBOT_WHISPER_DEVICE` (default `auto`)
+- `MONEYBOT_WHISPER_COMPUTE_TYPE` (default `int8`)
+- `MONEYBOT_WHISPER_BEAM_SIZE` (default `5`)
+- `MONEYBOT_WHISPER_VAD=0` to disable VAD filtering
+
 ## Setup (one-time)
 
 Install dependency:
@@ -41,10 +50,10 @@ If the host cannot decode Telegram audio, install ffmpeg:
 
 ## Output handling
 
-1. Read `text` from JSON output.
+1. Read `text`, `language`, `language_probability`, and `segments` from JSON output.
 2. If transcript is empty/noisy, ask user to resend with less noise.
 3. Respond to user based on transcript content, while preserving MoneyBot safety rules.
-4. If confidence seems poor, include a short confirmation: "I heard: ... Is that right?"
+4. If confidence seems poor (`language_probability` low, empty segments, or obvious garbling), include a short confirmation: "I heard: ... Is that right?"
 
 ## Safety
 

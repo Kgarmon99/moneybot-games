@@ -27,6 +27,7 @@ Common commands
 - Sheets metadata: `gog sheets metadata <sheetId> --json`
 - Docs export: `gog docs export <docId> --format txt --out /tmp/doc.txt`
 - Docs cat: `gog docs cat <docId>`
+- Docs create/write style: use plain human prose. Do not put raw Markdown, `#` headings, `**bold**`, `*italic*`, hashtag tags, emoji section labels, em dashes, or decorative dividers into Google Docs. Use normal section labels and short paragraphs.
 
 Notes
 - Set `GOG_ACCOUNT=you@gmail.com` to avoid repeating `--account`.
