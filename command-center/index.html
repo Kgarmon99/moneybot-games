@@ -118,6 +118,12 @@
       background: var(--panel-2);
       color: var(--text);
     }
+    .metric-label {
+      font-size: 2vh;
+      color: var(--muted);
+      margin-bottom: 0.6vh;
+      font-weight: 600;
+    }
     .big-number {
       font-size: 7vh;
       font-weight: 900;
@@ -253,16 +259,16 @@
         <div class="panel-title">Revenue & Runway</div>
         <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 2vh;">
           <div>
+            <div class="metric-label">Cash on hand</div>
             <div class="big-number money" id="cash">$0</div>
-            <div class="sub-metric">Cash</div>
           </div>
           <div>
+            <div class="metric-label">Monthly recurring revenue</div>
             <div class="big-number" id="mrr">$0</div>
-            <div class="sub-metric">MRR</div>
           </div>
           <div class="right-col">
+            <div class="metric-label">Runway left</div>
             <div class="big-number" id="runway">∞</div>
-            <div class="sub-metric">Runway (mo)</div>
           </div>
         </div>
         <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1vh; margin-top: 2vh; font-size: 1.5vh;">
@@ -273,21 +279,25 @@
       </section>
 
       <!-- Mobile -->
-      <section class="panel">
+      <section class="panel" style="display: flex; flex-direction: column; justify-content: space-around;">
         <div class="panel-title">Mobile</div>
-        <div class="big-number" id="app-downloads">0</div>
-        <div class="sub-metric">App Downloads</div>
-        <div class="big-number warning" id="testflight-users" style="font-size: 5vh; margin-top: 1.5vh;">0</div>
-        <div class="sub-metric">TestFlight Users</div>
+        <div>
+          <div class="metric-label">App Downloads</div>
+          <div class="big-number" id="app-downloads" style="font-size: 6vh;">0</div>
+        </div>
+        <div>
+          <div class="metric-label">TestFlight Users</div>
+          <div class="big-number warning" id="testflight-users" style="font-size: 6vh;">0</div>
+        </div>
       </section>
 
       <!-- Investor Pipeline -->
       <section class="panel">
         <div class="panel-title">Investor Pipeline</div>
+        <div class="metric-label">Open conversations</div>
         <div class="big-number" id="investor-count">0</div>
-        <div class="sub-metric">Open investor conversations</div>
-        <div class="sub-metric" style="margin-top: 1vh;">Weighted: <b id="investor-weighted">$0</b></div>
-        <div class="sub-metric">Unweighted: <b id="investor-unweighted">$0</b></div>
+        <div class="metric-label" style="margin-top: 1vh;">Likely to close</div>
+        <div class="sub-metric"><b id="investor-weighted">$0</b></div>
       </section>
 
       <!-- GitHub Deployments -->

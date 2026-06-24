@@ -1,4 +1,6 @@
 .vercel
 command-center/dashboard-data.json
 command-center/manual-metrics.json
-command-center/preview.png
+command-center/preview*.png
+command-center/server*.log
+command-center/*.tar.gz
