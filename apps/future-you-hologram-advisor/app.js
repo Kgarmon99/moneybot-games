@@ -14,11 +14,18 @@ const avatarMood = document.querySelector("#avatarMood");
 const saveBtn = document.querySelector("#saveBtn");
 const clearBtn = document.querySelector("#clearBtn");
 const memoryList = document.querySelector("#memoryList");
+const holoDomain = document.querySelector("#holoDomain");
+const holoTimeframe = document.querySelector("#holoTimeframe");
 
 const storageKey = "kg50-transmissions";
 const maxChallengeLength = Number(challengeInput.getAttribute("maxlength")) || 240;
 let latestTransmission = null;
 let pulse = 0;
+const particles = Array.from({ length: 34 }, (_, index) => ({
+  angle: (Math.PI * 2 * index) / 34,
+  radius: 150 + (index % 7) * 18,
+  speed: 0.002 + (index % 5) * 0.0007
+}));
 
 const domainProfiles = {
   build: {
@@ -81,6 +88,10 @@ function setMemories(memories) {
 
 function selectedMode() {
   return new FormData(form).get("mode") || "mentor";
+}
+
+function cssColor(name) {
+  return getComputedStyle(document.body).getPropertyValue(name).trim();
 }
 
 function timeframeLine(timeframe) {
@@ -174,11 +185,22 @@ function updateCharCount() {
   charCount.textContent = `${challengeInput.value.length}/${maxChallengeLength}`;
 }
 
+function syncReadouts() {
+  const selectedDomain = domainInput.options[domainInput.selectedIndex]?.textContent || "Build / business";
+  const selectedTimeframe = timeframeInput.options[timeframeInput.selectedIndex]?.textContent || "Today";
+
+  document.body.dataset.mode = selectedMode();
+  holoDomain.textContent = selectedDomain;
+  holoTimeframe.textContent = selectedTimeframe;
+}
+
 function drawHologram() {
   const w = canvas.width;
   const h = canvas.height;
   const cx = w / 2;
   const cy = h / 2;
+  const mode = cssColor("--mode") || "#74f5c5";
+  const mode2 = cssColor("--mode-2") || "#62e7ff";
   pulse += 0.018;
 
   ctx.clearRect(0, 0, w, h);
@@ -186,35 +208,37 @@ function drawHologram() {
   ctx.globalCompositeOperation = "lighter";
 
   const aura = ctx.createRadialGradient(cx, cy, 20, cx, cy, 310);
-  aura.addColorStop(0, "rgba(116,245,197,0.22)");
-  aura.addColorStop(0.46, "rgba(98,231,255,0.12)");
+  aura.addColorStop(0, colorWithAlpha(mode, 0.24));
+  aura.addColorStop(0.46, colorWithAlpha(mode2, 0.13));
   aura.addColorStop(1, "rgba(98,231,255,0)");
   ctx.fillStyle = aura;
   ctx.beginPath();
   ctx.arc(cx, cy, 310 + Math.sin(pulse) * 8, 0, Math.PI * 2);
   ctx.fill();
 
-  ctx.strokeStyle = "rgba(98,231,255,0.62)";
+  drawParticles(cx, cy, mode, mode2);
+
+  ctx.strokeStyle = colorWithAlpha(mode2, 0.68);
   ctx.lineWidth = 5;
   roundedRect(cx - 108, cy - 214, 216, 252, 90);
   ctx.stroke();
 
   ctx.lineWidth = 3;
-  ctx.strokeStyle = "rgba(116,245,197,0.42)";
+  ctx.strokeStyle = colorWithAlpha(mode, 0.44);
   roundedRect(cx - 78, cy - 174, 156, 178, 68);
   ctx.stroke();
 
   drawFeature(cx - 44, cy - 94, 28, 9);
   drawFeature(cx + 44, cy - 94, 28, 9);
 
-  ctx.strokeStyle = "rgba(255,204,102,0.8)";
+  ctx.strokeStyle = colorWithAlpha("#ffcc66", 0.82);
   ctx.lineWidth = 4;
   ctx.beginPath();
   ctx.moveTo(cx - 42, cy - 15);
   ctx.quadraticCurveTo(cx, cy + 14 + Math.sin(pulse * 1.7) * 5, cx + 42, cy - 15);
   ctx.stroke();
 
-  ctx.strokeStyle = "rgba(98,231,255,0.36)";
+  ctx.strokeStyle = colorWithAlpha(mode2, 0.38);
   ctx.lineWidth = 5;
   ctx.beginPath();
   ctx.moveTo(cx - 140, cy + 208);
@@ -225,7 +249,7 @@ function drawHologram() {
 
   for (let i = 0; i < 18; i += 1) {
     const y = 118 + i * 27 + Math.sin(pulse * 2 + i) * 2;
-    ctx.strokeStyle = i % 4 === 0 ? "rgba(255,204,102,0.22)" : "rgba(98,231,255,0.18)";
+    ctx.strokeStyle = i % 4 === 0 ? "rgba(255,204,102,0.22)" : colorWithAlpha(mode2, 0.18);
     ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.moveTo(cx - 184 + Math.sin(i) * 14, y);
@@ -233,7 +257,7 @@ function drawHologram() {
     ctx.stroke();
   }
 
-  ctx.strokeStyle = "rgba(116,245,197,0.55)";
+  ctx.strokeStyle = colorWithAlpha(mode, 0.58);
   ctx.lineWidth = 2;
   for (let i = 0; i < 4; i += 1) {
     ctx.beginPath();
@@ -243,6 +267,35 @@ function drawHologram() {
 
   ctx.restore();
   requestAnimationFrame(drawHologram);
+}
+
+function colorWithAlpha(color, alpha) {
+  if (color.startsWith("#")) {
+    const hex = color.slice(1);
+    const value = hex.length === 3
+      ? hex.split("").map((char) => char + char).join("")
+      : hex;
+    const number = Number.parseInt(value, 16);
+    const r = (number >> 16) & 255;
+    const g = (number >> 8) & 255;
+    const b = number & 255;
+    return `rgba(${r},${g},${b},${alpha})`;
+  }
+  return color;
+}
+
+function drawParticles(cx, cy, mode, mode2) {
+  particles.forEach((particle, index) => {
+    const angle = particle.angle + pulse * particle.speed * 90;
+    const x = cx + Math.cos(angle) * particle.radius;
+    const y = cy + 18 + Math.sin(angle) * (particle.radius * 0.22);
+    const size = 1.4 + (index % 4) * 0.55;
+
+    ctx.fillStyle = index % 3 === 0 ? colorWithAlpha(mode, 0.52) : colorWithAlpha(mode2, 0.38);
+    ctx.beginPath();
+    ctx.arc(x, y, size, 0, Math.PI * 2);
+    ctx.fill();
+  });
 }
 
 function roundedRect(x, y, width, height, radius) {
@@ -269,6 +322,9 @@ intensityInput.addEventListener("input", () => {
 });
 
 challengeInput.addEventListener("input", updateCharCount);
+domainInput.addEventListener("change", syncReadouts);
+timeframeInput.addEventListener("change", syncReadouts);
+form.addEventListener("change", syncReadouts);
 
 form.addEventListener("submit", (event) => {
   event.preventDefault();
@@ -289,5 +345,6 @@ clearBtn.addEventListener("click", () => {
 });
 
 updateCharCount();
+syncReadouts();
 renderMemories();
 drawHologram();

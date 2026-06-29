@@ -9,7 +9,7 @@
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23071018'/%3E%3Cpath d='M14 43h36M20 34c5 7 19 7 24 0M22 25h4M38 25h4' stroke='%2374f5c5' stroke-width='4' stroke-linecap='round'/%3E%3Cpath d='M18 48c8 5 20 5 28 0' stroke='%2362e7ff' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body data-mode="mentor">
   <main class="app-shell">
     <section class="hologram-stage" aria-label="KG50 hologram advisor">
       <div class="stage-backdrop">
@@ -19,9 +19,12 @@
 
       <header class="topbar">
         <a class="brand-link" href="../../moneybot-official/">MoneyBot Labs</a>
-        <div class="signal" aria-label="hologram signal strength">
-          <span></span><span></span><span></span><span></span>
-          <strong>Locked</strong>
+        <div class="topbar-right">
+          <span class="system-pill">KG50://future-self</span>
+          <div class="signal" aria-label="hologram signal strength">
+            <span></span><span></span><span></span><span></span>
+            <strong>Locked</strong>
+          </div>
         </div>
       </header>
 
@@ -30,13 +33,29 @@
           <span class="kicker">Future You Hologram Advisor</span>
           <h1>KG50</h1>
         </div>
-        <p>Ask the older version of you for a clean next move. Pick the arena, set the time horizon, turn up the truth, then save the transmissions worth repeating.</p>
+        <div class="brief-panel">
+          <p>Ask the older version of you for a clean next move. Pick the arena, set the time horizon, turn up the truth, then save the transmissions worth repeating.</p>
+          <div class="brief-metrics" aria-label="advisor status">
+            <span><strong>05</strong> arenas</span>
+            <span><strong>10</strong> truth max</span>
+            <span><strong>06</strong> saves</span>
+          </div>
+        </div>
       </div>
 
       <div class="experience-grid">
         <section class="holo-panel" aria-label="hologram avatar">
+          <div class="holo-readout top-left">
+            <span>KG50</span>
+            <strong id="holoDomain">Build / business</strong>
+          </div>
+          <div class="holo-readout top-right">
+            <span>Horizon</span>
+            <strong id="holoTimeframe">Today</strong>
+          </div>
           <canvas id="holoCanvas" width="720" height="720"></canvas>
           <div class="base-ring" aria-hidden="true"></div>
+          <div class="holo-noise" aria-hidden="true"></div>
           <div class="identity-strip">
             <span>Age 50 Signal</span>
             <strong id="avatarMood">Direct Mode</strong>
@@ -44,6 +63,13 @@
         </section>
 
         <section class="advisor-console" aria-label="advisor console">
+          <div class="console-head">
+            <div>
+              <span class="kicker">Advisor Console</span>
+              <h2>Decision uplink</h2>
+            </div>
+            <span class="live-chip">Live</span>
+          </div>
           <form id="advisorForm">
             <div class="field-row">
               <div class="label-line">
