@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="KG50 is a future-self hologram advisor for fast decisions, sharper next moves, and saved transmissions.">
+  <meta name="theme-color" content="#071018">
+  <title>KG50 - Future You Hologram Advisor</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23071018'/%3E%3Cpath d='M14 43h36M20 34c5 7 19 7 24 0M22 25h4M38 25h4' stroke='%2374f5c5' stroke-width='4' stroke-linecap='round'/%3E%3Cpath d='M18 48c8 5 20 5 28 0' stroke='%2362e7ff' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="app-shell">
+    <section class="hologram-stage" aria-label="KG50 hologram advisor">
+      <div class="stage-backdrop">
+        <span class="grid-plane"></span>
+        <span class="scan-line"></span>
+      </div>
+
+      <header class="topbar">
+        <a class="brand-link" href="../../moneybot-official/">MoneyBot Labs</a>
+        <div class="signal" aria-label="hologram signal strength">
+          <span></span><span></span><span></span><span></span>
+          <strong>Locked</strong>
+        </div>
+      </header>
+
+      <div class="title-row">
+        <div>
+          <span class="kicker">Future You Hologram Advisor</span>
+          <h1>KG50</h1>
+        </div>
+        <p>Ask the older version of you for a clean next move. Pick the arena, set the time horizon, turn up the truth, then save the transmissions worth repeating.</p>
+      </div>
+
+      <div class="experience-grid">
+        <section class="holo-panel" aria-label="hologram avatar">
+          <canvas id="holoCanvas" width="720" height="720"></canvas>
+          <div class="base-ring" aria-hidden="true"></div>
+          <div class="identity-strip">
+            <span>Age 50 Signal</span>
+            <strong id="avatarMood">Direct Mode</strong>
+          </div>
+        </section>
+
+        <section class="advisor-console" aria-label="advisor console">
+          <form id="advisorForm">
+            <div class="field-row">
+              <div class="label-line">
+                <label for="challenge">Current decision</label>
+                <span id="charCount">63/240</span>
+              </div>
+              <textarea id="challenge" name="challenge" rows="4" maxlength="240" placeholder="What are you deciding, avoiding, or trying to unlock?">I need a sharp next move that future me would respect.</textarea>
+            </div>
+
+            <div class="control-grid">
+              <div class="field-row">
+                <label for="domain">Life arena</label>
+                <select id="domain" name="domain">
+                  <option value="build">Build / business</option>
+                  <option value="money">Money</option>
+                  <option value="body">Body / energy</option>
+                  <option value="relationships">Relationships</option>
+                  <option value="creative">Creative work</option>
+                </select>
+              </div>
+
+              <div class="field-row">
+                <label for="timeframe">Time horizon</label>
+                <select id="timeframe" name="timeframe">
+                  <option value="today">Today</option>
+                  <option value="week">This week</option>
+                  <option value="quarter">This quarter</option>
+                  <option value="year">This year</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="slider-block">
+              <div>
+                <label for="intensity">Truth intensity</label>
+                <strong id="intensityLabel">7</strong>
+              </div>
+              <input id="intensity" name="intensity" type="range" min="1" max="10" value="7">
+            </div>
+
+            <fieldset class="mode-selector">
+              <legend>Transmission style</legend>
+              <label><input type="radio" name="mode" value="mentor" checked><span>Mentor</span></label>
+              <label><input type="radio" name="mode" value="operator"><span>Operator</span></label>
+              <label><input type="radio" name="mode" value="savage"><span>Savage</span></label>
+            </fieldset>
+
+            <button class="primary-action" type="submit">
+              <span>Ask KG50</span>
+            </button>
+          </form>
+        </section>
+      </div>
+    </section>
+
+    <section class="response-zone" aria-label="future advice">
+      <article class="transmission">
+        <div class="transmission-header">
+          <div>
+            <span class="kicker">Incoming Transmission</span>
+            <h2 id="responseTitle">KG50 is online.</h2>
+          </div>
+          <button id="saveBtn" type="button" disabled>Save</button>
+        </div>
+        <p id="responseText">Name the decision. I will answer like the older version of you who already paid the price for dithering.</p>
+        <div class="action-stack" id="actionStack" aria-label="recommended actions"></div>
+      </article>
+
+      <aside class="memory-bank" aria-label="saved transmissions">
+        <div class="memory-header">
+          <span class="kicker">Memory Bank</span>
+          <button id="clearBtn" type="button">Clear</button>
+        </div>
+        <div id="memoryList" class="memory-list"></div>
+      </aside>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
