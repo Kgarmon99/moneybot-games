@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#07111F" />
+  <title>Fraud or Nah</title>
+  <link rel="stylesheet" href="assets/moneybot/moneybot-game.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="shell" id="shell">
+    <header class="hud">
+      <div class="brand">
+        <img src="assets/moneybot/assets/moneybot-idle.svg" alt="MoneyBot" class="mascot" id="mascot" />
+        <div>
+          <p class="eyebrow">MoneyBot Games</p>
+          <h1>Fraud or Nah</h1>
+        </div>
+      </div>
+      <div class="stats">
+        <div class="stat"><span>Trust</span><strong id="trust">100%</strong></div>
+        <div class="stat"><span>Score</span><strong id="score">0</strong></div>
+        <div class="stat"><span>Streak</span><strong id="streak">0</strong></div>
+      </div>
+    </header>
+
+    <section class="stage" id="stage" aria-live="polite">
+      <div class="progress-wrap"><div class="progress-bar" id="progress"></div></div>
+
+      <div class="card-area" id="cardArea">
+        <div class="card" id="card" role="button" tabindex="0" aria-label="Swipe or choose Fraud or Nah">
+          <div class="card-badge" id="cardBadge">Message</div>
+          <div class="card-sender" id="cardSender">...</div>
+          <div class="card-body">
+            <p class="card-text" id="cardText">Loading...</p>
+            <div class="card-clues" id="cardClues"></div>
+          </div>
+          <div class="card-hint" id="cardHint"></div>
+        </div>
+      </div>
+
+      <div class="verdict-zone">
+        <button class="btn-fraud" id="btnFraud" aria-label="Mark as fraud">
+          <span class="icon">⚠</span> Fraud
+        </button>
+        <button class="btn-nah" id="btnNah" aria-label="Mark as legit">
+          <span class="icon">✓</span> Nah
+        </button>
+      </div>
+
+      <div class="coach-line" id="coachLine">Read carefully. Swipe or tap your call.</div>
+    </section>
+
+    <section class="overlay" id="startOverlay">
+      <div class="modal">
+        <img src="assets/moneybot/assets/moneybot-idle.svg" alt="MoneyBot mascot" class="modal-mascot" />
+        <h2>Spot the scam.</h2>
+        <p>Messages drop in. Some are real money offers. Some are traps. Your job: call <strong>Fraud</strong> or <strong>Nah</strong> before your trust score runs out.</p>
+        <ul>
+          <li>Right answer → points + streak</li>
+          <li>Wrong answer → trust drops</li>
+          <li>Learn the red flags as you play</li>
+        </ul>
+        <button class="btn-primary" id="btnStart">Start Playing</button>
+      </div>
+    </section>
+
+    <section class="overlay hidden" id="pauseOverlay">
+      <div class="modal">
+        <h2>Paused</h2>
+        <p>Take a breath. Scammers hate that.</p>
+        <button class="btn-primary" id="btnResume">Resume</button>
+        <button class="btn-secondary" id="btnRestartFromPause">Restart</button>
+      </div>
+    </section>
+
+    <section class="overlay hidden" id="resultOverlay">
+      <div class="modal">
+        <img src="assets/moneybot/assets/moneybot-celebrating.svg" alt="MoneyBot mascot" class="modal-mascot" id="resultMascot" />
+        <h2 id="resultTitle">Round Over</h2>
+        <p id="resultMessage">Let's see how you did.</p>
+        <div class="result-stats" id="resultStats"></div>
+        <button class="btn-primary" id="btnPlayAgain">Play Again</button>
+      </div>
+    </section>
+  </main>
+
+  <script src="assets/moneybot/moneybot-game-kit.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>

@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 240">
+  <!-- Shadow -->
+  <ellipse cx="100" cy="215" rx="60" ry="20" fill="rgba(0,0,0,0.3)"/>
+  
+  <!-- Body (tilted for motion) -->
+  <g transform="rotate(-5, 100, 150)">
+    <rect x="40" y="50" width="120" height="150" rx="30" fill="#FFFFFF" stroke="#E5E7EB" stroke-width="3"/>
+    <rect x="40" y="50" width="120" height="150" rx="30" fill="url(#bodyGradDrive)"/>
+    
+    <!-- Screen/Face -->
+    <rect x="55" y="65" width="90" height="70" rx="15" fill="#0F172A"/>
+    
+    <!-- Eyes (focused) -->
+    <ellipse cx="85" cy="100" rx="10" ry="14" fill="#22C55E"/>
+    <ellipse cx="115" cy="100" rx="10" ry="14" fill="#22C55E"/>
+    
+    <!-- Determined mouth -->
+    <line x1="90" y1="130" x2="110" y2="130" stroke="#22C55E" stroke-width="3" stroke-linecap="round"/>
+    
+    <!-- Antenna (leaning back) -->
+    <line x1="100" y1="50" x2="110" y2="20" stroke="#FBBF24" stroke-width="6" stroke-linecap="round"/>
+    <circle cx="110" cy="18" r="10" fill="#FBBF24"/>
+    <circle cx="110" cy="18" r="15" fill="#FBBF24" opacity="0.3"/>
+    
+    <!-- Body Detail -->
+    <rect x="70" y="175" width="60" height="15" rx="7" fill="#22C55E" opacity="0.8"/>
+  </g>
+  
+  <!-- Speed Lines -->
+  <line x1="20" y1="120" x2="5" y2="120" stroke="#22C55E" stroke-width="3" opacity="0.5">
+    <animate attributeName="x1" values="20;10;20" dur="0.3s" repeatCount="indefinite"/>
+    <animate attributeName="x2" values="5;-5;5" dur="0.3s" repeatCount="indefinite"/>
+  </line>
+  <line x1="25" y1="150" x2="10" y2="150" stroke="#22C55E" stroke-width="2" opacity="0.3">
+    <animate attributeName="x1" values="25;15;25" dur="0.4s" repeatCount="indefinite"/>
+  </line>
+  
+  <defs>
+    <linearGradient id="bodyGradDrive" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#22C55E;stop-opacity:0.15"/>
+      <stop offset="100%" style="stop-color:#22C55E;stop-opacity:0.35"/>
+    </linearGradient>
+  </defs>
+</svg>
