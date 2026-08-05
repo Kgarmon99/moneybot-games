@@ -23,10 +23,12 @@
         <div class="stat"><span>Score</span><strong id="score">0</strong></div>
         <div class="stat"><span>Streak</span><strong id="streak">0</strong></div>
       </div>
+      <button class="audio-toggle" id="audioToggle" aria-label="Toggle sound" aria-pressed="true">🔊</button>
     </header>
 
     <section class="stage" id="stage" aria-live="polite">
       <div class="progress-wrap"><div class="progress-bar" id="progress"></div></div>
+      <div class="daily-badge hidden" id="dailyBadge">Daily Challenge</div>
 
       <div class="card-area" id="cardArea">
         <div class="card" id="card" role="button" tabindex="0" aria-label="Swipe or choose Fraud or Nah">
@@ -34,9 +36,11 @@
           <div class="card-sender" id="cardSender">...</div>
           <div class="card-body">
             <p class="card-text" id="cardText">Loading...</p>
-            <div class="card-clues" id="cardClues"></div>
+            <div class="card-clues hidden" id="cardClues"></div>
           </div>
           <div class="card-hint" id="cardHint"></div>
+          <div class="swipe-label swipe-fraud">FRAUD</div>
+          <div class="swipe-label swipe-nah">NAH</div>
         </div>
       </div>
 
@@ -58,10 +62,22 @@
         <h2>Spot the scam.</h2>
         <p>Messages drop in. Some are real money offers. Some are traps. Your job: call <strong>Fraud</strong> or <strong>Nah</strong> before your trust score runs out.</p>
         <ul>
-          <li>Right answer → points + streak</li>
+          <li>Right answer → points + streak + time bonus</li>
           <li>Wrong answer → trust drops</li>
-          <li>Learn the red flags as you play</li>
+          <li>Earn badges and climb your Scam Radar rating</li>
         </ul>
+
+        <div class="mode-select">
+          <label for="modeSelector">Mode</label>
+          <select id="modeSelector">
+            <option value="easy">Easy — 15 cards</option>
+            <option value="normal" selected>Normal — 25 cards</option>
+            <option value="hard">Hard — 40 cards</option>
+            <option value="daily">Daily Challenge</option>
+          </select>
+        </div>
+
+        <p class="lifetime-stats" id="lifetimeStats"></p>
         <button class="btn-primary" id="btnStart">Start Playing</button>
       </div>
     </section>
@@ -76,11 +92,12 @@
     </section>
 
     <section class="overlay hidden" id="resultOverlay">
-      <div class="modal">
+      <div class="modal result-modal">
         <img src="assets/moneybot-logo-avatar.png" alt="MoneyBot mascot" class="modal-mascot" id="resultMascot" />
         <h2 id="resultTitle">Round Over</h2>
         <p id="resultMessage">Let's see how you did.</p>
         <div class="result-stats" id="resultStats"></div>
+        <div class="result-badges" id="resultBadges"></div>
         <button class="btn-primary" id="btnPlayAgain">Play Again</button>
       </div>
     </section>
