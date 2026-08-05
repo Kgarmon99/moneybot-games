@@ -318,8 +318,8 @@
       ? "You made it through. Your scam radar is looking strong."
       : "Scammers got the best of you this time. Review the hints and try again.";
     els.resultMascot.src = win
-      ? "assets/moneybot/assets/moneybot-celebrating.svg"
-      : "assets/moneybot/assets/moneybot-idle.svg";
+      ? "assets/moneybot-logo-avatar.png"
+      : "assets/moneybot-logo-avatar.png";
     els.resultStats.innerHTML = `
       <div class="result-stat"><span>Score</span><strong>${state.score}</strong></div>
       <div class="result-stat"><span>Correct</span><strong>${state.correct}</strong></div>
