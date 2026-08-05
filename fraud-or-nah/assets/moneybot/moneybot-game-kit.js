@@ -8,9 +8,7 @@
   const assetBase = "assets/moneybot/assets/";
 
   const assets = {
-    mascotIdle: `${assetBase}moneybot-idle.png`,
-    mascotCelebrating: `${assetBase}moneybot-celebrating.png`,
-    mascotDriving: `${assetBase}moneybot-driving.png`,
+    mascotAvatar: "assets/moneybot-logo-avatar.png",
     coinGreen: `${assetBase}game-coin-green.svg`,
     coinGold: `${assetBase}game-coin-gold.svg`,
     obstacleDebt: `${assetBase}game-obstacle-debt.svg`,
@@ -53,7 +51,7 @@
     const image = coach.querySelector("img");
     const bubble = coach.querySelector(".mb-coach-bubble");
     if (image) {
-      image.src = asset(mood === "celebrate" ? "mascotCelebrating" : mood === "drive" ? "mascotDriving" : "mascotIdle");
+      image.src = asset("mascotAvatar");
     }
     if (bubble) bubble.textContent = message;
   }
