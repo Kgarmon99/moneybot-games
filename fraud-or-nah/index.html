@@ -2,26 +2,46 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
   <meta name="theme-color" content="#07111F" />
+  <meta name="description" content="Fraud or Nah — the premium MoneyBot arcade game for spotting scams." />
   <title>Fraud or Nah</title>
   <link rel="stylesheet" href="assets/moneybot/moneybot-game.css" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <main class="shell" id="shell">
+  <div class="ambient-bg">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+    <div class="grid-overlay"></div>
+  </div>
+
+  <div class="splash" id="splash">
+    <div class="splash-content">
+      <img src="assets/moneybot-logo-avatar.png" alt="MoneyBot" class="splash-logo" />
+      <h1 class="splash-title">Fraud or Nah</h1>
+      <p class="splash-tagline">Premium Scam Radar Training</p>
+      <div class="splash-loader"><span></span><span></span><span></span></div>
+    </div>
+  </div>
+
+  <main class="shell hidden" id="shell">
     <header class="hud">
       <div class="brand">
         <img src="assets/moneybot-logo-avatar.png" alt="MoneyBot" class="mascot" id="mascot" />
-        <div>
-          <p class="eyebrow">MoneyBot Games</p>
+        <div class="brand-text">
+          <p class="eyebrow">MoneyBot Arcade</p>
           <h1>Fraud or Nah</h1>
         </div>
       </div>
       <div class="stats">
-        <div class="stat"><span>Trust</span><strong id="trust">100%</strong></div>
+        <div class="stat hearts" id="heartsStat">
+          <span>Trust</span>
+          <div class="hearts-row" id="heartsRow"></div>
+        </div>
         <div class="stat"><span>Score</span><strong id="score">0</strong></div>
-        <div class="stat"><span>Streak</span><strong id="streak">0</strong></div>
+        <div class="stat combo" id="comboStat"><span>Combo</span><strong id="streak">0</strong></div>
       </div>
       <button class="audio-toggle" id="audioToggle" aria-label="Toggle sound" aria-pressed="true">🔊</button>
     </header>
@@ -30,8 +50,10 @@
       <div class="progress-wrap"><div class="progress-bar" id="progress"></div></div>
       <div class="daily-badge hidden" id="dailyBadge">Daily Challenge</div>
 
-      <div class="card-area" id="cardArea">
+      <div class="card-stack" id="cardStack">
+        <div class="card card-next" id="cardNext"></div>
         <div class="card" id="card" role="button" tabindex="0" aria-label="Swipe or choose Fraud or Nah">
+          <div class="card-shine"></div>
           <div class="card-badge" id="cardBadge">Message</div>
           <div class="card-sender" id="cardSender">...</div>
           <div class="card-body">
@@ -43,6 +65,8 @@
           <div class="swipe-label swipe-nah">NAH</div>
         </div>
       </div>
+
+      <div class="combo-flame hidden" id="comboFlame">🔥 <span>Combo x3</span></div>
 
       <div class="verdict-zone">
         <button class="btn-fraud" id="btnFraud" aria-label="Mark as fraud">
@@ -60,25 +84,42 @@
       <div class="modal">
         <img src="assets/moneybot-logo-avatar.png" alt="MoneyBot mascot" class="modal-mascot" />
         <h2>Spot the scam.</h2>
-        <p>Messages drop in. Some are real money offers. Some are traps. Your job: call <strong>Fraud</strong> or <strong>Nah</strong> before your trust score runs out.</p>
-        <ul>
-          <li>Right answer → points + streak + time bonus</li>
-          <li>Wrong answer → trust drops</li>
-          <li>Earn badges and climb your Scam Radar rating</li>
-        </ul>
+        <p>Messages drop in. Some are real. Some are traps. Call <strong>Fraud</strong> or <strong>Nah</strong> before your trust runs out.</p>
 
         <div class="mode-select">
           <label for="modeSelector">Mode</label>
           <select id="modeSelector">
-            <option value="easy">Easy — 15 cards</option>
-            <option value="normal" selected>Normal — 25 cards</option>
-            <option value="hard">Hard — 40 cards</option>
+            <option value="easy">Easy · 15 cards</option>
+            <option value="normal" selected>Normal · 25 cards</option>
+            <option value="hard">Hard · 40 cards</option>
             <option value="daily">Daily Challenge</option>
           </select>
         </div>
 
         <p class="lifetime-stats" id="lifetimeStats"></p>
-        <button class="btn-primary" id="btnStart">Start Playing</button>
+        <button class="btn-primary" id="btnStart">Play Now</button>
+        <button class="btn-link" id="btnTutorial">How to play</button>
+      </div>
+    </section>
+
+    <section class="overlay hidden" id="tutorialOverlay">
+      <div class="modal tutorial-modal">
+        <h2>How to play</h2>
+        <div class="tutorial-steps">
+          <div class="tutorial-step">
+            <span class="tutorial-num">1</span>
+            <p>Read each message carefully. Look for urgency, strange links, fees, prizes, and pressure.</p>
+          </div>
+          <div class="tutorial-step">
+            <span class="tutorial-num">2</span>
+            <p>Swipe left for <strong>Fraud</strong>, right for <strong>Nah</strong>. Or tap the buttons.</p>
+          </div>
+          <div class="tutorial-step">
+            <span class="tutorial-num">3</span>
+            <p>Build combos for bigger scores. Wrong calls cost hearts. Learn from every hint.</p>
+          </div>
+        </div>
+        <button class="btn-primary" id="btnTutorialClose">Got it</button>
       </div>
     </section>
 
@@ -96,9 +137,16 @@
         <img src="assets/moneybot-logo-avatar.png" alt="MoneyBot mascot" class="modal-mascot" id="resultMascot" />
         <h2 id="resultTitle">Round Over</h2>
         <p id="resultMessage">Let's see how you did.</p>
+        <div class="radar-ring" id="radarRing">
+          <div class="radar-score" id="radarScore">0</div>
+          <div class="radar-label" id="radarLabel">Radar</div>
+        </div>
         <div class="result-stats" id="resultStats"></div>
         <div class="result-badges" id="resultBadges"></div>
-        <button class="btn-primary" id="btnPlayAgain">Play Again</button>
+        <div class="result-actions">
+          <button class="btn-primary" id="btnPlayAgain">Play Again</button>
+          <button class="btn-secondary" id="btnShare">Share Score</button>
+        </div>
       </div>
     </section>
   </main>

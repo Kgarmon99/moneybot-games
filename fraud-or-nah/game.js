@@ -5,16 +5,16 @@
   // DATA: 60 cards across 10 scam categories
   // ===========================
   const CATEGORIES = {
-    phishing: { label: "Phishing", icon: "🎣" },
-    ecommerce: { label: "E-Commerce", icon: "📦" },
-    investment: { label: "Investment", icon: "📈" },
-    romance: { label: "Romance", icon: "💔" },
-    job: { label: "Job Scam", icon: "💼" },
-    tech: { label: "Tech Support", icon: "🖥" },
-    social: { label: "Social Media", icon: "💬" },
-    crypto: { label: "Crypto", icon: "₿" },
-    government: { label: "Government", icon: "🏛" },
-    charity: { label: "Charity", icon: "🤝" },
+    phishing: { label: "Phishing", icon: "🎣", color: "#38BDF8" },
+    ecommerce: { label: "E-Commerce", icon: "📦", color: "#FBBF24" },
+    investment: { label: "Investment", icon: "📈", color: "#A78BFA" },
+    romance: { label: "Romance", icon: "💔", color: "#FB7185" },
+    job: { label: "Job Scam", icon: "💼", color: "#34D399" },
+    tech: { label: "Tech Support", icon: "🖥", color: "#94A3B8" },
+    social: { label: "Social", icon: "💬", color: "#F472B6" },
+    crypto: { label: "Crypto", icon: "₿", color: "#F59E0B" },
+    government: { label: "Government", icon: "🏛", color: "#60A5FA" },
+    charity: { label: "Charity", icon: "🤝", color: "#22D3EE" },
   };
 
   const RAW_CARDS = [
@@ -90,7 +90,7 @@
     { sender: "GoFundMe", text: "Your donation to Sarah's medical fund has been processed. Thank you.", fraud: false, category: "charity", difficulty: 1, clues: ["Specific campaign", "Expected confirmation"], hint: "Expected crowdfunding confirmations are real." },
     { sender: "Police Charity", text: "Local officers need your support. Donate $100 by text and we'll add you to our donor wall.", fraud: true, category: "charity", difficulty: 3, clues: ["Pressure", "Text donation", "Vague charity"], hint: "Scammers impersonate police and fire charities frequently. Verify independently." },
 
-    // Extra mixed difficulty
+    // Extra mixed
     { sender: "Boss (Dave)", text: "I'm in back-to-back meetings. Can you buy 5 gift cards for a client and send the codes? I'll reimburse you.", fraud: true, category: "job", difficulty: 2, clues: ["Gift card pressure", "Impersonation"], hint: "Gift card requests through text or email are a top scam pattern." },
     { sender: "Mom", text: "Can you Venmo me $40 for groceries? I'll pay you back Friday.", fraud: false, category: "social", difficulty: 1, clues: ["Known sender", "Specific amount"], hint: "Messages from people you know with normal requests are usually fine." },
     { sender: "Netflix", text: "Your monthly invoice for $15.49 is ready. View account at netflix.com.", fraud: false, category: "phishing", difficulty: 2, clues: ["Expected bill", "Real domain"], hint: "Check the domain and whether you expected the charge." },
@@ -104,7 +104,8 @@
     deck: [],
     index: 0,
     score: 0,
-    trust: 100,
+    hearts: 4,
+    maxHearts: 4,
     streak: 0,
     bestStreak: 0,
     correct: 0,
@@ -117,113 +118,130 @@
     _answering: false,
   };
 
-  const STORAGE_KEY = "fraudOrNah_v2";
-  const DAILY_KEY = "fraudOrNah_daily";
+  const STORAGE_KEY = "fraud-or-nah-v3";
+  const MODES = {
+    easy: { count: 15, maxDifficulty: 2, hearts: 5 },
+    normal: { count: 25, maxDifficulty: 3, hearts: 4 },
+    hard: { count: 40, maxDifficulty: 5, hearts: 3 },
+    daily: { count: 20, maxDifficulty: 3, hearts: 4 },
+  };
 
   function loadProgress() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       return raw ? JSON.parse(raw) : {};
-    } catch {
-      return {};
-    }
+    } catch { return {}; }
   }
-
   function saveProgress(data) {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-    } catch {}
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch {}
   }
-
   function getDailySeed() {
     const d = new Date();
     return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
   }
 
   // ===========================
-  // AUDIO ENGINE (Web Audio API)
+  // PREMIUM AUDIO ENGINE
   // ===========================
   const AudioEngine = (() => {
     let ctx = null;
-    let masterGain = null;
-    let musicOsc = null;
-    let musicGain = null;
+    let master = null;
+    let musicNodes = [];
     let enabled = true;
 
     function init() {
       if (ctx) return;
-      const AudioContext = window.AudioContext || window.webkitAudioContext;
-      if (!AudioContext) return;
-      ctx = new AudioContext();
-      masterGain = ctx.createGain();
-      masterGain.gain.value = 0.25;
-      masterGain.connect(ctx.destination);
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return;
+      ctx = new AC();
+      master = ctx.createGain();
+      master.gain.value = 0.22;
+      master.connect(ctx.destination);
     }
 
-    function tone({ freq = 440, type = "sine", duration = 0.15, startGain = 0.0001, peakGain = 0.3, attack = 0.01, release = 0.12, slideTo }) {
+    function now() { return ctx ? ctx.currentTime : 0; }
+
+    function tone({ freq = 440, type = "sine", duration = 0.2, peak = 0.3, attack = 0.01, release = 0.14, slideTo, delay = 0 }) {
       if (!enabled || !ctx) return;
       if (ctx.state === "suspended") ctx.resume();
-      const now = ctx.currentTime;
+      const t = now() + delay;
       const osc = ctx.createOscillator();
       const g = ctx.createGain();
       osc.type = type;
-      osc.frequency.setValueAtTime(freq, now);
-      if (slideTo) osc.frequency.exponentialRampToValueAtTime(slideTo, now + duration);
-      g.gain.setValueAtTime(startGain, now);
-      g.gain.exponentialRampToValueAtTime(peakGain, now + attack);
-      g.gain.exponentialRampToValueAtTime(0.0001, now + duration);
-      osc.connect(g).connect(masterGain);
-      osc.start(now);
-      osc.stop(now + duration + 0.05);
+      osc.frequency.setValueAtTime(freq, t);
+      if (slideTo) osc.frequency.exponentialRampToValueAtTime(slideTo, t + duration);
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(peak, t + attack);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + duration);
+      osc.connect(g).connect(master);
+      osc.start(t);
+      osc.stop(t + duration + 0.05);
+    }
+
+    function chord(notes, { duration = 0.35, peak = 0.18, type = "triangle" } = {}) {
+      if (!enabled || !ctx) return;
+      notes.forEach((f, i) => tone({ freq: f, type, duration, peak: peak - i * 0.02, delay: i * 0.025 }));
     }
 
     function correct() {
-      tone({ freq: 880, type: "sine", duration: 0.18, peakGain: 0.25, slideTo: 1320 });
-      setTimeout(() => tone({ freq: 1320, type: "sine", duration: 0.22, peakGain: 0.2, slideTo: 1760 }), 80);
+      chord([523.25, 659.25, 783.99], { duration: 0.3, peak: 0.22 });
+      setTimeout(() => chord([783.99, 987.77, 1174.66], { duration: 0.35, peak: 0.18 }), 90);
     }
 
     function wrong() {
-      tone({ freq: 220, type: "sawtooth", duration: 0.28, peakGain: 0.2, slideTo: 110 });
+      tone({ freq: 196, type: "sawtooth", duration: 0.32, peak: 0.2, slideTo: 98 });
+      setTimeout(() => tone({ freq: 92, type: "sawtooth", duration: 0.45, peak: 0.15 }), 120);
     }
 
-    function swipe() {
-      tone({ freq: 320, type: "triangle", duration: 0.08, peakGain: 0.08, slideTo: 240 });
-    }
+    function swipe() { tone({ freq: 300, type: "triangle", duration: 0.08, peak: 0.08, slideTo: 220 }); }
 
     function win() {
-      [523, 659, 784, 1047].forEach((f, i) => setTimeout(() => tone({ freq: f, type: "sine", duration: 0.35, peakGain: 0.25 }), i * 100));
+      const progression = [[523, 659, 784], [659, 784, 1047], [784, 1047, 1319], [1047, 1319, 1568]];
+      progression.forEach((notes, i) => setTimeout(() => chord(notes, { duration: 0.4, peak: 0.2 }), i * 110));
     }
 
     function lose() {
-      [300, 250, 200, 150].forEach((f, i) => setTimeout(() => tone({ freq: f, type: "sawtooth", duration: 0.35, peakGain: 0.18 }), i * 120));
+      const progression = [[392, 311, 247], [349, 293, 233], [311, 261, 207], [261, 220, 174]];
+      progression.forEach((notes, i) => setTimeout(() => chord(notes, { duration: 0.45, peak: 0.16 }), i * 130));
+    }
+
+    function badge() {
+      [523, 659, 784, 1047, 1319].forEach((f, i) => setTimeout(() => tone({ freq: f, type: "sine", duration: 0.12, peak: 0.18 }), i * 70));
+    }
+
+    function heartLoss() {
+      tone({ freq: 150, type: "square", duration: 0.25, peak: 0.16, slideTo: 80 });
     }
 
     function startMusic() {
-      if (!enabled || !ctx || musicOsc) return;
-      const now = ctx.currentTime;
-      musicOsc = ctx.createOscillator();
-      musicGain = ctx.createGain();
-      musicOsc.type = "sine";
-      musicOsc.frequency.setValueAtTime(110, now);
-      musicGain.gain.value = 0.015;
-      // Very subtle ambient drone
+      if (!enabled || !ctx || musicNodes.length) return;
+      const root = 110;
+      const ratios = [1, 1.5, 2, 2.5];
+      ratios.forEach((r, i) => {
+        const osc = ctx.createOscillator();
+        const g = ctx.createGain();
+        osc.type = i % 2 === 0 ? "sine" : "triangle";
+        osc.frequency.value = root * r;
+        g.gain.value = 0.008 + i * 0.002;
+        osc.connect(g).connect(master);
+        osc.start();
+        musicNodes.push({ osc, g });
+      });
+      // Slow LFO filter sweep
       const lfo = ctx.createOscillator();
       lfo.type = "sine";
-      lfo.frequency.value = 0.1;
+      lfo.frequency.value = 0.08;
       const lfoGain = ctx.createGain();
-      lfoGain.gain.value = 20;
+      lfoGain.gain.value = 8;
       lfo.connect(lfoGain);
-      lfoGain.connect(musicOsc.frequency);
+      musicNodes.forEach(({ osc }) => lfoGain.connect(osc.frequency));
       lfo.start();
-      musicOsc.connect(musicGain).connect(masterGain);
-      musicOsc.start();
+      musicNodes.push({ osc: lfo });
     }
 
     function stopMusic() {
-      if (musicOsc) {
-        try { musicOsc.stop(); } catch {}
-        musicOsc = null;
-      }
+      musicNodes.forEach((n) => { try { n.osc.stop(); } catch {} });
+      musicNodes = [];
     }
 
     function toggle() {
@@ -233,33 +251,23 @@
       return enabled;
     }
 
-    return { init, correct, wrong, swipe, win, lose, startMusic, stopMusic, toggle };
+    return { init, correct, wrong, swipe, win, lose, badge, heartLoss, startMusic, stopMusic, toggle };
   })();
 
-  // ===========================
-  // HAPTICS
-  // ===========================
-  function haptic(pattern) {
-    if (navigator.vibrate) navigator.vibrate(pattern);
-  }
+  function haptic(pattern) { if (navigator.vibrate) navigator.vibrate(pattern); }
 
   // ===========================
   // UTILS
   // ===========================
-  function seededRandom(seed) {
-    let s = seed;
-    return function () {
-      s = (s * 9301 + 49297) % 233280;
-      return s / 233280;
-    };
-  }
-
   function stringHash(str) {
     let h = 0;
     for (let i = 0; i < str.length; i++) h = (h << 5) - h + str.charCodeAt(i);
     return Math.abs(h);
   }
-
+  function seededRandom(seed) {
+    let s = seed;
+    return () => { s = (s * 9301 + 49297) % 233280; return s / 233280; };
+  }
   function shuffle(arr, rng = Math.random) {
     const a = arr.slice();
     for (let i = a.length - 1; i > 0; i--) {
@@ -273,11 +281,15 @@
   // DOM
   // ===========================
   const els = {
-    trust: document.getElementById("trust"),
+    splash: document.getElementById("splash"),
+    shell: document.getElementById("shell"),
+    heartsRow: document.getElementById("heartsRow"),
     score: document.getElementById("score"),
     streak: document.getElementById("streak"),
+    comboStat: document.getElementById("comboStat"),
     progress: document.getElementById("progress"),
     card: document.getElementById("card"),
+    cardNext: document.getElementById("cardNext"),
     cardSender: document.getElementById("cardSender"),
     cardText: document.getElementById("cardText"),
     cardClues: document.getElementById("cardClues"),
@@ -286,42 +298,77 @@
     coachLine: document.getElementById("coachLine"),
     mascot: document.getElementById("mascot"),
     startOverlay: document.getElementById("startOverlay"),
+    tutorialOverlay: document.getElementById("tutorialOverlay"),
     pauseOverlay: document.getElementById("pauseOverlay"),
     resultOverlay: document.getElementById("resultOverlay"),
     resultTitle: document.getElementById("resultTitle"),
     resultMessage: document.getElementById("resultMessage"),
     resultStats: document.getElementById("resultStats"),
     resultBadges: document.getElementById("resultBadges"),
+    radarRing: document.getElementById("radarRing"),
+    radarScore: document.getElementById("radarScore"),
+    radarLabel: document.getElementById("radarLabel"),
     resultMascot: document.getElementById("resultMascot"),
     btnStart: document.getElementById("btnStart"),
     btnPlayAgain: document.getElementById("btnPlayAgain"),
+    btnShare: document.getElementById("btnShare"),
     btnResume: document.getElementById("btnResume"),
     btnRestartFromPause: document.getElementById("btnRestartFromPause"),
+    btnTutorial: document.getElementById("btnTutorial"),
+    btnTutorialClose: document.getElementById("btnTutorialClose"),
     btnFraud: document.getElementById("btnFraud"),
     btnNah: document.getElementById("btnNah"),
     modeSelector: document.getElementById("modeSelector"),
     dailyBadge: document.getElementById("dailyBadge"),
     audioToggle: document.getElementById("audioToggle"),
-    shell: document.getElementById("shell"),
+    comboFlame: document.getElementById("comboFlame"),
+    lifetimeStats: document.getElementById("lifetimeStats"),
   };
 
   // ===========================
-  // GAME FLOW
+  // SPLASH
   // ===========================
-  function buildDeck(mode = "normal") {
-    const settings = {
-      easy: { count: 15, maxDifficulty: 2, trustPenalty: 20 },
-      normal: { count: 25, maxDifficulty: 3, trustPenalty: 25 },
-      hard: { count: 40, maxDifficulty: 5, trustPenalty: 30 },
-    }[mode];
+  function showApp() {
+    setTimeout(() => {
+      els.splash.classList.add("hidden");
+      els.shell.classList.remove("hidden");
+    }, 1200);
+  }
 
-    let pool = RAW_CARDS.filter((c) => c.difficulty <= settings.maxDifficulty);
+  // ===========================
+  // HEARTS
+  // ===========================
+  function renderHearts() {
+    els.heartsRow.innerHTML = "";
+    for (let i = 0; i < state.maxHearts; i++) {
+      const heart = document.createElement("span");
+      heart.className = "heart";
+      heart.textContent = "❤";
+      if (i >= state.hearts) heart.classList.add("lost");
+      els.heartsRow.appendChild(heart);
+    }
+  }
+
+  function damageHeart() {
+    const hearts = els.heartsRow.querySelectorAll(".heart");
+    const target = hearts[state.hearts];
+    if (target) {
+      target.classList.add("damaged");
+      setTimeout(() => target.classList.add("lost"), 250);
+    }
+  }
+
+  // ===========================
+  // DECK BUILDERS
+  // ===========================
+  function buildDeck(mode) {
+    const cfg = MODES[mode];
+    let pool = RAW_CARDS.filter((c) => c.difficulty <= cfg.maxDifficulty);
     pool = shuffle(pool);
-    // ensure at least one fraud and one legit
     const frauds = pool.filter((c) => c.fraud);
     const nahs = pool.filter((c) => !c.fraud);
-    let deck = [];
-    const count = Math.min(settings.count, pool.length);
+    const deck = [];
+    const count = Math.min(cfg.count, pool.length);
     for (let i = 0; i < count; i++) {
       if (i % 2 === 0 && frauds.length) deck.push(frauds.shift());
       else if (nahs.length) deck.push(nahs.shift());
@@ -331,21 +378,21 @@
   }
 
   function buildDailyDeck() {
-    const seed = stringHash(getDailySeed() + "fraud-or-nah");
-    const rng = seededRandom(seed);
-    let pool = RAW_CARDS.filter((c) => c.difficulty <= 3);
-    pool = shuffle(pool, rng);
-    return pool.slice(0, 20);
+    const rng = seededRandom(stringHash(getDailySeed() + "fraud-or-nah-v3"));
+    const pool = shuffle(RAW_CARDS.filter((c) => c.difficulty <= 3), rng);
+    return pool.slice(0, MODES.daily.count);
   }
 
   function resetGame(mode = "normal") {
     AudioEngine.init();
     AudioEngine.startMusic();
+    const cfg = MODES[mode];
     state.mode = mode;
     state.deck = mode === "daily" ? buildDailyDeck() : buildDeck(mode);
     state.index = 0;
     state.score = 0;
-    state.trust = 100;
+    state.maxHearts = cfg.hearts;
+    state.hearts = cfg.hearts;
     state.streak = 0;
     state.bestStreak = 0;
     state.correct = 0;
@@ -354,6 +401,7 @@
     state.startTime = Date.now();
     state.categoryStats = {};
     state.sessionBadges = [];
+    renderHearts();
     updateHud();
     renderCard();
     hideOverlays();
@@ -368,11 +416,9 @@
   }
 
   function updateHud() {
-    const settings = { easy: 20, normal: 25, hard: 30 }[state.mode] || 25;
-    els.trust.textContent = `${Math.max(0, state.trust)}%`;
     els.score.textContent = state.score;
     els.streak.textContent = state.streak;
-    els.trust.parentElement.classList.toggle("danger", state.trust <= settings);
+    els.comboStat.classList.toggle("glowing", state.streak >= 3);
     const pct = state.deck.length ? ((state.index) / state.deck.length) * 100 : 0;
     els.progress.style.width = `${pct}%`;
   }
@@ -383,14 +429,22 @@
     els.card.classList.remove("fly-left", "fly-right", "nope", "yep");
     els.card.style.transform = "";
     els.card.style.opacity = "1";
-    els.cardSender.textContent = item.sender;
+    els.cardSender.innerHTML = `<span class="sender-avatar">${CATEGORIES[item.category].icon}</span>${item.sender}`;
     els.cardText.textContent = item.text;
     els.cardHint.textContent = "";
     els.cardHint.classList.remove("show");
     els.cardClues.innerHTML = "";
     els.cardClues.classList.add("hidden");
     const cat = CATEGORIES[item.category];
-    els.cardBadge.innerHTML = `<span class="cat-dot cat-${item.category}"></span>${cat.icon} ${cat.label} · ${state.index + 1}/${state.deck.length}`;
+    els.cardBadge.innerHTML = `<span class="cat-dot cat-${item.category}"></span>${cat.label} · ${state.index + 1}/${state.deck.length}`;
+    renderNextCard();
+  }
+
+  function renderNextCard() {
+    const next = state.deck[state.index + 1];
+    els.cardNext.innerHTML = next
+      ? `<div class="next-sender">${CATEGORIES[next.category].icon} ${next.sender}</div>`
+      : "";
   }
 
   function revealClues(item) {
@@ -415,28 +469,25 @@
   // ===========================
   function screenFlash(color) {
     const flash = document.createElement("div");
-    flash.style.cssText = `position:fixed;inset:0;background:${color};opacity:.18;pointer-events:none;z-index:100;transition:opacity 260ms ease;`;
+    flash.style.cssText = `position:fixed;inset:0;background:${color};opacity:.16;pointer-events:none;z-index:100;transition:opacity 320ms ease;`;
     document.body.appendChild(flash);
     requestAnimationFrame(() => (flash.style.opacity = "0"));
-    setTimeout(() => flash.remove(), 300);
+    setTimeout(() => flash.remove(), 350);
   }
 
   function screenShake() {
-    els.shell.animate(
-      [
-        { transform: "translate(0,0)" },
-        { transform: "translate(-6px, 4px)" },
-        { transform: "translate(6px, -4px)" },
-        { transform: "translate(-4px, 3px)" },
-        { transform: "translate(0,0)" },
-      ],
-      { duration: 260, easing: "ease-out" }
-    );
+    els.shell.animate([
+      { transform: "translate(0,0)" },
+      { transform: "translate(-7px, 5px)" },
+      { transform: "translate(7px, -5px)" },
+      { transform: "translate(-5px, 4px)" },
+      { transform: "translate(0,0)" },
+    ], { duration: 280, easing: "ease-out" });
   }
 
   function spawnConfetti() {
-    const colors = ["var(--mb-green)", "var(--mb-gold)", "var(--mb-blue)", "var(--mb-purple)"];
-    for (let i = 0; i < 80; i++) {
+    const colors = ["#00E676", "#FBBF24", "#38BDF8", "#A78BFA"];
+    for (let i = 0; i < 100; i++) {
       const c = document.createElement("div");
       c.className = "particle";
       c.style.background = colors[Math.floor(Math.random() * colors.length)];
@@ -445,41 +496,35 @@
       c.style.width = `${6 + Math.random() * 10}px`;
       c.style.height = `${6 + Math.random() * 10}px`;
       document.body.appendChild(c);
-      const tx = (Math.random() - 0.5) * 340;
+      const tx = (Math.random() - 0.5) * 360;
       const rot = Math.random() * 720;
-      c.animate(
-        [
-          { transform: `translate(-50%, 0) rotate(0deg)`, opacity: 1 },
-          { transform: `translate(calc(-50% + ${tx}px), 110vh) rotate(${rot}deg)`, opacity: 0 },
-        ],
-        { duration: 1400 + Math.random() * 1600, easing: "cubic-bezier(0.2, 0.8, 0.2, 1)", fill: "forwards" }
-      );
-      setTimeout(() => c.remove(), 3200);
+      c.animate([
+        { transform: `translate(-50%, 0) rotate(0deg)`, opacity: 1 },
+        { transform: `translate(calc(-50% + ${tx}px), 110vh) rotate(${rot}deg)`, opacity: 0 },
+      ], { duration: 1400 + Math.random() * 1800, easing: "cubic-bezier(0.2, 0.8, 0.2, 1)", fill: "forwards" });
+      setTimeout(() => c.remove(), 3400);
     }
   }
 
   function spawnParticles(good) {
-    const color = good ? "var(--mb-green)" : "var(--mb-red)";
+    const color = good ? "#00E676" : "#FB7185";
     const rect = els.card.getBoundingClientRect();
     const cx = rect.left + rect.width / 2;
     const cy = rect.top + rect.height / 2;
-    for (let i = 0; i < 18; i++) {
+    for (let i = 0; i < 22; i++) {
       const p = document.createElement("div");
       p.className = "particle";
       p.style.background = color;
       p.style.left = `${cx}px`;
       p.style.top = `${cy}px`;
       const angle = Math.random() * Math.PI * 2;
-      const dist = 60 + Math.random() * 110;
+      const dist = 60 + Math.random() * 130;
       const tx = Math.cos(angle) * dist;
       const ty = Math.sin(angle) * dist;
-      p.animate(
-        [
-          { transform: "translate(-50%, -50%) scale(1)", opacity: 1 },
-          { transform: `translate(calc(-50% + ${tx}px), calc(-50% + ${ty}px)) scale(0)`, opacity: 0 },
-        ],
-        { duration: 600 + Math.random() * 200, easing: "ease-out", fill: "forwards" }
-      );
+      p.animate([
+        { transform: "translate(-50%, -50%) scale(1)", opacity: 1 },
+        { transform: `translate(calc(-50% + ${tx}px), calc(-50% + ${ty}px)) scale(0)`, opacity: 0 },
+      ], { duration: 600 + Math.random() * 250, easing: "ease-out", fill: "forwards" });
       document.body.appendChild(p);
       setTimeout(() => p.remove(), 900);
     }
@@ -494,6 +539,17 @@
     setTimeout(() => el.remove(), 700);
   }
 
+  function updateComboFlame() {
+    if (state.streak >= 3) {
+      els.comboFlame.classList.remove("hidden");
+      requestAnimationFrame(() => els.comboFlame.classList.add("show"));
+      els.comboFlame.innerHTML = `🔥 <span>Combo x${state.streak}</span>`;
+    } else {
+      els.comboFlame.classList.remove("show");
+      setTimeout(() => els.comboFlame.classList.add("hidden"), 200);
+    }
+  }
+
   // ===========================
   // BADGES
   // ===========================
@@ -501,10 +557,11 @@
     { id: "first_win", name: "First Blood", desc: "Win your first round", test: (s) => s.correct >= s.deck.length },
     { id: "streak_5", name: "On Fire", desc: "Hit a 5-card streak", test: (s) => s.bestStreak >= 5 },
     { id: "streak_10", name: "Untouchable", desc: "Hit a 10-card streak", test: (s) => s.bestStreak >= 10 },
-    { id: "perfect", name: "Clean Sheet", desc: "No wrong answers in a round", test: (s) => s.wrong === 0 && s.index + 1 >= s.deck.length && s.trust > 0 },
-    { id: "hard_mode", name: "Hard Mode Hero", desc: "Win on Hard", test: (s) => s.mode === "hard" && s.trust > 0 && s.index + 1 >= s.deck.length },
-    { id: "speed_demon", name: "Speed Demon", desc: "Average under 4 seconds per card", test: (s) => s.trust > 0 && s.index + 1 >= s.deck.length && ((Date.now() - s.startTime) / s.deck.length) < 4000 },
-    { id: "daily_champ", name: "Daily Champ", desc: "Beat the daily challenge", test: (s) => s.mode === "daily" && s.trust > 0 && s.index + 1 >= s.deck.length },
+    { id: "perfect", name: "Clean Sheet", desc: "No wrong answers", test: (s) => s.wrong === 0 && s.index + 1 >= s.deck.length && s.hearts > 0 },
+    { id: "hard_mode", name: "Hard Mode Hero", desc: "Win on Hard", test: (s) => s.mode === "hard" && s.hearts > 0 && s.index + 1 >= s.deck.length },
+    { id: "speed_demon", name: "Speed Demon", desc: "Avg under 4s per card", test: (s) => s.hearts > 0 && s.index + 1 >= s.deck.length && ((Date.now() - s.startTime) / s.deck.length) < 4000 },
+    { id: "daily_champ", name: "Daily Champ", desc: "Beat the daily", test: (s) => s.mode === "daily" && s.hearts > 0 && s.index + 1 >= s.deck.length },
+    { id: "survivor", name: "Survivor", desc: "Win with 1 heart left", test: (s) => s.hearts === 1 && s.index + 1 >= s.deck.length },
   ];
 
   function checkBadges() {
@@ -516,6 +573,7 @@
         if (!progress.badges[badge.id]) {
           progress.badges[badge.id] = { earned: Date.now() };
           saveProgress(progress);
+          AudioEngine.badge();
           showBadgeToast(badge);
         }
       }
@@ -528,40 +586,37 @@
     toast.innerHTML = `<strong>🏅 ${badge.name}</strong><span>${badge.desc}</span>`;
     document.body.appendChild(toast);
     requestAnimationFrame(() => toast.classList.add("show"));
-    setTimeout(() => { toast.classList.remove("show"); setTimeout(() => toast.remove(), 300); }, 2400);
+    setTimeout(() => { toast.classList.remove("show"); setTimeout(() => toast.remove(), 300); }, 2600);
   }
 
   function renderBadges() {
     const progress = loadProgress();
     const earned = progress.badges || {};
-    const current = state.sessionBadges;
-    const html = BADGES.map((b) => {
-      const got = earned[b.id] || current.includes(b.id);
+    return BADGES.map((b) => {
+      const got = earned[b.id] || state.sessionBadges.includes(b.id);
       return `<div class="badge ${got ? "earned" : "locked"}"><span class="badge-icon">🏅</span><span class="badge-name">${b.name}</span><span class="badge-desc">${b.desc}</span></div>`;
     }).join("");
-    return html;
   }
 
   // ===========================
-  // SCAM RADAR RATING
+  // RADAR RATING
   // ===========================
   function getRadarRating() {
     const total = state.correct + state.wrong;
-    if (!total) return { label: "Newbie", color: "var(--mb-muted)" };
-    const accuracy = state.correct / total;
-    const speed = (Date.now() - state.startTime) / total;
-    let score = accuracy * 100;
-    if (state.bestStreak >= 10) score += 10;
-    if (state.bestStreak >= 5) score += 5;
-    if (speed < 3000) score += 5;
-    if (state.wrong === 0) score += 10;
+    if (!total) return { label: "Newbie", score: 0, color: "#94A3B8" };
+    let score = (state.correct / total) * 100;
+    if (state.bestStreak >= 10) score += 8;
+    else if (state.bestStreak >= 5) score += 4;
+    const avgTime = (Date.now() - state.startTime) / total;
+    if (avgTime < 3000) score += 4;
+    if (state.wrong === 0) score += 8;
     if (state.mode === "hard") score += 5;
     score = Math.min(100, Math.round(score));
-    if (score >= 95) return { label: "Fraud Hunter", score, color: "var(--mb-green)" };
-    if (score >= 85) return { label: "Scam Radar Elite", score, color: "var(--mb-green-soft)" };
-    if (score >= 70) return { label: "Sharp Eye", score, color: "var(--mb-gold)" };
-    if (score >= 50) return { label: "Learning", score, color: "var(--mb-blue)" };
-    return { label: "Needs Training", score, color: "var(--mb-red)" };
+    if (score >= 95) return { label: "Fraud Hunter", score, color: "#00E676" };
+    if (score >= 85) return { label: "Scam Radar Elite", score, color: "#69F0AE" };
+    if (score >= 70) return { label: "Sharp Eye", score, color: "#FBBF24" };
+    if (score >= 50) return { label: "Learning", score, color: "#38BDF8" };
+    return { label: "Needs Training", score, color: "#FB7185" };
   }
 
   // ===========================
@@ -574,9 +629,7 @@
 
     const item = state.deck[state.index];
     const correct = item.fraud === isFraud;
-    const settings = { easy: 20, normal: 25, hard: 30 }[state.mode] || 25;
 
-    // Category stats
     state.categoryStats[item.category] = state.categoryStats[item.category] || { correct: 0, total: 0 };
     state.categoryStats[item.category].total += 1;
     if (correct) state.categoryStats[item.category].correct += 1;
@@ -585,29 +638,33 @@
       state.correct += 1;
       state.streak += 1;
       state.bestStreak = Math.max(state.bestStreak, state.streak);
-      const timeBonus = Math.max(0, Math.round((4000 - (Date.now() - state.startTime) / (state.index + 1)) / 100));
-      const points = 100 + state.streak * 25 + timeBonus;
+      const timeBonus = Math.max(0, Math.round((5000 - (Date.now() - state.startTime) / (state.index + 1)) / 100));
+      const comboBonus = state.streak * 30;
+      const points = 100 + comboBonus + timeBonus;
       state.score += points;
       showPop(`+${points}`, true);
       spawnParticles(true);
       AudioEngine.correct();
-      haptic([15, 40, 15]);
+      haptic([12, 36, 12]);
       setMascot(state.streak >= 3 ? "celebrate" : "idle");
       els.coachLine.textContent = ["Nice call.", "Scam radar on.", "You're getting sharper.", "Unstoppable.", "Legendary."][Math.min(state.streak - 1, 4)];
     } else {
       state.wrong += 1;
       state.streak = 0;
-      state.trust = Math.max(0, state.trust - settings);
-      showPop(`-${settings}% trust`, false);
+      state.hearts = Math.max(0, state.hearts - 1);
+      damageHeart();
+      showPop("-1 heart", false);
       spawnParticles(false);
       AudioEngine.wrong();
-      haptic([80, 60, 80]);
+      AudioEngine.heartLoss();
+      haptic([90, 70, 90]);
       screenShake();
-      screenFlash("rgba(251,113,133,0.25)");
+      screenFlash("rgba(251,113,133,0.22)");
       setMascot("facepalm");
       els.coachLine.textContent = "Oof. Read the clues and try again.";
     }
 
+    updateComboFlame();
     revealClues(item);
     revealHint(item, correct);
     updateHud();
@@ -615,7 +672,7 @@
 
     setTimeout(() => {
       state._answering = false;
-      if (state.trust <= 0) {
+      if (state.hearts <= 0) {
         endGame(false);
       } else if (state.index + 1 >= state.deck.length) {
         endGame(true);
@@ -624,7 +681,7 @@
         renderCard();
         updateHud();
       }
-    }, 1100);
+    }, 1150);
   }
 
   function revealHint(item, correct) {
@@ -635,12 +692,9 @@
 
   function endGame(win) {
     state.status = "over";
-    if (win) {
-      AudioEngine.win();
-      spawnConfetti();
-    } else {
-      AudioEngine.lose();
-    }
+    if (win) { AudioEngine.win(); spawnConfetti(); }
+    else AudioEngine.lose();
+
     els.resultOverlay.classList.remove("hidden");
     els.resultTitle.textContent = win ? "Trust Intact" : "Trust Depleted";
     els.resultMessage.textContent = win
@@ -659,59 +713,71 @@
       .filter(([_, v]) => v.total > 0 && v.correct / v.total < 0.7)
       .map(([k]) => CATEGORIES[k].label);
 
+    els.radarRing.style.setProperty("--score", `${rating.score}%`);
+    els.radarScore.textContent = rating.score;
+    els.radarLabel.textContent = rating.label;
+    els.radarLabel.style.color = rating.color;
+
     els.resultStats.innerHTML = `
       <div class="result-stat"><span>Score</span><strong>${state.score}</strong></div>
       <div class="result-stat"><span>Correct</span><strong>${state.correct}/${state.deck.length}</strong></div>
       <div class="result-stat"><span>Best Streak</span><strong>${state.bestStreak}</strong></div>
-      <div class="result-stat"><span>Trust Left</span><strong>${Math.max(0, state.trust)}%</strong></div>
-      <div class="result-stat wide"><span>Scam Radar</span><strong style="color:${rating.color}">${rating.label}</strong><small>${rating.score}/100</small></div>
+      <div class="result-stat"><span>Hearts Left</span><strong>${state.hearts}</strong></div>
     `;
 
     els.resultBadges.innerHTML = `<h3>Badges</h3><div class="badge-grid">${renderBadges()}</div>` +
       (weakCategories.length ? `<p class="weak-cats">Study up: ${weakCategories.join(", ")}</p>` : "");
   }
 
+  function shareScore() {
+    const rating = getRadarRating();
+    const text = `I scored ${state.score} on Fraud or Nah (${rating.label} · ${rating.score}/100). Can you spot the scams? https://moneybot-games-deploy.vercel.app/fraud-or-nah/`;
+    if (navigator.share) {
+      navigator.share({ title: "Fraud or Nah", text });
+    } else if (navigator.clipboard) {
+      navigator.clipboard.writeText(text).then(() => {
+        const toast = document.createElement("div");
+        toast.className = "badge-toast";
+        toast.innerHTML = `<strong>Copied</strong><span>Score copied to clipboard</span>`;
+        document.body.appendChild(toast);
+        requestAnimationFrame(() => toast.classList.add("show"));
+        setTimeout(() => { toast.classList.remove("show"); setTimeout(() => toast.remove(), 300); }, 1600);
+      });
+    }
+  }
+
   function hideOverlays() {
-    els.startOverlay.classList.add("hidden");
-    els.pauseOverlay.classList.add("hidden");
-    els.resultOverlay.classList.add("hidden");
+    [els.startOverlay, els.pauseOverlay, els.resultOverlay, els.tutorialOverlay].forEach((el) => el.classList.add("hidden"));
   }
-
-  function pauseGame() {
-    if (state.status !== "playing") return;
-    state.status = "paused";
-    els.pauseOverlay.classList.remove("hidden");
-  }
-
-  function resumeGame() {
-    if (state.status !== "paused") return;
-    state.status = "playing";
-    els.pauseOverlay.classList.add("hidden");
-  }
+  function showTutorial() { els.tutorialOverlay.classList.remove("hidden"); }
+  function pauseGame() { if (state.status !== "playing") return; state.status = "paused"; els.pauseOverlay.classList.remove("hidden"); }
+  function resumeGame() { if (state.status !== "paused") return; state.status = "playing"; els.pauseOverlay.classList.add("hidden"); }
 
   // ===========================
   // SWIPE / INPUT
   // ===========================
-  let startX = null;
-  let currentX = null;
-  let dragging = false;
+  let startX = null, currentX = null, startY = null, currentY = null, dragging = false;
 
   function onPointerDown(e) {
     if (state.status !== "playing") return;
-    startX = e.clientX || e.touches?.[0]?.clientX;
+    startX = e.clientX ?? e.touches?.[0]?.clientX;
+    startY = e.clientY ?? e.touches?.[0]?.clientY;
     dragging = true;
     els.card.classList.add("dragging");
   }
 
   function onPointerMove(e) {
     if (!dragging || startX == null) return;
-    currentX = e.clientX || e.touches?.[0]?.clientX;
+    currentX = e.clientX ?? e.touches?.[0]?.clientX;
+    currentY = e.clientY ?? e.touches?.[0]?.clientY;
     const dx = currentX - startX;
-    const rotate = dx * 0.04;
+    const dy = currentY - startY;
+    if (Math.abs(dx) < Math.abs(dy) && Math.abs(dy) > 20) return; // scroll-like
+    const rotate = dx * 0.045;
     els.card.style.transform = `translateX(${dx}px) rotate(${rotate}deg)`;
-    els.card.style.opacity = `${1 - Math.min(Math.abs(dx) / 300, 0.45)}`;
-    els.card.classList.toggle("yep", dx > 40);
-    els.card.classList.toggle("nope", dx < -40);
+    els.card.style.opacity = `${1 - Math.min(Math.abs(dx) / 260, 0.42)}`;
+    els.card.classList.toggle("yep", dx > 35);
+    els.card.classList.toggle("nope", dx < -35);
   }
 
   function onPointerUp() {
@@ -720,17 +786,11 @@
     els.card.classList.remove("dragging", "yep", "nope");
     if (currentX != null && startX != null) {
       const dx = currentX - startX;
-      if (dx > 90) {
-        handleAnswer(false);
-      } else if (dx < -90) {
-        handleAnswer(true);
-      } else {
-        els.card.style.transform = "";
-        els.card.style.opacity = "1";
-      }
+      if (dx > 90) handleAnswer(false);
+      else if (dx < -90) handleAnswer(true);
+      else { els.card.style.transform = ""; els.card.style.opacity = "1"; }
     }
-    startX = null;
-    currentX = null;
+    startX = startY = currentX = currentY = null;
   }
 
   els.card.addEventListener("mousedown", onPointerDown);
@@ -740,13 +800,13 @@
   window.addEventListener("mouseup", onPointerUp);
   window.addEventListener("touchend", onPointerUp);
 
-  els.btnStart.addEventListener("click", () => {
-    const mode = els.modeSelector ? els.modeSelector.value : "normal";
-    resetGame(mode);
-  });
+  els.btnStart.addEventListener("click", () => resetGame(els.modeSelector.value));
   els.btnPlayAgain.addEventListener("click", () => resetGame(state.mode || "normal"));
+  els.btnShare.addEventListener("click", shareScore);
   els.btnResume.addEventListener("click", resumeGame);
   els.btnRestartFromPause.addEventListener("click", () => resetGame(state.mode || "normal"));
+  els.btnTutorial.addEventListener("click", showTutorial);
+  els.btnTutorialClose.addEventListener("click", () => els.tutorialOverlay.classList.add("hidden"));
   els.btnFraud.addEventListener("click", () => handleAnswer(true));
   els.btnNah.addEventListener("click", () => handleAnswer(false));
 
@@ -759,46 +819,24 @@
   }
 
   document.addEventListener("keydown", (e) => {
-    if (state.status === "start" && e.key === "Enter") {
-      const mode = els.modeSelector ? els.modeSelector.value : "normal";
-      resetGame(mode);
-      return;
-    }
-    if (state.status === "over" && e.key === "Enter") {
-      resetGame(state.mode || "normal");
-      return;
-    }
+    if (state.status === "start" && e.key === "Enter") { resetGame(els.modeSelector.value); return; }
+    if (state.status === "over" && e.key === "Enter") { resetGame(state.mode || "normal"); return; }
     if (state.status !== "playing") return;
-    if (e.key === "ArrowLeft" || e.key.toLowerCase() === "a") {
-      e.preventDefault();
-      handleAnswer(true);
-    } else if (e.key === "ArrowRight" || e.key.toLowerCase() === "d") {
-      e.preventDefault();
-      handleAnswer(false);
-    } else if (e.key === "Escape") {
-      pauseGame();
-    }
+    if (e.key === "ArrowLeft" || e.key.toLowerCase() === "a") { e.preventDefault(); handleAnswer(true); }
+    else if (e.key === "ArrowRight" || e.key.toLowerCase() === "d") { e.preventDefault(); handleAnswer(false); }
+    else if (e.key === "Escape") pauseGame();
   });
 
-  document.addEventListener("visibilitychange", () => {
-    if (document.hidden && state.status === "playing") pauseGame();
-  });
+  document.addEventListener("visibilitychange", () => { if (document.hidden && state.status === "playing") pauseGame(); });
 
   // ===========================
   // INIT
   // ===========================
   const progress = loadProgress();
-  els.cardSender.textContent = "Ready?";
-  els.cardText.textContent = "Pick a mode and press Start.";
-  els.cardClues.innerHTML = "";
-  els.cardClues.classList.add("hidden");
-  els.cardHint.textContent = "";
-  els.cardBadge.innerHTML = `<span class="cat-dot"></span>Daily · 0/0`;
-  if (els.dailyBadge) els.dailyBadge.classList.add("hidden");
-
-  // Show lifetime stats on start overlay if available
-  const statsEl = document.getElementById("lifetimeStats");
-  if (statsEl && progress.gamesPlayed) {
-    statsEl.innerHTML = `Games: <strong>${progress.gamesPlayed}</strong> · Best: <strong>${progress.bestScore || 0}</strong>`;
+  if (els.lifetimeStats && progress.gamesPlayed) {
+    els.lifetimeStats.innerHTML = `Games: <strong>${progress.gamesPlayed}</strong> · Best: <strong>${progress.bestScore || 0}</strong>`;
   }
+  renderHearts();
+  updateHud();
+  showApp();
 })();
