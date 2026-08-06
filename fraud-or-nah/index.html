@@ -10,7 +10,25 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <svg width="0" height="0" class="icon-sprite" aria-hidden="true">
+    <defs>
+      <symbol id="icon-phishing" viewBox="0 0 40 40"><path d="M20 4c-8 0-14 6-14 13 0 5 3 9 7 11l-3 8 9-5c.7.1 1.4.2 2.1.2 8 0 14-6 14-13S28 4 20 4z" fill="none" stroke="currentColor" stroke-width="2.5"/><circle cx="15" cy="17" r="2" fill="currentColor"/><path d="M14 24c2 2 6 2 8 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+      <symbol id="icon-ecommerce" viewBox="0 0 40 40"><rect x="8" y="12" width="24" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="2.5"/><path d="M8 16h24M14 10V8a6 6 0 0112 0v2" fill="none" stroke="currentColor" stroke-width="2.5"/><circle cx="16" cy="25" r="2" fill="currentColor"/><circle cx="24" cy="25" r="2" fill="currentColor"/></symbol>
+      <symbol id="icon-investment" viewBox="0 0 40 40"><path d="M6 30l10-12 6 6 12-14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M30 10h6v6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+      <symbol id="icon-romance" viewBox="0 0 40 40"><path d="M20 34l-2.2-2C10 25 6 20.5 6 16a8 8 0 0113.3-6L20 11.8l.7-1.8A8 8 0 0134 16c0 4.5-4 9-11.8 16L20 34z" fill="currentColor"/></symbol>
+      <symbol id="icon-job" viewBox="0 0 40 40"><rect x="8" y="14" width="24" height="18" rx="3" fill="none" stroke="currentColor" stroke-width="2.5"/><path d="M14 14v-3a6 6 0 0112 0v3" fill="none" stroke="currentColor" stroke-width="2.5"/><circle cx="20" cy="23" r="3" fill="currentColor"/></symbol>
+      <symbol id="icon-tech" viewBox="0 0 40 40"><rect x="6" y="8" width="28" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="2.5"/><path d="M14 34h12M20 28v6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><circle cx="20" cy="18" r="3" fill="currentColor"/></symbol>
+      <symbol id="icon-social" viewBox="0 0 40 40"><circle cx="20" cy="12" r="5" fill="currentColor"/><path d="M8 34c0-8 5-12 12-12s12 4 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></symbol>
+      <symbol id="icon-crypto" viewBox="0 0 40 40"><circle cx="20" cy="20" r="14" fill="none" stroke="currentColor" stroke-width="2.5"/><path d="M20 12v16M17 14h4.5a3.5 3.5 0 010 7H17M17 21h5a3.5 3.5 0 010 7H17" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></symbol>
+      <symbol id="icon-government" viewBox="0 0 40 40"><path d="M20 6L6 14v4h28v-4L20 6z" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/><path d="M10 18v12M18 18v12M22 18v12M30 18v12M6 32h28" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></symbol>
+      <symbol id="icon-charity" viewBox="0 0 40 40"><circle cx="20" cy="14" r="6" fill="currentColor"/><path d="M8 34c0-8 5-12 12-12s12 4 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><path d="M26 10l4-4M14 10l-4-4" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></symbol>
+    </defs>
+  </svg>
+
   <div class="ambient-bg">
+    <div class="parallax-layer layer-1" data-speed="0.03"></div>
+    <div class="parallax-layer layer-2" data-speed="0.08"></div>
+    <div class="parallax-layer layer-3" data-speed="0.15"></div>
     <div class="orb orb-1"></div>
     <div class="orb orb-2"></div>
     <div class="orb orb-3"></div>
@@ -29,7 +47,10 @@
   <main class="shell hidden" id="shell">
     <header class="hud">
       <div class="brand">
-        <img src="assets/moneybot-logo-avatar.png" alt="MoneyBot" class="mascot" id="mascot" />
+        <div class="mascot-wrap" id="mascotWrap">
+          <img src="assets/moneybot-logo-avatar.png" alt="MoneyBot" class="mascot" id="mascot" />
+          <div class="mascot-glow"></div>
+        </div>
         <div class="brand-text">
           <p class="eyebrow">MoneyBot Arcade</p>
           <h1>Fraud or Nah</h1>
@@ -54,6 +75,7 @@
         <div class="card card-next" id="cardNext"></div>
         <div class="card" id="card" role="button" tabindex="0" aria-label="Swipe or choose Fraud or Nah">
           <div class="card-shine"></div>
+          <div class="card-pattern" id="cardPattern"></div>
           <div class="card-badge" id="cardBadge">Message</div>
           <div class="card-sender" id="cardSender">...</div>
           <div class="card-body">
@@ -66,7 +88,7 @@
         </div>
       </div>
 
-      <div class="combo-flame hidden" id="comboFlame">🔥 <span>Combo x3</span></div>
+      <div class="combo-flame hidden" id="comboFlame"><span class="flame-icon">🔥</span><span>Combo x3</span></div>
 
       <div class="verdict-zone">
         <button class="btn-fraud" id="btnFraud" aria-label="Mark as fraud">
@@ -82,7 +104,9 @@
 
     <section class="overlay" id="startOverlay">
       <div class="modal">
-        <img src="assets/moneybot-logo-avatar.png" alt="MoneyBot mascot" class="modal-mascot" />
+        <div class="modal-mascot-wrap">
+          <img src="assets/moneybot-logo-avatar.png" alt="MoneyBot mascot" class="modal-mascot" />
+        </div>
         <h2>Spot the scam.</h2>
         <p>Messages drop in. Some are real. Some are traps. Call <strong>Fraud</strong> or <strong>Nah</strong> before your trust runs out.</p>
 
@@ -134,7 +158,9 @@
 
     <section class="overlay hidden" id="resultOverlay">
       <div class="modal result-modal">
-        <img src="assets/moneybot-logo-avatar.png" alt="MoneyBot mascot" class="modal-mascot" id="resultMascot" />
+        <div class="modal-mascot-wrap">
+          <img src="assets/moneybot-logo-avatar.png" alt="MoneyBot mascot" class="modal-mascot" id="resultMascot" />
+        </div>
         <h2 id="resultTitle">Round Over</h2>
         <p id="resultMessage">Let's see how you did.</p>
         <div class="radar-ring" id="radarRing">

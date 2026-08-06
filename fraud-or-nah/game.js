@@ -5,16 +5,16 @@
   // DATA: 60 cards across 10 scam categories
   // ===========================
   const CATEGORIES = {
-    phishing: { label: "Phishing", icon: "🎣", color: "#38BDF8" },
-    ecommerce: { label: "E-Commerce", icon: "📦", color: "#FBBF24" },
-    investment: { label: "Investment", icon: "📈", color: "#A78BFA" },
-    romance: { label: "Romance", icon: "💔", color: "#FB7185" },
-    job: { label: "Job Scam", icon: "💼", color: "#34D399" },
-    tech: { label: "Tech Support", icon: "🖥", color: "#94A3B8" },
-    social: { label: "Social", icon: "💬", color: "#F472B6" },
-    crypto: { label: "Crypto", icon: "₿", color: "#F59E0B" },
-    government: { label: "Government", icon: "🏛", color: "#60A5FA" },
-    charity: { label: "Charity", icon: "🤝", color: "#22D3EE" },
+    phishing: { label: "Phishing", color: "#38BDF8", pattern: "radial-gradient(circle, rgba(56,189,248,0.15) 2px, transparent 2px)" },
+    ecommerce: { label: "E-Commerce", color: "#FBBF24", pattern: "repeating-linear-gradient(45deg, rgba(251,191,36,0.08) 0, rgba(251,191,36,0.08) 2px, transparent 2px, transparent 10px)" },
+    investment: { label: "Investment", color: "#A78BFA", pattern: "linear-gradient(0deg, transparent 49%, rgba(167,139,250,0.1) 50%, transparent 51%)" },
+    romance: { label: "Romance", color: "#FB7185", pattern: "radial-gradient(circle at 50% 50%, rgba(251,113,133,0.12) 20%, transparent 21%)" },
+    job: { label: "Job Scam", color: "#34D399", pattern: "repeating-linear-gradient(90deg, rgba(52,211,153,0.08) 0, rgba(52,211,153,0.08) 1px, transparent 1px, transparent 14px)" },
+    tech: { label: "Tech Support", color: "#94A3B8", pattern: "repeating-linear-gradient(0deg, rgba(148,163,184,0.08) 0, rgba(148,163,184,0.08) 1px, transparent 1px, transparent 14px)" },
+    social: { label: "Social", color: "#F472B6", pattern: "radial-gradient(circle, rgba(244,114,182,0.12) 2px, transparent 2px)" },
+    crypto: { label: "Crypto", color: "#F59E0B", pattern: "repeating-linear-gradient(45deg, rgba(245,158,11,0.08) 0, rgba(245,158,11,0.08) 2px, transparent 2px, transparent 8px)" },
+    government: { label: "Government", color: "#60A5FA", pattern: "linear-gradient(90deg, transparent 49%, rgba(96,165,250,0.1) 50%, transparent 51%)" },
+    charity: { label: "Charity", color: "#22D3EE", pattern: "radial-gradient(circle at 25% 25%, rgba(34,211,238,0.12) 20%, transparent 21%)" },
   };
 
   const RAW_CARDS = [
@@ -101,24 +101,13 @@
   // STATE
   // ===========================
   const state = {
-    deck: [],
-    index: 0,
-    score: 0,
-    hearts: 4,
-    maxHearts: 4,
-    streak: 0,
-    bestStreak: 0,
-    correct: 0,
-    wrong: 0,
-    mode: "normal",
-    status: "start",
-    startTime: 0,
-    categoryStats: {},
-    sessionBadges: [],
-    _answering: false,
+    deck: [], index: 0, score: 0, hearts: 4, maxHearts: 4,
+    streak: 0, bestStreak: 0, correct: 0, wrong: 0,
+    mode: "normal", status: "start", startTime: 0,
+    categoryStats: {}, sessionBadges: [], _answering: false,
   };
 
-  const STORAGE_KEY = "fraud-or-nah-v3";
+  const STORAGE_KEY = "***";
   const MODES = {
     easy: { count: 15, maxDifficulty: 2, hearts: 5 },
     normal: { count: 25, maxDifficulty: 3, hearts: 4 },
@@ -126,28 +115,15 @@
     daily: { count: 20, maxDifficulty: 3, hearts: 4 },
   };
 
-  function loadProgress() {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      return raw ? JSON.parse(raw) : {};
-    } catch { return {}; }
-  }
-  function saveProgress(data) {
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch {}
-  }
-  function getDailySeed() {
-    const d = new Date();
-    return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
-  }
+  function loadProgress() { try { const r = localStorage.getItem(STORAGE_KEY); return r ? JSON.parse(r) : {}; } catch { return {}; } }
+  function saveProgress(data) { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch {} }
+  function getDailySeed() { const d = new Date(); return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`; }
 
   // ===========================
   // PREMIUM AUDIO ENGINE
   // ===========================
   const AudioEngine = (() => {
-    let ctx = null;
-    let master = null;
-    let musicNodes = [];
-    let enabled = true;
+    let ctx = null, master = null, musicNodes = [], enabled = true;
 
     function init() {
       if (ctx) return;
@@ -183,41 +159,18 @@
       notes.forEach((f, i) => tone({ freq: f, type, duration, peak: peak - i * 0.02, delay: i * 0.025 }));
     }
 
-    function correct() {
-      chord([523.25, 659.25, 783.99], { duration: 0.3, peak: 0.22 });
-      setTimeout(() => chord([783.99, 987.77, 1174.66], { duration: 0.35, peak: 0.18 }), 90);
-    }
-
-    function wrong() {
-      tone({ freq: 196, type: "sawtooth", duration: 0.32, peak: 0.2, slideTo: 98 });
-      setTimeout(() => tone({ freq: 92, type: "sawtooth", duration: 0.45, peak: 0.15 }), 120);
-    }
-
+    function correct() { chord([523.25, 659.25, 783.99], { duration: 0.3, peak: 0.22 }); setTimeout(() => chord([783.99, 987.77, 1174.66], { duration: 0.35, peak: 0.18 }), 90); }
+    function wrong() { tone({ freq: 196, type: "sawtooth", duration: 0.32, peak: 0.2, slideTo: 98 }); setTimeout(() => tone({ freq: 92, type: "sawtooth", duration: 0.45, peak: 0.15 }), 120); }
     function swipe() { tone({ freq: 300, type: "triangle", duration: 0.08, peak: 0.08, slideTo: 220 }); }
-
-    function win() {
-      const progression = [[523, 659, 784], [659, 784, 1047], [784, 1047, 1319], [1047, 1319, 1568]];
-      progression.forEach((notes, i) => setTimeout(() => chord(notes, { duration: 0.4, peak: 0.2 }), i * 110));
-    }
-
-    function lose() {
-      const progression = [[392, 311, 247], [349, 293, 233], [311, 261, 207], [261, 220, 174]];
-      progression.forEach((notes, i) => setTimeout(() => chord(notes, { duration: 0.45, peak: 0.16 }), i * 130));
-    }
-
-    function badge() {
-      [523, 659, 784, 1047, 1319].forEach((f, i) => setTimeout(() => tone({ freq: f, type: "sine", duration: 0.12, peak: 0.18 }), i * 70));
-    }
-
-    function heartLoss() {
-      tone({ freq: 150, type: "square", duration: 0.25, peak: 0.16, slideTo: 80 });
-    }
+    function win() { const p = [[523,659,784],[659,784,1047],[784,1047,1319],[1047,1319,1568]]; p.forEach((n,i) => setTimeout(() => chord(n,{duration:.4,peak:.2}), i*110)); }
+    function lose() { const p = [[392,311,247],[349,293,233],[311,261,207],[261,220,174]]; p.forEach((n,i) => setTimeout(() => chord(n,{duration:.45,peak:.16}), i*130)); }
+    function badge() { [523,659,784,1047,1319].forEach((f,i) => setTimeout(() => tone({freq:f,type:"sine",duration:.12,peak:.18}), i*70)); }
+    function heartLoss() { tone({ freq: 150, type: "square", duration: 0.25, peak: 0.16, slideTo: 80 }); }
 
     function startMusic() {
       if (!enabled || !ctx || musicNodes.length) return;
       const root = 110;
-      const ratios = [1, 1.5, 2, 2.5];
-      ratios.forEach((r, i) => {
+      [1, 1.5, 2, 2.5].forEach((r, i) => {
         const osc = ctx.createOscillator();
         const g = ctx.createGain();
         osc.type = i % 2 === 0 ? "sine" : "triangle";
@@ -227,29 +180,17 @@
         osc.start();
         musicNodes.push({ osc, g });
       });
-      // Slow LFO filter sweep
       const lfo = ctx.createOscillator();
-      lfo.type = "sine";
-      lfo.frequency.value = 0.08;
-      const lfoGain = ctx.createGain();
-      lfoGain.gain.value = 8;
+      lfo.type = "sine"; lfo.frequency.value = 0.08;
+      const lfoGain = ctx.createGain(); lfoGain.gain.value = 8;
       lfo.connect(lfoGain);
       musicNodes.forEach(({ osc }) => lfoGain.connect(osc.frequency));
       lfo.start();
       musicNodes.push({ osc: lfo });
     }
 
-    function stopMusic() {
-      musicNodes.forEach((n) => { try { n.osc.stop(); } catch {} });
-      musicNodes = [];
-    }
-
-    function toggle() {
-      enabled = !enabled;
-      if (!enabled) stopMusic();
-      else if (ctx) startMusic();
-      return enabled;
-    }
+    function stopMusic() { musicNodes.forEach((n) => { try { n.osc.stop(); } catch {} }); musicNodes = []; }
+    function toggle() { enabled = !enabled; if (!enabled) stopMusic(); else if (ctx) startMusic(); return enabled; }
 
     return { init, correct, wrong, swipe, win, lose, badge, heartLoss, startMusic, stopMusic, toggle };
   })();
@@ -259,23 +200,9 @@
   // ===========================
   // UTILS
   // ===========================
-  function stringHash(str) {
-    let h = 0;
-    for (let i = 0; i < str.length; i++) h = (h << 5) - h + str.charCodeAt(i);
-    return Math.abs(h);
-  }
-  function seededRandom(seed) {
-    let s = seed;
-    return () => { s = (s * 9301 + 49297) % 233280; return s / 233280; };
-  }
-  function shuffle(arr, rng = Math.random) {
-    const a = arr.slice();
-    for (let i = a.length - 1; i > 0; i--) {
-      const j = Math.floor(rng() * (i + 1));
-      [a[i], a[j]] = [a[j], a[i]];
-    }
-    return a;
-  }
+  function stringHash(str) { let h = 0; for (let i = 0; i < str.length; i++) h = (h << 5) - h + str.charCodeAt(i); return Math.abs(h); }
+  function seededRandom(seed) { let s = seed; return () => { s = (s * 9301 + 49297) % 233280; return s / 233280; }; }
+  function shuffle(arr, rng = Math.random) { const a = arr.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
 
   // ===========================
   // DOM
@@ -290,6 +217,7 @@
     progress: document.getElementById("progress"),
     card: document.getElementById("card"),
     cardNext: document.getElementById("cardNext"),
+    cardPattern: document.getElementById("cardPattern"),
     cardSender: document.getElementById("cardSender"),
     cardText: document.getElementById("cardText"),
     cardClues: document.getElementById("cardClues"),
@@ -325,6 +253,31 @@
     lifetimeStats: document.getElementById("lifetimeStats"),
   };
 
+  const parallaxLayers = document.querySelectorAll(".parallax-layer");
+
+  // ===========================
+  // PARALLAX
+  // ===========================
+  function updateParallax(x, y) {
+    const cx = window.innerWidth / 2;
+    const cy = window.innerHeight / 2;
+    const px = (x - cx) / cx;
+    const py = (y - cy) / cy;
+    parallaxLayers.forEach((layer) => {
+      const speed = parseFloat(layer.dataset.speed) || 0.05;
+      const tx = px * speed * -80;
+      const ty = py * speed * -60;
+      layer.style.transform = `translate3d(${tx}px, ${ty}px, 0)`;
+    });
+  }
+
+  window.addEventListener("mousemove", (e) => requestAnimationFrame(() => updateParallax(e.clientX, e.clientY)));
+  window.addEventListener("deviceorientation", (e) => {
+    const x = ((e.gamma || 0) + 45) / 90 * window.innerWidth;
+    const y = ((e.beta || 45) - 15) / 60 * window.innerHeight;
+    requestAnimationFrame(() => updateParallax(x, y));
+  });
+
   // ===========================
   // SPLASH
   // ===========================
@@ -332,7 +285,7 @@
     setTimeout(() => {
       els.splash.classList.add("hidden");
       els.shell.classList.remove("hidden");
-    }, 1200);
+    }, 1400);
   }
 
   // ===========================
@@ -378,7 +331,7 @@
   }
 
   function buildDailyDeck() {
-    const rng = seededRandom(stringHash(getDailySeed() + "fraud-or-nah-v3"));
+    const rng = seededRandom(stringHash(getDailySeed() + "fraud-or-nah-v4"));
     const pool = shuffle(RAW_CARDS.filter((c) => c.difficulty <= 3), rng);
     return pool.slice(0, MODES.daily.count);
   }
@@ -389,14 +342,10 @@
     const cfg = MODES[mode];
     state.mode = mode;
     state.deck = mode === "daily" ? buildDailyDeck() : buildDeck(mode);
-    state.index = 0;
-    state.score = 0;
-    state.maxHearts = cfg.hearts;
-    state.hearts = cfg.hearts;
-    state.streak = 0;
-    state.bestStreak = 0;
-    state.correct = 0;
-    state.wrong = 0;
+    state.index = 0; state.score = 0;
+    state.maxHearts = cfg.hearts; state.hearts = cfg.hearts;
+    state.streak = 0; state.bestStreak = 0;
+    state.correct = 0; state.wrong = 0;
     state.status = "playing";
     state.startTime = Date.now();
     state.categoryStats = {};
@@ -426,25 +375,32 @@
   function renderCard() {
     const item = state.deck[state.index];
     if (!item) return;
-    els.card.classList.remove("fly-left", "fly-right", "nope", "yep");
+    const cat = CATEGORIES[item.category];
+    els.card.className = "card";
     els.card.style.transform = "";
     els.card.style.opacity = "1";
-    els.cardSender.innerHTML = `<span class="sender-avatar">${CATEGORIES[item.category].icon}</span>${item.sender}`;
+    els.card.classList.add(`cat-${item.category}`);
+    els.cardPattern.style.backgroundImage = cat.pattern;
+    els.cardPattern.style.backgroundSize = "24px 24px";
+    els.cardSender.innerHTML = `<span class="sender-avatar"><svg><use href="#icon-${item.category}"/></svg></span>${item.sender}`;
     els.cardText.textContent = item.text;
     els.cardHint.textContent = "";
     els.cardHint.classList.remove("show");
     els.cardClues.innerHTML = "";
     els.cardClues.classList.add("hidden");
-    const cat = CATEGORIES[item.category];
     els.cardBadge.innerHTML = `<span class="cat-dot cat-${item.category}"></span>${cat.label} · ${state.index + 1}/${state.deck.length}`;
     renderNextCard();
   }
 
   function renderNextCard() {
     const next = state.deck[state.index + 1];
-    els.cardNext.innerHTML = next
-      ? `<div class="next-sender">${CATEGORIES[next.category].icon} ${next.sender}</div>`
-      : "";
+    if (next) {
+      const cat = CATEGORIES[next.category];
+      els.cardNext.innerHTML = `<div class="next-sender"><span class="sender-avatar"><svg><use href="#icon-${next.category}"/></svg></span>${next.sender}</div>`;
+      els.cardNext.className = `card card-next cat-${next.category}`;
+    } else {
+      els.cardNext.innerHTML = "";
+    }
   }
 
   function revealClues(item) {
@@ -459,9 +415,8 @@
   }
 
   function setMascot(mode) {
-    els.mascot.classList.remove("facepalm", "celebrate");
-    if (mode === "facepalm") els.mascot.classList.add("facepalm");
-    if (mode === "celebrate") els.mascot.classList.add("celebrate");
+    els.mascot.classList.remove("facepalm", "celebrate", "think", "shock");
+    if (mode) els.mascot.classList.add(mode);
   }
 
   // ===========================
@@ -469,25 +424,25 @@
   // ===========================
   function screenFlash(color) {
     const flash = document.createElement("div");
-    flash.style.cssText = `position:fixed;inset:0;background:${color};opacity:.16;pointer-events:none;z-index:100;transition:opacity 320ms ease;`;
+    flash.style.cssText = `position:fixed;inset:0;background:${color};opacity:.14;pointer-events:none;z-index:100;transition:opacity 360ms ease;`;
     document.body.appendChild(flash);
     requestAnimationFrame(() => (flash.style.opacity = "0"));
-    setTimeout(() => flash.remove(), 350);
+    setTimeout(() => flash.remove(), 380);
   }
 
   function screenShake() {
     els.shell.animate([
       { transform: "translate(0,0)" },
-      { transform: "translate(-7px, 5px)" },
-      { transform: "translate(7px, -5px)" },
+      { transform: "translate(-8px, 6px)" },
+      { transform: "translate(8px, -6px)" },
       { transform: "translate(-5px, 4px)" },
       { transform: "translate(0,0)" },
-    ], { duration: 280, easing: "ease-out" });
+    ], { duration: 300, easing: "ease-out" });
   }
 
   function spawnConfetti() {
     const colors = ["#00E676", "#FBBF24", "#38BDF8", "#A78BFA"];
-    for (let i = 0; i < 100; i++) {
+    for (let i = 0; i < 120; i++) {
       const c = document.createElement("div");
       c.className = "particle";
       c.style.background = colors[Math.floor(Math.random() * colors.length)];
@@ -496,7 +451,7 @@
       c.style.width = `${6 + Math.random() * 10}px`;
       c.style.height = `${6 + Math.random() * 10}px`;
       document.body.appendChild(c);
-      const tx = (Math.random() - 0.5) * 360;
+      const tx = (Math.random() - 0.5) * 400;
       const rot = Math.random() * 720;
       c.animate([
         { transform: `translate(-50%, 0) rotate(0deg)`, opacity: 1 },
@@ -506,27 +461,28 @@
     }
   }
 
-  function spawnParticles(good) {
-    const color = good ? "#00E676" : "#FB7185";
+  function spawnParticles(good, categoryColor) {
+    const color = good ? (categoryColor || "#00E676") : "#FB7185";
     const rect = els.card.getBoundingClientRect();
     const cx = rect.left + rect.width / 2;
     const cy = rect.top + rect.height / 2;
-    for (let i = 0; i < 22; i++) {
+    for (let i = 0; i < 24; i++) {
       const p = document.createElement("div");
       p.className = "particle";
       p.style.background = color;
+      p.style.boxShadow = `0 0 10px ${color}`;
       p.style.left = `${cx}px`;
       p.style.top = `${cy}px`;
       const angle = Math.random() * Math.PI * 2;
-      const dist = 60 + Math.random() * 130;
+      const dist = 70 + Math.random() * 140;
       const tx = Math.cos(angle) * dist;
       const ty = Math.sin(angle) * dist;
       p.animate([
         { transform: "translate(-50%, -50%) scale(1)", opacity: 1 },
         { transform: `translate(calc(-50% + ${tx}px), calc(-50% + ${ty}px)) scale(0)`, opacity: 0 },
-      ], { duration: 600 + Math.random() * 250, easing: "ease-out", fill: "forwards" });
+      ], { duration: 650 + Math.random() * 250, easing: "ease-out", fill: "forwards" });
       document.body.appendChild(p);
-      setTimeout(() => p.remove(), 900);
+      setTimeout(() => p.remove(), 950);
     }
   }
 
@@ -536,17 +492,17 @@
     el.textContent = text;
     els.card.appendChild(el);
     requestAnimationFrame(() => el.classList.add("rise"));
-    setTimeout(() => el.remove(), 700);
+    setTimeout(() => el.remove(), 720);
   }
 
   function updateComboFlame() {
     if (state.streak >= 3) {
       els.comboFlame.classList.remove("hidden");
       requestAnimationFrame(() => els.comboFlame.classList.add("show"));
-      els.comboFlame.innerHTML = `🔥 <span>Combo x${state.streak}</span>`;
+      els.comboFlame.innerHTML = `<span class="flame-icon">🔥</span><span>Combo x${state.streak}</span>`;
     } else {
       els.comboFlame.classList.remove("show");
-      setTimeout(() => els.comboFlame.classList.add("hidden"), 200);
+      setTimeout(() => els.comboFlame.classList.add("hidden"), 220);
     }
   }
 
@@ -629,6 +585,7 @@
 
     const item = state.deck[state.index];
     const correct = item.fraud === isFraud;
+    const catColor = CATEGORIES[item.category].color;
 
     state.categoryStats[item.category] = state.categoryStats[item.category] || { correct: 0, total: 0 };
     state.categoryStats[item.category].total += 1;
@@ -643,10 +600,11 @@
       const points = 100 + comboBonus + timeBonus;
       state.score += points;
       showPop(`+${points}`, true);
-      spawnParticles(true);
+      spawnParticles(true, catColor);
       AudioEngine.correct();
       haptic([12, 36, 12]);
-      setMascot(state.streak >= 3 ? "celebrate" : "idle");
+      if (state.streak >= 3) setMascot("celebrate");
+      else setMascot("think");
       els.coachLine.textContent = ["Nice call.", "Scam radar on.", "You're getting sharper.", "Unstoppable.", "Legendary."][Math.min(state.streak - 1, 4)];
     } else {
       state.wrong += 1;
@@ -659,7 +617,7 @@
       AudioEngine.heartLoss();
       haptic([90, 70, 90]);
       screenShake();
-      screenFlash("rgba(251,113,133,0.22)");
+      screenFlash("rgba(251,113,133,0.2)");
       setMascot("facepalm");
       els.coachLine.textContent = "Oof. Read the clues and try again.";
     }
@@ -672,16 +630,10 @@
 
     setTimeout(() => {
       state._answering = false;
-      if (state.hearts <= 0) {
-        endGame(false);
-      } else if (state.index + 1 >= state.deck.length) {
-        endGame(true);
-      } else {
-        state.index += 1;
-        renderCard();
-        updateHud();
-      }
-    }, 1150);
+      if (state.hearts <= 0) endGame(false);
+      else if (state.index + 1 >= state.deck.length) endGame(true);
+      else { state.index += 1; renderCard(); updateHud(); }
+    }, 1200);
   }
 
   function revealHint(item, correct) {
@@ -714,6 +666,7 @@
       .map(([k]) => CATEGORIES[k].label);
 
     els.radarRing.style.setProperty("--score", `${rating.score}%`);
+    els.radarRing.style.setProperty("--ring-color", rating.color);
     els.radarScore.textContent = rating.score;
     els.radarLabel.textContent = rating.label;
     els.radarLabel.style.color = rating.color;
@@ -732,9 +685,8 @@
   function shareScore() {
     const rating = getRadarRating();
     const text = `I scored ${state.score} on Fraud or Nah (${rating.label} · ${rating.score}/100). Can you spot the scams? https://moneybot-games-deploy.vercel.app/fraud-or-nah/`;
-    if (navigator.share) {
-      navigator.share({ title: "Fraud or Nah", text });
-    } else if (navigator.clipboard) {
+    if (navigator.share) navigator.share({ title: "Fraud or Nah", text });
+    else if (navigator.clipboard) {
       navigator.clipboard.writeText(text).then(() => {
         const toast = document.createElement("div");
         toast.className = "badge-toast";
@@ -772,8 +724,8 @@
     currentY = e.clientY ?? e.touches?.[0]?.clientY;
     const dx = currentX - startX;
     const dy = currentY - startY;
-    if (Math.abs(dx) < Math.abs(dy) && Math.abs(dy) > 20) return; // scroll-like
-    const rotate = dx * 0.045;
+    if (Math.abs(dx) < Math.abs(dy) && Math.abs(dy) > 20) return;
+    const rotate = dx * 0.05;
     els.card.style.transform = `translateX(${dx}px) rotate(${rotate}deg)`;
     els.card.style.opacity = `${1 - Math.min(Math.abs(dx) / 260, 0.42)}`;
     els.card.classList.toggle("yep", dx > 35);
