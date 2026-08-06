@@ -126,19 +126,26 @@
     let ctx = null, master = null, musicNodes = [], enabled = false;
 
     function init() {
-      if (ctx) return;
+      if (ctx) return true;
       const AC = window.AudioContext || window.webkitAudioContext;
-      if (!AC) return;
+      if (!AC) return false;
       ctx = new AC();
       master = ctx.createGain();
       master.gain.value = 0.22;
       master.connect(ctx.destination);
+      return true;
+    }
+
+    function ensureEnabled() {
+      // Audio is opt-in only. Never create AudioContext or play sounds unless explicitly toggled on.
+      if (!enabled) return false;
+      return init();
     }
 
     function now() { return ctx ? ctx.currentTime : 0; }
 
     function tone({ freq = 440, type = "sine", duration = 0.2, peak = 0.3, attack = 0.01, release = 0.14, slideTo, delay = 0 }) {
-      if (!enabled || !ctx) return;
+      if (!ensureEnabled()) return;
       if (ctx.state === "suspended") ctx.resume();
       const t = now() + delay;
       const osc = ctx.createOscillator();
@@ -155,7 +162,7 @@
     }
 
     function chord(notes, { duration = 0.35, peak = 0.18, type = "triangle" } = {}) {
-      if (!enabled || !ctx) return;
+      if (!ensureEnabled()) return;
       notes.forEach((f, i) => tone({ freq: f, type, duration, peak: peak - i * 0.02, delay: i * 0.025 }));
     }
 
@@ -168,7 +175,7 @@
     function heartLoss() { tone({ freq: 150, type: "square", duration: 0.25, peak: 0.16, slideTo: 80 }); }
 
     function startMusic() {
-      if (!enabled || !ctx || musicNodes.length) return;
+      if (!ensureEnabled() || musicNodes.length) return;
       const root = 110;
       [1, 1.5, 2, 2.5].forEach((r, i) => {
         const osc = ctx.createOscillator();
@@ -190,7 +197,12 @@
     }
 
     function stopMusic() { musicNodes.forEach((n) => { try { n.osc.stop(); } catch {} }); musicNodes = []; }
-    function toggle() { enabled = !enabled; if (!enabled) stopMusic(); else if (ctx) startMusic(); return enabled; }
+    function toggle() {
+      enabled = !enabled;
+      if (!enabled) { stopMusic(); }
+      else { init(); startMusic(); }
+      return enabled;
+    }
 
     return { init, correct, wrong, swipe, win, lose, badge, heartLoss, startMusic, stopMusic, toggle };
   })();
@@ -337,7 +349,7 @@
   }
 
   function resetGame(mode = "normal") {
-    AudioEngine.init();
+    // Audio is opt-in via the speaker toggle. Do not init AudioContext here.
     const cfg = MODES[mode];
     state.mode = mode;
     state.deck = mode === "daily" ? buildDailyDeck() : buildDeck(mode);
@@ -762,10 +774,12 @@
   els.btnNah.addEventListener("click", () => handleAnswer(false));
 
   if (els.audioToggle) {
+    els.audioToggle.setAttribute("aria-label", "Sound off. Tap to enable.");
     els.audioToggle.addEventListener("click", () => {
       const on = AudioEngine.toggle();
       els.audioToggle.textContent = on ? "🔊" : "🔇";
       els.audioToggle.setAttribute("aria-pressed", String(on));
+      els.audioToggle.setAttribute("aria-label", on ? "Sound on" : "Sound off");
     });
   }
 
