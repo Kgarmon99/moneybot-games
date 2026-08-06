@@ -123,7 +123,7 @@
   // PREMIUM AUDIO ENGINE
   // ===========================
   const AudioEngine = (() => {
-    let ctx = null, master = null, musicNodes = [], enabled = true;
+    let ctx = null, master = null, musicNodes = [], enabled = false;
 
     function init() {
       if (ctx) return;
@@ -338,7 +338,6 @@
 
   function resetGame(mode = "normal") {
     AudioEngine.init();
-    AudioEngine.startMusic();
     const cfg = MODES[mode];
     state.mode = mode;
     state.deck = mode === "daily" ? buildDailyDeck() : buildDeck(mode);
@@ -788,6 +787,7 @@
   if (els.lifetimeStats && progress.gamesPlayed) {
     els.lifetimeStats.innerHTML = `Games: <strong>${progress.gamesPlayed}</strong> · Best: <strong>${progress.bestScore || 0}</strong>`;
   }
+  if (els.audioToggle) { els.audioToggle.textContent = "🔇"; els.audioToggle.setAttribute("aria-pressed", "false"); }
   renderHearts();
   updateHud();
   showApp();
