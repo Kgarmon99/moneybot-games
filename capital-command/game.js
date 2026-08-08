@@ -18,6 +18,10 @@ const els = {
   learnValue: document.querySelector("#learnValue"),
   riskValue: document.querySelector("#riskValue"),
   pauseButton: document.querySelector("#pauseButton"),
+  soundButton: document.querySelector("#soundButton"),
+  pauseModal: document.querySelector("#pauseModal"),
+  resumeButton: document.querySelector("#resumeButton"),
+  pauseRestartButton: document.querySelector("#pauseRestartButton"),
   restartButton: document.querySelector("#restartButton"),
   deployButton: document.querySelector("#deployButton"),
   startModal: document.querySelector("#startModal"),
@@ -53,6 +57,27 @@ const systems = {
 const keys = new Set();
 let state;
 let rafId = 0;
+let audioContext;
+let soundOn = localStorage.getItem("capitalCommandSound") === "on";
+
+function tone(frequency = 440, duration = 0.08, type = "sine") {
+  if (!soundOn) return;
+  audioContext ||= new (window.AudioContext || window.webkitAudioContext)();
+  const oscillator = audioContext.createOscillator();
+  const gain = audioContext.createGain();
+  oscillator.type = type;
+  oscillator.frequency.value = frequency;
+  gain.gain.setValueAtTime(0.05, audioContext.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration);
+  oscillator.connect(gain).connect(audioContext.destination);
+  oscillator.start(); oscillator.stop(audioContext.currentTime + duration);
+}
+
+function syncSoundButton() {
+  els.soundButton.textContent = soundOn ? "Sound on" : "Sound";
+  els.soundButton.setAttribute("aria-pressed", String(soundOn));
+  els.soundButton.setAttribute("aria-label", soundOn ? "Turn sound off" : "Turn sound on");
+}
 
 function freshState() {
   return {
@@ -79,7 +104,8 @@ function freshState() {
     streak: 0,
     score: 0,
     best: Number(localStorage.getItem("capitalCommandBest") || 0),
-    coachMood: 0
+    coachMood: 0,
+    shockWarned: false
   };
 }
 
@@ -164,9 +190,15 @@ function update(dt) {
   }
 
   state.shockTimer -= dt;
+  if (state.shockTimer <= 1.2 && !state.shockWarned) {
+    state.shockWarned = true;
+    toast("Risk storm incoming. Shield and diversify.");
+    tone(180, 0.2, "sawtooth");
+  }
   if (state.shockTimer <= 0) {
     applyShock();
     state.shockTimer = 7 + Math.random() * 5;
+    state.shockWarned = false;
   }
 
   state.waveTime -= dt;
@@ -177,10 +209,7 @@ function update(dt) {
     item.spin += dt * item.spinRate;
     const hit = Math.hypot(item.x - p.x, item.y - p.y) < item.r + p.r;
     if (hit) collectItem(item);
-    if (item.y > canvas.height + 40 && item.kind === "expense") {
-      item.dead = true;
-      payPressure(item.value, "Expense slipped through.");
-    }
+    if (item.y > canvas.height + 40) item.dead = true;
   }
 
   state.items = state.items.filter((item) => !item.dead && item.y < canvas.height + 60);
@@ -232,6 +261,7 @@ function collectItem(item) {
     state.held += item.value;
     state.score += 30;
     popup(`+${currency(item.value)}`, item.x, item.y, "#69f0ae");
+    tone(620, 0.07, "triangle");
     coach("Income is fuel. Route it into a system.");
   } else if (item.kind === "boost") {
     state.held += item.value;
@@ -259,6 +289,7 @@ function allocate(system) {
   document.querySelector(`[data-system="${system}"]`)?.classList.add("is-active");
   setTimeout(() => document.querySelector(`[data-system="${system}"]`)?.classList.remove("is-active"), 170);
   haptic(14);
+  tone(360 + Object.keys(systems).indexOf(system) * 55, 0.09, "triangle");
 
   if (system === "bills") {
     state.billsPaid += amount;
@@ -341,10 +372,8 @@ function nextWave() {
 function endGame(won, title, text) {
   state.mode = "over";
   const score = currentScore();
-  if (won) {
-    state.best = Math.max(state.best, score);
-    localStorage.setItem("capitalCommandBest", String(state.best));
-  }
+  state.best = Math.max(state.best, score);
+  localStorage.setItem("capitalCommandBest", String(state.best));
   showResult({
     eyebrow: won ? "Final score" : "Runway broke",
     title,
@@ -361,6 +390,7 @@ function applyShock() {
   if (state.shield >= mitigated) {
     state.shield -= mitigated;
     toast("Shield saved the month.");
+    tone(760, 0.18, "sine");
     coach("Emergency fund absorbed a shock.");
     burst(canvas.width * 0.5, 92, "#38bdf8", 22);
   } else {
@@ -403,12 +433,20 @@ function showResult({ eyebrow, title, text, final }) {
   openModal(els.resultModal);
 }
 
+let returnFocus;
 function openModal(modal) {
+  returnFocus = document.activeElement;
   modal.classList.add("is-open");
+  modal.setAttribute("aria-hidden", "false");
+  modal.inert = false;
+  modal.querySelector("button")?.focus();
 }
 
 function closeModal(modal) {
   modal.classList.remove("is-open");
+  modal.setAttribute("aria-hidden", "true");
+  modal.inert = true;
+  if (returnFocus && document.contains(returnFocus)) returnFocus.focus();
 }
 
 function renderHud() {
@@ -678,10 +716,22 @@ els.continueButton.addEventListener("click", () => {
   if (state.mode === "over") resetGame();
   else nextWave();
 });
-els.pauseButton.addEventListener("click", () => {
+function setPaused(paused) {
   if (state.mode !== "play") return;
-  state.paused = !state.paused;
-  coach(state.paused ? "Paused. The best money systems can stop and inspect." : "Back in command.");
+  state.paused = paused;
+  els.pauseButton.setAttribute("aria-label", paused ? "Resume game" : "Pause game");
+  if (paused) openModal(els.pauseModal); else closeModal(els.pauseModal);
+  coach(paused ? "Paused. Inspect the system before the next move." : "Back in command.");
+}
+
+els.pauseButton.addEventListener("click", () => setPaused(!state.paused));
+els.resumeButton.addEventListener("click", () => setPaused(false));
+els.pauseRestartButton.addEventListener("click", resetGame);
+els.soundButton.addEventListener("click", () => {
+  soundOn = !soundOn;
+  localStorage.setItem("capitalCommandSound", soundOn ? "on" : "off");
+  syncSoundButton();
+  if (soundOn) tone(520, 0.12, "triangle");
 });
 
 canvas.addEventListener("pointerdown", (event) => {
@@ -707,7 +757,7 @@ window.addEventListener("keydown", (event) => {
   keys.add(key);
   if (key === " ") {
     event.preventDefault();
-    if (state.mode === "play") state.paused = !state.paused;
+    if (state.mode === "play") setPaused(!state.paused);
   }
   if (/^[1-6]$/.test(key)) {
     event.preventDefault();
@@ -715,10 +765,12 @@ window.addEventListener("keydown", (event) => {
   }
 });
 
-window.addEventListener("keyup", (event) => {
-  keys.delete(event.key.toLowerCase());
+window.addEventListener("keyup", (event) => { keys.delete(event.key.toLowerCase()); });
+window.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && state.mode === "play") setPaused(!state.paused);
 });
 
 state = freshState();
+syncSoundButton();
 renderHud();
 draw();

@@ -5,7 +5,7 @@
 - **Target player:** Adults and founders who need to feel money tradeoffs quickly.
 - **Session length:** 2 minutes
 - **Platform:** mobile first, desktop supported
-- **Status:** good, pending Codex elite gate
+- **Status:** flagship migration candidate; ready for human playtest pending independent elite gate
 
 # 2. Money Concept
 
@@ -38,7 +38,7 @@
 - **Mascot role:** Avatar and coach
 - **MoneyBot colors used:** Green, dark ink, blue, gold, red, muted slate.
 - **Signature MoneyBot moment:** Emergency shield visibly absorbs a shock and the coach announces “Shield saved the month.”
-- **Assets required:** Lightweight SVG icons documented in `assets/README.md`; game objects drawn in canvas.
+- **Assets required:** Installed MoneyBot brand kit and official avatar; game objects remain lightweight canvas primitives.
 
 # 7. Screens
 
@@ -78,5 +78,5 @@
 - [x] MoneyBot brand is clear
 - [x] Final game copy and art primitives are in place
 - [x] No console errors
-- [ ] Codex challenge run
-- [ ] Known issues documented
+- [ ] Independent challenge review has no blocking issues
+- [x] Known issues documented in `MONEYBOT_GAME_QA.md`

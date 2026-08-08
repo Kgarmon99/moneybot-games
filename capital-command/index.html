@@ -4,22 +4,26 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#07111F" />
+    <meta name="description" content="Build a resilient fictional portfolio through fast cashflow, debt, emergency-fund, and diversification decisions." />
     <title>Capital Command | MoneyBot</title>
+    <link rel="stylesheet" href="./assets/moneybot/moneybot-game.css" />
     <link rel="stylesheet" href="./style.css" />
   </head>
   <body>
     <main class="game-shell" aria-label="Capital Command financial literacy game">
       <section class="topbar" aria-label="Game header">
         <div class="brand-lockup">
-          <div class="coach-mark" aria-hidden="true"><span class="visor"></span></div>
+          <img class="coach-mark" src="./assets/moneybot/assets/moneybot-logo-avatar.png" alt="" />
           <div>
             <p>MoneyBot</p>
             <h1>Capital Command</h1>
           </div>
         </div>
-        <button class="icon-button" id="pauseButton" type="button" aria-label="Pause game">
-          <span></span><span></span>
-        </button>
+        <div class="topbar-actions">
+          <a class="icon-button home-button" href="../moneybot-official/" aria-label="Back to MoneyBot Games">Home</a>
+          <button class="icon-button sound-button" id="soundButton" type="button" aria-label="Turn sound on" aria-pressed="false">Sound</button>
+          <button class="icon-button" id="pauseButton" type="button" aria-label="Pause game"><span></span><span></span></button>
+        </div>
       </section>
 
       <section class="hud-grid" aria-label="Financial dashboard">
@@ -52,7 +56,7 @@
       </section>
 
       <section class="coach-panel" aria-live="polite">
-        <div class="coach-avatar" aria-hidden="true"><span class="visor"></span></div>
+        <img class="coach-avatar" src="./assets/moneybot/assets/moneybot-logo-avatar.png" alt="MoneyBot coach" />
         <p id="coachText">Catch income, then tap a system. Bills protect today. Shields protect surprises.</p>
       </section>
 
@@ -100,17 +104,23 @@
       </section>
     </main>
 
-    <section class="modal is-open" id="startModal" aria-modal="true" role="dialog" aria-labelledby="startTitle">
+    <section class="modal is-open" id="startModal" aria-hidden="false" aria-modal="true" role="dialog" aria-labelledby="startTitle">
       <div class="modal-card">
-        <div class="modal-coach" aria-hidden="true"><span class="visor"></span></div>
-        <p class="eyebrow">MoneyBot arcade sim</p>
-        <h2 id="startTitle">Command the whole money system.</h2>
-        <p>Catch fictional income, avoid pressure, and allocate fast. Fragile upside loses. Resilient cashflow wins.</p>
+        <img class="modal-coach" src="./assets/moneybot/assets/moneybot-logo-avatar.png" alt="MoneyBot" />
+        <p class="eyebrow">MoneyBot arcade sim · fictional demo</p>
+        <h2 id="startTitle">Build resilience before chasing upside.</h2>
+        <p>Catch income, then route it. Cover bills, build a shield, reduce debt, and only then compound and diversify.</p>
+        <ol class="mission-list"><li>Drag or use WASD to catch income.</li><li>Tap a system or press 1–6 to allocate held cash.</li><li>Survive six increasingly difficult stress tests.</li></ol>
+        <p class="disclaimer">Educational content only. Not investment advice.</p>
         <button class="primary-button" id="startButton" type="button">Start command</button>
       </div>
     </section>
 
-    <section class="modal" id="resultModal" aria-modal="true" role="dialog" aria-labelledby="resultTitle">
+    <section class="modal" id="pauseModal" aria-hidden="true" inert aria-modal="true" role="dialog" aria-labelledby="pauseTitle">
+      <div class="modal-card"><p class="eyebrow">System inspection</p><h2 id="pauseTitle">Command paused.</h2><p>Check runway, bills, shield, debt, and risk before continuing.</p><button class="primary-button" id="resumeButton" type="button">Resume</button><button class="secondary-button" id="pauseRestartButton" type="button">Restart</button></div>
+    </section>
+
+    <section class="modal" id="resultModal" aria-hidden="true" inert aria-modal="true" role="dialog" aria-labelledby="resultTitle">
       <div class="modal-card">
         <p class="eyebrow" id="resultEyebrow">Wave clear</p>
         <h2 id="resultTitle">Runway up.</h2>
@@ -122,6 +132,7 @@
     </section>
 
     <div class="toast-layer" id="toastLayer" aria-live="polite"></div>
+    <script src="./assets/moneybot/moneybot-game-kit.js"></script>
     <script src="./game.js"></script>
   </body>
 </html>
