@@ -70,20 +70,24 @@
         .carousel-arrow.next { right: -10px; }
         
         /* ===== GAME CARD ===== */
-        .game-card { flex-shrink: 0; width: 200px; position: relative; color: #fff; transition: transform 0.2s, filter 0.2s; }
-        .game-card-link { display: block; color: inherit; text-decoration: none; }
+        .game-card { flex-shrink: 0; width: 232px; position: relative; color: #fff; transition: transform 0.2s, filter 0.2s; }
+        .game-card-link { display: block; height: 100%; color: inherit; text-decoration: none; }
         .game-card:hover { transform: translateY(-4px); filter: brightness(1.08); }
         .game-card:hover .game-title { color: #00ff88; }
-        .game-thumb { width: 200px; height: 130px; border-radius: 10px; overflow: hidden; position: relative; background: linear-gradient(135deg, #13261d, #0d1f0d); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 16px 34px rgba(0,0,0,0.28); }
+        .game-thumb { width: 232px; height: 142px; border-radius: 12px; overflow: hidden; position: relative; background: linear-gradient(135deg, #13261d, #0d1f0d); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 16px 34px rgba(0,0,0,0.28); }
         .game-thumb img { width: 100%; height: 100%; object-fit: cover; }
-        .game-thumb::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.32), transparent 58%); pointer-events: none; }
-        .game-thumb .diff { position: absolute; left: 9px; bottom: 9px; z-index: 1; font-size: 10px; font-weight: 900; padding: 4px 7px; text-transform: uppercase; border-radius: 999px; background: rgba(0,0,0,0.68); color: #fff; border: 1px solid rgba(255,255,255,0.16); }
+        .game-thumb::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.42), transparent 58%); pointer-events: none; }
+        .game-thumb .diff { position: absolute; left: 9px; bottom: 9px; z-index: 1; font-size: 10px; font-weight: 900; padding: 4px 7px; text-transform: uppercase; border-radius: 999px; background: rgba(0,0,0,0.72); color: #fff; border: 1px solid rgba(255,255,255,0.16); }
+        .status-badge { position: absolute; left: 9px; top: 9px; z-index: 2; border-radius: 999px; padding: 5px 8px; background: rgba(4,13,8,0.82); border: 1px solid rgba(105,240,174,0.36); color: #69f0ae; font-size: 9px; font-weight: 900; letter-spacing: 0.7px; text-transform: uppercase; }
+        .status-badge.flagship { background: #fbbf24; color: #171006; border-color: #fbbf24; }
         .fallback-thumb { height: 100%; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle at 50% 30%, rgba(0,255,136,0.28), transparent 46%), #101c16; color: #00ff88; font-size: 42px; font-weight: 900; }
         .favorite-btn { position: absolute; top: 8px; right: 8px; z-index: 3; width: 44px; height: 44px; border: 1px solid rgba(255,255,255,0.24); border-radius: 50%; color: #fff; background: rgba(0,0,0,0.72); cursor: pointer; font-size: 20px; display: grid; place-items: center; }
         .favorite-btn:hover, .favorite-btn[aria-pressed="true"] { color: #07110d; background: #fbbf24; border-color: #fbbf24; }
-        .game-info { padding: 8px 5px 0; }
-        .game-title { font-size: 13px; font-weight: 600; line-height: 1.3; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #fff; }
-        .game-tag { font-size: 11px; color: #7d9387; text-transform: capitalize; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .game-info { padding: 10px 5px 0; }
+        .game-title { font-size: 14px; font-weight: 800; line-height: 1.3; margin-bottom: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #fff; }
+        .game-meta { display: flex; gap: 7px; align-items: center; color: #8fa99b; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.35px; }
+        .game-objective { min-height: 36px; margin-top: 7px; color: #ccdad2; font-size: 12px; line-height: 1.45; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .topic-label { color: #69f0ae; }
         
         /* ===== HERO ===== */
         .launchpad { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(280px, 0.75fr); gap: 18px; margin-bottom: 34px; align-items: stretch; }
@@ -97,8 +101,10 @@
         .launch-btn { display: inline-flex; align-items: center; justify-content: center; min-height: 42px; border-radius: 10px; padding: 0 16px; color: #03110a; background: #00ff88; font-weight: 900; text-decoration: none; border: 1px solid #00ff88; }
         .launch-btn.secondary { background: rgba(0,0,0,0.35); color: #fff; border-color: rgba(255,255,255,0.2); }
         .learning-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: -16px 0 34px; }
-        .learning-chip { min-height: 72px; border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 12px; background: rgba(255,255,255,0.055); }
-        .learning-chip strong { display: block; color: #fff; font-size: 13px; margin-bottom: 5px; }
+        .learning-chip { min-height: 82px; width: 100%; text-align: left; cursor: pointer; color: inherit; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 14px; background: rgba(255,255,255,0.055); transition: transform 0.2s, border-color 0.2s, background 0.2s; }
+        .learning-chip:hover, .learning-chip:focus-visible { transform: translateY(-2px); border-color: rgba(0,255,136,0.48); background: rgba(0,255,136,0.09); }
+        .learning-chip strong { display: flex; justify-content: space-between; gap: 8px; color: #fff; font-size: 13px; margin-bottom: 5px; }
+        .learning-chip strong em { color: #00ff88; font-style: normal; }
         .learning-chip span { color: #9ab2a5; font-size: 12px; line-height: 1.35; }
         .stat-stack { display: grid; gap: 12px; }
         .stat-card { border: 1px solid rgba(255,255,255,0.12); border-radius: 14px; padding: 18px; background: rgba(5,10,8,0.7); box-shadow: inset 0 1px 0 rgba(255,255,255,0.06); }
@@ -135,8 +141,9 @@
             .stat-card { padding: 12px; }
             .stat-value { font-size: 22px; }
             .stat-label { font-size: 10px; }
-            .game-card { width: 150px; }
-            .game-thumb { width: 150px; height: 90px; }
+            .game-card { width: 190px; }
+            .game-thumb { width: 190px; height: 116px; }
+            .game-objective { min-height: 36px; -webkit-line-clamp: 2; }
             .hero-card { width: 260px; height: 150px; }
             .carousel-arrow { display: none; }
         }
@@ -181,17 +188,16 @@
     </nav>
     
     <div class="cat-bar">
-        <div class="cat-inner">
-            <button class="cat-btn active" data-filter="all" onclick="setFilter('all', this)"><span class="emoji">🔥</span>All <span class="cat-count" data-count="all">0</span></button>
-            <button class="cat-btn" data-filter="arcade" onclick="setFilter('arcade', this)"><span class="emoji">🎮</span>Arcade <span class="cat-count" data-count="arcade">0</span></button>
-            <button class="cat-btn" data-filter="simulation" onclick="setFilter('simulation', this)"><span class="emoji">📊</span>Sim <span class="cat-count" data-count="simulation">0</span></button>
-            <button class="cat-btn" data-filter="strategy" onclick="setFilter('strategy', this)"><span class="emoji">🧠</span>Strategy <span class="cat-count" data-count="strategy">0</span></button>
-            <button class="cat-btn" data-filter="puzzle" onclick="setFilter('puzzle', this)"><span class="emoji">🧩</span>Puzzle <span class="cat-count" data-count="puzzle">0</span></button>
-            <button class="cat-btn" data-filter="education" onclick="setFilter('education', this)"><span class="emoji">📚</span>Edu <span class="cat-count" data-count="education">0</span></button>
-            <button class="cat-btn" data-filter="tycoon" onclick="setFilter('tycoon', this)"><span class="emoji">🏢</span>Tycoon <span class="cat-count" data-count="tycoon">0</span></button>
-            <button class="cat-btn" data-filter="action" onclick="setFilter('action', this)"><span class="emoji">⚡</span>Action <span class="cat-count" data-count="action">0</span></button>
-            <button class="cat-btn" data-filter="racing" onclick="setFilter('racing', this)"><span class="emoji">🏎️</span>Racing <span class="cat-count" data-count="racing">0</span></button>
-            <button class="cat-btn" data-filter="tools" onclick="setFilter('tools', this)"><span class="emoji">🛠️</span>Tools <span class="cat-count" data-count="tools">0</span></button>
+        <div class="cat-inner" aria-label="Browse games by money topic">
+            <button class="cat-btn active" data-filter="all" onclick="setFilter('all', this)">All <span class="cat-count" data-count="all">0</span></button>
+            <button class="cat-btn" data-filter="money-basics" onclick="setFilter('money-basics', this)">Money Basics <span class="cat-count" data-count="money-basics">0</span></button>
+            <button class="cat-btn" data-filter="budgeting-and-saving" onclick="setFilter('budgeting-and-saving', this)">Budget & Save <span class="cat-count" data-count="budgeting-and-saving">0</span></button>
+            <button class="cat-btn" data-filter="credit-and-debt" onclick="setFilter('credit-and-debt', this)">Credit & Debt <span class="cat-count" data-count="credit-and-debt">0</span></button>
+            <button class="cat-btn" data-filter="investing" onclick="setFilter('investing', this)">Investing <span class="cat-count" data-count="investing">0</span></button>
+            <button class="cat-btn" data-filter="entrepreneurship" onclick="setFilter('entrepreneurship', this)">Business <span class="cat-count" data-count="entrepreneurship">0</span></button>
+            <button class="cat-btn" data-filter="retirement-and-taxes" onclick="setFilter('retirement-and-taxes', this)">Retirement & Taxes <span class="cat-count" data-count="retirement-and-taxes">0</span></button>
+            <button class="cat-btn" data-filter="crypto-safety" onclick="setFilter('crypto-safety', this)">Crypto Safety <span class="cat-count" data-count="crypto-safety">0</span></button>
+            <button class="cat-btn" data-filter="tools" onclick="setFilter('tools', this)">Tools <span class="cat-count" data-count="tools">0</span></button>
         </div>
     </div>
 
@@ -205,7 +211,7 @@
                     <p class="launch-subtitle">Arcade runs, startup sims, investing puzzles, classroom-ready tools, and quick financial literacy challenges in one fast hub.</p>
                     <div class="launch-actions">
                         <a class="launch-btn" href="../fraud-or-nah/" onclick="trackPlay('Fraud or Nah','../fraud-or-nah/','education','medium')">Play Fraud or Nah</a>
-                        <a class="launch-btn secondary" href="#sections" onclick="setFilterFromAction('education')">Classroom picks</a>
+                        <a class="launch-btn secondary" href="#sections" onclick="setFilterFromAction('budgeting-and-saving')">Start with budgeting</a>
                         <a class="launch-btn secondary" href="#sections" onclick="setFilterFromAction('tools')">Tools</a>
                     </div>
                 </div>
@@ -226,11 +232,11 @@
             </aside>
         </div>
 
-        <div class="learning-strip" aria-label="Learning tracks">
-            <div class="learning-chip"><strong>Earn</strong><span>Side hustles, pricing, revenue, startup reps.</span></div>
-            <div class="learning-chip"><strong>Save</strong><span>Budgeting, emergency funds, cash flow habits.</span></div>
-            <div class="learning-chip"><strong>Invest</strong><span>Compound growth, risk, allocation, markets.</span></div>
-            <div class="learning-chip"><strong>Protect</strong><span>Insurance, taxes, debt, scams, cold storage.</span></div>
+        <div class="learning-strip" aria-label="Featured learning tracks">
+            <button class="learning-chip" type="button" onclick="setFilterFromAction('entrepreneurship')"><strong>Build income <em data-count="entrepreneurship">0</em></strong><span>Pricing, revenue, side hustles, and sustainable business runway.</span></button>
+            <button class="learning-chip" type="button" onclick="setFilterFromAction('budgeting-and-saving')"><strong>Budget and save <em data-count="budgeting-and-saving">0</em></strong><span>Cash flow, emergency funds, spending choices, and resilient habits.</span></button>
+            <button class="learning-chip" type="button" onclick="setFilterFromAction('investing')"><strong>Grow wealth <em data-count="investing">0</em></strong><span>Compounding, diversification, markets, and smart risk.</span></button>
+            <button class="learning-chip" type="button" onclick="setFilterFromAction('credit-and-debt')"><strong>Use credit wisely <em data-count="credit-and-debt">0</em></strong><span>APR, borrowing cost, repayment pressure, and financial flexibility.</span></button>
         </div>
         
         <!-- HERO -->
@@ -239,7 +245,7 @@
         <!-- SEARCH RESULTS -->
         <div class="search-results" id="searchResults">
             <div class="section-header">
-                <span class="section-title">Search Results</span>
+                <span class="section-title" id="resultsTitle">Search Results</span>
             </div>
             <div class="search-grid" id="searchGrid"></div>
         </div>
@@ -337,13 +343,32 @@
             document.getElementById('comingSoonPopup').style.display = 'none';
         }
 
+        const topicLabels = {
+            'money-basics': 'Money basics',
+            'budgeting-and-saving': 'Budget & saving',
+            'credit-and-debt': 'Credit & debt',
+            investing: 'Investing',
+            entrepreneurship: 'Business',
+            'retirement-and-taxes': 'Retirement & taxes',
+            'crypto-safety': 'Crypto safety'
+        };
+
+        function getTopicLabel(topic) {
+            return topicLabels[topic] || 'Money skills';
+        }
+
         function createCard(g) {
             const linkUrl = g.url;
             const favorite = getFavorites().includes(g.id);
-            return `<article class="game-card" data-game-id="${escapeAttr(g.id)}">
+            const statusLabel = g.status === 'flagship' ? 'Flagship' : g.status;
+            return `<article class="game-card" data-game-id="${escapeAttr(g.id)}" data-topic="${escapeAttr(g.topic)}">
                 <a href="${escapeAttr(linkUrl)}" class="game-card-link" data-title="${escapeAttr(g.title)}" data-url="${escapeAttr(linkUrl)}" data-tag="${escapeAttr(g.tags[0])}" data-diff="${escapeAttr(g.diff)}" onclick="trackPlayFromCard(this)">
-                    <div class="game-thumb"><img src="${escapeAttr(g.thumb)}" alt="${escapeAttr(g.title)}" width="200" height="130" loading="lazy" onerror="this.remove();this.parentElement.insertAdjacentHTML('afterbegin','<div class=&quot;fallback-thumb&quot;>MB</div>')"><span class="diff">${escapeHtml(g.diff)}</span></div>
-                    <div class="game-info"><div class="game-title">${escapeHtml(g.title)}</div><div class="game-tag">${escapeHtml(g.tags.join(', '))}</div></div>
+                    <div class="game-thumb"><img src="${escapeAttr(g.thumb)}" alt="${escapeAttr(g.title)}" width="232" height="142" loading="lazy" onerror="this.remove();this.parentElement.insertAdjacentHTML('afterbegin','<div class=&quot;fallback-thumb&quot;>MB</div>')"><span class="status-badge ${escapeAttr(g.status)}">${escapeHtml(statusLabel)}</span><span class="diff">${escapeHtml(g.diff)}</span></div>
+                    <div class="game-info">
+                        <div class="game-title">${escapeHtml(g.title)}</div>
+                        <div class="game-meta"><span class="topic-label">${escapeHtml(getTopicLabel(g.topic))}</span><span aria-hidden="true">·</span><span>${escapeHtml(g.playtimeMinutes)} min</span></div>
+                        <div class="game-objective">${escapeHtml(g.learningObjective)}</div>
+                    </div>
                 </a>
                 <button class="favorite-btn" type="button" aria-label="${favorite ? 'Remove' : 'Add'} ${escapeAttr(g.title)} ${favorite ? 'from' : 'to'} favorites" aria-pressed="${favorite}" onclick="toggleFavorite('${escapeAttr(g.id)}', this)">${favorite ? '★' : '☆'}</button>
             </article>`;
@@ -426,7 +451,7 @@
                     <img src="${escapeAttr(g.thumb)}" alt="${escapeAttr(g.title)}" width="320" height="180" onerror="this.remove();this.parentElement.insertAdjacentHTML('afterbegin','<div class=&quot;fallback-thumb&quot;>MB</div>')">
                     <div class="overlay">
                         <div class="title">${escapeHtml(g.title)}</div>
-                        <div class="tag">${escapeHtml(g.tags[0].toUpperCase())} · ${escapeHtml(g.diff.toUpperCase())}</div>
+                        <div class="tag">${escapeHtml(getTopicLabel(g.topic).toUpperCase())} · ${escapeHtml(g.playtimeMinutes)} MIN · ${escapeHtml(g.diff.toUpperCase())}</div>
                     </div>
                 </a>`;
             }).join('');
@@ -437,23 +462,19 @@
             const sections = document.getElementById('sections');
             let html = '';
             
-            html += createSection('Flagship Games', '◆', flagshipIds.map(id => filteredGames.find(g => g.id === id)).filter(Boolean), 'flagships');
+            html += createSection('MoneyBot Flagships', '◆', flagshipIds.map(id => filteredGames.find(g => g.id === id)).filter(Boolean), 'flagships');
             html += createSection('Continue Playing', '▶', getPlayedGames(), 'recent');
             html += createSection('Favorites', '★', getFavoriteGames(), 'favorites');
-            html += createSection('Popular With You', '↗', getPopularGames(), 'popular');
             html += createSection('New & Updated', '+', newIds.map(id => filteredGames.find(g => g.id === id)).filter(Boolean), 'new');
-            html += createSection('YC Startup School', '🚀', filteredGames.filter(g => g.section === 'yc'), 'yc');
-            html += createSection('Featured', '⭐', filteredGames.filter(g => g.section === 'featured'), 'featured');
-            html += createSection('Arcade', '🎮', filteredGames.filter(g => g.tags.includes('arcade')), 'arcade');
-            html += createSection('Simulation', '📊', filteredGames.filter(g => g.tags.includes('simulation')), 'simulation');
-            html += createSection('Strategy', '🧠', filteredGames.filter(g => g.tags.includes('strategy')), 'strategy');
-            html += createSection('Puzzle', '🧩', filteredGames.filter(g => g.tags.includes('puzzle')), 'puzzle');
-            html += createSection('Tycoon', '🏢', filteredGames.filter(g => g.tags.includes('tycoon')), 'tycoon');
-            html += createSection('Action', '⚡', filteredGames.filter(g => g.tags.includes('action')), 'action');
-            html += createSection('Racing', '🏎️', filteredGames.filter(g => g.tags.includes('racing')), 'racing');
-            html += createSection('Education', '📚', filteredGames.filter(g => g.tags.includes('education')), 'education');
-            html += createSection('Tools & Calculators', '🛠️', filteredGames.filter(g => g.tags.includes('tool') || g.tags.includes('calculator')), 'tools');
-            html += createSection('All Games', '🔥', filteredGames.filter(g => g.section === 'all'), 'all');
+            html += createSection('Budget & Saving', '01', filteredGames.filter(g => g.topic === 'budgeting-and-saving'), 'budgeting-and-saving');
+            html += createSection('Credit & Debt', '02', filteredGames.filter(g => g.topic === 'credit-and-debt'), 'credit-and-debt');
+            html += createSection('Investing', '03', filteredGames.filter(g => g.topic === 'investing'), 'investing');
+            html += createSection('Business & Income', '04', filteredGames.filter(g => g.topic === 'entrepreneurship'), 'entrepreneurship');
+            html += createSection('Retirement & Taxes', '05', filteredGames.filter(g => g.topic === 'retirement-and-taxes'), 'retirement-and-taxes');
+            html += createSection('Crypto Safety', '06', filteredGames.filter(g => g.topic === 'crypto-safety'), 'crypto-safety');
+            html += createSection('Money Basics', '07', filteredGames.filter(g => g.topic === 'money-basics'), 'money-basics');
+            html += createSection('Tools & Calculators', '08', filteredGames.filter(g => g.tags.includes('tool') || g.tags.includes('calculator')), 'tools');
+            html += createSection('Complete Library', '09', filteredGames, 'all');
             
             sections.innerHTML = html;
         }
@@ -475,14 +496,15 @@
                 return;
             }
             
-            const matches = filteredGames.filter(g => 
-                g.title.toLowerCase().includes(q) || 
-                g.tags.some(t => t.includes(q))
-            );
+            const matches = filteredGames.filter(g => {
+                const haystack = [g.title, g.learningObjective, g.topic, g.status, g.difficulty, ...g.tags].join(' ').toLowerCase();
+                return haystack.includes(q);
+            });
             
             hero.style.display = 'none';
             sections.style.display = 'none';
             searchResults.classList.add('active');
+            document.getElementById('resultsTitle').textContent = `Search results for “${q}”`;
             
             if (!matches.length) {
                 searchGrid.innerHTML = '<div class="no-results">No games found. Try a different search.</div>';
@@ -491,39 +513,39 @@
             }
         });
 
-        function clearSearch() {
+        function clearSearch(shouldRender = true) {
             searchInput.value = '';
-            searchInput.dispatchEvent(new Event('input'));
+            if (shouldRender) searchInput.dispatchEvent(new Event('input'));
         }
 
         // ===== FILTER =====
         function setFilter(tag, btn) {
-            document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.cat-btn').forEach(button => button.classList.remove('active'));
             const activeButton = btn || document.querySelector(`.cat-btn[data-filter="${tag}"]`);
             if (activeButton) activeButton.classList.add('active');
-            
+
+            clearSearch(false);
             const hero = document.getElementById('hero');
             const sections = document.getElementById('sections');
-            const searchResults = document.getElementById('searchResults');
-            searchResults.classList.remove('active');
-            
+            const results = document.getElementById('searchResults');
+            const grid = document.getElementById('searchGrid');
+
             if (tag === 'all') {
+                results.classList.remove('active');
                 hero.style.display = 'flex';
                 sections.style.display = 'block';
-                document.querySelectorAll('.section').forEach(s => s.style.display = 'block');
                 return;
             }
-            
+
+            const matches = tag === 'tools'
+                ? filteredGames.filter(game => game.tags.includes('tool') || game.tags.includes('calculator'))
+                : filteredGames.filter(game => game.topic === tag);
             hero.style.display = 'none';
-            sections.style.display = 'block';
-            document.querySelectorAll('.section').forEach(s => {
-                const sectionTag = s.dataset.section;
-                if (sectionTag === tag || (tag === 'tools' && sectionTag === 'tools')) {
-                    s.style.display = 'block';
-                } else {
-                    s.style.display = 'none';
-                }
-            });
+            sections.style.display = 'none';
+            results.classList.add('active');
+            document.getElementById('resultsTitle').textContent = `${tag === 'tools' ? 'Tools & calculators' : getTopicLabel(tag)} · ${matches.length} games`;
+            grid.innerHTML = matches.length ? matches.map(createCard).join('') : '<div class="no-results">No games are available in this track yet.</div>';
+            results.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
         function setFilterFromAction(tag) {
@@ -534,19 +556,17 @@
         function renderCategoryCounts() {
             const counts = {
                 all: filteredGames.length,
-                arcade: filteredGames.filter(g => g.tags.includes('arcade')).length,
-                simulation: filteredGames.filter(g => g.tags.includes('simulation')).length,
-                strategy: filteredGames.filter(g => g.tags.includes('strategy')).length,
-                puzzle: filteredGames.filter(g => g.tags.includes('puzzle')).length,
-                education: filteredGames.filter(g => g.tags.includes('education')).length,
-                tycoon: filteredGames.filter(g => g.tags.includes('tycoon')).length,
-                action: filteredGames.filter(g => g.tags.includes('action')).length,
-                racing: filteredGames.filter(g => g.tags.includes('racing')).length,
+                'money-basics': filteredGames.filter(g => g.topic === 'money-basics').length,
+                'budgeting-and-saving': filteredGames.filter(g => g.topic === 'budgeting-and-saving').length,
+                'credit-and-debt': filteredGames.filter(g => g.topic === 'credit-and-debt').length,
+                investing: filteredGames.filter(g => g.topic === 'investing').length,
+                entrepreneurship: filteredGames.filter(g => g.topic === 'entrepreneurship').length,
+                'retirement-and-taxes': filteredGames.filter(g => g.topic === 'retirement-and-taxes').length,
+                'crypto-safety': filteredGames.filter(g => g.topic === 'crypto-safety').length,
                 tools: filteredGames.filter(g => g.tags.includes('tool') || g.tags.includes('calculator')).length
             };
             Object.entries(counts).forEach(([key, value]) => {
-                const el = document.querySelector(`[data-count="${key}"]`);
-                if (el) el.textContent = value;
+                document.querySelectorAll(`[data-count="${key}"]`).forEach(element => { element.textContent = value; });
             });
         }
 
@@ -564,7 +584,7 @@
         function renderProgress() {
             const p = loadProgress();
             document.getElementById('statGames').textContent = `${filteredGames.length}+`;
-            document.getElementById('statCategories').textContent = new Set(filteredGames.flatMap(g => g.tags)).size;
+            document.getElementById('statCategories').textContent = new Set(filteredGames.map(g => g.topic)).size;
             document.getElementById('statProgress').textContent = `Lv ${p.lvl}`;
             if (p.xp > 0 || Object.keys(p.games).length > 0) {
                 document.getElementById('navProgress').style.display = 'flex';

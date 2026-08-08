@@ -13,7 +13,14 @@ const server = spawn('python3', ['-m', 'http.server', String(port), '--bind', '1
       const errors = [];
       page.on('pageerror', error => errors.push(error.message));
       await page.goto(`http://127.0.0.1:${port}/moneybot-official/`, { waitUntil: 'domcontentloaded' });
-      await page.locator('#searchInput').fill('Fraud');
+      await page.locator('[data-section="flagships"] .game-card').first().waitFor();
+      await page.locator('[data-section="flagships"] .game-objective').first().waitFor();
+      await page.locator('.cat-btn[data-filter="budgeting-and-saving"]').click();
+      await page.locator('.search-results.active .game-card').first().waitFor();
+      const wrongTopicCount = await page.locator('.search-results.active .game-card:not([data-topic="budgeting-and-saving"])').count();
+      if (wrongTopicCount) throw new Error(`Topic filter returned ${wrongTopicCount} mismatched card(s) at ${viewport.width}px`);
+      await page.locator('.cat-btn[data-filter="all"]').click();
+      await page.locator('#searchInput').fill('diversification');
       await page.locator('.search-results.active .game-card').first().waitFor();
       await page.locator('#searchInput').fill('');
       await page.locator('[data-section="flagships"] .game-card').first().waitFor();
