@@ -1,0 +1,2142 @@
+{
+  "schemaVersion": 1,
+  "updatedAt": "2026-08-08",
+  "sourceOfTruth": true,
+  "allowedStatuses": [
+    "flagship",
+    "verified",
+    "beta",
+    "labs",
+    "archived"
+  ],
+  "games": [
+    {
+      "id": "fraud-or-nah",
+      "title": "Fraud or Nah",
+      "url": "../fraud-or-nah/",
+      "thumbnail": "assets/moneybot-logo-1.jpg",
+      "learningObjective": "Build practical money judgment through play.",
+      "topic": "money-basics",
+      "genres": [
+        "education",
+        "puzzle"
+      ],
+      "difficulty": "medium",
+      "playtimeMinutes": 5,
+      "status": "flagship",
+      "visibility": "public",
+      "section": "featured",
+      "featuredOrder": 1,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "vc-term-sheet",
+      "title": "Bot Capital",
+      "url": "../vc-term-sheet/",
+      "thumbnail": "assets/thumbs-webp/stock-tycoon.webp",
+      "learningObjective": "Practice building sustainable revenue, profit, and business runway.",
+      "topic": "entrepreneurship",
+      "genres": [
+        "simulation",
+        "arcade"
+      ],
+      "difficulty": "hard",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "featured",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-property-flipper",
+      "title": "Neon Property Flipper",
+      "url": "../bot-property-flipper/",
+      "thumbnail": "assets/thumbs-webp/property-flipper.webp",
+      "learningObjective": "Build practical money judgment through play.",
+      "topic": "money-basics",
+      "genres": [
+        "simulation",
+        "arcade"
+      ],
+      "difficulty": "hard",
+      "playtimeMinutes": 5,
+      "status": "flagship",
+      "visibility": "public",
+      "section": "featured",
+      "featuredOrder": 6,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-cold-storage",
+      "title": "Crypto Cold Storage",
+      "url": "../bot-cold-storage/",
+      "thumbnail": "assets/thumbs-webp/cold-storage.webp",
+      "learningObjective": "Learn safer crypto decisions, custody, volatility, and risk awareness.",
+      "topic": "crypto-safety",
+      "genres": [
+        "arcade",
+        "action"
+      ],
+      "difficulty": "hard",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "featured",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-debt-trap",
+      "title": "BrokeBot's Debt Trap",
+      "url": "../bot-debt-trap/",
+      "thumbnail": "assets/thumbs-webp/debt-destroyer.webp",
+      "learningObjective": "Understand how borrowing choices affect cost, risk, and financial flexibility.",
+      "topic": "credit-and-debt",
+      "genres": [
+        "arcade",
+        "action",
+        "survival"
+      ],
+      "difficulty": "hard",
+      "playtimeMinutes": 5,
+      "status": "flagship",
+      "visibility": "public",
+      "section": "featured",
+      "featuredOrder": 10,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-fire-forge",
+      "title": "GoldBot's FIRE Forge",
+      "url": "../bot-fire-forge/",
+      "thumbnail": "assets/thumbs-webp/money-printer.webp",
+      "learningObjective": "Explore long-term saving, account choices, taxes, and financial independence.",
+      "topic": "retirement-and-taxes",
+      "genres": [
+        "arcade",
+        "simulation",
+        "idle"
+      ],
+      "difficulty": "easy",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "featured",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-fire-escape",
+      "title": "FIRE Escape",
+      "url": "../bot-fire-escape/",
+      "thumbnail": "assets/thumbs-webp/bot-shot.webp",
+      "learningObjective": "Explore long-term saving, account choices, taxes, and financial independence.",
+      "topic": "retirement-and-taxes",
+      "genres": [
+        "arcade",
+        "action"
+      ],
+      "difficulty": "hard",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "featured",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-debt-dodger",
+      "title": "Debt Dodger",
+      "url": "../bot-debt-dodger/",
+      "thumbnail": "assets/thumbs-webp/debt-destroyer.webp",
+      "learningObjective": "Understand how borrowing choices affect cost, risk, and financial flexibility.",
+      "topic": "credit-and-debt",
+      "genres": [
+        "arcade",
+        "action"
+      ],
+      "difficulty": "medium",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "featured",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "money-glitch-party",
+      "title": "Money Glitch Party",
+      "url": "../money-glitch-party/public/host.html",
+      "thumbnail": "assets/thumbnails/moneybot-official.svg",
+      "learningObjective": "Build practical money judgment through play.",
+      "topic": "money-basics",
+      "genres": [
+        "arcade",
+        "education"
+      ],
+      "difficulty": "medium",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "featured",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "market-match",
+      "title": "Market Match",
+      "url": "../market-match/",
+      "thumbnail": "assets/thumbs-webp/stockbot.webp",
+      "learningObjective": "Practice balancing growth, time, diversification, and risk.",
+      "topic": "investing",
+      "genres": [
+        "simulation",
+        "education"
+      ],
+      "difficulty": "medium",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "featured",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-real-estate-sim",
+      "title": "Real Estate Sim",
+      "url": "../bot-real-estate-sim/",
+      "thumbnail": "assets/thumbs-webp/real-estate.webp",
+      "learningObjective": "Build practical money judgment through play.",
+      "topic": "money-basics",
+      "genres": [
+        "simulation",
+        "education"
+      ],
+      "difficulty": "medium",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "featured",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-shot",
+      "title": "Bot Shot",
+      "url": "../bot-shot/",
+      "thumbnail": "assets/thumbs-webp/bot-shot.webp",
+      "learningObjective": "Build practical money judgment through play.",
+      "topic": "money-basics",
+      "genres": [
+        "arcade"
+      ],
+      "difficulty": "easy",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "featured",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-smart-borrower",
+      "title": "Smart Borrower",
+      "url": "../bot-smart-borrower/",
+      "thumbnail": "assets/thumbs-webp/smart-borrower.webp",
+      "learningObjective": "Understand how borrowing choices affect cost, risk, and financial flexibility.",
+      "topic": "credit-and-debt",
+      "genres": [
+        "education",
+        "simulation"
+      ],
+      "difficulty": "medium",
+      "playtimeMinutes": 5,
+      "status": "flagship",
+      "visibility": "public",
+      "section": "featured",
+      "featuredOrder": 8,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-financial-simulator",
+      "title": "Financial Simulator",
+      "url": "../bot-financial-simulator/",
+      "thumbnail": "assets/thumbs-webp/financial-sim.webp",
+      "learningObjective": "Build practical money judgment through play.",
+      "topic": "money-basics",
+      "genres": [
+        "simulation",
+        "education"
+      ],
+      "difficulty": "medium",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "featured",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "stockbot",
+      "title": "StockBot",
+      "url": "../stockbot/",
+      "thumbnail": "assets/thumbs-webp/stockbot.webp",
+      "learningObjective": "Practice balancing growth, time, diversification, and risk.",
+      "topic": "investing",
+      "genres": [
+        "simulation"
+      ],
+      "difficulty": "medium",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "featured",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "cryptobot",
+      "title": "CryptoBot",
+      "url": "../cryptobot/",
+      "thumbnail": "assets/thumbs-webp/cryptobot.webp",
+      "learningObjective": "Learn safer crypto decisions, custody, volatility, and risk awareness.",
+      "topic": "crypto-safety",
+      "genres": [
+        "arcade"
+      ],
+      "difficulty": "easy",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "featured",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "moneymatch",
+      "title": "MoneyMatch",
+      "url": "../moneymatch/",
+      "thumbnail": "assets/thumbs-webp/moneymatch.webp",
+      "learningObjective": "Build practical money judgment through play.",
+      "topic": "money-basics",
+      "genres": [
+        "puzzle"
+      ],
+      "difficulty": "easy",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "featured",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-insurance-defender",
+      "title": "Insurance Defender",
+      "url": "../bot-insurance-defender/",
+      "thumbnail": "assets/thumbs-webp/insurance-defender.webp",
+      "learningObjective": "Build practical money judgment through play.",
+      "topic": "money-basics",
+      "genres": [
+        "strategy",
+        "tower-defense"
+      ],
+      "difficulty": "medium",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "featured",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-burn-rate",
+      "title": "Burn Rate",
+      "url": "../bot-burn-rate/",
+      "thumbnail": "assets/thumbs-webp/burn-rate.webp",
+      "learningObjective": "Practice building sustainable revenue, profit, and business runway.",
+      "topic": "entrepreneurship",
+      "genres": [
+        "simulation",
+        "strategy"
+      ],
+      "difficulty": "hard",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "yc",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "the-pivot",
+      "title": "The Pivot",
+      "url": "../the-pivot/",
+      "thumbnail": "assets/thumbs-webp/the-pivot.webp",
+      "learningObjective": "Build practical money judgment through play.",
+      "topic": "money-basics",
+      "genres": [
+        "simulation",
+        "strategy"
+      ],
+      "difficulty": "medium",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "yc",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "do-things-that-dont-scale",
+      "title": "Do Things That Don't Scale",
+      "url": "../do-things-that-dont-scale/",
+      "thumbnail": "assets/thumbs-webp/dont-scale.webp",
+      "learningObjective": "Build practical money judgment through play.",
+      "topic": "money-basics",
+      "genres": [
+        "simulation",
+        "strategy"
+      ],
+      "difficulty": "medium",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "yc",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "demo-day-dash",
+      "title": "Demo Day Dash",
+      "url": "../demo-day-dash/",
+      "thumbnail": "assets/thumbs-webp/demo-day.webp",
+      "learningObjective": "Build practical money judgment through play.",
+      "topic": "money-basics",
+      "genres": [
+        "simulation",
+        "arcade"
+      ],
+      "difficulty": "medium",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "yc",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "the-first-hire",
+      "title": "The First Hire",
+      "url": "../the-first-hire/",
+      "thumbnail": "assets/thumbs-webp/first-hire.webp",
+      "learningObjective": "Build practical money judgment through play.",
+      "topic": "money-basics",
+      "genres": [
+        "simulation",
+        "strategy"
+      ],
+      "difficulty": "hard",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "yc",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "ramen-profitability",
+      "title": "Ramen Profitability",
+      "url": "../ramen-profitability/",
+      "thumbnail": "assets/thumbs-webp/ramen.webp",
+      "learningObjective": "Practice building sustainable revenue, profit, and business runway.",
+      "topic": "entrepreneurship",
+      "genres": [
+        "simulation",
+        "strategy"
+      ],
+      "difficulty": "medium",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "yc",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "100-fans",
+      "title": "100 Fans",
+      "url": "../100-fans/",
+      "thumbnail": "assets/thumbs-webp/100-fans.webp",
+      "learningObjective": "Build practical money judgment through play.",
+      "topic": "money-basics",
+      "genres": [
+        "simulation",
+        "strategy"
+      ],
+      "difficulty": "medium",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "yc",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "the-term-sheet",
+      "title": "The Term Sheet",
+      "url": "../the-term-sheet/",
+      "thumbnail": "assets/thumbs-webp/term-sheet.webp",
+      "learningObjective": "Practice building sustainable revenue, profit, and business runway.",
+      "topic": "entrepreneurship",
+      "genres": [
+        "simulation",
+        "strategy",
+        "education"
+      ],
+      "difficulty": "hard",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "yc",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "growth-loops",
+      "title": "Growth Loops",
+      "url": "../growth-loops/",
+      "thumbnail": "assets/thumbs-webp/growth-loops.webp",
+      "learningObjective": "Build practical money judgment through play.",
+      "topic": "money-basics",
+      "genres": [
+        "simulation",
+        "strategy"
+      ],
+      "difficulty": "medium",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "yc",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-college-quest",
+      "title": "College Quest",
+      "url": "../bot-college-quest/",
+      "thumbnail": "assets/thumbs-webp/college-quest.webp",
+      "learningObjective": "Build practical money judgment through play.",
+      "topic": "money-basics",
+      "genres": [
+        "simulation",
+        "education"
+      ],
+      "difficulty": "medium",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "cashflow-cruiser",
+      "title": "Cashflow Cruiser",
+      "url": "../cashflow-cruiser/",
+      "thumbnail": "assets/thumbs-webp/cashflow-cruiser.webp",
+      "learningObjective": "Practice balancing income, expenses, savings, and financial resilience.",
+      "topic": "budgeting-and-saving",
+      "genres": [
+        "arcade",
+        "runner"
+      ],
+      "difficulty": "easy",
+      "playtimeMinutes": 5,
+      "status": "flagship",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": 3,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "compound-cookoff",
+      "title": "Compound Cookoff",
+      "url": "../compound-cookoff/",
+      "thumbnail": "assets/thumbs-webp/compound-cookoff.webp",
+      "learningObjective": "Practice balancing growth, time, diversification, and risk.",
+      "topic": "investing",
+      "genres": [
+        "strategy",
+        "arcade"
+      ],
+      "difficulty": "medium",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "money-printer-go",
+      "title": "Money Printer GO",
+      "url": "../money-printer-go/",
+      "thumbnail": "assets/thumbs-webp/money-printer.webp",
+      "learningObjective": "Build practical money judgment through play.",
+      "topic": "money-basics",
+      "genres": [
+        "arcade",
+        "idle"
+      ],
+      "difficulty": "easy",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "flappybot",
+      "title": "FlappyBot",
+      "url": "../flappybot/",
+      "thumbnail": "assets/thumbs-webp/flappybot.webp",
+      "learningObjective": "Build practical money judgment through play.",
+      "topic": "money-basics",
+      "genres": [
+        "arcade"
+      ],
+      "difficulty": "easy",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-financial-hangman",
+      "title": "Financial Hangman",
+      "url": "../bot-financial-hangman/",
+      "thumbnail": "assets/thumbs-webp/hangman.webp",
+      "learningObjective": "Build practical money judgment through play.",
+      "topic": "money-basics",
+      "genres": [
+        "puzzle",
+        "education"
+      ],
+      "difficulty": "easy",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bull-market-survivor",
+      "title": "Bull Market Survivor",
+      "url": "../bull-market-survivor/",
+      "thumbnail": "assets/thumbs-webp/bull-survivor.webp",
+      "learningObjective": "Practice balancing growth, time, diversification, and risk.",
+      "topic": "investing",
+      "genres": [
+        "strategy"
+      ],
+      "difficulty": "medium",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-savings-sprint",
+      "title": "Savings Sprint",
+      "url": "../bot-savings-sprint/",
+      "thumbnail": "assets/thumbs-webp/savings-sprint.webp",
+      "learningObjective": "Practice balancing income, expenses, savings, and financial resilience.",
+      "topic": "budgeting-and-saving",
+      "genres": [
+        "arcade",
+        "runner"
+      ],
+      "difficulty": "easy",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "capital-command",
+      "title": "Capital Command",
+      "url": "../capital-command/",
+      "thumbnail": "assets/thumbs-webp/capital-command.webp",
+      "learningObjective": "Practice building sustainable revenue, profit, and business runway.",
+      "topic": "entrepreneurship",
+      "genres": [
+        "strategy"
+      ],
+      "difficulty": "medium",
+      "playtimeMinutes": 5,
+      "status": "flagship",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": 2,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "yield-merge",
+      "title": "Yield Merge",
+      "url": "../yield-merge/",
+      "thumbnail": "assets/thumbs-webp/yield-merge.webp",
+      "learningObjective": "Practice balancing growth, time, diversification, and risk.",
+      "topic": "investing",
+      "genres": [
+        "puzzle"
+      ],
+      "difficulty": "easy",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-budget-builder",
+      "title": "Budget Builder",
+      "url": "../bot-budget-builder/",
+      "thumbnail": "assets/thumbs-webp/budget-builder.webp",
+      "learningObjective": "Practice balancing income, expenses, savings, and financial resilience.",
+      "topic": "budgeting-and-saving",
+      "genres": [
+        "simulation",
+        "education"
+      ],
+      "difficulty": "easy",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-achievement-hunt",
+      "title": "Achievement Hunt",
+      "url": "../bot-achievement-hunt/",
+      "thumbnail": "assets/thumbs-webp/achievement-hunt.webp",
+      "learningObjective": "Build practical money judgment through play.",
+      "topic": "money-basics",
+      "genres": [
+        "arcade",
+        "adventure"
+      ],
+      "difficulty": "easy",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-buy-the-dip",
+      "title": "Buy The Dip",
+      "url": "../bot-buy-the-dip/",
+      "thumbnail": "assets/thumbs-webp/buy-dip.webp",
+      "learningObjective": "Build practical money judgment through play.",
+      "topic": "money-basics",
+      "genres": [
+        "arcade"
+      ],
+      "difficulty": "easy",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-asset-allocator",
+      "title": "Asset Allocator",
+      "url": "../bot-asset-allocator/",
+      "thumbnail": "assets/thumbs-webp/asset-allocator.webp",
+      "learningObjective": "Practice balancing growth, time, diversification, and risk.",
+      "topic": "investing",
+      "genres": [
+        "strategy"
+      ],
+      "difficulty": "medium",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-debt-destroyer",
+      "title": "Debt Destroyer",
+      "url": "../bot-debt-destroyer/",
+      "thumbnail": "assets/thumbs-webp/debt-destroyer.webp",
+      "learningObjective": "Understand how borrowing choices affect cost, risk, and financial flexibility.",
+      "topic": "credit-and-debt",
+      "genres": [
+        "arcade",
+        "action"
+      ],
+      "difficulty": "easy",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-crypto-climb",
+      "title": "Crypto Climb",
+      "url": "../bot-crypto-climb/",
+      "thumbnail": "assets/thumbs-webp/crypto-climb.webp",
+      "learningObjective": "Learn safer crypto decisions, custody, volatility, and risk awareness.",
+      "topic": "crypto-safety",
+      "genres": [
+        "arcade"
+      ],
+      "difficulty": "easy",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-compound-climb",
+      "title": "Compound Climb",
+      "url": "../bot-compound-climb/",
+      "thumbnail": "assets/thumbs-webp/compound-climb.webp",
+      "learningObjective": "Practice balancing growth, time, diversification, and risk.",
+      "topic": "investing",
+      "genres": [
+        "puzzle"
+      ],
+      "difficulty": "easy",
+      "playtimeMinutes": 5,
+      "status": "flagship",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": 7,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-stock-stack",
+      "title": "Stock Stack",
+      "url": "../bot-stock-stack/",
+      "thumbnail": "assets/thumbs-webp/stock-stack.webp",
+      "learningObjective": "Practice balancing growth, time, diversification, and risk.",
+      "topic": "investing",
+      "genres": [
+        "puzzle"
+      ],
+      "difficulty": "easy",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-risk-tetris",
+      "title": "Risk Tetris",
+      "url": "../bot-risk-tetris/",
+      "thumbnail": "assets/thumbs-webp/risk-tetris.webp",
+      "learningObjective": "Practice balancing growth, time, diversification, and risk.",
+      "topic": "investing",
+      "genres": [
+        "arcade",
+        "puzzle"
+      ],
+      "difficulty": "easy",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-wealth-tower",
+      "title": "Wealth Tower",
+      "url": "../bot-wealth-tower/",
+      "thumbnail": "assets/thumbs-webp/wealth-tower.webp",
+      "learningObjective": "Practice balancing growth, time, diversification, and risk.",
+      "topic": "investing",
+      "genres": [
+        "strategy"
+      ],
+      "difficulty": "medium",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-dividend-defense",
+      "title": "Dividend Defense",
+      "url": "../bot-dividend-defense/",
+      "thumbnail": "assets/thumbs-webp/dividend-defense.webp",
+      "learningObjective": "Practice balancing growth, time, diversification, and risk.",
+      "topic": "investing",
+      "genres": [
+        "strategy",
+        "tower-defense"
+      ],
+      "difficulty": "medium",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-invest-island",
+      "title": "Invest Island",
+      "url": "../bot-invest-island/",
+      "thumbnail": "assets/thumbs-webp/invest-island.webp",
+      "learningObjective": "Practice balancing growth, time, diversification, and risk.",
+      "topic": "investing",
+      "genres": [
+        "simulation"
+      ],
+      "difficulty": "medium",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-cash-craze",
+      "title": "Cash Craze",
+      "url": "../bot-cash-craze/",
+      "thumbnail": "assets/thumbs-webp/cash-craze.webp",
+      "learningObjective": "Build practical money judgment through play.",
+      "topic": "money-basics",
+      "genres": [
+        "arcade",
+        "match-3"
+      ],
+      "difficulty": "easy",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-coin-pong",
+      "title": "Coin Pong",
+      "url": "../bot-coin-pong/",
+      "thumbnail": "assets/thumbs-webp/coin-pong.webp",
+      "learningObjective": "Build practical money judgment through play.",
+      "topic": "money-basics",
+      "genres": [
+        "arcade"
+      ],
+      "difficulty": "easy",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-budget-blaster",
+      "title": "Budget Blaster",
+      "url": "../bot-budget-blaster/",
+      "thumbnail": "assets/thumbs-webp/budget-blaster.webp",
+      "learningObjective": "Practice balancing income, expenses, savings, and financial resilience.",
+      "topic": "budgeting-and-saving",
+      "genres": [
+        "arcade",
+        "action"
+      ],
+      "difficulty": "easy",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-bull-bear-battle",
+      "title": "Bull Bear Battle",
+      "url": "../bot-bull-bear-battle/",
+      "thumbnail": "assets/thumbs-webp/bull-bear.webp",
+      "learningObjective": "Build practical money judgment through play.",
+      "topic": "money-basics",
+      "genres": [
+        "arcade",
+        "fighting"
+      ],
+      "difficulty": "easy",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-budget-breakout",
+      "title": "Budget Breakout",
+      "url": "../bot-budget-breakout/",
+      "thumbnail": "assets/thumbs-webp/budget-breakout.webp",
+      "learningObjective": "Practice balancing income, expenses, savings, and financial resilience.",
+      "topic": "budgeting-and-saving",
+      "genres": [
+        "arcade"
+      ],
+      "difficulty": "easy",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-budget-slice",
+      "title": "Budget Slice",
+      "url": "../bot-budget-slice/",
+      "thumbnail": "assets/thumbs-webp/budget-slice.webp",
+      "learningObjective": "Practice balancing income, expenses, savings, and financial resilience.",
+      "topic": "budgeting-and-saving",
+      "genres": [
+        "puzzle"
+      ],
+      "difficulty": "easy",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-dollar-drop",
+      "title": "Dollar Drop",
+      "url": "../bot-dollar-drop/",
+      "thumbnail": "assets/thumbs-webp/dollar-drop.webp",
+      "learningObjective": "Build practical money judgment through play.",
+      "topic": "money-basics",
+      "genres": [
+        "arcade"
+      ],
+      "difficulty": "easy",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-galactic-loan-sharks",
+      "title": "Galactic Loan Sharks",
+      "url": "../bot-galactic-loan-sharks/",
+      "thumbnail": "assets/thumbs-webp/loan-sharks.webp",
+      "learningObjective": "Understand how borrowing choices affect cost, risk, and financial flexibility.",
+      "topic": "credit-and-debt",
+      "genres": [
+        "adventure"
+      ],
+      "difficulty": "hard",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-history-of-money",
+      "title": "History of Money",
+      "url": "../bot-history-of-money/",
+      "thumbnail": "assets/thumbs-webp/history-money.webp",
+      "learningObjective": "Build practical money judgment through play.",
+      "topic": "money-basics",
+      "genres": [
+        "education"
+      ],
+      "difficulty": "easy",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-ipo-launch",
+      "title": "IPO Launch",
+      "url": "../bot-ipo-launch/",
+      "thumbnail": "assets/thumbs-webp/ipo-launch.webp",
+      "learningObjective": "Practice balancing growth, time, diversification, and risk.",
+      "topic": "investing",
+      "genres": [
+        "simulation"
+      ],
+      "difficulty": "medium",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-lemonade-empire",
+      "title": "Lemonade Empire",
+      "url": "../bot-lemonade-empire/",
+      "thumbnail": "assets/thumbs-webp/lemonade.webp",
+      "learningObjective": "Practice building sustainable revenue, profit, and business runway.",
+      "topic": "entrepreneurship",
+      "genres": [
+        "simulation",
+        "tycoon"
+      ],
+      "difficulty": "easy",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-market-racer",
+      "title": "Market Racer",
+      "url": "../bot-market-racer/",
+      "thumbnail": "assets/thumbs-webp/market-racer.webp",
+      "learningObjective": "Practice balancing growth, time, diversification, and risk.",
+      "topic": "investing",
+      "genres": [
+        "arcade",
+        "racing"
+      ],
+      "difficulty": "easy",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-diversification-drop",
+      "title": "Diversification Drop",
+      "url": "../bot-diversification-drop/",
+      "thumbnail": "assets/thumbs-webp/diversification.webp",
+      "learningObjective": "Build practical money judgment through play.",
+      "topic": "money-basics",
+      "genres": [
+        "puzzle"
+      ],
+      "difficulty": "easy",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-wealth-wheel",
+      "title": "Wealth Wheel",
+      "url": "../bot-wealth-wheel/",
+      "thumbnail": "assets/thumbs-webp/wealth-wheel.webp",
+      "learningObjective": "Practice balancing growth, time, diversification, and risk.",
+      "topic": "investing",
+      "genres": [
+        "arcade",
+        "chance"
+      ],
+      "difficulty": "easy",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-profit-pinball",
+      "title": "Profit Pinball",
+      "url": "../bot-profit-pinball/",
+      "thumbnail": "assets/thumbs-webp/profit-pinball.webp",
+      "learningObjective": "Practice building sustainable revenue, profit, and business runway.",
+      "topic": "entrepreneurship",
+      "genres": [
+        "arcade"
+      ],
+      "difficulty": "easy",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-fiscal-frogger",
+      "title": "Fiscal Frogger",
+      "url": "../bot-fiscal-frogger/",
+      "thumbnail": "assets/thumbs-webp/fiscal-frogger.webp",
+      "learningObjective": "Build practical money judgment through play.",
+      "topic": "money-basics",
+      "genres": [
+        "arcade"
+      ],
+      "difficulty": "easy",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-savings-snake",
+      "title": "Savings Snake",
+      "url": "../bot-savings-snake/",
+      "thumbnail": "assets/thumbs-webp/savings-snake.webp",
+      "learningObjective": "Practice balancing income, expenses, savings, and financial resilience.",
+      "topic": "budgeting-and-saving",
+      "genres": [
+        "arcade"
+      ],
+      "difficulty": "easy",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-tax-tetris",
+      "title": "Tax Tetris",
+      "url": "../bot-tax-tetris/",
+      "thumbnail": "assets/thumbs-webp/tax-tetris.webp",
+      "learningObjective": "Explore long-term saving, account choices, taxes, and financial independence.",
+      "topic": "retirement-and-taxes",
+      "genres": [
+        "puzzle"
+      ],
+      "difficulty": "easy",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-stock-tycoon",
+      "title": "Stock Tycoon",
+      "url": "../bot-stock-tycoon/",
+      "thumbnail": "assets/thumbs-webp/stock-tycoon.webp",
+      "learningObjective": "Practice balancing growth, time, diversification, and risk.",
+      "topic": "investing",
+      "genres": [
+        "simulation",
+        "tycoon"
+      ],
+      "difficulty": "medium",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-cash-dash",
+      "title": "Cash Dash",
+      "url": "../bot-cash-dash/",
+      "thumbnail": "assets/thumbs-webp/cash-dash.webp",
+      "learningObjective": "Build practical money judgment through play.",
+      "topic": "money-basics",
+      "genres": [
+        "arcade",
+        "racing"
+      ],
+      "difficulty": "easy",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-market-surfers",
+      "title": "Market Surfers",
+      "url": "../bot-market-surfers/",
+      "thumbnail": "assets/thumbs-webp/market-surfers.webp",
+      "learningObjective": "Practice balancing growth, time, diversification, and risk.",
+      "topic": "investing",
+      "genres": [
+        "arcade"
+      ],
+      "difficulty": "easy",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "money-invaders",
+      "title": "Money Invaders",
+      "url": "../money-invaders/",
+      "thumbnail": "assets/thumbs-webp/money-invaders.webp",
+      "learningObjective": "Build practical money judgment through play.",
+      "topic": "money-basics",
+      "genres": [
+        "arcade"
+      ],
+      "difficulty": "easy",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "money-jump",
+      "title": "Money Jump",
+      "url": "../money-jump/",
+      "thumbnail": "assets/thumbs-webp/money-jump.webp",
+      "learningObjective": "Build practical money judgment through play.",
+      "topic": "money-basics",
+      "genres": [
+        "arcade"
+      ],
+      "difficulty": "easy",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "botbalance",
+      "title": "BotBalance",
+      "url": "../botbalance/",
+      "thumbnail": "assets/thumbs-webp/botbalance.webp",
+      "learningObjective": "Build practical money judgment through play.",
+      "topic": "money-basics",
+      "genres": [
+        "puzzle"
+      ],
+      "difficulty": "easy",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "money-bank-heist",
+      "title": "Bank Heist",
+      "url": "../money-bank-heist/",
+      "thumbnail": "assets/thumbs-webp/bank-heist.webp",
+      "learningObjective": "Build practical money judgment through play.",
+      "topic": "money-basics",
+      "genres": [
+        "arcade"
+      ],
+      "difficulty": "medium",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "calculator-compound",
+      "title": "Compound Calculator",
+      "url": "../calculator-compound/",
+      "thumbnail": "assets/thumbs-webp/compound-calc.webp",
+      "learningObjective": "Practice balancing growth, time, diversification, and risk.",
+      "topic": "investing",
+      "genres": [
+        "tool",
+        "calculator"
+      ],
+      "difficulty": "easy",
+      "playtimeMinutes": 3,
+      "status": "beta",
+      "visibility": "public",
+      "section": "tools",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "calculator-mortgage",
+      "title": "Mortgage Calculator",
+      "url": "../calculator-mortgage/",
+      "thumbnail": "assets/thumbs-webp/mortgage-calc.webp",
+      "learningObjective": "Understand how borrowing choices affect cost, risk, and financial flexibility.",
+      "topic": "credit-and-debt",
+      "genres": [
+        "tool",
+        "calculator"
+      ],
+      "difficulty": "easy",
+      "playtimeMinutes": 3,
+      "status": "beta",
+      "visibility": "public",
+      "section": "tools",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "calculator-debt",
+      "title": "Debt Calculator",
+      "url": "../calculator-debt/",
+      "thumbnail": "assets/thumbs-webp/debt-calc.webp",
+      "learningObjective": "Understand how borrowing choices affect cost, risk, and financial flexibility.",
+      "topic": "credit-and-debt",
+      "genres": [
+        "tool",
+        "calculator"
+      ],
+      "difficulty": "easy",
+      "playtimeMinutes": 3,
+      "status": "beta",
+      "visibility": "public",
+      "section": "tools",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "simulator-budget",
+      "title": "Budget Simulator",
+      "url": "../simulator-budget/",
+      "thumbnail": "assets/thumbs-webp/budget-sim.webp",
+      "learningObjective": "Practice balancing income, expenses, savings, and financial resilience.",
+      "topic": "budgeting-and-saving",
+      "genres": [
+        "tool",
+        "simulator"
+      ],
+      "difficulty": "easy",
+      "playtimeMinutes": 3,
+      "status": "beta",
+      "visibility": "public",
+      "section": "tools",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-401k-match",
+      "title": "401k Match",
+      "url": "../bot-401k-match/",
+      "thumbnail": "assets/thumbs-webp/401k-match.webp",
+      "learningObjective": "Explore long-term saving, account choices, taxes, and financial independence.",
+      "topic": "retirement-and-taxes",
+      "genres": [
+        "simulation",
+        "education"
+      ],
+      "difficulty": "easy",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-active-passive-income",
+      "title": "Active vs Passive",
+      "url": "../bot-active-passive-income/",
+      "thumbnail": "assets/thumbs-webp/active-passive.webp",
+      "learningObjective": "Build practical money judgment through play.",
+      "topic": "money-basics",
+      "genres": [
+        "education"
+      ],
+      "difficulty": "easy",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-appreciating-depreciating",
+      "title": "Appreciate/Depreciate",
+      "url": "../bot-appreciating-depreciating/",
+      "thumbnail": "assets/thumbs-webp/app-dep.webp",
+      "learningObjective": "Build practical money judgment through play.",
+      "topic": "money-basics",
+      "genres": [
+        "education"
+      ],
+      "difficulty": "easy",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-budget-builder-v2",
+      "title": "Budget Builder v2",
+      "url": "../bot-budget-builder-v2/",
+      "thumbnail": "assets/thumbs-webp/budget-builder-v2.webp",
+      "learningObjective": "Practice balancing income, expenses, savings, and financial resilience.",
+      "topic": "budgeting-and-saving",
+      "genres": [
+        "simulation",
+        "education"
+      ],
+      "difficulty": "easy",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-charitable-giving",
+      "title": "Charitable Giving",
+      "url": "../bot-charitable-giving/",
+      "thumbnail": "assets/thumbs-webp/charitable.webp",
+      "learningObjective": "Build practical money judgment through play.",
+      "topic": "money-basics",
+      "genres": [
+        "strategy"
+      ],
+      "difficulty": "hard",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-credit-score-climb",
+      "title": "Credit Score Climb",
+      "url": "../bot-credit-score-climb/",
+      "thumbnail": "assets/thumbs-webp/credit-score.webp",
+      "learningObjective": "Understand how borrowing choices affect cost, risk, and financial flexibility.",
+      "topic": "credit-and-debt",
+      "genres": [
+        "arcade"
+      ],
+      "difficulty": "easy",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-crypto-trading",
+      "title": "Crypto Trading",
+      "url": "../bot-crypto-trading/",
+      "thumbnail": "assets/thumbs-webp/crypto-trading.webp",
+      "learningObjective": "Learn safer crypto decisions, custody, volatility, and risk awareness.",
+      "topic": "crypto-safety",
+      "genres": [
+        "simulation"
+      ],
+      "difficulty": "hard",
+      "playtimeMinutes": 5,
+      "status": "flagship",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": 4,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-dca-game",
+      "title": "DCA Game",
+      "url": "../bot-dca-game/",
+      "thumbnail": "assets/thumbs-webp/dca-game.webp",
+      "learningObjective": "Practice balancing growth, time, diversification, and risk.",
+      "topic": "investing",
+      "genres": [
+        "rhythm"
+      ],
+      "difficulty": "easy",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-deal-master",
+      "title": "Deal Master",
+      "url": "../bot-deal-master/",
+      "thumbnail": "assets/thumbs-webp/deal-master.webp",
+      "learningObjective": "Build practical money judgment through play.",
+      "topic": "money-basics",
+      "genres": [
+        "strategy"
+      ],
+      "difficulty": "hard",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-dividend-drip",
+      "title": "Dividend DRIP",
+      "url": "../bot-dividend-drip/",
+      "thumbnail": "assets/thumbs-webp/dividend-drip.webp",
+      "learningObjective": "Practice balancing growth, time, diversification, and risk.",
+      "topic": "investing",
+      "genres": [
+        "simulation"
+      ],
+      "difficulty": "medium",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-ecommerce-empire",
+      "title": "Ecommerce Empire",
+      "url": "../bot-ecommerce-empire/",
+      "thumbnail": "assets/thumbs-webp/ecommerce-empire.webp",
+      "learningObjective": "Practice building sustainable revenue, profit, and business runway.",
+      "topic": "entrepreneurship",
+      "genres": [
+        "simulation",
+        "tycoon"
+      ],
+      "difficulty": "medium",
+      "playtimeMinutes": 5,
+      "status": "flagship",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": 5,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-emergency-fund-escape",
+      "title": "Emergency Fund",
+      "url": "../bot-emergency-fund-escape/",
+      "thumbnail": "assets/thumbs-webp/emergency-fund.webp",
+      "learningObjective": "Practice balancing income, expenses, savings, and financial resilience.",
+      "topic": "budgeting-and-saving",
+      "genres": [
+        "arcade"
+      ],
+      "difficulty": "easy",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-estate-escape",
+      "title": "Estate Escape",
+      "url": "../bot-estate-escape/",
+      "thumbnail": "assets/thumbs-webp/estate-escape.webp",
+      "learningObjective": "Build practical money judgment through play.",
+      "topic": "money-basics",
+      "genres": [
+        "strategy"
+      ],
+      "difficulty": "hard",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-expense-ratio-hunter",
+      "title": "Expense Hunter",
+      "url": "../bot-expense-ratio-hunter/",
+      "thumbnail": "assets/thumbs-webp/expense-hunter.webp",
+      "learningObjective": "Practice balancing income, expenses, savings, and financial resilience.",
+      "topic": "budgeting-and-saving",
+      "genres": [
+        "puzzle"
+      ],
+      "difficulty": "medium",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-fire-calculator",
+      "title": "FIRE Calculator",
+      "url": "../bot-fire-calculator/",
+      "thumbnail": "assets/thumbs-webp/fire-calc.webp",
+      "learningObjective": "Explore long-term saving, account choices, taxes, and financial independence.",
+      "topic": "retirement-and-taxes",
+      "genres": [
+        "tool",
+        "education"
+      ],
+      "difficulty": "medium",
+      "playtimeMinutes": 3,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-freelancer-agency",
+      "title": "Freelancer Agency",
+      "url": "../bot-freelancer-agency/",
+      "thumbnail": "assets/thumbs-webp/freelancer.webp",
+      "learningObjective": "Practice building sustainable revenue, profit, and business runway.",
+      "topic": "entrepreneurship",
+      "genres": [
+        "simulation"
+      ],
+      "difficulty": "medium",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-hsa-health-hero",
+      "title": "HSA Health Hero",
+      "url": "../bot-hsa-health-hero/",
+      "thumbnail": "assets/thumbs-webp/hsa-hero.webp",
+      "learningObjective": "Explore long-term saving, account choices, taxes, and financial independence.",
+      "topic": "retirement-and-taxes",
+      "genres": [
+        "education"
+      ],
+      "difficulty": "medium",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-inflation-eater",
+      "title": "Inflation Eater",
+      "url": "../bot-inflation-eater/",
+      "thumbnail": "assets/thumbs-webp/inflation-eater.webp",
+      "learningObjective": "Build practical money judgment through play.",
+      "topic": "money-basics",
+      "genres": [
+        "arcade"
+      ],
+      "difficulty": "easy",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-liquid-illiquid",
+      "title": "Liquid vs Illiquid",
+      "url": "../bot-liquid-illiquid/",
+      "thumbnail": "assets/thumbs-webp/liquid-illiquid.webp",
+      "learningObjective": "Build practical money judgment through play.",
+      "topic": "money-basics",
+      "genres": [
+        "education"
+      ],
+      "difficulty": "easy",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-money-surfers-new",
+      "title": "Money Surfers",
+      "url": "../bot-money-surfers-new/",
+      "thumbnail": "assets/thumbs-webp/money-surfers.webp",
+      "learningObjective": "Build practical money judgment through play.",
+      "topic": "money-basics",
+      "genres": [
+        "arcade"
+      ],
+      "difficulty": "easy",
+      "playtimeMinutes": 5,
+      "status": "flagship",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": 9,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-negotiation-nation",
+      "title": "Negotiation Nation",
+      "url": "../bot-negotiation-nation/",
+      "thumbnail": "assets/thumbs-webp/negotiation.webp",
+      "learningObjective": "Build practical money judgment through play.",
+      "topic": "money-basics",
+      "genres": [
+        "strategy"
+      ],
+      "difficulty": "medium",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-net-worth-tracker",
+      "title": "Net Worth Tracker",
+      "url": "../bot-net-worth-tracker/",
+      "thumbnail": "assets/thumbs-webp/net-worth.webp",
+      "learningObjective": "Practice balancing income, expenses, savings, and financial resilience.",
+      "topic": "budgeting-and-saving",
+      "genres": [
+        "puzzle"
+      ],
+      "difficulty": "easy",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-refinance-racer",
+      "title": "Refinance Racer",
+      "url": "../bot-refinance-racer/",
+      "thumbnail": "assets/thumbs-webp/refinance-racer.webp",
+      "learningObjective": "Understand how borrowing choices affect cost, risk, and financial flexibility.",
+      "topic": "credit-and-debt",
+      "genres": [
+        "racing"
+      ],
+      "difficulty": "medium",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-restaurant-tycoon",
+      "title": "Restaurant Tycoon",
+      "url": "../bot-restaurant-tycoon/",
+      "thumbnail": "assets/thumbs-webp/restaurant-tycoon.webp",
+      "learningObjective": "Practice building sustainable revenue, profit, and business runway.",
+      "topic": "entrepreneurship",
+      "genres": [
+        "simulation",
+        "tycoon"
+      ],
+      "difficulty": "medium",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-risk-roulette",
+      "title": "Risk Roulette",
+      "url": "../bot-risk-roulette/",
+      "thumbnail": "assets/thumbs-webp/risk-roulette.webp",
+      "learningObjective": "Practice balancing growth, time, diversification, and risk.",
+      "topic": "investing",
+      "genres": [
+        "chance"
+      ],
+      "difficulty": "hard",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-roth-vs-traditional",
+      "title": "Roth vs Traditional",
+      "url": "../bot-roth-vs-traditional/",
+      "thumbnail": "assets/thumbs-webp/roth-traditional.webp",
+      "learningObjective": "Explore long-term saving, account choices, taxes, and financial independence.",
+      "topic": "retirement-and-taxes",
+      "genres": [
+        "education"
+      ],
+      "difficulty": "medium",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-saas-empire",
+      "title": "SaaS Empire",
+      "url": "../bot-saas-empire/",
+      "thumbnail": "assets/thumbs-webp/saas-empire.webp",
+      "learningObjective": "Practice building sustainable revenue, profit, and business runway.",
+      "topic": "entrepreneurship",
+      "genres": [
+        "simulation",
+        "tycoon"
+      ],
+      "difficulty": "hard",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-side-hustle-sprint",
+      "title": "Side Hustle Sprint",
+      "url": "../bot-side-hustle-sprint/",
+      "thumbnail": "assets/thumbs-webp/side-hustle.webp",
+      "learningObjective": "Practice building sustainable revenue, profit, and business runway.",
+      "topic": "entrepreneurship",
+      "genres": [
+        "arcade"
+      ],
+      "difficulty": "easy",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-startup-tycoon",
+      "title": "Startup Tycoon",
+      "url": "../bot-startup-tycoon/",
+      "thumbnail": "assets/thumbs-webp/startup-tycoon.webp",
+      "learningObjective": "Practice building sustainable revenue, profit, and business runway.",
+      "topic": "entrepreneurship",
+      "genres": [
+        "simulation",
+        "tycoon"
+      ],
+      "difficulty": "hard",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-subway-surfer",
+      "title": "Subway Surfer",
+      "url": "../bot-subway-surfer/",
+      "thumbnail": "assets/thumbs-webp/subway-surfer.webp",
+      "learningObjective": "Build practical money judgment through play.",
+      "topic": "money-basics",
+      "genres": [
+        "arcade",
+        "runner"
+      ],
+      "difficulty": "easy",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "bot-tax-trail",
+      "title": "Tax Trail",
+      "url": "../bot-tax-trail/",
+      "thumbnail": "assets/thumbs-webp/tax-trail.webp",
+      "learningObjective": "Explore long-term saving, account choices, taxes, and financial independence.",
+      "topic": "retirement-and-taxes",
+      "genres": [
+        "adventure"
+      ],
+      "difficulty": "medium",
+      "playtimeMinutes": 5,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-08-08"
+    }
+  ]
+}

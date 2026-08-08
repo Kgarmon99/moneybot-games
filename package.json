@@ -1,10 +1,14 @@
 {
   "name": "moneybot-games",
   "version": "1.0.0",
-  "description": "",
+  "description": "MoneyBot Games arcade and financial literacy platform",
   "main": "screenshot.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "npm run test:manifest && npm run test:catalog && npm run test:smoke",
+    "test:manifest": "node scripts/validate-manifest.js",
+    "test:catalog": "node scripts/audit-catalog.js",
+    "test:health": "node scripts/health-audit.js",
+    "test:smoke": "node scripts/smoke-test.js"
   },
   "repository": {
     "type": "git",
