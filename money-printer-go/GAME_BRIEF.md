@@ -1,83 +1,71 @@
 # MoneyBot Game Brief: Money Printer GO
 
-## 1. Game Snapshot
+## Snapshot
 
-- **Title:** Money Printer GO
-- **One-line pitch:** Print cash to buy assets, but watch out—printing too fast causes hyperinflation and destroys your purchasing power!
-- **Target player:** 12-16 years old
-- **Session length:** 2 minutes
-- **Platform:** Mobile first, desktop supported
-- **Status:** concept
+- **Pitch:** Print cash when necessary, convert it into productive assets, and protect buying power before inflation overheats.
+- **Audience:** Ages 12–16
+- **Session:** Two minutes
+- **Platform:** Mobile-first browser game; keyboard supported
+- **Status:** Flagship rebuild, ready for human playtest pending Codex gate
 
-## 2. Money Concept
+## Learning mechanic
 
-- **Primary concept:** Inflation and Purchasing Power
-- **What the player learns through play:** Creating money out of thin air decreases its value. Real wealth comes from acquiring assets, not just holding cash.
-- **What behavior the game rewards:** Balancing the speed of printing cash with the timing of buying assets before prices skyrocket.
-- **What misconception the game corrects:** "If the government just printed more money, we'd all be rich."
+Money Printer GO models a simplified closed game economy—not a universal claim about real monetary policy. Printing creates immediately spendable cash while increasing the price multiplier and reducing buying power. Productive assets create passive income without additional inflation pressure. The player learns through the tradeoff: cash can solve a short-term need, but durable earning capacity matters more than repeatedly expanding the money supply.
 
-## 3. Core Loop
+## Core loop
 
-> The player repeatedly **taps to print fiat cash**, so they can **buy real assets**, while avoiding **hyperinflation that makes asset prices explode**.
+1. Tap, hold, or press Space to print only enough cash for an asset.
+2. Choose among Tool Kit, Micro Business, and Rental Property.
+3. Let passive income fund the next purchase while inflation cools.
+4. Reach 100 real wealth before two minutes or 1,000% inflation.
 
-## 4. Controls
+## Asset decisions
 
-- **Mobile controls:** Mash tap or press-and-hold the giant "PRINT" button. Tap asset buttons to buy.
-- **Desktop controls:** Spacebar or click to print. Click to buy assets.
-- **Accessibility controls:** High contrast UI, no complex multi-touch gestures required.
+| Asset | Base price | Wealth | Passive income | Role |
+|---|---:|---:|---:|---|
+| Tool Kit | $30 | +2 | +$1/s | Early engine |
+| Micro Business | $140 | +9 | +$6/s | Mid-game accelerator |
+| Rental Property | $520 | +28 | +$17/s | High-cost wealth anchor |
 
-## 5. Systems
+Prices rise with inflation and repeated ownership. Consecutive asset purchases create a smart streak; printing resets it.
 
-- **Scoring:** Measured in "Real Wealth" (number of assets owned).
-- **Progression:** Assets generate passive income or reduce the inflation rate slightly.
-- **Difficulty curve:** The more money printed, the faster the inflation multiplier grows. Prices update dynamically.
-- **Win condition:** Reach 100 Real Wealth points within 2 minutes.
-- **Loss condition:** Inflation hits 1,000% (Hyperinflation Crisis) - fiat becomes worthless.
-- **Replay hook:** High score tracking on time-to-win, plus seeing the absurd numbers inflation can reach.
+## Complete flow
 
-## 6. MoneyBot Brand
+- Title and three-part onboarding
+- Active game with touch, hold, mouse, and keyboard controls
+- Pause/resume/restart state
+- Inflation and timeout loss coaching
+- Win result with wealth, inflation, and best streak
+- Local best-run persistence
+- Optional sound (off by default) and haptics
+- Automatic pause when the tab is hidden
 
-- **Mascot role:** Coach (warns you when inflation is creeping up, sweat drops when the printer is overheating).
-- **MoneyBot colors used:** Brand green for real assets/wealth, alarming red/orange for the inflation meter.
-- **Signature MoneyBot moment:** The "Hyperinflation Warning" where prices suddenly spin up like a slot machine.
-- **Assets required:** Printer icon, cash particle, gold bar (asset 1), real estate (asset 2), MoneyBot mascot faces (neutral, panicked).
+## MoneyBot design
 
-## 7. Screens
+- Canonical shared brand kit and avatar
+- Custom SVG icons for the three assets
+- Green for productive income, gold for wealth, red only for genuine danger
+- Coach copy is short, useful, and non-shaming
+- Reduced-motion fallback, focus states, semantic dialogs, live coaching, and accessible zoom
 
-- **Start/onboarding:** "Welcome to the Central Bank! Buy 100 Real Assets to win. Don't let inflation hit 1000%!"
-- **Gameplay:** 
-  - Top: Real Wealth Score & Time
-  - Middle: Assets to buy (with rapidly updating prices)
-  - Bottom: The Money Printer button and the Inflation Thermometer
-- **Loss/game over:** "Hyperinflation! A loaf of bread costs $1,000,000. Your cash is worthless."
-- **Level clear/win:** "Economic Master! You secured real wealth before the bubble burst."
+## Technical model
 
-## 8. Polish Targets
+- Explicit runtime state: cash, wealth, passive income, inflation multiplier, asset ownership, streak, timer, and lifecycle flags
+- One requestAnimationFrame loop; cancelled on pause/end/restart
+- Stable asset DOM updated in place
+- Pointer hold plus keyboard shortcuts: Space, 1–3, P/Escape
+- Local storage keys: `mb_printer_best_v2`, `mb_printer_sound_v1`
 
-- Particle bursts (cash flying out of the printer).
-- Smooth modal transitions.
-- Animated HUD changes (prices rolling up like odometers).
-- Background motion (screen shake when inflation gets dangerously high).
-- Haptic feedback (on mobile, vibrating faster as inflation rises).
-- Mascot reaction (MoneyBot getting stressed).
+## Verification
 
-## 9. Technical Plan
-
-- **Files:** `index.html`, `game.js`, `style.css`
-- **State model:** `cashBalance`, `realWealth`, `inflationRate`, `baseAssetPrice`
-- **Rendering approach:** DOM-based UI for crisp text, CSS animations for juice.
-- **Responsive strategy:** Flexbox column layout, printer at the bottom thumb zone.
-- **Test plan:** Ensure inflation math doesn't hit NaN too quickly; balance price scaling.
-
-## 10. Done Criteria
-
-- [ ] Loads in browser
-- [ ] Works on mobile viewport
-- [ ] Complete game loop
-- [ ] Win/loss/restart states
-- [ ] Money concept is mechanical, not just text
-- [ ] MoneyBot brand is clear
-- [ ] No placeholder slop
-- [ ] No console errors
-- [ ] Codex challenge run
-- [ ] Known issues documented
+- [x] Browser loads without page errors
+- [x] Complete start/play/pause/result/restart loop
+- [x] Mobile checks at 320×568, 375×667, 390×844, and 430×932
+- [x] Desktop check at 1440×900
+- [x] Keyboard and pointer controls
+- [x] Money mechanic drives scoring and pricing
+- [x] Shared MoneyBot brand kit and local assets
+- [x] Reduced-motion and focus support
+- [x] Repository manifest/catalog/smoke tests
+- [ ] Codex challenge (blocked by expired Codex authentication)
+- [ ] Human balance and feel playtest

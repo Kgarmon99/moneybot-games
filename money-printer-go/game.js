@@ -1,238 +1,36 @@
-const TARGET_WEALTH = 100;
-const START_TIME = 120; // seconds
-const BASE_ASSET_PRICE = 10;
-const MAX_INFLATION = 10.0;
-const INFLATION_PER_PRINT = 0.02;
-const CASH_PER_PRINT = 5;
-const INFLATION_COOLING_RATE = 0.05; // per second
-
-let state = {
-    cash: 0,
-    wealth: 0,
-    inflation: 1.0,
-    timeLeft: START_TIME,
-    isPlaying: false,
-    lastTick: 0
-};
-
-// Elements
-const wealthEl = document.getElementById('wealth-display');
-const timeEl = document.getElementById('time-display');
-const cashEl = document.getElementById('cash-display');
-const priceEl = document.getElementById('price-display');
-const buyBtn = document.getElementById('buy-btn');
-const inflationTextEl = document.getElementById('inflation-text');
-const inflationBarEl = document.getElementById('inflation-bar');
-const printerBtn = document.getElementById('printer-btn');
-const particlesEl = document.getElementById('particles');
-const mascotImg = document.getElementById('mascot-img');
-const mascotSpeech = document.getElementById('mascot-speech');
-
-// Modals
-const modal = document.getElementById('modal');
-const modalTitle = document.getElementById('modal-title');
-const modalDesc = document.getElementById('modal-desc');
-const modalBtn = document.getElementById('modal-btn');
-
-function formatMoney(num) {
-    return '$' + Math.floor(num).toLocaleString();
-}
-
-function formatTime(seconds) {
-    const m = Math.floor(seconds / 60);
-    const s = Math.floor(seconds % 60);
-    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-}
-
-function getCurrentAssetPrice() {
-    return BASE_ASSET_PRICE * state.inflation;
-}
-
-function getInflationPercentage() {
-    return Math.floor((state.inflation - 1.0) * 100);
-}
-
-function spawnText(x, y, text, color = 'var(--mb-green-soft)') {
-    const el = document.createElement('div');
-    el.className = 'pop-text';
-    el.textContent = text;
-    el.style.color = color;
-    el.style.left = `${x - 20}px`;
-    el.style.top = `${y - 20}px`;
-    particlesEl.appendChild(el);
-    setTimeout(() => el.remove(), 800);
-}
-
-function updateHUD() {
-    wealthEl.textContent = `${state.wealth} / ${TARGET_WEALTH}`;
-    timeEl.textContent = formatTime(Math.max(0, state.timeLeft));
-    cashEl.textContent = formatMoney(state.cash);
-    
-    const currentPrice = getCurrentAssetPrice();
-    priceEl.textContent = formatMoney(currentPrice);
-    
-    // Inflation UI
-    const infPct = getInflationPercentage();
-    inflationTextEl.textContent = `${infPct}%`;
-    
-    // Max 1000% visual bar
-    const barPct = Math.min(100, (infPct / 900) * 100); 
-    inflationBarEl.style.width = `${barPct}%`;
-
-    // Buy Button State
-    buyBtn.disabled = state.cash < currentPrice;
-
-    // Visual Warnings
-    if (state.inflation > 8.0) {
-        inflationTextEl.classList.add('danger');
-        printerBtn.classList.add('overheat');
-        mascotImg.className = 'panic';
-        showSpeech("IT'S WORTHLESS!");
-    } else if (state.inflation > 5.0) {
-        inflationTextEl.classList.add('danger');
-        printerBtn.classList.add('overheat');
-        mascotImg.className = 'nervous';
-        showSpeech("Slow down! Prices!");
-    } else if (state.inflation > 2.0) {
-        inflationTextEl.classList.remove('danger');
-        printerBtn.classList.remove('overheat');
-        mascotImg.className = '';
-        showSpeech("Inflation rising...");
-    } else {
-        inflationTextEl.classList.remove('danger');
-        printerBtn.classList.remove('overheat');
-        mascotImg.className = '';
-        hideSpeech();
-    }
-}
-
-let speechTimeout;
-function showSpeech(text) {
-    mascotSpeech.textContent = text;
-    mascotSpeech.classList.add('show');
-    clearTimeout(speechTimeout);
-    speechTimeout = setTimeout(() => hideSpeech(), 2000);
-}
-
-function hideSpeech() {
-    mascotSpeech.classList.remove('show');
-}
-
-function handlePrint(e) {
-    if (!state.isPlaying) return;
-
-    state.cash += CASH_PER_PRINT;
-    state.inflation += INFLATION_PER_PRINT;
-
-    let x = e.clientX || (window.innerWidth / 2);
-    let y = e.clientY || (window.innerHeight * 0.8);
-    if (e.touches && e.touches.length > 0) {
-        x = e.touches[0].clientX;
-        y = e.touches[0].clientY;
-    }
-    
-    x += (Math.random() - 0.5) * 40;
-    y += (Math.random() - 0.5) * 40;
-
-    spawnText(x, y, `+$${CASH_PER_PRINT}`);
-    updateHUD();
-
-    if (navigator.vibrate) navigator.vibrate(15);
-}
-
-function handleBuy(e) {
-    if (!state.isPlaying) return;
-    
-    const price = getCurrentAssetPrice();
-    if (state.cash >= price) {
-        state.cash -= price;
-        state.wealth += 1;
-        
-        let x = e.clientX || (window.innerWidth / 2);
-        let y = e.clientY || 100;
-        
-        spawnText(x, y, "+1 Asset", "var(--mb-gold)");
-        priceEl.classList.add('price-pulse');
-        setTimeout(() => priceEl.classList.remove('price-pulse'), 400);
-        
-        if (navigator.vibrate) navigator.vibrate([20, 30, 20]);
-        updateHUD();
-    }
-}
-
-function endGame(win, reason) {
-    state.isPlaying = false;
-    modal.classList.add('active');
-    
-    if (win) {
-        modalTitle.textContent = "Economic Master!";
-        modalTitle.style.color = "var(--mb-green)";
-        modalDesc.textContent = "You secured real wealth before the bubble burst. " + reason;
-    } else {
-        modalTitle.textContent = "Economy Collapsed!";
-        modalTitle.style.color = "var(--mb-red)";
-        modalDesc.textContent = reason;
-    }
-    modalBtn.textContent = "PLAY AGAIN";
-}
-
-function startGame() {
-    state = {
-        cash: 0,
-        wealth: 0,
-        inflation: 1.0,
-        timeLeft: START_TIME,
-        isPlaying: true,
-        lastTick: performance.now()
-    };
-    modal.classList.remove('active');
-    updateHUD();
-    requestAnimationFrame(gameLoop);
-}
-
-function gameLoop(now) {
-    if (!state.isPlaying) return;
-
-    const dt = (now - state.lastTick) / 1000;
-    state.lastTick = now;
-
-    // Time decay
-    state.timeLeft -= dt;
-
-    // Inflation cooling
-    if (state.inflation > 1.0) {
-        state.inflation -= INFLATION_COOLING_RATE * dt;
-        if (state.inflation < 1.0) state.inflation = 1.0;
-    }
-
-    updateHUD();
-
-    // Check Win/Loss
-    if (state.wealth >= TARGET_WEALTH) {
-        endGame(true, `Finished with ${formatTime(state.timeLeft)} remaining.`);
-        return;
-    }
-    
-    if (state.inflation >= MAX_INFLATION) {
-        endGame(false, `Hyperinflation! A loaf of bread costs $1,000,000. Your cash is worthless.`);
-        return;
-    }
-
-    if (state.timeLeft <= 0) {
-        endGame(false, "Time's up! You didn't acquire enough real assets.");
-        return;
-    }
-
-    requestAnimationFrame(gameLoop);
-}
-
-// Events
-printerBtn.addEventListener('mousedown', handlePrint);
-printerBtn.addEventListener('touchstart', (e) => { e.preventDefault(); handlePrint(e); }, {passive: false});
-
-buyBtn.addEventListener('click', handleBuy);
-modalBtn.addEventListener('click', startGame);
-modalBtn.addEventListener('touchstart', (e) => { e.preventDefault(); startGame(); }, {passive: false});
-
-// Init state (Modal is visible by default)
-updateHUD();
+const CONFIG={targetWealth:100,duration:120,maxInflation:11,cashPerPrint:10,inflationPerPrint:.045,coolingPerSecond:.13,holdInterval:115};
+const ASSETS=[
+  {id:'tools',name:'Tool kit',icon:'assets/icons/tool-kit.svg',basePrice:30,wealth:2,income:1,lesson:'Tools turn effort into repeatable income.'},
+  {id:'business',name:'Micro business',icon:'assets/icons/micro-business.svg',basePrice:140,wealth:9,income:6,lesson:'A business can produce cash without new money.'},
+  {id:'property',name:'Rental property',icon:'assets/icons/rental-property.svg',basePrice:520,wealth:28,income:17,lesson:'Durable assets can protect long-term buying power.'}
+];
+const $=id=>document.getElementById(id);
+const els={container:$('game-container'),wealth:$('wealth-display'),income:$('income-display'),time:$('time-display'),cash:$('cash-display'),power:$('power-display'),inflation:$('inflation-text'),bar:$('inflation-bar'),tip:$('economy-tip'),grid:$('asset-grid'),combo:$('combo-display'),coach:$('coach-text'),printer:$('printer-btn'),particles:$('particles'),pause:$('pause-btn'),sound:$('sound-btn'),modal:$('modal'),modalEyebrow:$('modal-eyebrow'),modalTitle:$('modal-title'),modalDesc:$('modal-desc'),modalDetails:$('modal-details'),resultStats:$('result-stats'),modalBtn:$('modal-btn'),pausePanel:$('pause-panel'),resume:$('resume-btn'),restart:$('restart-btn')};
+let state=createState();let raf=0;let holdTimer=0;let audioCtx=null;let soundOn=localStorage.getItem('mb_printer_sound_v1')==='on';
+function createState(){return{cash:0,wealth:0,income:0,inflation:1,timeLeft:CONFIG.duration,isPlaying:false,isPaused:false,lastTick:0,assets:Object.fromEntries(ASSETS.map(a=>[a.id,0])),prints:0,purchases:0,combo:0,bestCombo:0,startedAt:0};}
+function money(n){return '$'+Math.floor(Math.max(0,n)).toLocaleString();}
+function time(n){n=Math.max(0,Math.ceil(n));return`${String(Math.floor(n/60)).padStart(2,'0')}:${String(n%60).padStart(2,'0')}`;}
+function inflationPct(){return Math.max(0,Math.round((state.inflation-1)*100));}
+function assetPrice(asset){return Math.ceil(asset.basePrice*Math.pow(state.inflation,1.22)*(1+state.assets[asset.id]*.16));}
+function buyingPower(){return Math.round(100/state.inflation);}
+function bestRun(){try{return JSON.parse(localStorage.getItem('mb_printer_best_v2')||'null')}catch{return null}}
+function saveBest(win){const score={win,wealth:state.wealth,timeLeft:Math.max(0,state.timeLeft),inflation:inflationPct(),bestCombo:state.bestCombo,date:Date.now()};const old=bestRun();if(!old||score.wealth>old.wealth||(score.win&&(!old.win||score.timeLeft>old.timeLeft)))localStorage.setItem('mb_printer_best_v2',JSON.stringify(score));}
+function tone(freq=440,duration=.07,type='sine',gain=.035){if(!soundOn)return;audioCtx=audioCtx||new(window.AudioContext||window.webkitAudioContext)();const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type=type;o.frequency.value=freq;g.gain.setValueAtTime(gain,audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(.0001,audioCtx.currentTime+duration);o.connect(g).connect(audioCtx.destination);o.start();o.stop(audioCtx.currentTime+duration);}
+function vibrate(pattern){if(navigator.vibrate&&localStorage.getItem('mb_printer_haptics_v1')!=='off')navigator.vibrate(pattern)}
+function renderAssets(){if(!els.grid.children.length)els.grid.innerHTML=ASSETS.map((a,i)=>`<button class="asset-card" type="button" data-asset="${a.id}"><span><span class="asset-icon" aria-hidden="true"><img src="${a.icon}" alt="" width="31" height="31"></span><span class="asset-name">${a.name}</span><span class="asset-meta">+${a.wealth} wealth · +${money(a.income)}/s</span></span><span><span class="asset-price"></span><span class="asset-meta asset-owned"></span></span></button>`).join('');ASSETS.forEach((a,i)=>{const btn=els.grid.querySelector(`[data-asset="${a.id}"]`),price=assetPrice(a),owned=state.assets[a.id];btn.disabled=!state.isPlaying||state.isPaused||state.cash<price;btn.setAttribute('aria-label',`Buy ${a.name} for ${money(price)}. Adds ${a.wealth} wealth and ${money(a.income)} per second`);btn.querySelector('.asset-price').textContent=money(price);btn.querySelector('.asset-owned').textContent=`Owned ${owned} · Key ${i+1}`})}
+function render(){els.wealth.textContent=`${state.wealth} / ${CONFIG.targetWealth}`;els.income.textContent=`${money(state.income)}/s`;els.time.textContent=time(state.timeLeft);els.cash.textContent=money(state.cash);els.power.textContent=`${buyingPower()}%`;const pct=inflationPct();els.inflation.textContent=`${pct}%`;els.inflation.classList.toggle('danger',pct>=500);els.bar.style.width=`${Math.min(100,pct/10)}%`;els.bar.parentElement.setAttribute('aria-valuenow',String(Math.min(1000,pct)));els.printer.disabled=!state.isPlaying||state.isPaused;els.pause.disabled=!state.isPlaying;els.printer.classList.toggle('overheat',pct>=500);els.combo.hidden=state.combo<2;els.combo.textContent=`Smart streak ×${state.combo}`;renderAssets();}
+function pop(text,color='var(--green2)',x=innerWidth/2,y=innerHeight*.72){const el=document.createElement('span');el.className='pop-text';el.textContent=text;el.style.color=color;el.style.left=`${Math.max(20,Math.min(innerWidth-90,x-24))}px`;el.style.top=`${y-24}px`;els.particles.appendChild(el);setTimeout(()=>el.remove(),820)}
+function coach(text){els.coach.textContent=text;}
+function printCash(event){if(!state.isPlaying||state.isPaused)return;state.cash+=CONFIG.cashPerPrint;state.inflation=Math.min(CONFIG.maxInflation,state.inflation+CONFIG.inflationPerPrint);state.prints++;state.combo=0;const r=els.printer.getBoundingClientRect();pop(`+${money(CONFIG.cashPerPrint)}`,'var(--green2)',event?.clientX||r.left+r.width/2,event?.clientY||r.top);els.printer.classList.add('is-printing');setTimeout(()=>els.printer.classList.remove('is-printing'),80);if(state.prints%8===0)coach(inflationPct()>450?'Prices are surging. Let income work while inflation cools.':'Now convert that cash into an income-producing asset.');tone(190+Math.min(280,state.prints*3),.045,'square',.018);vibrate(8);render();}
+function buyAsset(id,event){const asset=ASSETS.find(a=>a.id===id);if(!asset||!state.isPlaying||state.isPaused)return;const price=assetPrice(asset);if(state.cash<price){coach(`You need ${money(price-state.cash)} more for ${asset.name}.`);tone(120,.09,'sawtooth',.02);return;}state.cash-=price;state.assets[id]++;state.wealth+=asset.wealth;state.income+=asset.income;state.purchases++;state.combo++;state.bestCombo=Math.max(state.bestCombo,state.combo);coach(asset.lesson);const rect=event?.currentTarget?.getBoundingClientRect();pop(`+${asset.wealth} wealth`,'var(--gold)',rect?rect.left+rect.width/2:innerWidth/2,rect?rect.top:innerHeight/2);els.container.classList.add('screen-flash');setTimeout(()=>els.container.classList.remove('screen-flash'),360);tone(520+state.combo*35,.12,'triangle',.045);vibrate([15,25,18]);if(state.wealth>=CONFIG.targetWealth)return endGame(true,'You shifted from printing cash to owning productive assets.');render();}
+function startGame(){cancelAnimationFrame(raf);state=createState();state.isPlaying=true;state.startedAt=Date.now();state.lastTick=performance.now();els.modal.classList.remove('active');els.pausePanel.classList.remove('active');els.modalBtn.textContent='Play again';els.modalDetails.hidden=true;els.resultStats.hidden=true;coach('Print a little, buy an asset, then let your income work.');render();raf=requestAnimationFrame(loop);setTimeout(()=>els.printer.focus(),220)}
+function loop(now){if(!state.isPlaying||state.isPaused)return;const dt=Math.min(.1,(now-state.lastTick)/1000);state.lastTick=now;state.timeLeft-=dt;state.cash+=state.income*dt;if(state.inflation>1)state.inflation=Math.max(1,state.inflation-CONFIG.coolingPerSecond*dt);if(state.inflation>=CONFIG.maxInflation)return endGame(false,'Hyperinflation erased your buying power. Next run, print less and build passive income earlier.');if(state.timeLeft<=0)return endGame(false,'Time ran out. Start with Tool Kits, then let passive income fund larger assets.');render();raf=requestAnimationFrame(loop)}
+function endGame(win,lesson){state.isPlaying=false;state.isPaused=false;cancelAnimationFrame(raf);stopHold();saveBest(win);els.pause.disabled=true;els.modalEyebrow.textContent=win?'Run complete':'MoneyBot coaching';els.modalTitle.textContent=win?'Buying power secured':'Economy overheated';els.modalTitle.style.color=win?'var(--green2)':'var(--red)';els.modalDesc.textContent=lesson;els.modalDetails.hidden=true;els.resultStats.hidden=false;els.resultStats.style.display='grid';els.resultStats.innerHTML=`<div><strong>${state.wealth}</strong><span>Real wealth</span></div><div><strong>${inflationPct()}%</strong><span>Inflation</span></div><div><strong>×${state.bestCombo}</strong><span>Smart streak</span></div>`;els.modalBtn.textContent='Play again';els.modal.classList.add('active');tone(win?740:110,.35,win?'triangle':'sawtooth',.05);vibrate(win?[40,50,80]:[100,60,100]);setTimeout(()=>els.modalBtn.focus(),220)}
+function pauseGame(){if(!state.isPlaying)return;state.isPaused=true;cancelAnimationFrame(raf);stopHold();els.pausePanel.classList.add('active');render();setTimeout(()=>els.resume.focus(),150)}
+function resumeGame(){if(!state.isPlaying)return;state.isPaused=false;state.lastTick=performance.now();els.pausePanel.classList.remove('active');render();raf=requestAnimationFrame(loop);els.printer.focus()}
+function stopHold(){clearInterval(holdTimer);holdTimer=0;els.printer.classList.remove('is-printing')}
+function startHold(e){if(e.pointerType==='mouse'&&e.button!==0)return;printCash(e);stopHold();holdTimer=setInterval(()=>printCash(e),CONFIG.holdInterval)}
+els.grid.addEventListener('click',e=>{const btn=e.target.closest('[data-asset]');if(btn)buyAsset(btn.dataset.asset,e)});els.printer.addEventListener('pointerdown',startHold);addEventListener('pointerup',stopHold);addEventListener('pointercancel',stopHold);els.printer.addEventListener('contextmenu',e=>e.preventDefault());els.pause.addEventListener('click',pauseGame);els.resume.addEventListener('click',resumeGame);els.restart.addEventListener('click',startGame);els.modalBtn.addEventListener('click',startGame);els.sound.addEventListener('click',()=>{soundOn=!soundOn;localStorage.setItem('mb_printer_sound_v1',soundOn?'on':'off');els.sound.setAttribute('aria-pressed',String(soundOn));els.sound.setAttribute('aria-label',soundOn?'Turn sound off':'Turn sound on');els.sound.textContent=soundOn?'Sound on':'Sound off';if(soundOn)tone(620,.09,'triangle',.04)});
+addEventListener('keydown',e=>{if(e.repeat&&e.code!=='Space')return;if(e.code==='Space'&&state.isPlaying&&!state.isPaused){e.preventDefault();printCash()}if(['Digit1','Digit2','Digit3'].includes(e.code)&&state.isPlaying&&!state.isPaused)buyAsset(ASSETS[Number(e.code.slice(-1))-1].id);if(e.code==='KeyP'||e.code==='Escape'){if(state.isPaused)resumeGame();else if(state.isPlaying)pauseGame()}});
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&state.isPlaying&&!state.isPaused)pauseGame()});
+els.sound.setAttribute('aria-pressed',String(soundOn));els.sound.textContent=soundOn?'Sound on':'Sound off';render();
