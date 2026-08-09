@@ -14,10 +14,14 @@
       "id": "asset-auction",
       "title": "Asset Auction",
       "url": "https://kgarmon99.github.io/moneybot-buy-assets/",
-      "thumbnail": "assets/thumbs-png/asset-auction.svg",
+      "thumbnail": "assets/thumbs-webp/asset-auction.webp",
       "learningObjective": "Inspect deals, bid below value, and build a resilient cashflow portfolio.",
       "topic": "investing",
-      "genres": ["strategy", "simulation", "education"],
+      "genres": [
+        "strategy",
+        "simulation",
+        "education"
+      ],
       "difficulty": "hard",
       "playtimeMinutes": 8,
       "status": "beta",
