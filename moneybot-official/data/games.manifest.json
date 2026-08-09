@@ -11,6 +11,23 @@
   ],
   "games": [
     {
+      "id": "asset-auction",
+      "title": "Asset Auction",
+      "url": "https://kgarmon99.github.io/moneybot-buy-assets/",
+      "thumbnail": "assets/thumbs-png/asset-auction.svg",
+      "learningObjective": "Inspect deals, bid below value, and build a resilient cashflow portfolio.",
+      "topic": "investing",
+      "genres": ["strategy", "simulation", "education"],
+      "difficulty": "hard",
+      "playtimeMinutes": 8,
+      "status": "beta",
+      "visibility": "public",
+      "section": "featured",
+      "featuredOrder": 2,
+      "version": "3.0.0",
+      "lastReviewed": "2026-08-08"
+    },
+    {
       "id": "fraud-or-nah",
       "title": "Fraud or Nah",
       "url": "../fraud-or-nah/",
