@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 464 284" role="img" aria-labelledby="title desc">
+  <title id="title">Portfolio Panic thumbnail</title>
+  <desc id="desc">A balanced portfolio dashboard with growth, stability, cash, and skills bars.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#07111f"/><stop offset="1" stop-color="#082f49"/></linearGradient>
+    <linearGradient id="bar" x1="0" x2="1"><stop stop-color="#00e676"/><stop offset="1" stop-color="#38bdf8"/></linearGradient>
+  </defs>
+  <rect width="464" height="284" rx="26" fill="url(#bg)"/>
+  <circle cx="350" cy="70" r="118" fill="#38bdf8" opacity=".12"/>
+  <g transform="translate(58 56)">
+    <rect width="348" height="156" rx="22" fill="#0b1628" stroke="#69f0ae" stroke-opacity=".24"/>
+    <g font-family="Inter,Arial" font-weight="900" font-size="16">
+      <text x="28" y="42" fill="#aab8c8">GROWTH</text><rect x="130" y="26" width="154" height="18" rx="9" fill="url(#bar)"/>
+      <text x="28" y="76" fill="#aab8c8">STABILITY</text><rect x="130" y="60" width="104" height="18" rx="9" fill="url(#bar)"/>
+      <text x="28" y="110" fill="#aab8c8">CASH</text><rect x="130" y="94" width="72" height="18" rx="9" fill="url(#bar)"/>
+      <text x="28" y="144" fill="#aab8c8">SKILLS</text><rect x="130" y="128" width="126" height="18" rx="9" fill="url(#bar)"/>
+    </g>
+  </g>
+  <path d="M330 218c24-32 54-32 78 0" fill="none" stroke="#fbbf24" stroke-width="12" stroke-linecap="round"/>
+  <path d="M369 220v-36" stroke="#fbbf24" stroke-width="12" stroke-linecap="round"/>
+  <text x="28" y="250" font-family="Inter,Arial" font-size="16" font-weight="900" fill="#69f0ae">PORTFOLIO PANIC</text>
+</svg>

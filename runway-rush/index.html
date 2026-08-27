@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#07111F">
+  <meta name="description" content="Runway Rush is a MoneyBot arcade game about cashflow, bills, and emergency savings.">
+  <title>Runway Rush - MoneyBot Games</title>
+  <link rel="stylesheet" href="assets/moneybot/moneybot-game.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="mb-game-body">
+  <a class="back-link" href="../moneybot-official/">Back to arcade</a>
+  <main class="game-wrap">
+    <header class="mb-hud">
+      <div class="mb-brand">
+        <img id="mascotHud" class="mb-brand-mark" src="assets/moneybot/assets/moneybot-logo-avatar.png" alt="MoneyBot">
+        <div class="mb-title-group"><p class="mb-kicker">MoneyBot Arcade</p><h1 id="gameTitle" class="mb-title">Runway Rush</h1></div>
+      </div>
+      <div class="mb-stat-row">
+        <div class="mb-stat"><span class="mb-stat-label">Score</span><span id="score" class="mb-stat-value">0</span></div>
+        <div class="mb-stat"><span class="mb-stat-label">Streak</span><span id="streak" class="mb-stat-value">0</span></div>
+        <div class="mb-stat"><span class="mb-stat-label">Best</span><span id="best" class="mb-stat-value">0</span></div>
+      </div>
+    </header>
+    <section class="mb-play-card game-card">
+      <div class="stage-head">
+        <p id="concept" class="concept"></p>
+        <div class="meters">
+          <div class="meter-block"><label><span id="meterAName">Cash</span><span id="meterAValue">$0</span></label><div class="mb-meter" role="meter" aria-valuemin="0" aria-valuemax="100" aria-label="Cash"><span id="meterA"></span></div></div>
+          <div class="meter-block"><label><span id="meterBName">Runway</span><span id="meterBValue">0 mo</span></label><div class="mb-meter" role="meter" aria-valuemin="0" aria-valuemax="100" aria-label="Runway"><span id="meterB"></span></div></div>
+        </div>
+      </div>
+      <div id="playZone" class="play-zone"></div>
+      <div id="controls" class="controls"></div>
+      <div class="coach"><img src="assets/moneybot/assets/moneybot-logo-avatar.png" alt="MoneyBot coach"><p id="coachText"></p></div>
+    </section>
+  </main>
+  <div id="toast" class="toast" role="status"></div>
+  <section id="startOverlay" class="overlay" role="dialog" aria-modal="true" aria-labelledby="startTitle"><div class="mb-modal-card modal"><img id="mascotStart" src="assets/moneybot/assets/moneybot-logo-avatar.png" alt="MoneyBot"><h1 id="startTitle">Runway Rush</h1><p id="startText"></p><div class="modal-actions"><button id="startBtn" class="mb-btn mb-btn-primary" type="button">Play</button></div></div></section>
+  <section id="pauseOverlay" class="overlay hidden" role="dialog" aria-modal="true" aria-labelledby="pauseTitle"><div class="mb-modal-card modal"><h2 id="pauseTitle">Paused</h2><p>Your cashflow is waiting.</p><div class="modal-actions"><button id="resumeBtn" class="mb-btn mb-btn-primary" type="button">Resume</button><button id="restartFromPauseBtn" class="mb-btn mb-btn-secondary" type="button">Restart</button></div></div></section>
+  <section id="resultOverlay" class="overlay hidden" role="dialog" aria-modal="true" aria-labelledby="resultTitle"><div class="mb-modal-card modal"><img id="mascotResult" src="assets/moneybot/assets/moneybot-logo-avatar.png" alt="MoneyBot"><h2 id="resultTitle">Run over</h2><p id="resultText"></p><div id="resultStats" class="mb-stat-row"></div><div class="modal-actions"><button id="playAgainBtn" class="mb-btn mb-btn-primary" type="button">Play again</button><a class="mb-btn mb-btn-secondary" href="../moneybot-official/">Arcade</a></div></div></section>
+  <script>window.MB_ARCADE_CONFIG={id:"runway-rush",type:"runner",title:"Runway Rush",concept:"Cashflow is a survival game: recurring revenue lowers monthly burn, savings add cash, and bills shorten runway.",startText:"Move between lanes. Revenue raises recurring income, savings add cash reserves, and bills increase burn. Keep enough months of runway to survive.",coach:"Collect recurring revenue first, then protect it with cash reserves."};</script>
+  <script src="assets/moneybot/moneybot-game-kit.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
