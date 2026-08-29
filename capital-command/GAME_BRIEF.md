@@ -1,82 +1,43 @@
-# 1. Game Snapshot
+# Capital Command Elite — Game Brief
 
-- **Title:** Capital Command
-- **One-line pitch:** Build a resilient money system by routing income through bills, emergency cash, debt, investing, learning, and risk shields before volatility breaks your runway.
-- **Target player:** Adults and founders who need to feel money tradeoffs quickly.
-- **Session length:** 2 minutes
-- **Platform:** mobile first, desktop supported
-- **Status:** flagship migration candidate; ready for human playtest pending independent elite gate
+## Snapshot
+- **Pitch:** Catch fictional income, then build a resilient capital system through six progressively unlocked commands.
+- **Audience / session:** Adults and founders; mobile-first; roughly 3 minutes.
+- **Learning goal:** Feel why sequence matters: Bills → Shield → Debt → Invest → Skill → Diversify.
+- **Disclaimer:** Educational content only. Not investment advice.
 
-# 2. Money Concept
+## Core loop and progression
+The player steers MoneyBot to catch income and avoid expenses/market risk, then allocates held cash. Exactly one system unlocks per wave:
+1. Bills protects current obligations.
+2. Shield absorbs surprises.
+3. Debt lowers future interest drag.
+4. Invest compounds after the base is stable.
+5. Skill improves future income and burn.
+6. Diversify reduces volatility damage.
 
-- **Primary concept:** cashflow and opportunity cost
-- **What the player learns through play:** Income is powerful only when routed through a system; bills protect survival, emergency cash absorbs shocks, debt payoff reduces drag, investing compounds after stability, learning increases future income, and diversification lowers drawdowns.
-- **What behavior the game rewards:** Cover fixed obligations first, keep a cash shield, reduce expensive debt, invest consistently once stable, and buy upgrades that improve future rounds.
-- **What misconception the game corrects:** The highest-upside move is not always the best move; a fragile money system loses more to shocks than it gains from chasing upside.
+Locks are enforced through click, keyboard 1–6, and automatic deployment. Disabled controls remain visible with accessible unlock labels. The live projection and committed outcome call the same pure `applyAllocation` rule.
 
-# 3. Core Loop
+## Evidence and replay
+Every allocation, expense, shock, market loss, and wave close creates a timeline event. The final Command Report includes allocation totals, wave history evidence, bills missed, shocks, avoided interest, investment change, starting/ending runway and net worth, plus deterministic strongest/weakest coaching. Snapshots at each reached wave support replay from that wave with the same seeded random stream.
 
-> The player repeatedly catches income and allocates it to financial systems, so they can extend runway and grow net worth, while avoiding expense pressure, debt drag, and volatility shocks.
+## Controls and accessibility
+- Pointer drag/tap, WASD/arrows, number keys 1–6, Space/Escape pause.
+- 44px minimum interactive targets, keyboard focus indicators, modal focus trap and focus restoration.
+- Locked systems use native `disabled` plus descriptive ARIA labels.
+- Non-shaming coaching and reduced-motion support.
 
-# 4. Controls
+## Responsive contract
+Active play fits 390×844 without document scrolling or horizontal overflow. The logical 390×360 canvas scales into a flexible one-screen grid. Desktop uses the same browser-native files with no build step.
 
-- **Mobile controls:** Drag on the playfield to steer the MoneyBot cursor; tap system nodes to allocate held income.
-- **Desktop controls:** Arrow keys or WASD to steer; number keys 1-6 allocate to systems; space pauses.
-- **Accessibility controls:** Large tap targets, keyboard control, visible labels, non-shaming loss copy, high contrast.
-
-# 5. Systems
-
-- **Scoring:** Final score blends resilience, net worth, runway, streak, and debt reduction.
-- **Progression:** Six waves introduce expense pressure, emergency shocks, debt interest, market volatility, learning leverage, and final stress testing.
-- **Difficulty curve:** Waves get faster, risks appear more often, and smarter allocation becomes mandatory.
-- **Win condition:** Survive six waves with positive runway.
-- **Loss condition:** Cash and emergency reserves fall below zero or runway reaches zero.
-- **Replay hook:** Best score, rank, streak, and different allocation paths.
-
-# 6. MoneyBot Brand
-
-- **Mascot role:** Avatar and coach
-- **MoneyBot colors used:** Green, dark ink, blue, gold, red, muted slate.
-- **Signature MoneyBot moment:** Emergency shield visibly absorbs a shock and the coach announces “Shield saved the month.”
-- **Assets required:** Installed MoneyBot brand kit and official avatar; game objects remain lightweight canvas primitives.
-
-# 7. Screens
-
-- Start/onboarding
-- Gameplay
-- Pause
-- Level clear/win
-- Loss/game over
-- Upgrade/reward feedback between waves
-
-# 8. Polish Targets
-
-- Particle bursts
-- Score popovers
-- Haptic feedback
-- Smooth modal transitions
-- Animated HUD changes
-- Background motion
-- Mascot reaction
-- Progress meter
-
-# 9. Technical Plan
-
-- **Files:** `index.html`, `style.css`, `game.js`, `assets/README.md`
-- **State model:** Single deterministic state object with wave configuration, player, falling items, systems, HUD metrics, particles, and modal status.
-- **Rendering approach:** Canvas for playfield and SVG/CSS for UI shell.
-- **Responsive strategy:** Fixed logical canvas scaled to available mobile-first shell; pointer coordinates transformed into canvas space.
-- **Test plan:** Static browser load, local server smoke test, mobile viewport screenshot, console check, MoneyBot QA gate, Codex game review.
-
-# 10. Done Criteria
-
-- [x] Loads in browser
-- [x] Works on mobile viewport
-- [x] Complete game loop
-- [x] Win/loss/restart states
-- [x] Money concept is mechanical, not just text
-- [x] MoneyBot brand is clear
-- [x] Final game copy and art primitives are in place
-- [x] No console errors
-- [ ] Independent challenge review has no blocking issues
-- [x] Known issues documented in `MONEYBOT_GAME_QA.md`
+## Done criteria
+- [x] Complete six-wave game loop and progressive unlock enforcement
+- [x] Pure shared exact allocation projection/commit rule
+- [x] Timeline and complete final Command Report
+- [x] Deterministic evidence coaching and replay-from-wave snapshots
+- [x] 390×844 one-screen active play and 44px targets
+- [x] Pause/restart fix, focus trap/restore, safe AudioContext
+- [x] Official MoneyBot brand kit and disclaimer
+- [x] Syntax and focused Playwright tests
+- [x] Repository static/browser QA checks
+- [ ] Independent Codex review (blocked by invalid Codex refresh token)
+- [ ] Physical-device human playtest

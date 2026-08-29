@@ -4,13 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="description" content="Play MoneyBot Games: fast, mobile-friendly games that teach saving, investing, budgeting, credit, entrepreneurship, and financial safety.">
-    <meta name="theme-color" content="#070d0a">
+    <meta name="theme-color" content="#f5f5f0">
     <meta property="og:type" content="website">
     <meta property="og:title" content="MoneyBot Games — Learn Money Through Play">
     <meta property="og:description" content="Arcade games, simulations, and challenges that turn money skills into play.">
     <meta property="og:image" content="assets/hero-bg.png">
     <meta name="twitter:card" content="summary_large_image">
     <title>MoneyBot Games — Learn Money Through Play</title>
+    <link rel="icon" type="image/jpeg" href="assets/moneybot-logo-1.jpg">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
 :root {
@@ -191,13 +192,14 @@ a:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid 
     *, *::before, *::after { scroll-behavior: auto !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
 }
 </style>
+    <link rel="stylesheet" href="signal.css">
 </head>
 <body>
     <nav class="nav">
         <div class="nav-inner">
-            <a href="#" class="nav-logo">
+            <a href="#" class="nav-logo" aria-label="MoneyBot Games home">
                 <img src="assets/moneybot-logo-1.jpg" alt="MoneyBot">
-                <span>MoneyBot</span>
+                <span>MoneyBot Games</span>
             </a>
             <div class="nav-search">
                 <label for="searchInput" class="sr-only">Search games</label>
@@ -235,8 +237,9 @@ a:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid 
         <div class="launchpad">
             <section class="launch-copy">
                 <div class="launch-inner">
-                    <div class="eyebrow">MoneyBot Arcade</div>
-                    <h1 class="launch-title">Money lessons that play like games.</h1>
+                    <img class="launch-logo" src="assets/moneybot-logo-1.jpg" alt="MoneyBot" width="633" height="633">
+                    <div class="eyebrow">MoneyBot Arcade / 110 playable experiences</div>
+                    <h1 class="launch-title">Money lessons that <span>play like games.</span></h1>
                     <p class="launch-subtitle">Arcade runs, startup sims, investing puzzles, classroom-ready tools, and quick financial literacy challenges in one fast hub.</p>
                     <div class="launch-actions">
                         <a class="launch-btn" href="../fraud-or-nah/" onclick="trackPlay('Fraud or Nah','../fraud-or-nah/','education','medium')">Play Fraud or Nah</a>

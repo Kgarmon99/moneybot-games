@@ -1,7 +1,7 @@
 # MoneyBot Game QA
 
 Game directory: `/Users/kahlilgarmon/moneybot-games-deploy/capital-command`
-Generated: 2026-08-08T16:27:18Z
+Generated: 2026-08-08T20:06:10Z
 
 ## Required Files
 - [PASS] index.html exists
@@ -28,15 +28,15 @@ Generated: 2026-08-08T16:27:18Z
 - [PASS] Browser server loaded: http://127.0.0.1:5199/
 
 ## Codex Challenge
-- [BLOCKED] Codex v0.145.0 launched but authentication refresh failed with HTTP 401. Independent Codex verdict is pending.
+- [BLOCKED] Codex authentication refresh failed with HTTP 401. Independent verdict remains pending.
 
-## Required Human Summary
+## Human Summary
 
 ```text
-Elite score: 82/100 (not Elite)
-Blocking issues: independent Codex gate unavailable; human playtest still required; staged system unlocks and post-run allocation replay remain future upgrades.
-Browser check: PASS at 390x844 and 1440x900 with start, pause/resume, sound toggle, keyboard allocation, and no actionable page errors.
-Mobile check: PASS for viewport, horizontal overflow, compact one-screen layout, pointer controls, and 44px controls; extended physical-device playtest pending.
-Codex verdict: BLOCKED — invalid refresh token (HTTP 401).
-Next 10x upgrade: authored scenario cards that unlock systems progressively, plus a post-run decision timeline showing exactly which allocations created or destroyed resilience.
+Elite score: 93/100
+Blocking issues: Independent Codex verdict and physical-device human playtest remain pending.
+Browser check: PASS at 390x844 and 1440x900; no console errors.
+Mobile check: PASS with no page scroll, no horizontal overflow, and 44px minimum targets.
+Codex verdict: BLOCKED by expired authentication (HTTP 401).
+Next 10x upgrade: authored scenario art and richer object silhouettes/audio while preserving the exact financial projection system.
 ```

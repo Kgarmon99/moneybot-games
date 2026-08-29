@@ -2,135 +2,217 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover"
+    />
     <meta name="theme-color" content="#07111F" />
-    <meta name="description" content="Build a resilient fictional portfolio through fast cashflow, debt, emergency-fund, and diversification decisions." />
+    <meta
+      name="description"
+      content="Build a resilient fictional portfolio through cashflow decisions."
+    />
     <title>Capital Command | MoneyBot</title>
     <link rel="stylesheet" href="./assets/moneybot/moneybot-game.css" />
     <link rel="stylesheet" href="./style.css" />
   </head>
   <body>
-    <main class="game-shell" aria-label="Capital Command financial literacy game">
-      <section class="topbar" aria-label="Game header">
+    <main
+      class="game-shell"
+      aria-label="Capital Command financial literacy game"
+    >
+      <header class="topbar">
         <div class="brand-lockup">
-          <img class="coach-mark" src="./assets/moneybot/assets/moneybot-logo-avatar.png" alt="" />
+          <img
+            class="coach-mark"
+            src="./assets/moneybot/assets/moneybot-logo-avatar.png"
+            alt=""
+          />
           <div>
             <p>MoneyBot</p>
             <h1>Capital Command</h1>
           </div>
         </div>
         <div class="topbar-actions">
-          <a class="icon-button home-button" href="../moneybot-official/" aria-label="Back to MoneyBot Games">Home</a>
-          <button class="icon-button sound-button" id="soundButton" type="button" aria-label="Turn sound on" aria-pressed="false">Sound</button>
-          <button class="icon-button" id="pauseButton" type="button" aria-label="Pause game"><span></span><span></span></button>
+          <a class="icon-button home-button" href="../moneybot-official/"
+            >Home</a
+          ><button
+            class="icon-button sound-button"
+            id="soundButton"
+            type="button"
+            aria-pressed="false"
+          >
+            Sound</button
+          ><button
+            class="icon-button"
+            id="pauseButton"
+            type="button"
+            aria-label="Pause game"
+          >
+            <span></span><span></span>
+          </button>
         </div>
-      </section>
-
+      </header>
       <section class="hud-grid" aria-label="Financial dashboard">
         <article class="hud-card">
-          <span>Runway</span>
-          <strong id="runwayValue">2.0 mo</strong>
+          <span>Runway</span><strong id="runwayValue">2.0 mo</strong>
         </article>
         <article class="hud-card">
-          <span>Net worth</span>
-          <strong id="netWorthValue">$1,200</strong>
+          <span>Net worth</span><strong id="netWorthValue">$900</strong>
         </article>
         <article class="hud-card">
-          <span>Debt</span>
-          <strong id="debtValue">$2,600</strong>
+          <span>Debt</span><strong id="debtValue">$2,600</strong>
         </article>
         <article class="hud-card">
-          <span>Streak</span>
-          <strong id="streakValue">0</strong>
+          <span>Streak</span><strong id="streakValue">0</strong>
         </article>
       </section>
-
-      <section class="wave-band" aria-label="Current wave">
+      <section class="wave-band">
         <div>
-          <span id="waveLabel">Wave 1 of 6</span>
-          <strong id="waveName">Stabilize</strong>
+          <span id="waveLabel">Wave 1 of 6</span
+          ><strong id="waveName">Stabilize</strong>
         </div>
         <div class="progress-track" aria-label="Wave progress">
           <span id="waveFill"></span>
         </div>
       </section>
-
       <section class="coach-panel" aria-live="polite">
-        <img class="coach-avatar" src="./assets/moneybot/assets/moneybot-logo-avatar.png" alt="MoneyBot coach" />
-        <p id="coachText">Catch income, then tap a system. Bills protect today. Shields protect surprises.</p>
+        <img
+          class="coach-avatar"
+          src="./assets/moneybot/assets/moneybot-logo-avatar.png"
+          alt="MoneyBot coach"
+        />
+        <p id="coachText">Catch income, then cover bills.</p>
       </section>
-
-      <section class="play-card" aria-label="Game field">
-        <canvas id="gameCanvas" width="390" height="520" aria-label="Capital Command playfield"></canvas>
+      <section class="play-card">
+        <canvas
+          id="gameCanvas"
+          width="390"
+          height="360"
+          aria-label="Playfield. Drag or use arrow keys to catch income."
+        ></canvas>
         <div class="held-chip" id="heldChip" aria-live="polite">$0 held</div>
       </section>
-
+      <section class="projection" id="projection" aria-live="polite">
+        Next allocation: catch income first.
+      </section>
       <section class="system-grid" aria-label="Allocation systems">
-        <button class="system-node bills" type="button" data-system="bills">
-          <span>1</span>
-          <strong>Bills</strong>
-          <small id="billsValue">$0 / $1,100</small>
+        <button class="system-node bills" data-system="bills" type="button">
+          <span>1</span><strong>Bills</strong
+          ><small id="billsValue">$0 / $1,100</small><em></em>
         </button>
-        <button class="system-node shield" type="button" data-system="shield">
-          <span>2</span>
-          <strong>Shield</strong>
-          <small id="shieldValue">$700</small>
+        <button class="system-node shield" data-system="shield" type="button">
+          <span>2</span><strong>Shield</strong
+          ><small id="shieldValue">$700</small><em></em>
         </button>
-        <button class="system-node debt" type="button" data-system="debt">
-          <span>3</span>
-          <strong>Debt</strong>
-          <small id="debtPayValue">$0 paid</small>
+        <button class="system-node debt" data-system="debt" type="button">
+          <span>3</span><strong>Debt</strong
+          ><small id="debtPayValue">$0 paid</small><em></em>
         </button>
-        <button class="system-node invest" type="button" data-system="invest">
-          <span>4</span>
-          <strong>Invest</strong>
-          <small id="investValue">$1,900</small>
+        <button class="system-node invest" data-system="invest" type="button">
+          <span>4</span><strong>Invest</strong
+          ><small id="investValue">$1,900</small><em></em>
         </button>
-        <button class="system-node learn" type="button" data-system="learn">
-          <span>5</span>
-          <strong>Skill</strong>
-          <small id="learnValue">Level 0</small>
+        <button class="system-node learn" data-system="learn" type="button">
+          <span>5</span><strong>Skill</strong
+          ><small id="learnValue">Level 0</small><em></em>
         </button>
-        <button class="system-node diversify" type="button" data-system="diversify">
-          <span>6</span>
-          <strong>Risk</strong>
-          <small id="riskValue">High</small>
+        <button
+          class="system-node diversify"
+          data-system="diversify"
+          type="button"
+        >
+          <span>6</span><strong>Diversify</strong
+          ><small id="riskValue">High risk</small><em></em>
         </button>
       </section>
-
       <section class="action-row">
-        <button class="secondary-button" id="restartButton" type="button">Restart</button>
-        <button class="primary-button" id="deployButton" type="button">Deploy held cash</button>
+        <button class="secondary-button" id="restartButton" type="button">
+          Restart</button
+        ><button class="primary-button" id="deployButton" type="button">
+          Deploy held cash
+        </button>
       </section>
     </main>
-
-    <section class="modal is-open" id="startModal" aria-hidden="false" aria-modal="true" role="dialog" aria-labelledby="startTitle">
+    <section
+      class="modal is-open"
+      id="startModal"
+      aria-hidden="false"
+      aria-modal="true"
+      role="dialog"
+      aria-labelledby="startTitle"
+    >
       <div class="modal-card">
-        <img class="modal-coach" src="./assets/moneybot/assets/moneybot-logo-avatar.png" alt="MoneyBot" />
-        <p class="eyebrow">MoneyBot arcade sim · fictional demo</p>
-        <h2 id="startTitle">Build resilience before chasing upside.</h2>
-        <p>Catch income, then route it. Cover bills, build a shield, reduce debt, and only then compound and diversify.</p>
-        <ol class="mission-list"><li>Drag or use WASD to catch income.</li><li>Tap a system or press 1–6 to allocate held cash.</li><li>Survive six increasingly difficult stress tests.</li></ol>
-        <p class="disclaimer">Educational content only. Not investment advice.</p>
-        <button class="primary-button" id="startButton" type="button">Start command</button>
+        <img
+          class="modal-coach"
+          src="./assets/moneybot/assets/moneybot-logo-avatar.png"
+          alt="MoneyBot"
+        />
+        <p class="eyebrow">Arcade simulation · fictional demo</p>
+        <h2 id="startTitle">Build resilience before upside.</h2>
+        <p>
+          Catch income and route it through six systems that unlock one wave at
+          a time.
+        </p>
+        <ol class="mission-list">
+          <li>Drag or use WASD to catch income.</li>
+          <li>Tap an unlocked system or press its number.</li>
+          <li>Survive six stress tests.</li>
+        </ol>
+        <p class="disclaimer">
+          Educational content only. Not investment advice.
+        </p>
+        <button class="primary-button" id="startButton">Start command</button>
       </div>
     </section>
-
-    <section class="modal" id="pauseModal" aria-hidden="true" inert aria-modal="true" role="dialog" aria-labelledby="pauseTitle">
-      <div class="modal-card"><p class="eyebrow">System inspection</p><h2 id="pauseTitle">Command paused.</h2><p>Check runway, bills, shield, debt, and risk before continuing.</p><button class="primary-button" id="resumeButton" type="button">Resume</button><button class="secondary-button" id="pauseRestartButton" type="button">Restart</button></div>
-    </section>
-
-    <section class="modal" id="resultModal" aria-hidden="true" inert aria-modal="true" role="dialog" aria-labelledby="resultTitle">
+    <section
+      class="modal"
+      id="pauseModal"
+      aria-hidden="true"
+      inert
+      aria-modal="true"
+      role="dialog"
+      aria-labelledby="pauseTitle"
+    >
       <div class="modal-card">
+        <p class="eyebrow">System inspection</p>
+        <h2 id="pauseTitle">Command paused.</h2>
+        <p>Review runway and your next exact allocation.</p>
+        <button class="primary-button" id="resumeButton">Resume</button
+        ><button class="secondary-button" id="pauseRestartButton">
+          Restart run
+        </button>
+      </div>
+    </section>
+    <section
+      class="modal"
+      id="resultModal"
+      aria-hidden="true"
+      inert
+      aria-modal="true"
+      role="dialog"
+      aria-labelledby="resultTitle"
+    >
+      <div class="modal-card report-card">
         <p class="eyebrow" id="resultEyebrow">Wave clear</p>
         <h2 id="resultTitle">Runway up.</h2>
-        <p id="resultText">Your system handled the pressure.</p>
+        <p id="resultText"></p>
         <div class="result-stats" id="resultStats"></div>
-        <button class="primary-button" id="continueButton" type="button">Next wave</button>
-        <button class="secondary-button" id="modalRestartButton" type="button">Restart</button>
+        <div
+          id="timeline"
+          class="timeline"
+          aria-label="Decision timeline"
+        ></div>
+        <div id="coaching" class="coaching"></div>
+        <div id="replayChoices" class="replay-choices"></div>
+        <button class="primary-button" id="continueButton">Next wave</button
+        ><button class="secondary-button" id="modalRestartButton">
+          Restart
+        </button>
+        <p class="disclaimer">
+          Educational content only. Not investment advice.
+        </p>
       </div>
     </section>
-
     <div class="toast-layer" id="toastLayer" aria-live="polite"></div>
     <script src="./assets/moneybot/moneybot-game-kit.js"></script>
     <script src="./game.js"></script>
