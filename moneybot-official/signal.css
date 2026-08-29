@@ -24,9 +24,10 @@ html {
 body {
   position: relative;
   background:
-    linear-gradient(116deg, rgba(0, 230, 118, 0.16), transparent 31%),
-    linear-gradient(244deg, rgba(36, 199, 255, 0.14), transparent 34%),
-    linear-gradient(180deg, var(--paper) 0%, #eef6f3 48%, #f8faf8 100%);
+    radial-gradient(ellipse at 18% 0%, rgba(255, 255, 255, 0.92), transparent 34%),
+    linear-gradient(116deg, rgba(0, 230, 118, 0.12), transparent 32%),
+    linear-gradient(244deg, rgba(36, 199, 255, 0.12), transparent 36%),
+    linear-gradient(180deg, var(--paper) 0%, #edf6f3 48%, #f8faf8 100%);
   color: var(--ink);
 }
 
@@ -41,20 +42,22 @@ body::after {
 
 body::before {
   background:
-    linear-gradient(104deg, transparent 4%, rgba(0, 230, 118, 0.18) 9%, transparent 20%),
-    linear-gradient(138deg, transparent 42%, rgba(36, 199, 255, 0.15) 49%, transparent 62%),
-    linear-gradient(20deg, transparent 62%, rgba(245, 200, 76, 0.13) 68%, transparent 78%);
-  filter: blur(30px);
-  transform: rotate(-3deg);
+    radial-gradient(ellipse at 18% 10%, rgba(255, 255, 255, 0.76), transparent 24%),
+    linear-gradient(104deg, transparent 4%, rgba(0, 230, 118, 0.16) 9%, transparent 21%),
+    linear-gradient(138deg, transparent 42%, rgba(36, 199, 255, 0.13) 49%, transparent 63%),
+    linear-gradient(20deg, transparent 62%, rgba(245, 200, 76, 0.1) 69%, transparent 80%);
+  filter: blur(34px);
+  transform: rotate(-3deg) translateZ(0);
 }
 
 body::after {
   z-index: -1;
-  opacity: 0.58;
+  opacity: 0.66;
   background:
-    linear-gradient(124deg, transparent 0 26%, rgba(8, 11, 13, 0.065) 26.15%, transparent 27% 100%),
-    linear-gradient(156deg, transparent 0 45%, rgba(0, 230, 118, 0.08) 45.15%, transparent 46% 100%),
-    linear-gradient(28deg, transparent 0 69%, rgba(36, 199, 255, 0.07) 69.15%, transparent 70% 100%);
+    linear-gradient(124deg, transparent 0 21%, rgba(8, 11, 13, 0.07) 21.08%, transparent 21.8% 100%),
+    linear-gradient(156deg, transparent 0 45%, rgba(0, 230, 118, 0.07) 45.1%, transparent 46% 100%),
+    linear-gradient(28deg, transparent 0 69%, rgba(36, 199, 255, 0.065) 69.1%, transparent 70% 100%),
+    repeating-linear-gradient(104deg, transparent 0 6.5rem, rgba(8, 11, 13, 0.024) 6.54rem 6.6rem);
   mask-image: linear-gradient(90deg, transparent, #000 13%, #000 87%, transparent);
 }
 
@@ -209,9 +212,27 @@ input:focus-visible {
   z-index: -1;
   border-radius: 52% 48% 47% 53% / 17% 28% 72% 83%;
   background:
-    linear-gradient(104deg, rgba(255, 255, 255, 0.62), transparent 38%),
-    linear-gradient(146deg, rgba(0, 230, 118, 0.13), rgba(36, 199, 255, 0.1) 48%, transparent 76%);
+    linear-gradient(104deg, rgba(255, 255, 255, 0.7), transparent 39%),
+    linear-gradient(146deg, rgba(0, 230, 118, 0.11), rgba(36, 199, 255, 0.09) 48%, transparent 78%);
   transform: skewY(-4deg);
+}
+
+.main::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 184px;
+  z-index: -1;
+  width: min(1560px, 108vw);
+  height: 34rem;
+  border: 1px solid rgba(8, 11, 13, 0.08);
+  background:
+    linear-gradient(108deg, rgba(255, 255, 255, 0.38), rgba(0, 230, 118, 0.065) 44%, transparent 72%),
+    repeating-linear-gradient(96deg, transparent 0 5.8rem, rgba(8, 11, 13, 0.035) 5.84rem 5.9rem);
+  clip-path: polygon(0 38%, 18% 14%, 46% 0, 91% 5%, 100% 34%, 88% 78%, 54% 100%, 10% 84%);
+  transform: translateX(-50%) rotate(-4deg) skewX(-7deg);
+  opacity: 0.58;
+  pointer-events: none;
 }
 
 .launchpad,
@@ -225,7 +246,19 @@ input:focus-visible {
 }
 
 .section {
+  position: relative;
   margin-bottom: 52px;
+}
+
+.section::before {
+  content: "";
+  position: absolute;
+  left: -3vw;
+  right: -3vw;
+  top: 2.1rem;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(8, 11, 13, 0.16), rgba(0, 230, 118, 0.18), transparent);
+  pointer-events: none;
 }
 
 .section-header {
@@ -275,6 +308,7 @@ input:focus-visible {
 }
 
 .launch-copy {
+  isolation: isolate;
   min-height: min(62svh, 560px);
   border: 1px solid rgba(8, 11, 13, 0.1);
   border-radius: 54% 46% 50% 50% / 9% 12% 14% 11%;
@@ -283,6 +317,20 @@ input:focus-visible {
     linear-gradient(104deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.56) 52%, rgba(255, 255, 255, 0.22)),
     url("assets/hero-bg.png") center/cover;
   box-shadow: var(--deep-shadow);
+}
+
+.launch-copy::before {
+  content: "";
+  position: absolute;
+  inset: 8% -6% 10% 22%;
+  z-index: 0;
+  border: 1px solid rgba(8, 11, 13, 0.09);
+  background:
+    linear-gradient(116deg, rgba(255, 255, 255, 0.4), rgba(36, 199, 255, 0.08) 34%, transparent 68%),
+    linear-gradient(18deg, transparent 0 42%, rgba(0, 230, 118, 0.12) 45%, transparent 58%);
+  clip-path: polygon(0 31%, 16% 4%, 68% 0, 100% 28%, 89% 82%, 42% 100%, 8% 76%);
+  transform: rotate(-5deg) skewX(-7deg);
+  opacity: 0.72;
 }
 
 .launch-copy::after {
@@ -304,7 +352,6 @@ input:focus-visible {
   margin-bottom: 18px;
   border-radius: 28px 16px 30px;
   filter: drop-shadow(0 18px 32px rgba(8, 11, 13, 0.18));
-  animation: signalFloat 8s var(--ease) infinite;
 }
 
 .eyebrow {
@@ -487,7 +534,9 @@ input:focus-visible {
   align-items: flex-end;
   justify-content: flex-end;
   padding: 14px;
-  background: linear-gradient(135deg, transparent 42%, rgba(8, 11, 13, 0.78));
+  background:
+    linear-gradient(135deg, transparent 42%, rgba(8, 11, 13, 0.78)),
+    linear-gradient(18deg, transparent 0 55%, rgba(0, 230, 118, 0.22) 58%, transparent 70%);
   color: var(--green);
   font-size: 10px;
   font-weight: 950;
@@ -713,12 +762,6 @@ body .mb-popup-close {
   color: var(--ink) !important;
 }
 
-@keyframes signalFloat {
-  50% {
-    transform: translateY(-5px) rotate(-1deg);
-  }
-}
-
 @media (max-width: 768px) {
   .nav-inner {
     padding-block: 10px;
@@ -736,6 +779,13 @@ body .mb-popup-close {
     padding: 198px 14px 56px;
   }
 
+  .main::after {
+    left: 44%;
+    top: 188px;
+    width: 170vw;
+    height: 29rem;
+  }
+
   .launchpad {
     grid-template-columns: 1fr;
   }
@@ -744,6 +794,10 @@ body .mb-popup-close {
     min-height: 0;
     padding: 28px;
     border-radius: 32px 18px 38px;
+  }
+
+  .launch-copy::before {
+    inset: 16% -34% 18% 18%;
   }
 
   .launch-logo {
@@ -857,11 +911,5 @@ body .mb-popup-close {
   .hero-card {
     width: 288px;
     height: 164px;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .launch-logo {
-    animation: none;
   }
 }

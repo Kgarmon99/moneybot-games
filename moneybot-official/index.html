@@ -192,7 +192,7 @@ a:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid 
     *, *::before, *::after { scroll-behavior: auto !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
 }
 </style>
-    <link rel="stylesheet" href="signal.css?v=spatial-light-20260829">
+    <link rel="stylesheet" href="signal.css?v=quiet-premium-20260829">
 </head>
 <body>
     <nav class="nav">
@@ -308,18 +308,17 @@ a:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid 
     </div>
     <style>
     .mb-popup-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.82); z-index: 9999; align-items: center; justify-content: center; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
-    .mb-popup-content { background: linear-gradient(145deg, rgba(16,22,18,0.96), rgba(6,10,8,0.96)); border: 1px solid rgba(0, 230, 118, 0.35); border-radius: 20px; padding: 40px 32px; max-width: 380px; width: 90%; text-align: center; position: relative; overflow: hidden; box-shadow: 0 24px 60px rgba(0,0,0,0.55); animation: mbPopIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    .mb-popup-content { background: linear-gradient(145deg, rgba(16,22,18,0.96), rgba(6,10,8,0.96)); border: 1px solid rgba(0, 230, 118, 0.35); border-radius: 20px; padding: 40px 32px; max-width: 380px; width: 90%; text-align: center; position: relative; overflow: hidden; box-shadow: 0 24px 60px rgba(0,0,0,0.55); animation: mbPopIn 0.28s cubic-bezier(0.22, 1, 0.36, 1); }
     .mb-popup-grid { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-image: linear-gradient(rgba(0, 230, 118, 0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 230, 118, 0.04) 1px, transparent 1px); background-size: 20px 20px; z-index: 0; opacity: 0.5; pointer-events: none; }
     .mb-popup-close { position: absolute; top: 12px; right: 16px; background: none; border: none; color: rgba(255,255,255,0.35); font-size: 28px; cursor: pointer; line-height: 1; transition: 0.2s; z-index: 2; }
     .mb-popup-close:hover { color: var(--accent); transform: rotate(90deg); }
-    .mb-popup-icon { font-size: 52px; margin-bottom: 16px; position: relative; z-index: 1; animation: mbFloat 3s ease-in-out infinite; }
+    .mb-popup-icon { font-size: 52px; margin-bottom: 16px; position: relative; z-index: 1; }
     .mb-popup-title { color: #fff; font-size: 22px; margin-bottom: 10px; font-weight: 900; letter-spacing: -0.2px; position: relative; z-index: 1; }
     .mb-popup-text { color: var(--text-dim); font-size: 14px; line-height: 1.55; margin-bottom: 24px; position: relative; z-index: 1; font-weight: 500; }
     .mb-popup-btn { background: var(--accent); color: #000; border: none; padding: 14px 24px; border-radius: 11px; font-size: 14px; font-weight: 800; cursor: pointer; width: 100%; transition: transform 0.15s, background 0.15s; position: relative; z-index: 1; }
     .mb-popup-btn:hover { transform: translateY(-2px); background: #00ff88; }
     .mb-popup-btn:active { transform: translateY(1px); }
     @keyframes mbPopIn { 0% { transform: scale(0.92) translateY(16px); opacity: 0; } 100% { transform: scale(1) translateY(0); opacity: 1; } }
-    @keyframes mbFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
     </style>
 
     <script>
