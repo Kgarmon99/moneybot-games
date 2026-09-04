@@ -619,6 +619,8 @@ a:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid 
             document.getElementById('statGames').textContent = `${filteredGames.length}+`;
             document.getElementById('statCategories').textContent = new Set(filteredGames.map(g => g.topic)).size;
             document.getElementById('statProgress').textContent = `Lv ${p.lvl}`;
+            const eyebrow = document.getElementById('launchEyebrow');
+            if (eyebrow) eyebrow.textContent = `MoneyBot Arcade / ${filteredGames.length}+ playable experiences`;
             if (p.xp > 0 || Object.keys(p.games).length > 0) {
                 document.getElementById('navProgress').style.display = 'flex';
                 document.getElementById('playerLvl').textContent = p.lvl;
