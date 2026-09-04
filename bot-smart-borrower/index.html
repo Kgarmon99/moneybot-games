@@ -264,7 +264,8 @@
         let lastTime = 0;
         let gameTime = 0; // survival time in seconds
         
-        let player, enemies, bullets, gems, damageTexts, particles;
+        let player = { x: 0, y: 0, radius: 10 };
+        let enemies = [], bullets = [], gems = [], damageTexts = [], particles = [];
         let cam = { x: 0, y: 0 };
         
         let stats = {
@@ -779,8 +780,8 @@
             document.getElementById('titleScreen').classList.remove('active');
             document.getElementById('gameOverMenu').classList.remove('active');
             
-            player = { x: width/2, y: height/2, radius: 10 };
-            enemies = []; bullets = []; gems = []; damageTexts = []; particles = [];
+            player.x = width/2; player.y = height/2; player.radius = 10;
+            enemies.length = 0; bullets.length = 0; gems.length = 0; damageTexts.length = 0; particles.length = 0;
             
             stats = { cash: 0, hp: 100, maxHp: 100, speed: 150, fireRate: 1.5, damage: 10, pickupRange: 80, debtBleed: 0 };
             activeLoans = []; loanIdCounter = 0;
