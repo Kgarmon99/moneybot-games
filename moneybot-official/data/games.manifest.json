@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-08-26",
+  "updatedAt": "2026-09-04",
   "sourceOfTruth": true,
   "allowedStatuses": [
     "flagship",
@@ -14,7 +14,7 @@
       "id": "runway-rush",
       "title": "Runway Rush",
       "url": "../runway-rush/",
-      "thumbnail": "assets/thumbnails/runway-rush.svg",
+      "thumbnail": "assets/thumbs-signal/runway-rush.webp",
       "learningObjective": "Practice extending financial runway by collecting recurring revenue, building savings, and dodging surprise bills.",
       "topic": "budgeting-and-saving",
       "genres": [
@@ -35,7 +35,7 @@
       "id": "apr-attack",
       "title": "APR Attack",
       "url": "../apr-attack/",
-      "thumbnail": "assets/thumbnails/apr-attack.svg",
+      "thumbnail": "assets/thumbs-signal/apr-attack.webp",
       "learningObjective": "Use the debt avalanche idea by prioritizing the highest APR debt after minimums are covered.",
       "topic": "credit-and-debt",
       "genres": [
@@ -56,7 +56,7 @@
       "id": "portfolio-panic",
       "title": "Portfolio Panic",
       "url": "../portfolio-panic/",
-      "thumbnail": "assets/thumbnails/portfolio-panic.svg",
+      "thumbnail": "assets/thumbs-signal/portfolio-panic.webp",
       "learningObjective": "Balance growth, stability, cash, and skills to see why diversification helps portfolios survive shocks.",
       "topic": "investing",
       "genres": [
@@ -2221,12 +2221,180 @@
       "featuredOrder": null,
       "version": "1.0.0",
       "lastReviewed": "2026-08-08"
+    },
+    {
+      "id": "trivia-budgeting-basics",
+      "title": "Budgeting Basics Trivia",
+      "url": "../trivia-budgeting-basics/",
+      "learningObjective": "Test and reinforce core budgeting skills: income, expenses, tracking, and building a working budget.",
+      "topic": "budgeting-and-saving",
+      "genres": [
+        "trivia",
+        "education",
+        "quiz"
+      ],
+      "difficulty": "easy",
+      "playtimeMinutes": 3,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-09-04",
+      "thumbnail": "assets/thumbs-signal/trivia-budgeting-basics.webp"
+    },
+    {
+      "id": "trivia-buying-car",
+      "title": "Buying a Car Trivia",
+      "url": "../trivia-buying-car/",
+      "learningObjective": "Learn the real costs of car ownership and how to make a smart vehicle purchase.",
+      "topic": "life-and-money",
+      "genres": [
+        "trivia",
+        "education",
+        "quiz"
+      ],
+      "difficulty": "easy",
+      "playtimeMinutes": 3,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-09-04",
+      "thumbnail": "assets/thumbs-signal/trivia-buying-car.webp"
+    },
+    {
+      "id": "trivia-credit-cards",
+      "title": "Credit Card Trivia",
+      "url": "../trivia-credit-cards/",
+      "learningObjective": "Understand credit card basics: interest, minimum payments, rewards, and responsible use.",
+      "topic": "credit-and-debt",
+      "genres": [
+        "trivia",
+        "education",
+        "quiz"
+      ],
+      "difficulty": "easy",
+      "playtimeMinutes": 3,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-09-04",
+      "thumbnail": "assets/thumbs-signal/trivia-credit-cards.webp"
+    },
+    {
+      "id": "trivia-saving-college",
+      "title": "Saving for College Trivia",
+      "url": "../trivia-saving-college/",
+      "learningObjective": "Explore ways to save and pay for higher education without crushing debt.",
+      "topic": "saving-and-goals",
+      "genres": [
+        "trivia",
+        "education",
+        "quiz"
+      ],
+      "difficulty": "easy",
+      "playtimeMinutes": 3,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-09-04",
+      "thumbnail": "assets/thumbs-signal/trivia-saving-college.webp"
+    },
+    {
+      "id": "trivia-saving-master",
+      "title": "Saving Master Trivia",
+      "url": "../trivia-saving-master/",
+      "learningObjective": "Build strong saving habits and learn when and where to stash your cash.",
+      "topic": "saving-and-goals",
+      "genres": [
+        "trivia",
+        "education",
+        "quiz"
+      ],
+      "difficulty": "easy",
+      "playtimeMinutes": 3,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-09-04",
+      "thumbnail": "assets/thumbs-signal/trivia-saving-master.webp"
+    },
+    {
+      "id": "trivia-savvy-shopper",
+      "title": "Savvy Shopper Trivia",
+      "url": "../trivia-savvy-shopper/",
+      "learningObjective": "Practice spotting deals, avoiding impulse buys, and getting the most value for your money.",
+      "topic": "spending-smart",
+      "genres": [
+        "trivia",
+        "education",
+        "quiz"
+      ],
+      "difficulty": "easy",
+      "playtimeMinutes": 3,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-09-04",
+      "thumbnail": "assets/thumbs-signal/trivia-savvy-shopper.webp"
+    },
+    {
+      "id": "trivia-scam-awareness",
+      "title": "Scam Awareness Trivia",
+      "url": "../trivia-scam-awareness/",
+      "learningObjective": "Recognize common financial scams and learn how to protect your money and identity.",
+      "topic": "fraud-and-safety",
+      "genres": [
+        "trivia",
+        "education",
+        "quiz"
+      ],
+      "difficulty": "easy",
+      "playtimeMinutes": 3,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-09-04",
+      "thumbnail": "assets/thumbs-signal/trivia-scam-awareness.webp"
+    },
+    {
+      "id": "trivia-understanding-interest",
+      "title": "Understanding Interest Trivia",
+      "url": "../trivia-understanding-interest/",
+      "learningObjective": "Master how interest works for you when saving and against you when borrowing.",
+      "topic": "credit-and-debt",
+      "genres": [
+        "trivia",
+        "education",
+        "quiz"
+      ],
+      "difficulty": "easy",
+      "playtimeMinutes": 3,
+      "status": "beta",
+      "visibility": "public",
+      "section": "all",
+      "featuredOrder": null,
+      "version": "1.0.0",
+      "lastReviewed": "2026-09-04",
+      "thumbnail": "assets/thumbs-signal/trivia-understanding-interest.webp"
     }
   ],
   "thumbnailSystem": {
     "name": "MoneyBot Signal",
     "version": "1.0",
-    "generatedCount": 110,
+    "generatedCount": 121,
     "sourcePolicy": "Original game art preserved inside a standardized Signal frame"
   }
 }

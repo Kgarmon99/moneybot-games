@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="description" content="Test your knowledge of interest rates, compound interest, APR, and how interest works on loans and savings.">
+<meta name="theme-color" content="#070d0a">
+<title>Understanding Interest — MoneyBot Trivia</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root { --bg:#070d0a; --surface:rgba(255,255,255,0.055); --border:rgba(255,255,255,0.10); --accent:#00e676; --accent-dark:#00c853; --accent-amber:#ffc72c; --text:#fff; --text-dim:#9db2a7; --text-muted:#6b857d; --correct:#00e676; --wrong:#ff5252; }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Inter',system-ui,sans-serif; background:var(--bg); color:var(--text); min-height:100vh; overflow-x:hidden; -webkit-font-smoothing:antialiased; }
+body::before { content:""; position:fixed; inset:0; z-index:-2; background:radial-gradient(circle at 18% 10%,rgba(0,230,118,0.14),transparent 32%),radial-gradient(circle at 86% 0%,rgba(255,199,44,0.08),transparent 26%),linear-gradient(180deg,#070d0a 0%,#050706 55%,#060606 100%); }
+body::after { content:""; position:fixed; inset:0; z-index:-1; pointer-events:none; background-image:linear-gradient(rgba(255,255,255,0.022) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.022) 1px,transparent 1px); background-size:48px 48px; mask-image:linear-gradient(to bottom,black,transparent 78%); }
+.nav { position:fixed; top:0; left:0; right:0; background:rgba(4,9,7,0.86); border-bottom:1px solid rgba(0,230,118,0.12); z-index:1000; padding:0 16px; backdrop-filter:blur(16px); }
+.nav-inner { max-width:1200px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; height:54px; }
+.nav-logo { display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--accent); }
+.nav-logo span { font-size:18px; font-weight:900; letter-spacing:-0.4px; }
+.nav-back { color:var(--text-dim); text-decoration:none; font-size:13px; font-weight:600; }
+.nav-back:hover { color:var(--accent); }
+.container { max-width:720px; margin:0 auto; padding:90px 16px 40px; }
+.start-screen { text-align:center; padding:40px 0; }
+.start-screen .icon { font-size:64px; margin-bottom:16px; }
+.start-screen h1 { font-size:32px; font-weight:900; letter-spacing:-0.5px; margin-bottom:8px; }
+.start-screen .subtitle { color:var(--text-dim); font-size:16px; margin-bottom:32px; }
+.start-screen .stats { display:flex; justify-content:center; gap:24px; margin-bottom:32px; }
+.stat { text-align:center; }
+.stat .num { font-size:28px; font-weight:800; color:var(--accent); }
+.stat .label { font-size:11px; color:var(--text-muted); text-transform:uppercase; font-weight:700; letter-spacing:0.5px; }
+.btn { display:inline-flex; align-items:center; gap:8px; background:var(--accent); color:#000; border:none; padding:14px 32px; border-radius:12px; font-size:16px; font-weight:800; cursor:pointer; transition:transform 0.2s,box-shadow 0.2s; }
+.btn:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(0,230,118,0.3); }
+.quiz-screen { display:none; }
+.progress-bar { height:6px; background:rgba(255,255,255,0.08); border-radius:3px; margin-bottom:24px; overflow:hidden; }
+.progress-fill { height:100%; background:linear-gradient(90deg,var(--accent),var(--accent-dark)); border-radius:3px; transition:width 0.3s; }
+.question-num { font-size:12px; color:var(--text-muted); font-weight:700; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px; }
+.question { font-size:22px; font-weight:800; line-height:1.3; margin-bottom:24px; }
+.answers { display:flex; flex-direction:column; gap:10px; }
+.answer { background:var(--surface); border:1px solid var(--border); color:var(--text); padding:16px 20px; border-radius:12px; font-size:15px; font-weight:600; cursor:pointer; transition:all 0.2s; text-align:left; }
+.answer:hover { background:rgba(255,255,255,0.09); border-color:rgba(0,230,118,0.3); }
+.answer.correct { background:rgba(0,230,118,0.15); border-color:var(--correct); color:var(--correct); }
+.answer.wrong { background:rgba(255,82,82,0.15); border-color:var(--wrong); color:var(--wrong); }
+.answer.disabled { pointer-events:none; opacity:0.6; }
+.feedback { margin-top:16px; padding:16px 20px; border-radius:12px; font-size:14px; line-height:1.5; display:none; }
+.feedback.correct { display:block; background:rgba(0,230,118,0.1); border:1px solid rgba(0,230,118,0.3); color:var(--correct); }
+.feedback.wrong { display:block; background:rgba(255,82,82,0.1); border:1px solid rgba(255,82,82,0.3); color:var(--wrong); }
+.next-btn { margin-top:16px; display:none; }
+.next-btn.show { display:inline-flex; }
+.results-screen { display:none; text-align:center; padding:40px 0; }
+.results-screen .trophy { font-size:80px; margin-bottom:16px; }
+.results-screen h2 { font-size:28px; font-weight:900; margin-bottom:8px; }
+.score-display { font-size:56px; font-weight:900; color:var(--accent); margin:16px 0; }
+.score-label { color:var(--text-dim); font-size:14px; margin-bottom:24px; }
+.results-breakdown { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:20px; margin-bottom:24px; text-align:left; }
+.breakdown-item { display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid rgba(255,255,255,0.06); }
+.breakdown-item:last-child { border-bottom:none; }
+.breakdown-item .q { font-size:13px; color:var(--text-dim); flex:1; padding-right:12px; }
+.breakdown-item .status { font-size:18px; }
+.btn-group { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+.btn-secondary { background:transparent; border:1px solid var(--border); color:var(--text); padding:12px 24px; border-radius:12px; font-size:14px; font-weight:700; cursor:pointer; text-decoration:none; display:inline-flex; align-items:center; gap:6px; }
+.btn-secondary:hover { border-color:var(--accent); color:var(--accent); }
+.xp-popup { position:fixed; top:80px; right:16px; background:rgba(0,230,118,0.15); border:1px solid rgba(0,230,118,0.4); color:var(--accent); padding:12px 20px; border-radius:12px; font-weight:800; font-size:14px; transform:translateX(200px); opacity:0; transition:all 0.4s; z-index:2000; }
+.xp-popup.show { transform:translateX(0); opacity:1; }
+@media (max-width:600px) { .start-screen h1 { font-size:24px; } .question { font-size:18px; } .score-display { font-size:40px; } }
+</style>
+</head>
+<body>
+<nav class="nav"><div class="nav-inner"><a href="../moneybot-official/" class="nav-logo"><span>💸 MoneyBot</span></a><a href="../moneybot-official/" class="nav-back">← Back to Games</a></div></nav>
+<div class="container">
+<div class="start-screen" id="startScreen">
+<div class="icon">📈</div>
+<h1>Understanding Interest</h1>
+<p class="subtitle">Test your knowledge of interest rates, compound interest, APR, and how interest affects loans and savings!</p>
+<div class="stats"><div class="stat"><div class="num">10</div><div class="label">Questions</div></div><div class="stat"><div class="num">🎯</div><div class="label">Multiple Choice</div></div><div class="stat"><div class="num">⭐</div><div class="label">Earn XP</div></div></div>
+<button class="btn" onclick="startQuiz()">Start Quiz ▶</button>
+</div>
+<div class="quiz-screen" id="quizScreen">
+<div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+<div class="question-num" id="questionNum">Question 1 of 10</div>
+<div class="question" id="questionText">Loading...</div>
+<div class="answers" id="answers"></div>
+<div class="feedback" id="feedback"></div>
+<button class="btn next-btn" id="nextBtn" onclick="nextQuestion()">Next →</button>
+</div>
+<div class="results-screen" id="resultsScreen">
+<div class="trophy" id="trophy">🏆</div>
+<h2 id="resultTitle">Quiz Complete!</h2>
+<div class="score-display" id="scoreDisplay">0/10</div>
+<div class="score-label" id="scoreLabel">Keep learning!</div>
+<div class="results-breakdown" id="breakdown"></div>
+<div class="btn-group"><button class="btn" onclick="restartQuiz()">↻ Play Again</button><a href="../moneybot-official/" class="btn-secondary">← More Games</a></div>
+</div>
+</div>
+<div class="xp-popup" id="xpPopup">+XP!</div>
+<script>
+const questions = [
+{q:"What does APR stand for?",options:["Annual Percentage Rate","Average Payment Rate","Applied Principal Rate","Annual Payment Ratio"],correct:0,explanation:"APR = Annual Percentage Rate. It includes interest plus fees, showing the true yearly cost of borrowing."},
+{q:"If you deposit $1,000 at 5% annual simple interest, how much interest do you earn in 2 years?",options:["$50","$100","$102.50","$110"],correct:1,explanation:"Simple interest = Principal × Rate × Time. $1,000 × 0.05 × 2 = $100."},
+{q:"What is compound interest?",options:["Interest on the original principal only","Interest earned on both principal and accumulated interest","A fixed interest rate","Interest paid monthly"],correct:1,explanation:"Compound interest earns interest on both your principal AND the interest you've already earned."},
+{q:"Which typically has the HIGHEST interest rate?",options:["Savings account","Certificate of Deposit (CD)","Credit card","Mortgage"],correct:2,explanation:"Credit cards typically have much higher interest rates (15-25%+) than savings, CDs, or mortgages."},
+{q:"What is the 'rule of 72' used for?",options:["Calculating exact interest","Estimating how long it takes money to double","Determining loan payments","Finding your credit score"],correct:1,explanation:"Divide 72 by your interest rate to estimate years to double your money. 72 ÷ 8% = 9 years."},
+{q:"If you have a $5,000 credit card balance at 20% APR and only pay the minimum, what happens?",options:["The balance stays the same","You'll pay mostly interest and the balance barely decreases","The balance decreases quickly","The APR drops automatically"],correct:1,explanation:"Minimum payments mostly cover interest, so the principal barely decreases — you stay in debt longer."},
+{q:"What is the difference between APY and APR?",options:["They are the same","APY includes compounding, APR does not","APR is for savings, APY is for loans","APY is always lower"],correct:1,explanation:"APY (Annual Percentage Yield) includes the effect of compounding, while APR does not."},
+{q:"How does a higher credit score affect your interest rate?",options:["It increases your rate","It has no effect","It typically lowers your rate","It only affects credit cards"],correct:2,explanation:"Higher credit scores show lenders you're less risky, so they offer lower interest rates."},
+{q:"What is amortization?",options:["The process of paying off a loan through regular payments","A type of interest rate","A loan penalty","A credit score factor"],correct:0,explanation:"Amortization is the gradual reduction of a loan balance through scheduled payments over time."},
+{q:"If you invest $1,000 at 7% compounded annually, approximately how much after 10 years?",options:["$1,700","$1,967","$2,000","$2,500"],correct:1,explanation:"Using compound interest: $1,000 × (1.07)^10 ≈ $1,967. Compound growth accelerates over time!"}
+];
+let currentQ=0,score=0,answers=[];
+function startQuiz(){currentQ=0;score=0;answers=[];document.getElementById('startScreen').style.display='none';document.getElementById('quizScreen').style.display='block';document.getElementById('resultsScreen').style.display='none';showQuestion();}
+function showQuestion(){const q=questions[currentQ];document.getElementById('questionNum').textContent=`Question ${currentQ+1} of ${questions.length}`;document.getElementById('questionText').textContent=q.q;document.getElementById('progressFill').style.width=`${((currentQ)/questions.length)*100}%`;document.getElementById('feedback').style.display='none';document.getElementById('feedback').className='feedback';document.getElementById('nextBtn').classList.remove('show');const ad=document.getElementById('answers');ad.innerHTML='';q.options.forEach((opt,i)=>{const btn=document.createElement('button');btn.className='answer';btn.textContent=opt;btn.onclick=()=>selectAnswer(i);ad.appendChild(btn);});}
+function selectAnswer(idx){const q=questions[currentQ];const btns=document.querySelectorAll('.answer');btns.forEach((btn,i)=>{btn.classList.add('disabled');if(i===q.correct)btn.classList.add('correct');else if(i===idx&&i!==q.correct)btn.classList.add('wrong');});const correct=idx===q.correct;if(correct)score++;answers.push({q:q.q,correct:correct});const fb=document.getElementById('feedback');fb.className='feedback '+(correct?'correct':'wrong');fb.innerHTML=(correct?'✅ Correct! ':'❌ Not quite. ')+q.explanation;document.getElementById('nextBtn').classList.add('show');}
+function nextQuestion(){currentQ++;if(currentQ<questions.length){showQuestion();}else{showResults();}}
+function showResults(){document.getElementById('quizScreen').style.display='none';document.getElementById('resultsScreen').style.display='block';document.getElementById('scoreDisplay').textContent=`${score}/${questions.length}`;const pct=score/questions.length;let title,label,trophy;if(pct===1){title="Perfect Score!";label="You're an interest expert!";trophy="🥇";}else if(pct>=0.8){title="Great Job!";label="You understand interest well!";trophy="🥈";}else if(pct>=0.6){title="Good Effort!";label="Keep learning about interest!";trophy="🥉";}else{title="Keep Practicing!";label="Interest is powerful — learn it!";trophy="📚";}document.getElementById('resultTitle').textContent=title;document.getElementById('scoreLabel').textContent=label;document.getElementById('trophy').textContent=trophy;const xp=score*10;const xpPopup=document.getElementById('xpPopup');xpPopup.textContent=`+${xp} XP!`;xpPopup.classList.add('show');setTimeout(()=>xpPopup.classList.remove('show'),2000);const currentXP=parseInt(localStorage.getItem('moneybot_xp')||'0');localStorage.setItem('moneybot_xp',currentXP+xp);const bd=document.getElementById('breakdown');bd.innerHTML=answers.map((a,i)=>`<div class="breakdown-item"><span class="q">${i+1}. ${a.q.substring(0,50)}...</span><span class="status">${a.correct?'✅':'❌'}</span></div>`).join('');}
+function restartQuiz(){startQuiz();}
+</script>
+</body>
+</html>

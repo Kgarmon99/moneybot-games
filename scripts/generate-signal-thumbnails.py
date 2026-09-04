@@ -20,7 +20,7 @@ MANIFEST = SITE / "data" / "games.manifest.json"
 SOURCES = SITE / "data" / "thumbnail-sources.json"
 OUT = SITE / "assets" / "thumbs-signal"
 FONTS = SITE / "assets" / "fonts"
-LOGO = SITE / "assets" / "moneybot-logo.png"
+LOGO = SITE / "assets" / "logo.jpg"
 
 W, H = 640, 360
 PAPER = "#F5F5F0"
@@ -44,9 +44,11 @@ def open_source(path: Path) -> Image.Image:
     try:
         return Image.open(path).convert("RGB")
     except Exception:
-        # The catalog has one legacy SVG thumbnail. The official logo is a
-        # deliberate, on-brand fallback rather than a placeholder.
-        return Image.open(LOGO).convert("RGB")
+        # SVGs and missing files fall back to the official MoneyBot logo.
+        logo = LOGO if LOGO.exists() else SITE / "assets" / "logo.jpg"
+        if not logo.exists():
+            logo = SITE / "assets" / "moneybot-logo-1.jpg"
+        return Image.open(logo).convert("RGB")
 
 
 def cover(image: Image.Image, size: tuple[int, int]) -> Image.Image:
