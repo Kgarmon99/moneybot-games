@@ -8,7 +8,7 @@ const COLLISION_Y_TOLERANCE = 55;
 
 // MoneyBot mascot image
 const playerImg = new Image();
-playerImg.src = '../../moneybot-code/references/mascot/canonical-operator-reference.png';
+playerImg.src = '../fraud-or-nah/assets/moneybot-logo-avatar.png';
 
 // Achievement definitions
 const ACHIEVEMENTS = {

@@ -1,26 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>E-commerce Empire</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="s.css?v=4">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#07111F" />
+<meta name="description" content="Practice building sustainable revenue, profit, and business runway." />
+<meta property="og:title" content="E-commerce Empire" />
+<meta property="og:description" content="Practice building sustainable revenue, profit, and business runway." />
+<meta property="og:image" content="https://kgarmon99.github.io/moneybot-games/moneybot-official/assets/thumbs-signal/bot-ecommerce-empire.webp" />
+<meta property="og:url" content="https://kgarmon99.github.io/moneybot-games/bot-ecommerce-empire/" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="E-commerce Empire" />
+<meta name="twitter:description" content="Practice building sustainable revenue, profit, and business runway." />
+<meta name="twitter:image" content="https://kgarmon99.github.io/moneybot-games/moneybot-official/assets/thumbs-signal/bot-ecommerce-empire.webp" />
+<link rel="canonical" href="https://kgarmon99.github.io/moneybot-games/bot-ecommerce-empire/" />
+<link rel="icon" type="image/webp" href="https://kgarmon99.github.io/moneybot-games/moneybot-official/assets/thumbs-signal/bot-ecommerce-empire.webp" />
+<title>E-commerce Empire</title>
+<link rel="stylesheet" href="../moneybot-official/assets/moneybot/moneybot-game.css?v=1" />
+<link rel="stylesheet" href="s.css?v=4">
+
 </head>
 <body>
     <div id="app">
         <!-- HUD -->
-        <header id="hud" class="hidden">
+        <header class="mb-hud" id="hud" class="hidden" style="background:rgba(7,17,31,0.88);border-color:rgba(105,240,174,0.18);padding:10px 12px;">
+            <div class="mb-brand" style="gap:8px;margin-bottom:8px;">
+                <img src="../moneybot-official/assets/moneybot/assets/moneybot-logo-avatar.png" alt="MoneyBot" class="mb-brand-mark" style="width:32px;height:32px;">
+                <div class="mb-title-group">
+                    <p class="mb-kicker">MoneyBot Arcade</p>
+                    <h1 class="mb-title" style="font-size:clamp(14px,4vw,20px);">E-commerce Empire</h1>
+                </div>
+            </div>
             <div class="hud-row">
-                <div class="hud-pill">
+                <div class="mb-stat hud-pill">
                     <span class="hud-label">DAY</span>
                     <span id="day-val" class="hud-value">1</span>
                 </div>
-                <div class="hud-pill">
+                <div class="mb-stat hud-pill">
                     <span class="hud-label">STREAK</span>
                     <span id="streak-val" class="hud-value">0</span>
                 </div>
-                <div class="hud-pill cash">
+                <div class="mb-stat hud-pill cash">
                     <span class="hud-label">CASH</span>
                     <span id="cash-val" class="hud-value">$10K</span>
                 </div>
@@ -48,7 +69,7 @@
         <!-- Start Screen -->
         <div id="start-screen" class="screen active">
             <div class="logo-area">
-                <div class="mascot">🛒</div>
+                <img src="../moneybot-official/assets/moneybot/assets/moneybot-logo-avatar.png" alt="MoneyBot" class="mascot" style="width:72px;height:72px;border-radius:50%;object-fit:cover;">
                 <h1>E-COMMERCE<br><span class="highlight">EMPIRE</span></h1>
                 <p class="tagline">Source. Price. Advertise. Ship. Profit.</p>
             </div>

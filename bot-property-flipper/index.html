@@ -1,30 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Neon Property Flipper</title>
-    <link rel="stylesheet" href="style.css?v=4">
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<meta name="theme-color" content="#07111F" />
+<meta name="description" content="Build practical money judgment through play." />
+<meta property="og:title" content="Neon Property Flipper" />
+<meta property="og:description" content="Build practical money judgment through play." />
+<meta property="og:image" content="https://kgarmon99.github.io/moneybot-games/moneybot-official/assets/thumbs-signal/bot-property-flipper.webp" />
+<meta property="og:url" content="https://kgarmon99.github.io/moneybot-games/bot-property-flipper/" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Neon Property Flipper" />
+<meta name="twitter:description" content="Build practical money judgment through play." />
+<meta name="twitter:image" content="https://kgarmon99.github.io/moneybot-games/moneybot-official/assets/thumbs-signal/bot-property-flipper.webp" />
+<link rel="canonical" href="https://kgarmon99.github.io/moneybot-games/bot-property-flipper/" />
+<link rel="icon" type="image/webp" href="https://kgarmon99.github.io/moneybot-games/moneybot-official/assets/thumbs-signal/bot-property-flipper.webp" />
+<title>Neon Property Flipper</title>
+<link rel="stylesheet" href="../moneybot-official/assets/moneybot/moneybot-game.css?v=1" />
+<link rel="stylesheet" href="style.css?v=4">
+
 </head>
 <body>
     <div id="game-container">
         
         <!-- UI Header -->
-        <div id="header">
-            <div class="stat-box glow-green">
-                <span class="label">LIQUID CASH</span>
-                <span id="cashDisplay" class="value">$100,000</span>
+        <header class="mb-hud" id="header" style="background:rgba(0,0,0,0.6);border-color:rgba(105,240,174,0.18);margin:10px;border-radius:18px;">
+            <div class="mb-brand">
+                <img src="../moneybot-official/assets/moneybot/assets/moneybot-logo-avatar.png" alt="MoneyBot" class="mb-brand-mark" />
+                <div class="mb-title-group">
+                    <p class="mb-kicker">MoneyBot Arcade</p>
+                    <h1 class="mb-title" style="font-size:clamp(16px,4.5vw,24px);">Neon Property Flipper</h1>
+                </div>
             </div>
-            <div class="stat-box glow-purple">
-                <span class="label">PROP. VALUE</span>
-                <span id="valueDisplay" class="value">$0</span>
+            <div class="mb-stat-row" style="flex-wrap:nowrap;">
+                <div class="mb-stat stat-box glow-green" style="background:rgba(0,0,0,0.5);">
+                    <span class="mb-stat-label" style="color:#888;">LIQUID CASH</span>
+                    <span id="cashDisplay" class="mb-stat-value" style="color:var(--mb-green);">$100,000</span>
+                </div>
+                <div class="mb-stat stat-box glow-purple" style="background:rgba(0,0,0,0.5);">
+                    <span class="mb-stat-label" style="color:#888;">PROP. VALUE</span>
+                    <span id="valueDisplay" class="mb-stat-value" style="color:#cc00ff;">$0</span>
+                </div>
+                <div class="mb-stat stat-box glow-red" id="debt-box" style="background:rgba(0,0,0,0.5);">
+                    <span class="mb-stat-label" style="color:#888;">LOAN DEBT</span>
+                    <span id="debtDisplay" class="mb-stat-value" style="color:var(--mb-red);">$0</span>
+                </div>
             </div>
-            <div class="stat-box glow-red" id="debt-box">
-                <span class="label">LOAN DEBT</span>
-                <span id="debtDisplay" class="value">$0</span>
-            </div>
-        </div>
+        </header>
 
         <canvas id="fxCanvas"></canvas>
 

@@ -1,22 +1,45 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Cashflow Cruiser</title>
-    <link rel="stylesheet" href="style.css">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<meta name="theme-color" content="#07111F" />
+<meta name="description" content="Practice balancing income, expenses, savings, and financial resilience." />
+<meta property="og:title" content="Cashflow Cruiser" />
+<meta property="og:description" content="Practice balancing income, expenses, savings, and financial resilience." />
+<meta property="og:image" content="https://kgarmon99.github.io/moneybot-games/moneybot-official/assets/thumbs-signal/cashflow-cruiser.webp" />
+<meta property="og:url" content="https://kgarmon99.github.io/moneybot-games/cashflow-cruiser/" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Cashflow Cruiser" />
+<meta name="twitter:description" content="Practice balancing income, expenses, savings, and financial resilience." />
+<meta name="twitter:image" content="https://kgarmon99.github.io/moneybot-games/moneybot-official/assets/thumbs-signal/cashflow-cruiser.webp" />
+<link rel="canonical" href="https://kgarmon99.github.io/moneybot-games/cashflow-cruiser/" />
+<link rel="icon" type="image/webp" href="https://kgarmon99.github.io/moneybot-games/moneybot-official/assets/thumbs-signal/cashflow-cruiser.webp" />
+<title>Cashflow Cruiser</title>
+<link rel="stylesheet" href="../moneybot-official/assets/moneybot/moneybot-game.css?v=1" />
+<link rel="stylesheet" href="style.css">
+
 </head>
 <body>
-    <a href="../moneybot-official/" class="back-btn">← Hub</a>
     <div id="game-container">
-        <header id="hud">
-            <div class="stat-pill">
-                <span class="label">NET WORTH</span>
-                <span id="score-display" class="value">$0</span>
+        <header class="mb-hud" id="hud" style="padding:14px;">
+            <div class="mb-brand">
+                <img src="../moneybot-official/assets/moneybot/assets/moneybot-logo-avatar.png" alt="MoneyBot" class="mb-brand-mark" />
+                <div class="mb-title-group">
+                    <p class="mb-kicker">MoneyBot Arcade</p>
+                    <h1 class="mb-title" style="font-size:clamp(16px,4.5vw,24px);">Cashflow Cruiser</h1>
+                </div>
             </div>
-            <div class="stat-pill">
-                <span class="label">RUNWAY</span>
-                <span id="distance-display" class="value">0m</span>
+            <div class="mb-stat-row">
+                <div class="mb-stat stat-pill" style="min-width:auto;padding:10px 16px;">
+                    <span class="mb-stat-label">NET WORTH</span>
+                    <span id="score-display" class="mb-stat-value" style="color:var(--mb-green);">$0</span>
+                </div>
+                <div class="mb-stat stat-pill" style="min-width:auto;padding:10px 16px;">
+                    <span class="mb-stat-label">RUNWAY</span>
+                    <span id="distance-display" class="mb-stat-value" style="color:var(--mb-green);">0m</span>
+                </div>
             </div>
         </header>
 

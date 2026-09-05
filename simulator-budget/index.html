@@ -2,12 +2,15 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#07111F">
+<meta name="description" content="Simulate a monthly budget and see how choices affect cash flow.">
 <title>Budget Simulator — MoneyBot</title>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="icon" type="image/webp" href="https://kgarmon99.github.io/moneybot-games/moneybot-official/assets/thumbs-signal/simulator-budget.webp">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'JetBrains Mono',monospace;background:#000;color:#0f0;min-height:100vh;line-height:1.6}
+html,body{overflow-x:hidden}
+body{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;background:#000;color:#0f0;min-height:100vh;line-height:1.6}
 .matrix-bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;opacity:0.05;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,255,0,0.03) 2px,rgba(0,255,0,0.03) 4px)}
 .container{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:40px 20px}
 .nav{display:flex;align-items:center;gap:12px;margin-bottom:40px;text-decoration:none;color:#0f0}
@@ -23,8 +26,10 @@ body{font-family:'JetBrains Mono',monospace;background:#000;color:#0f0;min-heigh
 .income-row button:hover{box-shadow:0 0 15px #0f0}
 .budget-bar{height:32px;border:1px solid #0f0;margin-bottom:8px;position:relative;background:#050505}
 .budget-bar .fill{height:100%;transition:width 0.3s}
-.budget-row{display:grid;grid-template-columns:1fr 80px 100px 60px;gap:12px;align-items:center;margin-bottom:18px}
-@media(max-width:600px){.budget-row{grid-template-columns:1fr 70px 80px 50px}}
+.budget-row{display:grid;grid-template-columns:1fr 80px 100px 60px;gap:12px;align-items:center;margin-bottom:18px;min-width:0}
+@media(max-width:600px){.budget-row{grid-template-columns:1fr 60px 70px 54px;gap:8px}}
+.budget-row>*{min-width:0}
+.budget-row input{max-width:100%}
 label{display:block;font-size:12px;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;opacity:0.8}
 .budget-row input[type="range"]{width:100%}
 .budget-row .pct{font-size:13px;text-align:right;font-weight:700}
@@ -44,7 +49,7 @@ label{display:block;font-size:12px;text-transform:uppercase;letter-spacing:1px;m
 <body>
 <div class="matrix-bg"></div>
 <div class="container">
-<a href="../moneybot-official/" class="nav"><img src="../moneybot-official/assets/moneybot-logo-1.jpg" alt="MoneyBot"><span>MoneyBot</span></a>
+<a href="../moneybot-official/" class="nav"><img src="../moneybot-official/assets/moneybot/assets/moneybot-logo-avatar.png" alt="MoneyBot" style="background:#07111F;"><span>MoneyBot</span></a>
 <div class="card">
 <h1>Budget Simulator</h1>
 <p class="subtitle">Every dollar has a job. Give them one before they disappear.</p>
@@ -95,7 +100,7 @@ html+=`<div style="margin-bottom:8px">
 <div><label>${c.name}</label><input type="range" min="0" max="60" value="${c.pct}" step="1" oninput="updatePct('${c.id}',this.value)"></div>
 <div class="pct" id="pct-${c.id}">${c.pct}%</div>
 <div class="amt" id="amt-${c.id}">${fmt(val)}</div>
-<div><input type="number" value="${val}" style="width:100%;background:#000;border:1px solid #0f0;color:#0f0;padding:6px;font-family:inherit;font-size:12px" oninput="updateAmt('${c.id}',this.value)"></div>
+<div><input type="number" value="${val}" style="width:100%;max-width:100%;background:#000;border:1px solid #0f0;color:#0f0;padding:6px;font-family:inherit;font-size:12px" oninput="updateAmt('${c.id}',this.value)"></div>
 </div>
 <div class="budget-bar"><div class="fill" id="bar-${c.id}" style="width:${c.pct*1.5}%;background:${c.color};opacity:0.6"></div></div>
 </div>`;

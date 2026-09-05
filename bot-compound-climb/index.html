@@ -1,23 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Compound Climb</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<meta name="theme-color" content="#07111F" />
+<meta name="description" content="Practice balancing growth, time, diversification, and risk." />
+<meta property="og:title" content="Compound Climb" />
+<meta property="og:description" content="Practice balancing growth, time, diversification, and risk." />
+<meta property="og:image" content="https://kgarmon99.github.io/moneybot-games/moneybot-official/assets/thumbs-signal/bot-compound-climb.webp" />
+<meta property="og:url" content="https://kgarmon99.github.io/moneybot-games/bot-compound-climb/" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Compound Climb" />
+<meta name="twitter:description" content="Practice balancing growth, time, diversification, and risk." />
+<meta name="twitter:image" content="https://kgarmon99.github.io/moneybot-games/moneybot-official/assets/thumbs-signal/bot-compound-climb.webp" />
+<link rel="canonical" href="https://kgarmon99.github.io/moneybot-games/bot-compound-climb/" />
+<link rel="icon" type="image/webp" href="https://kgarmon99.github.io/moneybot-games/moneybot-official/assets/thumbs-signal/bot-compound-climb.webp" />
+<title>Compound Climb</title>
+<link rel="stylesheet" href="../moneybot-official/assets/moneybot/moneybot-game.css?v=1" />
+<link rel="stylesheet" href="style.css">
+
 </head>
 <body>
     <div id="ui-layer">
         <canvas id="gameCanvas"></canvas>
         
-        <div id="hud" class="hidden">
-            <div id="score">
-                <span class="score-label">NET WORTH</span>
-                <span id="score-value">$0</span>
-                <div id="high-score">All-Time High: $0</div>
+        <header class="mb-hud" id="hud" style="position:absolute;top:10px;left:10px;right:10px;z-index:20;background:rgba(7,17,31,0.82);border-color:rgba(105,240,174,0.18);padding:12px;" class="hidden">
+            <div class="mb-brand">
+                <img src="../moneybot-official/assets/moneybot/assets/moneybot-logo-avatar.png" alt="MoneyBot" class="mb-brand-mark" />
+                <div class="mb-title-group">
+                    <p class="mb-kicker">MoneyBot Arcade</p>
+                    <h1 class="mb-title" style="font-size:clamp(16px,4.5vw,24px);">Compound Climb</h1>
+                </div>
             </div>
-        </div>
+            <div class="mb-stat-row">
+                <div class="mb-stat" id="score" style="background:rgba(2,6,23,0.48);border:1px solid rgba(105,240,174,0.18);border-radius:999px;padding:8px 14px;text-align:center;">
+                    <span class="mb-stat-label">NET WORTH</span>
+                    <span class="mb-stat-value" id="score-value" style="color:var(--mb-green);">$0</span>
+                    <div id="high-score" style="font-size:10px;color:var(--mb-muted);margin-top:2px;">All-Time High: $0</div>
+                </div>
+            </div>
+        </header>
         
         <div id="start-screen" class="screen">
             <div class="logo-container">
