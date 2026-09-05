@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Super MoneyBot Galaxy</title>
+  <link rel="icon" href="../assets/moneybot-games-icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="../assets/moneybot-games-icon.svg">
+  <link rel="stylesheet" href="assets/moneybot/moneybot-game.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="shell">
+    <section class="hero" id="gameShell" aria-label="Super MoneyBot Galaxy game">
+      <canvas id="gameCanvas"></canvas>
+
+      <header class="hud" aria-label="mission stats">
+        <strong class="brand">MoneyBot Galaxy</strong>
+        <div class="top-stats">
+          <div><span>Money</span><strong id="money">$0</strong></div>
+          <div><span>Net Worth</span><strong id="netWorth">$500</strong></div>
+          <div><span>IQ</span><strong id="iqLevel">1</strong></div>
+          <div><span>XP</span><strong id="xp">0</strong></div>
+        </div>
+        <button class="phone-toggle" id="phoneToggle" type="button" aria-expanded="false" aria-controls="botPhone">BotPhone</button>
+      </header>
+
+      <aside class="quest-tracker" aria-label="current objectives">
+        <span class="eyebrow">Quests</span>
+        <ol>
+          <li id="questGate">Reach the gate: 0%</li>
+          <li id="questShield">Keep shield above 35%</li>
+          <li id="questCombo">Build a 2x asset combo</li>
+        </ol>
+      </aside>
+
+      <aside class="radar" aria-label="mini map radar">
+        <span class="eyebrow">Radar</span>
+        <div class="radar-screen">
+          <span class="radar-ring"></span>
+          <span class="radar-sweep"></span>
+          <span class="radar-dot player-dot" id="radarPlayer"></span>
+          <span class="radar-dot gate-dot" id="radarGate"></span>
+          <span class="radar-dot hazard-dot" id="radarHazard"></span>
+        </div>
+      </aside>
+
+      <div class="mission-panel" id="missionPanel">
+        <span class="eyebrow">3D Money Mission</span>
+        <h2 id="panelTitle">Charge the Galaxy Gate</h2>
+        <p id="panelText">Collect coins, index stars, and emergency-fund boosts. Dodge debt meteors. Reach the gate before your lives run out.</p>
+        <button id="startBtn">Launch Mission</button>
+      </div>
+
+      <div class="toast" id="toast">Ready</div>
+
+      <div class="context-prompt" id="contextPrompt" aria-hidden="true">
+        <kbd>E</kbd>
+        <span id="contextPromptText">Enter First Bank</span>
+      </div>
+
+      <section class="entry-modal" id="entryModal" aria-label="First Bank" aria-hidden="true">
+        <div class="entry-card">
+          <span class="eyebrow">First Bank</span>
+          <h2 id="entryTitle">Emergency Fund Tune-Up</h2>
+          <div class="entry-step">
+            <span>Lesson</span>
+            <strong id="entryLesson">A cash buffer protects your long-term plan when surprise costs hit.</strong>
+          </div>
+          <div class="entry-step reward">
+            <span>Reward</span>
+            <strong id="entryReward">+20 shield, +75 XP</strong>
+          </div>
+          <div class="entry-step">
+            <span>Next Step</span>
+            <strong id="entryNext">Exit and reach the gate with your shield above 35%.</strong>
+          </div>
+          <button id="entryContinue" type="button">Back to Mission</button>
+        </div>
+      </section>
+
+      <section class="bot-phone" id="botPhone" aria-label="BotPhone menu" aria-hidden="true">
+        <div class="phone-header">
+          <strong>BotPhone</strong>
+          <button id="phoneClose" type="button" aria-label="close BotPhone">×</button>
+        </div>
+        <div class="phone-tabs" role="tablist" aria-label="BotPhone sections">
+          <button class="active" id="tabOverview" type="button" role="tab" aria-selected="true" data-tab="overview">Overview</button>
+          <button id="tabObjectives" type="button" role="tab" aria-selected="false" data-tab="objectives">Objectives</button>
+          <button id="tabProgress" type="button" role="tab" aria-selected="false" data-tab="progress">Progress</button>
+        </div>
+        <div class="phone-panel active" id="phoneOverview" role="tabpanel" aria-labelledby="tabOverview">
+          <div><span>Financial Overview</span><strong id="phoneNetWorth">$500 net worth</strong></div>
+          <div><span>Cash Shield</span><strong id="phoneShield">100%</strong></div>
+          <div><span>Gate Distance</span><strong id="phoneDistance">0%</strong></div>
+        </div>
+        <div class="phone-panel" id="phoneObjectives" role="tabpanel" aria-labelledby="tabObjectives">
+          <p id="phoneObjectiveOne">Collect assets and keep moving toward the galaxy gate.</p>
+          <p id="phoneObjectiveTwo">Use the emergency shield before debt breaks through.</p>
+          <p id="phoneObjectiveThree">Stack index stars to grow your combo.</p>
+        </div>
+        <div class="phone-panel" id="phoneProgress" role="tabpanel" aria-labelledby="tabProgress">
+          <div><span>Learning Progress</span><strong id="phoneIq">IQ Level 1</strong></div>
+          <div><span>XP Earned</span><strong id="phoneXp">0 XP</strong></div>
+          <div><span>Lives</span><strong id="phoneLives">3</strong></div>
+        </div>
+      </section>
+
+      <div class="cockpit-overlay" id="cockpitOverlay" aria-hidden="true">
+        <img src="assets/moneybot/assets/moneybot-idle.svg" alt="MoneyBot co-pilot" class="cockpit-bot" />
+        <div class="cockpit-bubble" id="cockpitBubble">Ready when you are, captain.</div>
+      </div>
+
+      <section class="tutorial-modal" id="tutorialModal" aria-label="flight school">
+        <div class="tutorial-card">
+          <img src="assets/moneybot/assets/moneybot-driving.svg" alt="MoneyBot pilot" class="tutorial-bot" />
+          <span class="eyebrow">Flight School</span>
+          <h2>How to pilot the MoneyBot ship</h2>
+          <div class="tutorial-step active" data-step="0">
+            <strong>Move across lanes</strong>
+            <p>Tap left/right, swipe, or use A / D keys to change lanes.</p>
+          </div>
+          <div class="tutorial-step" data-step="1">
+            <strong>Collect smart-money assets</strong>
+            <p>Grab coins, index stars, and emergency-fund boosts to grow your score and shield.</p>
+          </div>
+          <div class="tutorial-step" data-step="2">
+            <strong>Dodge debt and impulse buys</strong>
+            <p>Red debt meteors and purple impulse buys drain your shield and reset your combo.</p>
+          </div>
+          <div class="tutorial-step" data-step="3">
+            <strong>Visit First Bank</strong>
+            <p>Stop at the green bank beacon for a shield tune-up and combo bonus.</p>
+          </div>
+          <div class="tutorial-step" data-step="4">
+            <strong>Reach the Galaxy Gate</strong>
+            <p>Survive the run with shield above 35% to clear the mission.</p>
+          </div>
+          <div class="tutorial-actions">
+            <button id="tutorialPrev" type="button">Back</button>
+            <div class="tutorial-dots">
+              <span class="active"></span><span></span><span></span><span></span><span></span>
+            </div>
+            <button id="tutorialNext" type="button">Next</button>
+          </div>
+        </div>
+      </section>
+
+      <nav class="mobile-controls" aria-label="ship controls">
+        <button id="leftBtn" aria-label="move left">‹</button>
+        <button id="boostBtn" aria-label="use shield boost">Shield</button>
+        <button id="rightBtn" aria-label="move right">›</button>
+      </nav>
+    </section>
+  </main>
+
+  <script src="assets/moneybot/moneybot-game-kit.js"></script>
+  <script type="module" src="game.js"></script>
+</body>
+</html>

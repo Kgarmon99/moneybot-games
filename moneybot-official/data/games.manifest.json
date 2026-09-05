@@ -11,6 +11,27 @@
   ],
   "games": [
     {
+      "id": "super-moneybot-galaxy",
+      "title": "Super MoneyBot Galaxy",
+      "url": "../super-moneybot-galaxy/",
+      "thumbnail": "assets/thumbs-signal/super-moneybot-galaxy.webp",
+      "learningObjective": "Pilot a MoneyBot ship through a galactic money lane: collect smart assets, build an emergency-fund shield, dodge debt, and reach the galaxy gate.",
+      "topic": "investing",
+      "genres": [
+        "arcade",
+        "action",
+        "education"
+      ],
+      "difficulty": "medium",
+      "playtimeMinutes": 2,
+      "status": "flagship",
+      "visibility": "public",
+      "section": "featured",
+      "featuredOrder": 1,
+      "version": "1.0.0",
+      "lastReviewed": "2026-09-05"
+    },
+    {
       "id": "runway-rush",
       "title": "Runway Rush",
       "url": "../runway-rush/",
@@ -110,7 +131,7 @@
       "status": "flagship",
       "visibility": "public",
       "section": "featured",
-      "featuredOrder": 1,
+      "featuredOrder": 2,
       "version": "1.0.0",
       "lastReviewed": "2026-08-08"
     },
@@ -150,7 +171,7 @@
       "status": "flagship",
       "visibility": "public",
       "section": "featured",
-      "featuredOrder": 6,
+      "featuredOrder": 3,
       "version": "1.0.0",
       "lastReviewed": "2026-08-08"
     },
@@ -191,7 +212,7 @@
       "status": "flagship",
       "visibility": "public",
       "section": "featured",
-      "featuredOrder": 10,
+      "featuredOrder": 4,
       "version": "1.0.0",
       "lastReviewed": "2026-08-08"
     },
@@ -351,7 +372,7 @@
       "status": "flagship",
       "visibility": "public",
       "section": "featured",
-      "featuredOrder": 8,
+      "featuredOrder": 5,
       "version": "1.0.0",
       "lastReviewed": "2026-08-08"
     },
@@ -669,7 +690,7 @@
       "status": "flagship",
       "visibility": "public",
       "section": "all",
-      "featuredOrder": 3,
+      "featuredOrder": 6,
       "version": "1.0.0",
       "lastReviewed": "2026-08-08"
     },
@@ -806,7 +827,7 @@
       "status": "flagship",
       "visibility": "public",
       "section": "all",
-      "featuredOrder": 2,
+      "featuredOrder": 7,
       "version": "1.0.0",
       "lastReviewed": "2026-08-08"
     },
@@ -961,7 +982,7 @@
       "status": "flagship",
       "visibility": "public",
       "section": "all",
-      "featuredOrder": 7,
+      "featuredOrder": 8,
       "version": "1.0.0",
       "lastReviewed": "2026-08-08"
     },
@@ -1756,7 +1777,7 @@
       "status": "flagship",
       "visibility": "public",
       "section": "all",
-      "featuredOrder": 4,
+      "featuredOrder": 9,
       "version": "1.0.0",
       "lastReviewed": "2026-08-08"
     },
@@ -1833,7 +1854,7 @@
       "status": "flagship",
       "visibility": "public",
       "section": "all",
-      "featuredOrder": 5,
+      "featuredOrder": 10,
       "version": "1.0.0",
       "lastReviewed": "2026-08-08"
     },
@@ -2005,7 +2026,7 @@
       "status": "flagship",
       "visibility": "public",
       "section": "all",
-      "featuredOrder": 9,
+      "featuredOrder": 11,
       "version": "1.0.0",
       "lastReviewed": "2026-08-08"
     },
