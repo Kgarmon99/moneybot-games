@@ -86,6 +86,13 @@ const state = {
   selectedPlotIndex: null,
   
   audioEnabled: true,
+
+  // Camera Orbit Controls State
+  cameraAngle: Math.PI / 4,
+  cameraElevation: 0.8,
+  cameraRadius: 42,
+  isDragging: false,
+  previousMousePosition: { x: 0, y: 0 },
 };
 
 // ==========================================================================
@@ -180,8 +187,7 @@ function initThree() {
 
   // Isometric Theme Park Camera
   camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 300);
-  camera.position.set(24, 28, 32);
-  camera.lookAt(0, 0, 0);
+  updateCameraPosition();
 
   // Renderer
   renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -219,9 +225,21 @@ function initThree() {
   initGridPlots();
   spawnGuestBots();
 
-  // Event Listeners
+  // Event Listeners for Orbit Controls & Interactivity
   window.addEventListener('resize', onWindowResize);
   container.addEventListener('pointerdown', onPointerDown);
+  container.addEventListener('pointermove', onPointerMove);
+  container.addEventListener('pointerup', onPointerUp);
+  container.addEventListener('wheel', onMouseWheel, { passive: true });
+}
+
+function updateCameraPosition() {
+  const x = Math.sin(state.cameraAngle) * Math.cos(state.cameraElevation) * state.cameraRadius;
+  const y = Math.sin(state.cameraElevation) * state.cameraRadius;
+  const z = Math.cos(state.cameraAngle) * Math.cos(state.cameraElevation) * state.cameraRadius;
+  
+  camera.position.set(x, y, z);
+  camera.lookAt(0, 0, 0);
 }
 
 // ==========================================================================
@@ -316,7 +334,7 @@ function buildRideMesh(type, level = 1) {
   const rideGroup = new THREE.Group();
 
   if (type === 'COASTER') {
-    // 🎢 Compound Coaster: Looping Track Spline & Car
+    // Compound Coaster: Looping Track Spline & Car
     const trackCurve = new THREE.TorusGeometry(3.5, 0.15, 12, 32, Math.PI * 1.8);
     const trackMat = new THREE.MeshStandardMaterial({ color: 0x00E676, metalness: 0.9, emissive: 0x00E676, emissiveIntensity: 0.3 });
     const trackMesh = new THREE.Mesh(trackCurve, trackMat);
@@ -343,7 +361,7 @@ function buildRideMesh(type, level = 1) {
     animatedRides.push({ group: rideGroup, carMesh, type: 'COASTER', angle: 0 });
 
   } else if (type === 'WHEEL') {
-    // 🎡 Diversification Ferris Wheel
+    // Diversification Ferris Wheel
     const wheelGeo = new THREE.TorusGeometry(3.2, 0.15, 12, 32);
     const wheelMat = new THREE.MeshStandardMaterial({ color: 0xFFD700, metalness: 0.9, emissive: 0xFFD700, emissiveIntensity: 0.3 });
     const wheelMesh = new THREE.Mesh(wheelGeo, wheelMat);
@@ -378,7 +396,7 @@ function buildRideMesh(type, level = 1) {
     animatedRides.push({ group: rideGroup, wheelMesh, gondolas, type: 'WHEEL', angle: 0 });
 
   } else if (type === 'BUMPERS') {
-    // 🚗 Bull & Bear Bumper Arena
+    // Bull & Bear Bumper Arena
     const floorGeo = new THREE.BoxGeometry(6.5, 0.3, 6.5);
     const floorMat = new THREE.MeshStandardMaterial({ color: 0x00F0FF, metalness: 0.8, emissive: 0x00F0FF, emissiveIntensity: 0.2 });
     const floor = new THREE.Mesh(floorGeo, floorMat);
@@ -400,7 +418,7 @@ function buildRideMesh(type, level = 1) {
     animatedRides.push({ group: rideGroup, cars, type: 'BUMPERS' });
 
   } else if (type === 'SPLASH') {
-    // 💧 Emergency Splash Mountain
+    // Emergency Splash Mountain
     const mountainGeo = new THREE.ConeGeometry(3.5, 4.5, 8);
     const mountainMat = new THREE.MeshStandardMaterial({ color: 0x0066cc, roughness: 0.4 });
     const mountain = new THREE.Mesh(mountainGeo, mountainMat);
@@ -417,7 +435,7 @@ function buildRideMesh(type, level = 1) {
     animatedRides.push({ group: rideGroup, type: 'SPLASH', time: 0 });
 
   } else if (type === 'HAUNTED') {
-    // 🏰 Toxic Debt Mansion
+    // Toxic Debt Mansion
     const castleGeo = new THREE.BoxGeometry(4.5, 3.5, 4.5);
     const castleMat = new THREE.MeshStandardMaterial({ color: 0x221133, roughness: 0.9 });
     const castle = new THREE.Mesh(castleGeo, castleMat);
@@ -433,7 +451,7 @@ function buildRideMesh(type, level = 1) {
     rideGroup.add(roof);
 
   } else if (type === 'CONCESSION') {
-    // 🍦 Cashflow Concessions Kiosk
+    // Cashflow Concessions Kiosk
     const kioskGeo = new THREE.CylinderGeometry(1.8, 2.0, 2.2, 8);
     const kioskMat = new THREE.MeshStandardMaterial({ color: 0xFFAA00, roughness: 0.3 });
     const kiosk = new THREE.Mesh(kioskGeo, kioskMat);
@@ -616,9 +634,12 @@ function triggerGameOver(reason) {
 }
 
 // ==========================================================================
-// INTERACTION & RAYCASTING
+// INTERACTION & ORBIT CAMERA CONTROLS
 // ==========================================================================
 function onPointerDown(event) {
+  state.isDragging = true;
+  state.previousMousePosition = { x: event.clientX, y: event.clientY };
+
   if (!state.started || state.paused || state.gameOver || state.won) return;
 
   mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
@@ -638,6 +659,28 @@ function onPointerDown(event) {
       selectPlot(index);
     }
   }
+}
+
+function onPointerMove(event) {
+  if (!state.isDragging) return;
+
+  const deltaX = event.clientX - state.previousMousePosition.x;
+  const deltaY = event.clientY - state.previousMousePosition.y;
+
+  state.cameraAngle -= deltaX * 0.005;
+  state.cameraElevation = Math.max(0.2, Math.min(Math.PI / 2 - 0.1, state.cameraElevation + deltaY * 0.005));
+
+  updateCameraPosition();
+  state.previousMousePosition = { x: event.clientX, y: event.clientY };
+}
+
+function onPointerUp() {
+  state.isDragging = false;
+}
+
+function onMouseWheel(event) {
+  state.cameraRadius = Math.max(20, Math.min(80, state.cameraRadius + event.deltaY * 0.05));
+  updateCameraPosition();
 }
 
 function selectPlot(index) {
@@ -769,6 +812,13 @@ function bindEvents() {
   document.getElementById('btn-audio').addEventListener('click', () => {
     state.audioEnabled = !state.audioEnabled;
     document.getElementById('btn-audio').textContent = state.audioEnabled ? 'SOUND' : 'MUTED';
+  });
+
+  document.getElementById('btn-reset-cam').addEventListener('click', () => {
+    state.cameraAngle = Math.PI / 4;
+    state.cameraElevation = 0.8;
+    state.cameraRadius = 42;
+    updateCameraPosition();
   });
 }
 
