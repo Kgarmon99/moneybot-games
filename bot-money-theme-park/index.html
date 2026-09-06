@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>MoneyBot Theme Park 3D - Three.js Financial Amusement Park</title>
-  <meta name="description" content="Build and manage a 3D financial theme park! Construct looping Compound Coasters, Diversification Ferris Wheels, and Emergency Splash Mountains while mastering cashflow and compounding.">
+  <title>MoneyBot Theme Park 3D - Financial Tycoon Simulator</title>
+  <meta name="description" content="Build and manage your 3D financial theme park! Construct looping Compound Coasters, ride in First-Person POV, manage guest ticket pricing, and master park cashflow.">
   <link rel="stylesheet" href="./assets/moneybot/moneybot-game.css">
   <link rel="stylesheet" href="./style.css">
 </head>
@@ -16,9 +16,9 @@
     <!-- Top Theme Park Operations HUD -->
     <header id="hud-top">
       <div class="hud-brand">
-        <img src="./assets/moneybot/assets/moneybot-idle.svg" alt="MoneyBot Park Mascot" class="mascot-icon" id="mascot-status-icon">
+        <img src="./assets/moneybot/assets/moneybot-idle.svg" alt="MoneyBot Mascot" class="mascot-icon" id="mascot-status-icon">
         <div>
-          <h1 class="game-title">MONEY PARK 3D</h1>
+          <h1 class="game-title">MONEY PARK RCT</h1>
           <div class="hud-time" id="hud-date">Year 1 &bull; Day 1</div>
         </div>
       </div>
@@ -36,9 +36,9 @@
           <span class="metric-sub" id="metric-stars">Rating: ⭐☆☆☆☆</span>
         </div>
 
-        <div class="metric-card">
-          <span class="metric-label">Park Guests</span>
-          <span class="metric-value mb-cyan" id="metric-guests">120 Visitors</span>
+        <div class="metric-card clickable" id="card-guests">
+          <span class="metric-label">Park Visitors</span>
+          <span class="metric-value mb-cyan" id="metric-guests">120 Guests</span>
           <span class="metric-sub" id="metric-happiness">98% Happy</span>
         </div>
 
@@ -50,21 +50,28 @@
       </div>
 
       <div class="hud-controls">
+        <button class="btn-ctrl" id="btn-ledger" title="Financial Ledger" aria-label="Ledger">P&amp;L</button>
         <button class="btn-ctrl" id="btn-speed" title="Toggle Speed" aria-label="Game Speed">1x</button>
         <button class="btn-ctrl" id="btn-pause" title="Pause Game" aria-label="Pause">PAUSE</button>
         <button class="btn-ctrl" id="btn-audio" title="Toggle Sound" aria-label="Toggle Audio">SOUND</button>
-        <button class="btn-ctrl" id="btn-reset-cam" title="Reset View" aria-label="Reset View">VIEW</button>
+        <button class="btn-ctrl" id="btn-reset-cam" title="Reset View" aria-label="Reset View">CAMERA</button>
       </div>
     </header>
 
-    <!-- Theme Park News / Event Ticker -->
+    <!-- Weather & Macro Season Ticker Banner -->
     <div id="event-ticker" class="hidden">
-      <div class="ticker-content" id="ticker-text">Welcome to MoneyBot Theme Park! Build your first 3D financial attraction to welcome guests!</div>
+      <div class="ticker-content" id="ticker-text">Welcome to MoneyBot Theme Park! Select an empty plot to construct your first ride!</div>
+    </div>
+
+    <!-- On-Ride First-Person POV Overlay Badge -->
+    <div id="ride-cam-badge" class="hidden">
+      <span id="ride-cam-title">🎥 ON-RIDE POV: Compound Coaster</span>
+      <button class="btn-ctrl btn-small" id="btn-exit-ride-cam">EXIT POV ✕</button>
     </div>
 
     <!-- Camera Navigation Hint -->
     <div id="camera-hint">
-      <span>Drag to orbit &bull; Pinch/Scroll to zoom &bull; Click plot or ride to inspect</span>
+      <span>Drag to orbit &bull; Pinch/Scroll to zoom &bull; Click ride for POV &bull; Click guest for thoughts</span>
     </div>
 
     <!-- Bottom Ride Build Drawer -->
@@ -161,7 +168,7 @@
       </div>
     </footer>
 
-    <!-- Ride Inspector / Upgrade Modal -->
+    <!-- Ride Inspector & Custom Ticket Pricing Modal -->
     <div id="inspector-modal" class="modal-backdrop hidden">
       <div class="modal-card">
         <div class="modal-header">
@@ -178,12 +185,16 @@
               <span class="stat-value mb-green" id="inspector-cashflow">+$400/day</span>
             </div>
             <div class="stat-row">
-              <span class="stat-label">Guest Excitement:</span>
-              <span class="stat-value mb-gold" id="inspector-excitement">95% Thrill</span>
+              <span class="stat-label">Ticket Price:</span>
+              <div class="price-adjuster">
+                <button class="btn-ctrl btn-small" id="btn-price-minus">-</button>
+                <span class="stat-value mb-gold" id="inspector-price">$15</span>
+                <button class="btn-ctrl btn-small" id="btn-price-plus">+</button>
+              </div>
             </div>
             <div class="stat-row">
-              <span class="stat-label">Asset Value:</span>
-              <span class="stat-value mb-cyan" id="inspector-value">$3,500</span>
+              <span class="stat-label">Guest Excitement:</span>
+              <span class="stat-value mb-cyan" id="inspector-excitement">95% Thrill</span>
             </div>
             <div class="stat-row">
               <span class="stat-label">Financial Lesson:</span>
@@ -192,7 +203,10 @@
           </div>
 
           <div class="inspector-actions">
-            <button class="btn-primary" id="btn-upgrade-ride">
+            <button class="btn-primary" id="btn-ride-pov">
+              <span>🎥 RIDE IN FIRST-PERSON POV</span>
+            </button>
+            <button class="btn-primary btn-secondary-style" id="btn-upgrade-ride">
               <span>Upgrade Attraction</span>
               <span class="btn-subtext" id="inspector-upgrade-cost">Cost: $2,500</span>
             </button>
@@ -204,13 +218,80 @@
       </div>
     </div>
 
+    <!-- Individual Guest Thought AI Inspector Modal -->
+    <div id="guest-modal" class="modal-backdrop hidden">
+      <div class="modal-card guest-card">
+        <div class="modal-header">
+          <h3 id="guest-name">Park Visitor #42</h3>
+          <button class="modal-close-btn" id="btn-close-guest">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="guest-thought-bubble">
+            <span class="thought-label">CURRENT THOUGHT:</span>
+            <p id="guest-thought">"The Compound Coaster loop is incredible! Best $15 I ever spent!"</p>
+          </div>
+          <div class="inspector-stats">
+            <div class="stat-row">
+              <span class="stat-label">Wallet Cash:</span>
+              <span class="stat-value mb-green" id="guest-cash">$220</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Happiness Meter:</span>
+              <span class="stat-value mb-cyan" id="guest-happiness">98% Satisfied</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Favorite Ride:</span>
+              <span class="stat-value mb-gold" id="guest-fav">Compound Coaster</span>
+            </div>
+          </div>
+          <button class="btn-primary" id="btn-gift-coupon">Gift $10 Snack Coupon</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- P&L Financial Ledger Modal -->
+    <div id="ledger-modal" class="modal-backdrop hidden">
+      <div class="modal-card ledger-card">
+        <div class="modal-header">
+          <h3>PARK FINANCIAL LEDGER</h3>
+          <button class="modal-close-btn" id="btn-close-ledger">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="ledger-summary">
+            <div class="ledger-row">
+              <span>Daily Ticket Revenue:</span>
+              <strong class="mb-green" id="ledger-revenue">+$3,200/day</strong>
+            </div>
+            <div class="ledger-row">
+              <span>Concessions Profit:</span>
+              <strong class="mb-green" id="ledger-concessions">+$850/day</strong>
+            </div>
+            <div class="ledger-row">
+              <span>Maintenance &amp; Staff:</span>
+              <strong class="mb-red" id="ledger-maintenance">-$600/day</strong>
+            </div>
+            <div class="ledger-row">
+              <span>Loan Interest (24% APR):</span>
+              <strong class="mb-red" id="ledger-interest">-$0/day</strong>
+            </div>
+            <div class="ledger-divider"></div>
+            <div class="ledger-row ledger-net">
+              <span>NET DAILY CASHFLOW:</span>
+              <strong class="mb-gold" id="ledger-net">+$3,450/day</strong>
+            </div>
+          </div>
+          <button class="btn-primary" id="btn-close-ledger-body">CLOSE LEDGER</button>
+        </div>
+      </div>
+    </div>
+
     <!-- Onboarding / Start Modal -->
     <div id="title-modal" class="modal-backdrop">
       <div class="modal-card title-card">
         <div class="title-header">
           <img src="./assets/moneybot/assets/moneybot-celebrating.svg" alt="MoneyBot Park Host" class="title-mascot">
-          <h2>MONEYBOT THEME PARK 3D</h2>
-          <p class="title-tagline">Build &amp; Manage the World's First Financial Amusement Park!</p>
+          <h2>MONEYBOT THEME PARK RCT</h2>
+          <p class="title-tagline">Roller Coaster Tycoon Meets Financial Freedom!</p>
         </div>
         <div class="modal-body">
           <div class="briefing-box">

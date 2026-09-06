@@ -1,4 +1,4 @@
-/* MoneyBot Theme Park 3D - Three.js Game Engine */
+/* MoneyBot Theme Park 3D - Three.js Game Engine (RCT Edition) */
 import * as THREE from './vendor/three.module.js';
 
 // ==========================================================================
@@ -63,6 +63,16 @@ const RIDE_TYPES = {
   },
 };
 
+const GUEST_THOUGHTS = [
+  "The Compound Coaster yield loops are incredible! Best ticket price ever!",
+  "I'm keeping my emergency fund intact for the Cashflow Concession snacks!",
+  "The Diversification Ferris Wheel view gives me total peace of mind.",
+  "Bumping through the Bull & Bear market cycles is thrilling!",
+  "10/10 park! Reinvesting my time here was the best decision today!",
+  "The Emergency Splash Mountain splash pool is so refreshing!",
+  "Debt Mansion ghosts cured me of taking 24% APR loans forever!",
+];
+
 const state = {
   started: false,
   paused: false,
@@ -84,15 +94,19 @@ const state = {
   // Grid & Rides
   plots: [], // 3x3 array
   selectedPlotIndex: null,
+  selectedGuest: null,
   
   audioEnabled: true,
 
-  // Camera Orbit Controls State
+  // Camera Orbit & POV Mode
   cameraAngle: Math.PI / 4,
   cameraElevation: 0.8,
   cameraRadius: 42,
   isDragging: false,
   previousMousePosition: { x: 0, y: 0 },
+  
+  isPovMode: false,
+  povRide: null,
 };
 
 // ==========================================================================
@@ -210,7 +224,7 @@ function initThree() {
   cyanLight.position.set(-15, 12, -15);
   scene.add(cyanLight);
 
-  // Raycaster for Plot Selection
+  // Raycaster for Plot Selection & Guest Inspection
   raycaster = new THREE.Raycaster();
   mouse = new THREE.Vector2();
 
@@ -234,6 +248,8 @@ function initThree() {
 }
 
 function updateCameraPosition() {
+  if (state.isPovMode && state.povRide) return; // Managed in render loop for POV
+
   const x = Math.sin(state.cameraAngle) * Math.cos(state.cameraElevation) * state.cameraRadius;
   const y = Math.sin(state.cameraElevation) * state.cameraRadius;
   const z = Math.cos(state.cameraAngle) * Math.cos(state.cameraElevation) * state.cameraRadius;
@@ -473,13 +489,18 @@ function buildRideMesh(type, level = 1) {
 }
 
 function spawnGuestBots() {
-  for (let i = 0; i < 16; i++) {
+  for (let i = 0; i < 20; i++) {
     const geo = new THREE.CylinderGeometry(0.2, 0.25, 0.8, 8);
     const mat = new THREE.MeshBasicMaterial({ color: i % 2 === 0 ? 0x00E676 : 0x00F0FF });
     const guest = new THREE.Mesh(geo, mat);
     
     guest.position.set((Math.random() - 0.5) * 30, 0.4, (Math.random() - 0.5) * 30);
     guest.userData = {
+      guestId: i + 1,
+      cash: 150 + Math.floor(Math.random() * 300),
+      happiness: 85 + Math.floor(Math.random() * 15),
+      favRide: ['Compound Coaster', 'Diversification Wheel', 'Bull & Bear Bumpers'][i % 3],
+      thought: GUEST_THOUGHTS[i % GUEST_THOUGHTS.length],
       targetX: (Math.random() - 0.5) * 30,
       targetZ: (Math.random() - 0.5) * 30,
       speed: 1.5 + Math.random() * 1.5,
@@ -505,6 +526,20 @@ function updateSimulation(delta) {
       r.carMesh.position.x = Math.cos(r.angle) * 3.5;
       r.carMesh.position.z = Math.sin(r.angle) * 3.5;
       r.carMesh.rotation.y = -r.angle;
+
+      // Handle First-Person Ride Cam POV
+      if (state.isPovMode && state.povRide === r) {
+        const carWorldPos = new THREE.Vector3();
+        r.carMesh.getWorldPosition(carWorldPos);
+        camera.position.set(carWorldPos.x, carWorldPos.y + 0.8, carWorldPos.z);
+        const lookTarget = new THREE.Vector3(
+          carWorldPos.x + Math.cos(r.angle + 0.5) * 3,
+          carWorldPos.y + 0.8,
+          carWorldPos.z + Math.sin(r.angle + 0.5) * 3
+        );
+        camera.lookAt(lookTarget);
+      }
+
     } else if (r.type === 'WHEEL') {
       r.angle += delta * 0.8;
       r.wheelMesh.rotation.z = r.angle;
@@ -548,21 +583,21 @@ function processDailyFinancialTick() {
     state.year++;
   }
 
-  // Calculate Daily Cashflow from Rides
+  // Calculate Daily Cashflow from Rides & Concessions
   let dailyTicketRevenue = 0;
   let totalAssetValue = state.cash;
 
   state.plots.forEach(plot => {
     if (plot.ride) {
       const rideInfo = RIDE_TYPES[plot.ride.type];
-      const yieldAmount = rideInfo.dailyCashflow * plot.ride.level;
+      const yieldAmount = rideInfo.dailyCashflow * (plot.ride.ticketPrice || 15) / 15 * plot.ride.level;
       dailyTicketRevenue += yieldAmount;
       totalAssetValue += rideInfo.cost * plot.ride.level;
     }
   });
 
   // Apply Revenue
-  state.cash += dailyTicketRevenue;
+  state.cash += Math.floor(dailyTicketRevenue);
   
   // Apply Loan Debt Interest (if active)
   if (state.debt > 0) {
@@ -597,13 +632,13 @@ function processDailyFinancialTick() {
 function updateHUD(dailyRevenue) {
   document.getElementById('hud-date').textContent = `Year ${state.year} • Day ${state.day}`;
   document.getElementById('metric-cash').textContent = `$${state.cash.toLocaleString()}`;
-  document.getElementById('metric-cashflow').textContent = `+$${dailyRevenue.toLocaleString()}/day`;
+  document.getElementById('metric-cashflow').textContent = `+$${Math.floor(dailyRevenue).toLocaleString()}/day`;
   document.getElementById('metric-networth').textContent = `$${state.netWorth.toLocaleString()}`;
   
   const starsText = '⭐'.repeat(state.stars) + '☆'.repeat(5 - state.stars);
   document.getElementById('metric-stars').textContent = `Rating: ${starsText}`;
   
-  document.getElementById('metric-guests').textContent = `${120 + state.stars * 180} Visitors`;
+  document.getElementById('metric-guests').textContent = `${120 + state.stars * 180} Guests`;
 }
 
 function showTicker(text) {
@@ -622,7 +657,7 @@ function triggerWin() {
   state.won = true;
   audio.playVictory();
   document.getElementById('win-networth').textContent = `$${state.netWorth.toLocaleString()}`;
-  document.getElementById('win-guests').textContent = `${120 + state.stars * 180} Visitors`;
+  document.getElementById('win-guests').textContent = `${120 + state.stars * 180} Guests`;
   document.getElementById('win-modal').classList.remove('hidden');
 }
 
@@ -634,7 +669,7 @@ function triggerGameOver(reason) {
 }
 
 // ==========================================================================
-// INTERACTION & ORBIT CAMERA CONTROLS
+// INTERACTION & RAYCASTING
 // ==========================================================================
 function onPointerDown(event) {
   state.isDragging = true;
@@ -646,8 +681,17 @@ function onPointerDown(event) {
   mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
   raycaster.setFromCamera(mouse, camera);
-  const intersects = raycaster.intersectObjects(parkGroup.children, true);
 
+  // Check Guest Bot Selection First
+  const guestIntersects = raycaster.intersectObjects(guestsGroup.children, true);
+  if (guestIntersects.length > 0) {
+    const guestObj = guestIntersects[0].object;
+    inspectGuest(guestObj);
+    return;
+  }
+
+  // Check Park Plot / Ride Selection
+  const intersects = raycaster.intersectObjects(parkGroup.children, true);
   if (intersects.length > 0) {
     let targetObj = intersects[0].object;
     while (targetObj.parent && targetObj.userData.plotIndex === undefined) {
@@ -662,7 +706,7 @@ function onPointerDown(event) {
 }
 
 function onPointerMove(event) {
-  if (!state.isDragging) return;
+  if (!state.isDragging || state.isPovMode) return;
 
   const deltaX = event.clientX - state.previousMousePosition.x;
   const deltaY = event.clientY - state.previousMousePosition.y;
@@ -679,8 +723,20 @@ function onPointerUp() {
 }
 
 function onMouseWheel(event) {
+  if (state.isPovMode) return;
   state.cameraRadius = Math.max(20, Math.min(80, state.cameraRadius + event.deltaY * 0.05));
   updateCameraPosition();
+}
+
+function inspectGuest(guestObj) {
+  state.selectedGuest = guestObj;
+  const data = guestObj.userData;
+  document.getElementById('guest-name').textContent = `Park Visitor #${data.guestId}`;
+  document.getElementById('guest-thought').textContent = `"${data.thought}"`;
+  document.getElementById('guest-cash').textContent = `$${data.cash}`;
+  document.getElementById('guest-happiness').textContent = `${data.happiness}% Satisfied`;
+  document.getElementById('guest-fav').textContent = data.favRide;
+  document.getElementById('guest-modal').classList.remove('hidden');
 }
 
 function selectPlot(index) {
@@ -695,6 +751,7 @@ function selectPlot(index) {
     document.getElementById('inspector-title').textContent = rideInfo.name;
     document.getElementById('inspector-badge').textContent = `Level ${plot.ride.level} Attraction`;
     document.getElementById('inspector-cashflow').textContent = `+$${rideInfo.dailyCashflow * plot.ride.level}/day`;
+    document.getElementById('inspector-price').textContent = `$${plot.ride.ticketPrice || 15}`;
     document.getElementById('inspector-excitement').textContent = `${rideInfo.excitement}% Thrill`;
     document.getElementById('inspector-value').textContent = `$${rideInfo.cost * plot.ride.level}`;
     document.getElementById('inspector-principle').textContent = rideInfo.principle;
@@ -730,7 +787,7 @@ function buildRideOnSelectedPlot(type) {
   rideMesh.position.set(plot.x, 0.2, plot.z);
   parkGroup.add(rideMesh);
 
-  plot.ride = { type, level: 1, mesh: rideMesh };
+  plot.ride = { type, level: 1, ticketPrice: 15, mesh: rideMesh };
   audio.playBuild();
   showTicker(`${rideInfo.name} constructed! Ticket revenue +$${rideInfo.dailyCashflow}/day!`);
 }
@@ -759,6 +816,90 @@ function bindEvents() {
 
   document.getElementById('btn-close-inspector').addEventListener('click', () => {
     document.getElementById('inspector-modal').classList.add('hidden');
+  });
+
+  document.getElementById('btn-close-guest').addEventListener('click', () => {
+    document.getElementById('guest-modal').classList.add('hidden');
+  });
+
+  document.getElementById('btn-gift-coupon').addEventListener('click', () => {
+    if (state.selectedGuest && state.cash >= 10) {
+      state.cash -= 10;
+      state.selectedGuest.userData.happiness = Math.min(100, state.selectedGuest.userData.happiness + 12);
+      audio.playCash();
+      showTicker('Gifted $10 Snack Coupon! Guest Happiness Increased!');
+      document.getElementById('guest-modal').classList.add('hidden');
+    }
+  });
+
+  // First-Person Ride Cam POV Mode
+  document.getElementById('btn-ride-pov').addEventListener('click', () => {
+    if (state.selectedPlotIndex !== null) {
+      const plot = state.plots[state.selectedPlotIndex];
+      if (plot.ride && plot.ride.type === 'COASTER') {
+        const animRide = animatedRides.find(r => r.type === 'COASTER');
+        if (animRide) {
+          state.isPovMode = true;
+          state.povRide = animRide;
+          document.getElementById('inspector-modal').classList.add('hidden');
+          document.getElementById('ride-cam-badge').classList.remove('hidden');
+          showTicker('🎥 ON-RIDE POV ACTIVATED: Riding the Compound Coaster!');
+        }
+      } else {
+        showTicker('First-Person POV is currently available on the Compound Coaster!');
+      }
+    }
+  });
+
+  document.getElementById('btn-exit-ride-cam').addEventListener('click', () => {
+    state.isPovMode = false;
+    state.povRide = null;
+    document.getElementById('ride-cam-badge').classList.add('hidden');
+    updateCameraPosition();
+    showTicker('Exited First-Person POV.');
+  });
+
+  // Ticket Price Adjusters
+  document.getElementById('btn-price-minus').addEventListener('click', () => {
+    if (state.selectedPlotIndex !== null) {
+      const plot = state.plots[state.selectedPlotIndex];
+      if (plot.ride) {
+        plot.ride.ticketPrice = Math.max(5, (plot.ride.ticketPrice || 15) - 5);
+        document.getElementById('inspector-price').textContent = `$${plot.ride.ticketPrice}`;
+      }
+    }
+  });
+
+  document.getElementById('btn-price-plus').addEventListener('click', () => {
+    if (state.selectedPlotIndex !== null) {
+      const plot = state.plots[state.selectedPlotIndex];
+      if (plot.ride) {
+        plot.ride.ticketPrice = Math.min(50, (plot.ride.ticketPrice || 15) + 5);
+        document.getElementById('inspector-price').textContent = `$${plot.ride.ticketPrice}`;
+      }
+    }
+  });
+
+  // Financial Ledger P&L
+  document.getElementById('btn-ledger').addEventListener('click', () => {
+    let rev = 0;
+    state.plots.forEach(p => {
+      if (p.ride) rev += RIDE_TYPES[p.ride.type].dailyCashflow * (p.ride.ticketPrice || 15) / 15 * p.ride.level;
+    });
+
+    document.getElementById('ledger-revenue').textContent = `+$${Math.floor(rev).toLocaleString()}/day`;
+    document.getElementById('ledger-concessions').textContent = `+$${Math.floor(rev * 0.25).toLocaleString()}/day`;
+    document.getElementById('ledger-maintenance').textContent = `-$${Math.floor(rev * 0.15).toLocaleString()}/day`;
+    document.getElementById('ledger-net').textContent = `+$${Math.floor(rev * 1.1).toLocaleString()}/day`;
+    document.getElementById('ledger-modal').classList.remove('hidden');
+  });
+
+  document.getElementById('btn-close-ledger').addEventListener('click', () => {
+    document.getElementById('ledger-modal').classList.add('hidden');
+  });
+
+  document.getElementById('btn-close-ledger-body').addEventListener('click', () => {
+    document.getElementById('ledger-modal').classList.add('hidden');
   });
 
   document.getElementById('btn-upgrade-ride').addEventListener('click', () => {
@@ -815,6 +956,9 @@ function bindEvents() {
   });
 
   document.getElementById('btn-reset-cam').addEventListener('click', () => {
+    state.isPovMode = false;
+    state.povRide = null;
+    document.getElementById('ride-cam-badge').classList.add('hidden');
     state.cameraAngle = Math.PI / 4;
     state.cameraElevation = 0.8;
     state.cameraRadius = 42;
@@ -833,6 +977,8 @@ function restartGame() {
   state.day = 1;
   state.year = 1;
   state.stars = 1;
+  state.isPovMode = false;
+  state.povRide = null;
 
   // Clear existing rides
   state.plots.forEach(plot => {
@@ -844,6 +990,7 @@ function restartGame() {
 
   document.getElementById('win-modal').classList.add('hidden');
   document.getElementById('gameover-modal').classList.add('hidden');
+  document.getElementById('ride-cam-badge').classList.add('hidden');
   showTicker('New Theme Park Run Initialized!');
 }
 
