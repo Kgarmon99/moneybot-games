@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>MoneyBot Theme Park 3D - Three.js Financial Amusement Park</title>
+  <meta name="description" content="Build and manage a 3D financial theme park! Construct looping Compound Coasters, Diversification Ferris Wheels, and Emergency Splash Mountains while mastering cashflow and compounding.">
+  <link rel="stylesheet" href="./assets/moneybot/moneybot-game.css">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <div id="game-container">
+    <!-- 3D Viewport Container -->
+    <div id="canvas-container"></div>
+
+    <!-- Top Theme Park Operations HUD -->
+    <header id="hud-top">
+      <div class="hud-brand">
+        <img src="./assets/moneybot/assets/moneybot-idle.svg" alt="MoneyBot Park Mascot" class="mascot-icon" id="mascot-status-icon">
+        <div>
+          <h1 class="game-title">MONEY PARK 3D</h1>
+          <div class="hud-time" id="hud-date">Year 1 &bull; Day 1</div>
+        </div>
+      </div>
+
+      <div class="hud-metrics">
+        <div class="metric-card">
+          <span class="metric-label">Park Treasury</span>
+          <span class="metric-value mb-green" id="metric-cash">$15,000</span>
+          <span class="metric-sub" id="metric-cashflow">+$1,200/day</span>
+        </div>
+
+        <div class="metric-card">
+          <span class="metric-label">Park Net Worth</span>
+          <span class="metric-value mb-gold" id="metric-networth">$15,000</span>
+          <span class="metric-sub" id="metric-stars">Rating: ⭐☆☆☆☆</span>
+        </div>
+
+        <div class="metric-card">
+          <span class="metric-label">Park Guests</span>
+          <span class="metric-value mb-cyan" id="metric-guests">120 Visitors</span>
+          <span class="metric-sub" id="metric-happiness">98% Happy</span>
+        </div>
+
+        <div class="metric-card debt-card hidden" id="metric-debt-card">
+          <span class="metric-label">Emergency Loan</span>
+          <span class="metric-value mb-red" id="metric-debt">$0</span>
+          <span class="metric-sub" id="metric-debt-interest">24% APR</span>
+        </div>
+      </div>
+
+      <div class="hud-controls">
+        <button class="btn-ctrl" id="btn-speed" title="Toggle Speed" aria-label="Game Speed">1x</button>
+        <button class="btn-ctrl" id="btn-pause" title="Pause Game" aria-label="Pause">PAUSE</button>
+        <button class="btn-ctrl" id="btn-audio" title="Toggle Sound" aria-label="Toggle Audio">SOUND</button>
+        <button class="btn-ctrl" id="btn-reset-cam" title="Reset View" aria-label="Reset View">VIEW</button>
+      </div>
+    </header>
+
+    <!-- Theme Park News / Event Ticker -->
+    <div id="event-ticker" class="hidden">
+      <div class="ticker-content" id="ticker-text">Welcome to MoneyBot Theme Park! Build your first 3D financial attraction to welcome guests!</div>
+    </div>
+
+    <!-- Camera Navigation Hint -->
+    <div id="camera-hint">
+      <span>Drag to orbit &bull; Pinch/Scroll to zoom &bull; Click plot or ride to inspect</span>
+    </div>
+
+    <!-- Bottom Ride Build Drawer -->
+    <footer id="hud-bottom">
+      <div class="build-drawer-header">
+        <span class="drawer-title">Financial Attractions Blueprints</span>
+        <span class="drawer-hint" id="selected-plot-label">Select a park plot to construct an attraction</span>
+      </div>
+
+      <div class="build-grid" id="build-cards-container">
+        <!-- Ride 1: Compound Coaster -->
+        <button class="build-card" data-type="COASTER">
+          <div class="build-card-icon coaster-icon">
+            <img src="./assets/moneybot/assets/game-coin-green.svg" alt="Compound Coaster">
+          </div>
+          <div class="build-card-info">
+            <div class="build-name">Compound Coaster</div>
+            <div class="build-cost">$5,000</div>
+            <div class="build-effect">+$600/day Exponential</div>
+          </div>
+        </button>
+
+        <!-- Ride 2: Diversification Ferris Wheel -->
+        <button class="build-card" data-type="WHEEL">
+          <div class="build-card-icon wheel-icon">
+            <img src="./assets/moneybot/assets/game-coin-gold.svg" alt="Ferris Wheel">
+          </div>
+          <div class="build-card-info">
+            <div class="build-name">Diversification Wheel</div>
+            <div class="build-cost">$3,500</div>
+            <div class="build-effect">+$400/day Stable Income</div>
+          </div>
+        </button>
+
+        <!-- Ride 3: Bull & Bear Bumper Arena -->
+        <button class="build-card" data-type="BUMPERS">
+          <div class="build-card-icon bumper-icon">
+            <img src="./assets/moneybot/assets/moneybot-driving.svg" alt="Bumper Arena">
+          </div>
+          <div class="build-card-info">
+            <div class="build-name">Bull &amp; Bear Bumpers</div>
+            <div class="build-cost">$2,800</div>
+            <div class="build-effect">+$320/day High Thrill</div>
+          </div>
+        </button>
+
+        <!-- Ride 4: Emergency Splash Mountain -->
+        <button class="build-card" data-type="SPLASH">
+          <div class="build-card-icon splash-icon">
+            <img src="./assets/moneybot/assets/ui-button-primary.svg" alt="Splash Mountain">
+          </div>
+          <div class="build-card-info">
+            <div class="build-name">Emergency Splash</div>
+            <div class="build-cost">$2,200</div>
+            <div class="build-effect">+$250/day Liquid Reserve</div>
+          </div>
+        </button>
+
+        <!-- Ride 5: Toxic Debt Haunted Mansion -->
+        <button class="build-card" data-type="HAUNTED">
+          <div class="build-card-icon haunted-icon">
+            <img src="./assets/moneybot/assets/game-obstacle-debt.svg" alt="Haunted Mansion">
+          </div>
+          <div class="build-card-info">
+            <div class="build-name">Toxic Debt Mansion</div>
+            <div class="build-cost">$4,000</div>
+            <div class="build-effect">Eliminates Debt APR</div>
+          </div>
+        </button>
+
+        <!-- Concession 6: Cashflow Refreshment Stand -->
+        <button class="build-card" data-type="CONCESSION">
+          <div class="build-card-icon concession-icon">
+            <img src="./assets/moneybot/assets/moneybot-celebrating.svg" alt="Cashflow Refreshments">
+          </div>
+          <div class="build-card-info">
+            <div class="build-name">Cashflow Concessions</div>
+            <div class="build-cost">$1,500</div>
+            <div class="build-effect">+$180/day High Margin</div>
+          </div>
+        </button>
+
+        <!-- Action: Pay Off Debt -->
+        <button class="build-card action-debt" data-type="PAY_DEBT" id="btn-pay-debt">
+          <div class="build-card-icon debt-icon">
+            <img src="./assets/moneybot/assets/game-obstacle-debt.svg" alt="Pay Debt">
+          </div>
+          <div class="build-card-info">
+            <div class="build-name">Pay Off Loan</div>
+            <div class="build-cost" id="debt-pay-cost">$1,000</div>
+            <div class="build-effect">Wipe Out 24% Interest</div>
+          </div>
+        </button>
+      </div>
+    </footer>
+
+    <!-- Ride Inspector / Upgrade Modal -->
+    <div id="inspector-modal" class="modal-backdrop hidden">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3 id="inspector-title">Attraction Inspector</h3>
+          <button class="modal-close-btn" id="btn-close-inspector">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="inspector-badge" id="inspector-badge">Level 1 Attraction</div>
+          <p id="inspector-desc">This kinetic 3D ride drives park attendance and financial earnings.</p>
+          
+          <div class="inspector-stats">
+            <div class="stat-row">
+              <span class="stat-label">Daily Income:</span>
+              <span class="stat-value mb-green" id="inspector-cashflow">+$400/day</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Guest Excitement:</span>
+              <span class="stat-value mb-gold" id="inspector-excitement">95% Thrill</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Asset Value:</span>
+              <span class="stat-value mb-cyan" id="inspector-value">$3,500</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Financial Lesson:</span>
+              <span class="stat-principle" id="inspector-principle">Reinvesting capital increases cashflow exponentially.</span>
+            </div>
+          </div>
+
+          <div class="inspector-actions">
+            <button class="btn-primary" id="btn-upgrade-ride">
+              <span>Upgrade Attraction</span>
+              <span class="btn-subtext" id="inspector-upgrade-cost">Cost: $2,500</span>
+            </button>
+            <button class="btn-danger" id="btn-demolish-ride">
+              <span>Sell Ride (70% Refund)</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Onboarding / Start Modal -->
+    <div id="title-modal" class="modal-backdrop">
+      <div class="modal-card title-card">
+        <div class="title-header">
+          <img src="./assets/moneybot/assets/moneybot-celebrating.svg" alt="MoneyBot Park Host" class="title-mascot">
+          <h2>MONEYBOT THEME PARK 3D</h2>
+          <p class="title-tagline">Build &amp; Manage the World's First Financial Amusement Park!</p>
+        </div>
+        <div class="modal-body">
+          <div class="briefing-box">
+            <h4>PARK TYCOON OBJECTIVE:</h4>
+            <p>Construct a world-class 3D financial theme park. Reach a <strong>5-Star Rating</strong> and <strong>$1,000,000 Park Net Worth</strong> by mastering core money concepts:</p>
+            <ul class="rule-list">
+              <li><strong>The Compound Coaster:</strong> Reinvest profits into track loops to trigger exponential ticket multipliers.</li>
+              <li><strong>Diversification Ferris Wheel:</strong> Balance diverse asset gondolas for steady year-round revenue.</li>
+              <li><strong>Emergency Splash Mountain:</strong> Build liquid cash reserves to handle sudden ride breakdowns.</li>
+              <li><strong>Toxic Debt Mansion:</strong> Eliminate 24% APR interest ghosts before they drain your daily treasury.</li>
+            </ul>
+          </div>
+          <button class="btn-primary btn-large" id="btn-start-game">OPEN THEME PARK</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5-Star Victory Modal -->
+    <div id="win-modal" class="modal-backdrop hidden">
+      <div class="modal-card win-card">
+        <div class="title-header">
+          <img src="./assets/moneybot/assets/moneybot-celebrating.svg" alt="Celebration" class="title-mascot">
+          <h2 class="mb-green">5-STAR PARK EMPIRE ACHIEVED!</h2>
+          <p class="title-tagline">Your MoneyBot Theme Park has reached ultimate 5-Star Status!</p>
+        </div>
+        <div class="modal-body">
+          <div class="victory-stats">
+            <div class="vic-stat">
+              <span>Final Park Net Worth:</span>
+              <strong class="mb-gold" id="win-networth">$1,085,000</strong>
+            </div>
+            <div class="vic-stat">
+              <span>Daily Ticket Cashflow:</span>
+              <strong class="mb-green" id="win-cashflow">+$12,400/day</strong>
+            </div>
+            <div class="vic-stat">
+              <span>Total Happy Guests:</span>
+              <strong class="mb-cyan" id="win-guests">1,250 Visitors</strong>
+            </div>
+          </div>
+          <p class="win-lesson">By balancing compound investments, liquid emergency reserves, and asset diversification, your theme park generates unstoppable passive cashflow!</p>
+          <button class="btn-primary btn-large" id="btn-restart-win">BUILD NEXT PARK</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Insolvency Loss Modal -->
+    <div id="gameover-modal" class="modal-backdrop hidden">
+      <div class="modal-card gameover-card">
+        <div class="title-header">
+          <img src="./assets/moneybot/assets/game-obstacle-debt.svg" alt="Park Foreclosure" class="title-mascot">
+          <h2 class="mb-red">PARK FORECLOSURE</h2>
+          <p class="title-tagline">High APR Emergency Loans Drained Park Treasury</p>
+        </div>
+        <div class="modal-body">
+          <div class="autopsy-box">
+            <h4>FINANCIAL AUTOPSY:</h4>
+            <p id="gameover-reason">Operating costs and high-interest debt payments exceeded daily ticket sales. Lack of emergency liquid reserves caused park insolvency.</p>
+            <div class="autopsy-stats">
+              <div>Peak Loan Debt: <strong class="mb-red" id="gameover-debt">$28,000</strong></div>
+              <div>Days Survived: <strong id="gameover-days">145 Days</strong></div>
+            </div>
+          </div>
+          <div class="autopsy-advice">
+            MoneyBot Takeaway: Build an Emergency Splash Mountain early to keep liquid cash reserves ready for surprise maintenance costs!
+          </div>
+          <button class="btn-primary btn-large" id="btn-restart-loss">RETRY PARK RUN</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Shared MoneyBot Game Kit & Main Game Module -->
+  <script src="./assets/moneybot/moneybot-game-kit.js"></script>
+  <script type="module" src="./game.js"></script>
+</body>
+</html>

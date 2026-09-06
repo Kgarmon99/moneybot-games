@@ -11,6 +11,26 @@
   ],
   "games": [
     {
+      "id": "bot-money-theme-park",
+      "title": "MoneyBot Theme Park 3D",
+      "url": "../bot-money-theme-park/",
+      "thumbnail": "assets/thumbs-signal/super-moneybot-galaxy.webp",
+      "learningObjective": "Build and manage the world's first 3D financial theme park! Ride the looping Compound Coaster, balance the Diversification Ferris Wheel, and manage ticket cashflow to achieve 5-Star status.",
+      "topic": "investing",
+      "genres": [
+        "simulation",
+        "3d",
+        "arcade",
+        "education"
+      ],
+      "difficulty": "medium",
+      "playtimeMinutes": 5,
+      "status": "flagship",
+      "visibility": "public",
+      "section": "featured",
+      "featuredOrder": 1
+    },
+    {
       "id": "super-moneybot-galaxy",
       "title": "Super MoneyBot Galaxy",
       "url": "../super-moneybot-galaxy/",

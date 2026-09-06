@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>MoneyBot Metropolis 3D - Financial Literacy City Builder</title>
+  <meta name="description" content="Build your 3D financial metropolis. Master cashflow, compounding index funds, emergency liquidity, and debt avoidance in a glowing Three.js cyberpunk simulator.">
+  <link rel="stylesheet" href="./assets/moneybot/moneybot-game.css">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <!-- 3D Canvas Container -->
+  <div id="game-container">
+    <div id="canvas-container"></div>
+
+    <!-- Top Financial Dashboard HUD -->
+    <header id="hud-top">
+      <div class="hud-brand">
+        <img src="./assets/moneybot/assets/moneybot-idle.svg" alt="MoneyBot" class="mascot-icon" id="mascot-status-icon">
+        <div>
+          <h1 class="game-title">METROPOLIS 3D</h1>
+          <div class="hud-time" id="hud-date">Year 1 &bull; Month 1</div>
+        </div>
+      </div>
+
+      <div class="hud-metrics">
+        <div class="metric-card" id="metric-cash-card">
+          <span class="metric-label">Liquid Cash</span>
+          <span class="metric-value mb-green" id="metric-cash">$5,000</span>
+          <span class="metric-sub" id="metric-cashflow">+$800/mo</span>
+        </div>
+
+        <div class="metric-card" id="metric-networth-card">
+          <span class="metric-label">Net Worth</span>
+          <span class="metric-value mb-gold" id="metric-networth">$5,000</span>
+          <span class="metric-sub" id="metric-vault-info">Vault: $0</span>
+        </div>
+
+        <div class="metric-card" id="metric-fire-card">
+          <span class="metric-label">F.I.R.E. Independence</span>
+          <div class="fire-progress-bar">
+            <div class="fire-fill" id="fire-fill" style="width: 0%;"></div>
+          </div>
+          <span class="metric-sub" id="metric-fire-text">0% Covered</span>
+        </div>
+
+        <div class="metric-card debt-card hidden" id="metric-debt-card">
+          <span class="metric-label">Toxic Debt (24% APR)</span>
+          <span class="metric-value mb-red" id="metric-debt">$0</span>
+          <span class="metric-sub" id="metric-debt-interest">-$0/mo</span>
+        </div>
+      </div>
+
+      <div class="hud-controls">
+        <button class="btn-ctrl" id="btn-speed" title="Toggle Speed" aria-label="Game Speed">1x</button>
+        <button class="btn-ctrl" id="btn-pause" title="Pause Game" aria-label="Pause">❚❚</button>
+        <button class="btn-ctrl" id="btn-audio" title="Toggle Sound" aria-label="Toggle Audio">🔊</button>
+        <button class="btn-ctrl" id="btn-reset-cam" title="Reset Camera" aria-label="Reset View">🎥</button>
+      </div>
+    </header>
+
+    <!-- Event Banner / News Ticker -->
+    <div id="event-ticker" class="hidden">
+      <div class="ticker-content" id="ticker-text">Welcome to MoneyBot Metropolis. Select an empty plot to begin building your financial empire!</div>
+    </div>
+
+    <!-- Quick Help & View Controls Overlay -->
+    <div id="camera-hint">
+      <span>🖱️ Drag to rotate &bull; Pinch/Scroll to zoom &bull; Click plot to build</span>
+    </div>
+
+    <!-- Bottom Build Drawer & Action Bar -->
+    <footer id="hud-bottom">
+      <div class="build-drawer-header">
+        <span class="drawer-title">Financial District Blueprints</span>
+        <span class="drawer-hint" id="selected-plot-label">Select an empty plot to build</span>
+      </div>
+
+      <div class="build-grid" id="build-cards-container">
+        <!-- Building 1: Emergency Vault -->
+        <button class="build-card" data-type="VAULT">
+          <div class="build-card-icon vault-icon">
+            <img src="./assets/moneybot/assets/game-coin-gold.svg" alt="Emergency Vault">
+          </div>
+          <div class="build-card-info">
+            <div class="build-name">Emergency Vault</div>
+            <div class="build-cost">$1,000</div>
+            <div class="build-effect">+$1,000 Liquid Shield</div>
+          </div>
+        </button>
+
+        <!-- Building 2: Index Fund High-Rise -->
+        <button class="build-card" data-type="INDEX">
+          <div class="build-card-icon index-icon">
+            <img src="./assets/moneybot/assets/game-coin-green.svg" alt="Index Fund Tower">
+          </div>
+          <div class="build-card-info">
+            <div class="build-name">Index High-Rise</div>
+            <div class="build-cost">$2,500</div>
+            <div class="build-effect">+$220/mo Compounding</div>
+          </div>
+        </button>
+
+        <!-- Building 3: Real Estate Plaza -->
+        <button class="build-card" data-type="REAL_ESTATE">
+          <div class="build-card-icon re-icon">
+            <img src="./assets/moneybot/assets/ui-button-primary.svg" alt="Real Estate Plaza">
+          </div>
+          <div class="build-card-info">
+            <div class="build-name">Real Estate Plaza</div>
+            <div class="build-cost">$5,000</div>
+            <div class="build-effect">+$450/mo Rental Cash</div>
+          </div>
+        </button>
+
+        <!-- Building 4: Tech Incubator -->
+        <button class="build-card" data-type="TECH">
+          <div class="build-card-icon tech-icon">
+            <img src="./assets/moneybot/assets/moneybot-driving.svg" alt="Tech Incubator">
+          </div>
+          <div class="build-card-info">
+            <div class="build-name">Tech Incubator</div>
+            <div class="build-cost">$3,500</div>
+            <div class="build-effect">+$350/mo Salary Boost</div>
+          </div>
+        </button>
+
+        <!-- Building 5: Clean Energy Grid -->
+        <button class="build-card" data-type="ENERGY">
+          <div class="build-card-icon energy-icon">
+            <img src="./assets/moneybot/assets/game-coin-green.svg" alt="Clean Energy Grid">
+          </div>
+          <div class="build-card-info">
+            <div class="build-name">Clean Energy Grid</div>
+            <div class="build-cost">$1,800</div>
+            <div class="build-effect">-$150/mo Living Costs</div>
+          </div>
+        </button>
+
+        <!-- Action: Pay Debt -->
+        <button class="build-card action-debt" data-type="PAY_DEBT" id="btn-pay-debt">
+          <div class="build-card-icon debt-icon">
+            <img src="./assets/moneybot/assets/game-obstacle-debt.svg" alt="Pay Debt">
+          </div>
+          <div class="build-card-info">
+            <div class="build-name">Pay Off Debt</div>
+            <div class="build-cost" id="debt-pay-cost">$1,000</div>
+            <div class="build-effect">Eliminate 24% APR</div>
+          </div>
+        </button>
+      </div>
+    </footer>
+
+    <!-- Plot Inspection / Upgrade Modal -->
+    <div id="inspector-modal" class="modal-backdrop hidden">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3 id="inspector-title">District Details</h3>
+          <button class="modal-close-btn" id="btn-close-inspector">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="inspector-badge" id="inspector-badge">Level 1</div>
+          <p id="inspector-desc">This structure powers your city's economy.</p>
+          
+          <div class="inspector-stats">
+            <div class="stat-row">
+              <span class="stat-label">Current Cashflow:</span>
+              <span class="stat-value mb-green" id="inspector-cashflow">+$0/mo</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Total Value:</span>
+              <span class="stat-value mb-gold" id="inspector-value">$0</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Financial Principle:</span>
+              <span class="stat-principle" id="inspector-principle">Liquidity allows you to weather storms.</span>
+            </div>
+          </div>
+
+          <div class="inspector-actions">
+            <button class="btn-primary" id="btn-upgrade-building">
+              <span>Upgrade District</span>
+              <span class="btn-subtext" id="inspector-upgrade-cost">Cost: $2,000</span>
+            </button>
+            <button class="btn-danger" id="btn-demolish-building">
+              <span>Sell Asset (70% Refund)</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Macro Event Decision Modal -->
+    <div id="event-modal" class="modal-backdrop hidden">
+      <div class="modal-card event-card">
+        <div class="modal-header">
+          <h3 id="event-title">Macroeconomic Shift</h3>
+        </div>
+        <div class="modal-body">
+          <div class="event-icon-wrapper" id="event-icon-wrapper">
+            <img src="./assets/moneybot/assets/moneybot-idle.svg" alt="Event" id="event-img">
+          </div>
+          <p id="event-description" class="event-text">A sudden market event has unfolded!</p>
+          <div class="event-impact" id="event-impact">+20% Index Yield</div>
+          <div class="event-actions">
+            <button class="btn-primary" id="btn-event-confirm">Acknowledge</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Title / Start Screen Modal -->
+    <div id="title-modal" class="modal-backdrop">
+      <div class="modal-card title-card">
+        <div class="title-header">
+          <img src="./assets/moneybot/assets/moneybot-celebrating.svg" alt="MoneyBot Mascot" class="title-mascot">
+          <h2>MONEYBOT METROPOLIS 3D</h2>
+          <p class="title-tagline">3D Financial Freedom &amp; Cashflow City Simulator</p>
+        </div>
+        <div class="title-body">
+          <div class="briefing-box">
+            <h4>MISSION OBJECTIVE:</h4>
+            <p>Design and build a flourishing 3D metropolis. Achieve <strong>100% Financial Independence (FIRE)</strong> and a <strong>$1,000,000 Net Worth</strong> by mastering smart financial principles:</p>
+            <ul class="rule-list">
+              <li>🛡️ <strong>Emergency Vaults:</strong> Protect against random disasters and avoid toxic debt.</li>
+              <li>📈 <strong>Index High-Rises:</strong> Harness compound dividend growth over the long run.</li>
+              <li>🏢 <strong>Real Estate:</strong> Generate steady monthly cashflow unaffected by stock swings.</li>
+              <li>⚡ <strong>Clean Energy:</strong> Permanently reduce your monthly living expenses.</li>
+              <li>⚠️ <strong>Beware Toxic Debt:</strong> If cash falls below $0, 24% APR interest will snowball!</li>
+            </ul>
+          </div>
+          <button class="btn-primary btn-large" id="btn-start-game">START METROPOLIS</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Win Screen Modal -->
+    <div id="win-modal" class="modal-backdrop hidden">
+      <div class="modal-card win-card">
+        <div class="title-header">
+          <img src="./assets/moneybot/assets/moneybot-celebrating.svg" alt="Celebration" class="title-mascot">
+          <h2 class="mb-green">FINANCIAL FREEDOM ACHIEVED!</h2>
+          <p class="title-tagline">Your metropolis has attained complete 100% F.I.R.E. status!</p>
+        </div>
+        <div class="modal-body">
+          <div class="victory-stats">
+            <div class="vic-stat">
+              <span>Final Net Worth:</span>
+              <strong class="mb-gold" id="win-networth">$1,050,000</strong>
+            </div>
+            <div class="vic-stat">
+              <span>Monthly Passive Cashflow:</span>
+              <strong class="mb-green" id="win-cashflow">+$4,200/mo</strong>
+            </div>
+            <div class="vic-stat">
+              <span>Time Taken:</span>
+              <strong id="win-time">4 Years 2 Months</strong>
+            </div>
+          </div>
+          <p class="win-lesson">Your investments now produce enough passive cashflow to cover all municipal living expenses permanently. You never need to trade time for money again!</p>
+          <button class="btn-primary btn-large" id="btn-restart-win">BUILD NEW METROPOLIS</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Game Over Screen Modal -->
+    <div id="gameover-modal" class="modal-backdrop hidden">
+      <div class="modal-card gameover-card">
+        <div class="title-header">
+          <img src="./assets/moneybot/assets/game-obstacle-debt.svg" alt="Debt Collapse" class="title-mascot">
+          <h2 class="mb-red">METROPOLIS INSOLVENT</h2>
+          <p class="title-tagline">Toxic Debt Snowball Triggered Municipal Bankruptcy</p>
+        </div>
+        <div class="modal-body">
+          <div class="autopsy-box">
+            <h4>FINANCIAL AUTOPSY:</h4>
+            <p id="gameover-reason">Expenses overwhelmed liquid cash without an emergency buffer. 24% APR interest compounded faster than income, collapsing the metropolis.</p>
+            <div class="autopsy-stats">
+              <div>Peak Debt: <strong class="mb-red" id="gameover-debt">$28,400</strong></div>
+              <div>Months Survived: <strong id="gameover-months">14 Months</strong></div>
+            </div>
+          </div>
+          <div class="autopsy-advice">
+            💡 <strong>MoneyBot Takeaway:</strong> Next run, build an Emergency Vault early to withstand unexpected financial shocks before over-leveraging into illiquid investments!
+          </div>
+          <button class="btn-primary btn-large" id="btn-restart-loss">TRY AGAIN</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Game Scripts -->
+  <script src="./assets/moneybot/moneybot-game-kit.js"></script>
+  <script type="module" src="./game.js"></script>
+</body>
+</html>

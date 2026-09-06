@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Compound Coaster 3D - Three.js Financial Literacy Game</title>
+  <meta name="description" content="Pilot the MoneyBot coaster along the 3D exponential compound interest curve! Collect dividend gems, unlock APY rockets, and dodge 24% APR toxic debt drops.">
+  <link rel="stylesheet" href="./assets/moneybot/moneybot-game.css">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <div id="game-container">
+    <!-- 3D Three.js Canvas Container -->
+    <div id="canvas-container"></div>
+
+    <!-- Arcade Speedlines / Turbo FX Overlay -->
+    <div id="speedlines-overlay" class="hidden"></div>
+
+    <!-- Top Financial Dashboard HUD -->
+    <header id="hud-top">
+      <div class="hud-brand">
+        <img src="./assets/moneybot/assets/moneybot-idle.svg" alt="MoneyBot Pilot" class="mascot-icon" id="mascot-status-icon">
+        <div>
+          <h1 class="game-title">COMPOUND COASTER</h1>
+          <div class="hud-time" id="hud-date">Year 1 &bull; Month 1</div>
+        </div>
+      </div>
+
+      <div class="hud-metrics">
+        <div class="metric-card">
+          <span class="metric-label">Net Worth</span>
+          <span class="metric-value mb-gold" id="metric-networth">$10,000</span>
+          <span class="metric-sub" id="metric-growth-rate">+7.0% APY</span>
+        </div>
+
+        <div class="metric-card">
+          <span class="metric-label">Compound Factor</span>
+          <span class="metric-value mb-green" id="metric-multiplier">1.00x</span>
+          <span class="metric-sub" id="metric-yield">+$700/yr</span>
+        </div>
+
+        <div class="metric-card">
+          <span class="metric-label">F.I.R.E. Progress</span>
+          <div class="fire-progress-bar">
+            <div class="fire-fill" id="fire-fill" style="width: 1%;"></div>
+          </div>
+          <span class="metric-sub" id="metric-fire-text">1% of $1M Goal</span>
+        </div>
+
+        <div class="metric-card shield-card" id="metric-shield-card">
+          <span class="metric-label">Emergency Buffer</span>
+          <span class="metric-value mb-cyan" id="metric-shield-count">READY</span>
+          <span class="metric-sub">Protects vs Debt</span>
+        </div>
+      </div>
+
+      <div class="hud-controls">
+        <button class="btn-ctrl" id="btn-pause" title="Pause Game" aria-label="Pause">PAUSE</button>
+        <button class="btn-ctrl" id="btn-audio" title="Toggle Sound" aria-label="Toggle Audio">SOUND</button>
+      </div>
+    </header>
+
+    <!-- Floating Event / Action Notification -->
+    <div id="event-ticker" class="hidden">
+      <div class="ticker-content" id="ticker-text">🚀 DRIP Reinvestment Activated! Compound Interest Accelerating!</div>
+    </div>
+
+    <!-- Mobile Touch Controls Overlay -->
+    <div id="touch-controls">
+      <button class="touch-btn btn-left" id="touch-left" aria-label="Steer Left">LANE LEFT</button>
+      <button class="touch-btn btn-boost" id="touch-boost" aria-label="DRIP Turbo">DRIP BOOST</button>
+      <button class="touch-btn btn-right" id="touch-right" aria-label="Steer Right">LANE RIGHT</button>
+    </div>
+
+    <!-- Keyboard Control Hints -->
+    <div id="keyboard-hint">
+      <span>⌨️ <strong>[A / D]</strong> or <strong>[← / →]</strong> Switch Lanes &bull; <strong>[W]</strong> or <strong>[SPACE]</strong> DRIP Turbo Boost</span>
+    </div>
+
+    <!-- Title / Onboarding Modal -->
+    <div id="title-modal" class="modal-backdrop">
+      <div class="modal-card title-card">
+        <div class="title-header">
+          <img src="./assets/moneybot/assets/moneybot-driving.svg" alt="MoneyBot Coaster Pilot" class="title-mascot">
+          <h2>COMPOUND COASTER 3D</h2>
+          <p class="title-tagline">Ride the Exponential Curve of Wealth Creation!</p>
+        </div>
+        <div class="modal-body">
+          <div class="briefing-box">
+            <h4>FLIGHT BRIEFING:</h4>
+            <p>Welcome aboard the 3D Compound Coaster! Your goal is to navigate the exponential curve ($A = P(1+r)^t$) to reach <strong>$1,000,000 Net Worth</strong> and total Financial Independence!</p>
+            <ul class="rule-list">
+              <li>💎 <strong>Dividend Gems:</strong> Reinvest yields to boost your compounding multiplier.</li>
+              <li>🚀 <strong>APY Rings:</strong> Pass through golden rings to permanently increase your return rate.</li>
+              <li>🛡️ <strong>Emergency Shields:</strong> Collect blue shields to absorb debt drops.</li>
+              <li>⚠️ <strong>Avoid 24% APR Debt:</strong> Crashing into red debt obstacles drags your speed and drains cash!</li>
+            </ul>
+          </div>
+          <button class="btn-primary btn-large" id="btn-start-game">LAUNCH COASTER</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Win Screen Modal -->
+    <div id="win-modal" class="modal-backdrop hidden">
+      <div class="modal-card win-card">
+        <div class="title-header">
+          <img src="./assets/moneybot/assets/moneybot-celebrating.svg" alt="Celebration" class="title-mascot">
+          <h2 class="mb-green">FINANCIAL FREEDOM ACHIEVED!</h2>
+          <p class="title-tagline">You navigated the exponential curve to $1,000,000!</p>
+        </div>
+        <div class="modal-body">
+          <div class="victory-stats">
+            <div class="vic-stat">
+              <span>Final Net Worth:</span>
+              <strong class="mb-gold" id="win-networth">$1,048,200</strong>
+            </div>
+            <div class="vic-stat">
+              <span>Time Horizon:</span>
+              <strong id="win-years">24 Years 8 Months</strong>
+            </div>
+            <div class="vic-stat">
+              <span>Peak Compound Rate:</span>
+              <strong class="mb-green" id="win-apy">14.2% APY</strong>
+            </div>
+          </div>
+          <p class="win-lesson">Notice how the growth was gradual in early years, then exploded upward! That is the undeniable magic of compound interest over time.</p>
+          <button class="btn-primary btn-large" id="btn-restart-win">RIDE AGAIN</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Game Over / Debt Crash Modal -->
+    <div id="gameover-modal" class="modal-backdrop hidden">
+      <div class="modal-card gameover-card">
+        <div class="title-header">
+          <img src="./assets/moneybot/assets/game-obstacle-debt.svg" alt="Debt Crash" class="title-mascot">
+          <h2 class="mb-red">COASTER DERAILED</h2>
+          <p class="title-tagline">Toxic Debt Drag Erased Compound Momentum</p>
+        </div>
+        <div class="modal-body">
+          <div class="autopsy-box">
+            <h4>FLIGHT AUTOPSY:</h4>
+            <p id="gameover-reason">High-interest 24% APR debt obstacles compounded faster than your investment yield, draining liquid cash and stalling momentum.</p>
+            <div class="autopsy-stats">
+              <div>Years Survived: <strong id="gameover-years">8 Years</strong></div>
+              <div>Peak Net Worth: <strong class="mb-gold" id="gameover-networth">$45,200</strong></div>
+            </div>
+          </div>
+          <div class="autopsy-advice">
+            💡 <strong>MoneyBot Takeaway:</strong> Steer clear of high-APR debt hazards and grab Emergency Shields early to protect your wealth trajectory!
+          </div>
+          <button class="btn-primary btn-large" id="btn-restart-loss">RETRY RUN</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Shared MoneyBot Game Kit & Main Game Module -->
+  <script src="./assets/moneybot/moneybot-game-kit.js"></script>
+  <script type="module" src="./game.js"></script>
+</body>
+</html>
