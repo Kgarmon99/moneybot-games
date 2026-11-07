@@ -44,10 +44,10 @@ const NAMES2=['Volt','Byte','Sprocket','Gear','Pixel','Cache','Kernel','Flux','O
 
 /* staff */
 const ROLES={
-  teller:{name:'Teller Bot',icon:'💵',pay:750,text:'Runs a teller window: deposits, withdrawals and checks.',station:'teller'},
-  rep:{name:'New Accounts Bot',icon:'🤝',pay:850,text:'Opens accounts. A good rep matches people to the right product.',station:'newacct'},
-  loan:{name:'Loan Officer Bot',icon:'📝',pay:1200,text:'Reviews loan applications and runs the monthly lending pipeline.',station:'loan',lvl:1},
-  vault:{name:'Vault Teller Bot',icon:'🗝️',pay:800,text:'Keeps the teller drawers stocked with cash so you do not have to.',lvl:1},
+  teller:{name:'Teller Bot',icon:'💵',pay:600,text:'Runs a teller window: deposits, withdrawals and checks.',station:'teller'},
+  rep:{name:'New Accounts Bot',icon:'🤝',pay:680,text:'Opens accounts. A good rep matches people to the right product.',station:'newacct'},
+  loan:{name:'Loan Officer Bot',icon:'📝',pay:950,text:'Reviews loan applications and runs the monthly lending pipeline.',station:'loan',lvl:1},
+  vault:{name:'Vault Teller Bot',icon:'🗝️',pay:640,text:'Keeps the teller drawers stocked with cash so you do not have to.',lvl:1},
   fraud:{name:'Fraud Analyst Bot',icon:'🕵️',pay:1300,text:'Works the Fraud Lab alerts all day.',station:'fraud',lvl:3},
   comply:{name:'Compliance Bot',icon:'📋',pay:1200,text:'Keeps the bank inside the rules. Raises your Management grade.',lvl:2}
 };

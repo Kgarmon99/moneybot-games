@@ -80,7 +80,7 @@ function bookLoan(s,a,bump){
 
 /* ----- staff & market helpers ----- */
 function teamPay(s){return s.staff.reduce((a,b)=>a+b.pay,0);}
-function rent(s){return 1400+Object.keys(s.built).length*450+(s.built.tower?4000:0);}
+function rent(s){return 1400+Object.keys(s.built).length*180+(s.built.tower?4000:0);}
 function staffOf(s,r){return s.staff.filter(b=>b.role===r);}
 function underwriteSkill(s){const l=staffOf(s,'loan');return l.length?l.reduce((a,b)=>a+b.skill,0)/l.length:0;}
 
@@ -115,7 +115,7 @@ function closeMonth(s){
   const survivors=[];
   s.loans.forEach(l=>{
     const r=l.apr/1200,int=l.bal*r;
-    const moPd=l.pd/12*s.econ;
+    const moPd=l.pd/12*s.econ*(s.pdMul||1);
     /* pooled balances default in slices, single loans default whole */
     if(l.pool){const hit=l.bal*moPd;L.chargeoffs+=hit*(1-LOANS[l.type].recov);s.cash+=hit*LOANS[l.type].recov;l.bal-=hit;}
     else if(Math.random()<moPd){const rec=l.bal*LOANS[l.type].recov,loss=l.bal-rec;s.cash+=rec;L.chargeoffs+=loss;s.stats.badLoans++;L.chargeList.push({name:l.name,type:l.type,loss});return;}
@@ -165,4 +165,12 @@ function sellBonds(s,amt){amt=Math.min(amt,s.bonds);if(amt<=0)return 0;const px=
 function borrow(s,amt){s.debt+=amt;s.cash+=amt;}
 function repay(s,amt){amt=Math.min(amt,s.debt,Math.max(0,s.cash));s.debt-=amt;s.cash-=amt;return amt;}
 function failed(s){return equity(s)<=0;}
+/* building spends capital. Real regulators would stop a bank that spent its cushion on a nicer lobby. */
+const MIN_BUILD_CAP=6;
+/* selling shares adds capital. The bank pays a fee, and new owners expect results. */
+const RAISE=s=>Math.max(100000,roundTo(assetsTotal(s)*.04,10000));
+const canRaise=s=>capRatio(s)<12;
+function raiseCapital(s){const a=RAISE(s),fee=Math.round(a*.04);s.cash+=a-fee;s.ledger.other+=fee;s.startCapital+=a;s.rep=clamp(s.rep-1,0,100);return a;}
+function capAfter(s,cost){const a=assetsTotal(s)-cost;return a>0?(equity(s)-cost)/a*100:0;}
+const capOK=(s,cost)=>capAfter(s,cost)>=MIN_BUILD_CAP;
 if(typeof module!=='undefined')module.exports={newBank,closeMonth,freshMonth,exam,assetsTotal,equity,capRatio,liqRatio,depositsTotal,loansTotal,makeApplicant,bookLoan,addDeposit,withdraw,goodCall,buyBonds,sellBonds,borrow,repay,arrivals,mktRates,staffOf};

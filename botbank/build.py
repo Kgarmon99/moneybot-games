@@ -8,7 +8,7 @@ html = src('template.html')
 assets = json.load(open(os.path.join(VENDOR, 'fyp_assets.json')))
 for k in ('outfits', 'ibm', 'rootm'):
     assets.pop(k, None)                         # skinned outfits are not used here
-game = ''.join(src(n) + '\n' for n in ['econ.js', 'data.js', 'world.js', 'actors.js', 'jobs.js', 'ui.js', 'main.js'])
+game = ''.join(src(n) + '\n' for n in ['econ.js', 'data.js', 'world.js', 'gfx.js', 'actors.js', 'jobs.js', 'ui.js', 'learn.js', 'floors.js', 'replay.js', 'uikit.js', 'main.js'])
 libs = open(os.path.join(VENDOR, 'three.bundle.js'), encoding='utf8').read().replace('</script>', '<\\/script>')
 html = (html.replace('/*FONT*/', open(os.path.join(VENDOR, 'fredoka.css')).read().split('</style>')[0])
             .replace('/*LIBS*/', libs)

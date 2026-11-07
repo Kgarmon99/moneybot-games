@@ -61,8 +61,8 @@ function initInput(){
 const joy={x:0,y:0};
 const ray=new THREE.Raycaster(),groundP=new THREE.Plane(V(0,1,0),0);
 function tapWalk(cx,cy){if(modalOpen()||titleOn())return;const n=new THREE.Vector2(cx/innerWidth*2-1,-(cy/innerHeight)*2+1);ray.setFromCamera(n,camera);const h=V();if(ray.ray.intersectPlane(groundP,h)){G.target=h;floorRing(h);}}
-let ringM=null;function floorRing(p){if(!ringM){ringM=new THREE.Mesh(new THREE.RingGeometry(.28,.38,32),new THREE.MeshBasicMaterial({color:'#39E75F',transparent:true}));ringM.rotation.x=-Math.PI/2;scene.add(ringM);}ringM.position.set(p.x,.05,p.z);ringM.material.opacity=1;}
-function collide(p,r){for(const c of COLL){if(c.off)continue;if(c.zone&&c.zone!=='vaultshut'&&!S.built[c.zone])continue;const nx=clamp(p.x,c.x0,c.x1),nz=clamp(p.z,c.z0,c.z1),dx=p.x-nx,dz=p.z-nz,d=dx*dx+dz*dz;if(d<r*r){if(d>1e-6){const L=Math.sqrt(d);p.x=nx+dx/L*r;p.z=nz+dz/L*r;}else{const a=[p.x-c.x0,c.x1-p.x,p.z-c.z0,c.z1-p.z],m=Math.min(...a);if(m===a[0])p.x=c.x0-r;else if(m===a[1])p.x=c.x1+r;else if(m===a[2])p.z=c.z0-r;else p.z=c.z1+r;}}}}
+let ringM=null;function floorRing(p){if(!ringM){ringM=new THREE.Mesh(new THREE.RingGeometry(.28,.38,32),new THREE.MeshBasicMaterial({color:'#39E75F',transparent:true}));ringM.rotation.x=-Math.PI/2;scene.add(ringM);}ringM.position.set(p.x,.05+floorY(),p.z);ringM.material.opacity=1;}
+function collide(p,r,fl){fl=fl||0;for(const c of COLL){if(c.off||(c.fl||0)!==fl)continue;if(c.zone&&c.zone!=='vaultshut'&&!S.built[c.zone])continue;const nx=clamp(p.x,c.x0,c.x1),nz=clamp(p.z,c.z0,c.z1),dx=p.x-nx,dz=p.z-nz,d=dx*dx+dz*dz;if(d<r*r){if(d>1e-6){const L=Math.sqrt(d);p.x=nx+dx/L*r;p.z=nz+dz/L*r;}else{const a=[p.x-c.x0,c.x1-p.x,p.z-c.z0,c.z1-p.z],m=Math.min(...a);if(m===a[0])p.x=c.x0-r;else if(m===a[1])p.x=c.x1+r;else if(m===a[2])p.z=c.z0-r;else p.z=c.z1+r;}}}}
 function updatePlayer(dt,t){
   let ix=(keys.KeyD||keys.ArrowRight?1:0)-(keys.KeyA||keys.ArrowLeft?1:0)+joy.x,iz=(keys.KeyS||keys.ArrowDown?1:0)-(keys.KeyW||keys.ArrowUp?1:0)+joy.y;
   const c=Math.cos(camS.yaw),s=Math.sin(camS.yaw);let dx=ix*c+iz*s,dz=-ix*s+iz*c;
@@ -70,31 +70,34 @@ function updatePlayer(dt,t){
   if(G.target){const tx=G.target.x-P.pos.x,tz=G.target.z-P.pos.z,L=Math.hypot(tx,tz);if(L<.25)G.target=null;else{dx=tx/L;dz=tz/L;}}
   const L=Math.hypot(dx,dz),moving=L>.05,sp=(keys.ShiftLeft||keys.ShiftRight?10:7)*(G.carry?.82:1);
   const tv=V(moving?dx/Math.max(1,L)*sp:0,0,moving?dz/Math.max(1,L)*sp:0);P.vel.lerp(tv,1-Math.exp(-12*dt));
-  if(modalOpen()){P.vel.set(0,0,0);}
-  P.pos.addScaledVector(P.vel,dt);P.pos.x=clamp(P.pos.x,-60,60);P.pos.z=clamp(P.pos.z,-17,17.6);collide(P.pos,.46);
+  if(modalOpen()||CINE.on){P.vel.set(0,0,0);}
+  P.pos.addScaledVector(P.vel,dt);P.pos.x=clamp(P.pos.x,-60,60);P.pos.z=clamp(P.pos.z,-17,17.6);if(G.floor){P.pos.x=clamp(P.pos.x,-BW+.7,BW-.7);P.pos.z=clamp(P.pos.z,-BD+.7,BD-.9);}collide(P.pos,.46,G.floor||0);
   const spd=P.vel.length();if(spd>.3){P.ry+=angDiff(Math.atan2(P.vel.x,P.vel.z),P.ry)*Math.min(1,dt*12);}
-  P.bob+=dt*spd*2.1;const r=P.rig.root;r.position.set(P.pos.x,Math.abs(Math.sin(P.bob))*.09*Math.min(1,spd/3),P.pos.z);r.rotation.set(Math.min(.2,spd*.022),P.ry,0,'YXZ');P.rig.mixer.update(dt);
+  P.bob+=dt*spd*2.1;const r=P.rig.root;r.position.set(P.pos.x,floorY()+Math.abs(Math.sin(P.bob))*.09*Math.min(1,spd/3),P.pos.z);r.rotation.set(Math.min(.2,spd*.022),P.ry,0,'YXZ');P.rig.mixer.update(dt);
   P.bag.visible=G.carry;if(G.carry){P.bag.position.set(P.pos.x-Math.sin(P.ry)*.62,1.05+r.position.y,P.pos.z-Math.cos(P.ry)*.62);}
   if(ringM&&ringM.material.opacity>0)ringM.material.opacity-=dt*1.5;
 }
 const angDiff=(a,b)=>((a-b+Math.PI*3)%(Math.PI*2))-Math.PI;
 
 /* ----- camera ----- */
-const camS={yaw:0,dist:17,pitch:.86,pos:V(),look:V(0,1,4),title:true};
+const camS={yaw:0,dist:18.5,pitch:.74,street:false,pos:V(),look:V(0,1,4),title:true};
 function updateCamera(dt,t){
-  if(camS.title){const a=Math.sin(t*.09)*.22;const p=V(Math.sin(a)*40-9,7.2+Math.sin(t*.13)*.7,27+Math.cos(a)*7);camera.position.lerp(p,1-Math.exp(-1.2*dt));camS.look.lerp(V(-2,6.4,BD),1-Math.exp(-2*dt));camera.lookAt(camS.look);return;}
+  if(CINE.on){updateCine(dt);return;}
+  if(camS.street){const o=Math.sin(t*.12)*.3,top=GROUND+(GFX.nFloors||1)*STOREY,D=34+top*1.05,p=V(Math.sin(o)*(D+6)-5,3.4,17+Math.cos(o)*D);camera.position.lerp(p,1-Math.exp(-2.4*dt));camS.look.lerp(V(0,top*.62+4,BD),1-Math.exp(-3*dt));camera.lookAt(camS.look);camS.pos.copy(camera.position);world.facade.visible=true;world.walls.west.visible=world.walls.east.visible=true;return;}
+  if(camS.title){const a=Math.sin(t*.09)*.22;const p=V(Math.sin(a)*62-10,3.6+Math.sin(t*.13)*.5,30+Math.cos(a)*44);camera.position.lerp(p,1-Math.exp(-1.2*dt));camS.look.lerp(V(0,17,BD),1-Math.exp(-2*dt));camera.lookAt(camS.look);return;}
   const inside=P.pos.z<BD&&Math.abs(P.pos.x)<BW,lookz=clamp(P.pos.z,-9,BD+4),lookx=clamp(P.pos.x,-22,22);
   const d=camS.dist,cp=Math.cos(camS.pitch),sp=Math.sin(camS.pitch);
-  const want=V(lookx+Math.sin(camS.yaw)*cp*d,sp*d+1,lookz+Math.cos(camS.yaw)*cp*d);
-  const k=1-Math.exp(-5*dt);camS.pos.lerp(want,k);camera.position.copy(camS.pos);camS.look.lerp(V(lookx,1,lookz-.8),k);camera.lookAt(camS.look);
+  const FY=floorY(),want=V(lookx+Math.sin(camS.yaw)*cp*d,sp*d+1+FY,lookz+Math.cos(camS.yaw)*cp*d);
+  const k=1-Math.exp(-5*dt);camS.pos.lerp(want,k);camera.position.copy(camS.pos);camS.look.lerp(V(lookx,1+FY,lookz-1.8),k);camera.lookAt(camS.look);
   /* cutaway: drop whatever wall stands between camera and floor */
   const W=world.walls;W.west.visible=camera.position.x>-BW;W.east.visible=camera.position.x<BW;
-  world.facade.visible=!inside&&P.pos.z>BD+.2&&camera.position.z>BD+6&&false;
+  world.facade.visible=false;
 }
 
 /* ----- customers ----- */
 let cid=1;const rigPool=[];
-function getRig(){let r=rigPool.pop();if(!r){r=makeRig(GLTF.crowd,MB.tints[0],1.42);r.base=[];r.model.traverse(o=>{if(o.isMesh&&MB.tints.includes(o.material))r.base.push(o);});scene.add(r.root);r.bub=bubble();r.bub2=bubble();}r.root.visible=true;return r;}
+function getRig(){let r=rigPool.pop();if(!r){r=makeRig(GLTF.crowd,MB.tints[0],1.42);r.base=[];r.model.traverse(o=>{if(o.isMesh&&MB.tints.includes(o.material))r.base.push(o);});scene.add(r.root);r.bub=bubble();r.bub2=bubble();wearables(r);}r.root.visible=true;return r;}
+function wearables(r){if(Q.t<1)return;const hd=r.bones.Head,sp2=r.bones.Spine2,k=Math.random(),C=pick(['#1F2B28','#7A1F2B','#1E3A8A','#0E5A44','#6B4A2F']);if(k<.22&&hd){const h=new THREE.Group();const br=new THREE.Mesh(CYL,mat(C,{roughness:.6}));br.scale.set(1.4,.06,1.4);h.add(br);const cr=new THREE.Mesh(CYL,mat(C,{roughness:.6}));cr.scale.set(.85,.56,.85);cr.position.y=.3;h.add(cr);h.position.set(0,1.42,0);hd.add(h);}else if(k<.42&&hd){const c=new THREE.Mesh(SPH,mat(C,{roughness:.6}));c.scale.set(1,.5,1);c.position.set(0,1.28,0);hd.add(c);const b=new THREE.Mesh(CYL,mat(C,{roughness:.6}));b.scale.set(.7,.05,.5);b.position.set(0,1.2,.9);hd.add(b);}else if(k<.62&&sp2){const b=new THREE.Mesh(BOX,mat(C,{roughness:.7}));b.scale.set(1.2,1.4,.5);b.position.set(0,.2,-1.15);sp2.add(b);}else if(k<.8&&sp2){const tie=new THREE.Mesh(new THREE.ConeGeometry(.2,.8,4),mat(C,{roughness:.5}));tie.rotation.x=Math.PI;tie.scale.z=.3;tie.position.set(0,-.05,1.1);sp2.add(tie);}}
 function tintRig(r,m){r.base.forEach(b=>b.material=m);}
 const DOOR=()=>V(0,0,10.4);
 function slot(kind,i){if(kind==='teller')return V(0,0,-2.5+i*.94);if(kind==='newacct')return i<4?V(-9.6+i*.9,0,7.5):V(-6.8,0,8.4+(i-4)*.6);if(kind==='loan')return V(-11.5,0,-.3+Math.min(i,5)*.75);return V(0,0,0);}
@@ -127,7 +130,7 @@ function updateCustomers(dt,simDt,t){
     if(c.state==='atSpot'||c.state==='service')c.ry+=angDiff(c.face||Math.PI,c.ry)*Math.min(1,dt*7);
     if(!moving&&c.state==='queue')c.ry+=angDiff(queueFace(c),c.ry)*Math.min(1,dt*6);
     r.root.position.set(c.pos.x,moving?Math.abs(Math.sin(c.bob))*.08:0,c.pos.z);r.root.rotation.set(moving?.1:0,c.ry,0,'YXZ');r.mixer.update(dt);
-    r.bub.position.set(c.pos.x,1.95,c.pos.z);
+    r.bub.position.set(c.pos.x,1.95,c.pos.z);r.bub.material.depthTest=!!(camS.street||G.floor);
     /* patience only runs while waiting in line */
     if((c.state==='queue'||c.state==='walk')&&simDt>0){c.wait+=simDt;const f=c.wait/c.patience;if(f>.6&&!c.mad){c.mad=1;setBubble(r.bub,'😤');rigEye(r,'y');}if(f>.85&&c.mad===1){c.mad=2;setBubble(r.bub,'😠');rigEye(r,'r');}
       if(f>=1){gaveUp(c);}}
@@ -140,11 +143,11 @@ function staffSpot(b,i){if(b.role==='teller'){const x=TELLER_X[i%4];return {x,z:
 function syncStaff(){
   const seen=new Set(),count={};
   S.staff.forEach(b=>{seen.add(b.id);let e=G.staffRigs.get(b.id);const i=count[b.role]=(count[b.role]||0)+0;count[b.role]++;
-    if(!e){const r=makeRig(GLTF.crowd,MB.staff,1.42);scene.add(r.root);const tag=new THREE.Sprite(new THREE.SpriteMaterial({map:iconTex(ROLES[b.role].icon),depthTest:false,transparent:true}));tag.scale.set(.44,.44,1);tag.position.set(0,0,0);tag.renderOrder=8;scene.add(tag);e={r,tag,p:V(),b};G.staffRigs.set(b.id,e);}
+    if(!e){const r=makeRig(GLTF.crowd,MB.staff,1.42);scene.add(r.root);if(r.bones.Spine2){const tie=new THREE.Mesh(new THREE.ConeGeometry(.2,.85,4),mat('#F4C542',{roughness:.4,metalness:.5}));tie.rotation.x=Math.PI;tie.scale.z=.3;tie.position.set(0,-.05,1.1);r.bones.Spine2.add(tie);}const tag=new THREE.Sprite(new THREE.SpriteMaterial({map:iconTex(ROLES[b.role].icon),depthTest:false,transparent:true}));tag.scale.set(.44,.44,1);tag.position.set(0,0,0);tag.renderOrder=8;scene.add(tag);e={r,tag,p:V(),b};G.staffRigs.set(b.id,e);}
     const sp=staffSpot(b,i);e.home=sp;e.p.set(sp.x,0,sp.z);e.r.root.position.copy(e.p);e.r.root.rotation.y=sp.ry;e.tag.position.set(sp.x,1.86,sp.z);});
   for(const [id,e] of G.staffRigs)if(!seen.has(id)){scene.remove(e.r.root);scene.remove(e.tag);G.staffRigs.delete(id);}
 }
-function updateStaff(dt,t){for(const e of G.staffRigs.values()){e.r.mixer.update(dt);if(e.b.role==='vault'&&S.phase==='day'&&(S.speed||0)>0){/* walks the corridor behind the counter */const a=(Math.sin(t*.7+e.b.id)+1)/2,x=lerp(-6,6,a);e.r.root.position.set(x,Math.abs(Math.sin(t*6))*.06,COUNTER_Z-2.6);e.r.root.rotation.y=Math.cos(t*.7+e.b.id)>0?Math.PI/2:-Math.PI/2;e.tag.position.set(x,1.86,COUNTER_Z-2.6);}}}
+function updateStaff(dt,t){for(const e of G.staffRigs.values()){e.tag.material.depthTest=!!(camS.street||G.floor);e.r.mixer.update(dt);if(e.b.role==='vault'&&S.phase==='day'&&(S.speed||0)>0){/* walks the corridor behind the counter */const a=(Math.sin(t*.7+e.b.id)+1)/2,x=lerp(-6,6,a);e.r.root.position.set(x,Math.abs(Math.sin(t*6))*.06,COUNTER_Z-2.6);e.r.root.rotation.y=Math.cos(t*.7+e.b.id)>0?Math.PI/2:-Math.PI/2;e.tag.position.set(x,1.86,COUNTER_Z-2.6);}}}
 const lerp=(a,b,t)=>a+(b-a)*t;
 
 /* mascot greeter + world pins */

@@ -11,7 +11,7 @@ function setSpeed(v){if(!S||S.phase!=='day')return;S.speed=v;renderHUD();}
 function togglePause(){if(!S||S.phase!=='day')return;if(S.speed){G.lastSpeed=S.speed;S.speed=0;}else S.speed=G.lastSpeed||1;renderHUD();}
 
 /* ----- starting a shift ----- */
-function openDoors(){
+function openDoors(){checkGoals();
   if(S.phase!=='board')return;S.phase='day';S.clock=0;S.speed=G.lastSpeed||1;G.spawnAt=[];G.windowsReset=0;
   G.win=TELLER_X.map((x,i)=>({busy:null,t:0,drawer:10}));G.desk.newacct={busy:null,t:0};G.desk.loan={busy:null,t:0};G.alerts=[];
   const n=arrivals(S);for(let i=0;i<n;i++)G.spawnAt.push(rand(.02,.9));G.spawnAt.sort((a,b)=>a-b);
@@ -21,7 +21,7 @@ function openDoors(){
   sfx('bell');hideOpenHint();renderHUD();save();
 }
 function hideOpenHint(){$('#advisor').classList.add('hide');}
-function startRun(){S.flags.ran=1;G.run={left:Math.min(14,Q.t>=2?14:10),at:.12,done:0,calmed:0,start:S.cash,bite:depositsTotal(S)*.045};G.spawnAt=G.spawnAt.filter((_,i)=>i%2);sfx('alarm');learn('run');
+function startRun(){S.flags.ran=1;G.run={left:Math.min(14,Q.t>=2?14:10),at:.12,done:0,calmed:0,start:S.cash,bite:depositsTotal(S)*.045};G.spawnAt=G.spawnAt.filter((_,i)=>i%2);sfx('alarm');learn('run');runCine();
   queueModal(()=>{const C=openModal(`<div class="eyebrow alarm">Breaking news</div><h2>A rumor is racing through Bot City</h2><p class="sub">A viral post says BotBank is out of money. It is not true, but a crowd is coming. Deposits are loaned out, so you do not have enough cash to pay everyone at once. That is the danger of a bank run.</p><div class="res"><b>What you can do:</b> walk the line and press <b>E</b> to calm depositors: their money is FDIC insured. Keep drawers stocked. Open <b>Books</b> to borrow from the Fed if cash runs low.</div><div class="mact"><button class="btn pri" id="go" data-focus>Calm the crowd</button></div>`,{cls:'dark panel'});C.querySelector('#go').onclick=closeModal;});learn('fdic');}
 function makeTellerReq(){const dep=depositsTotal(S),r=Math.random(),atm=S.built.atm?.55:1;
   if(dep>8000&&r<.3*atm)return {t:'withdraw',amt:ri(3,48)*5+ri(0,4)};
@@ -40,7 +40,7 @@ function payTeller(c,auto){const q=c.req,x=c.pos.x,z=c.pos.z,res=q.result;S.stat
   else if(q.t==='deposit'){addDeposit(S,'chk',q.amt);}
   else if(q.t==='check'){const bad=!!q.flaw;let accept=auto?(!bad||Math.random()>.4+skillNow('teller')*.11):res.acc;
     if(auto&&bad&&!accept){S.stats.staffCatches=(S.stats.staffCatches||0)+1;}
-    if(accept&&bad){S.cash-=q.amt;S.ledger.other+=q.amt;floatAt(x,2,z,'Bad check -'+short(q.amt),'#FF7A73');S.compliance=clamp(S.compliance-1.5,0,100);}
+    if(accept&&bad){const hit=Math.round(q.amt*(auto?.35:1));S.cash-=hit;S.ledger.other+=hit;floatAt(x,2,z,'Bad check -'+short(hit),'#FF7A73');S.compliance=clamp(S.compliance-1.5,0,100);}
     else if(accept){addDeposit(S,'chk',q.amt);}else if(!bad){S.rep=clamp(S.rep-.5,0,100);}}
   if(!auto&&res&&res.ok){S.rep=clamp(S.rep+.25,0,100);S.stats.handServed++;}
   floatAt(x,2.1,z,'+'+money(q.amt));coinFly(x,2,z);sfx('coin');dismiss(c,'happy');checkGoals();}
@@ -106,9 +106,9 @@ function monthEnd(){
     if(quarter){const r=exam(S);S.checkpoint=null;const cp=JSON.stringify(S);try{localStorage.setItem(SAVE+'-q',cp);}catch(e){}examModal(r,afterMonth);}else afterMonth();});
   syncPiles(S);renderHUD();save();
 }
-const SCHEDULE={1:'bank',2:'fdic',3:'compound',4:'debit',5:'teens',6:'fed',7:'choose',8:'overdraft'};
+const SCHEDULE={1:'bank',2:'fdic',3:'compound',4:'debit',5:'teens',6:'fed',7:'choose',8:'overdraft',9:'accounts',10:'digital',11:'inflation',12:'report',13:'cardterms',14:'payday',15:'hardship',16:'regulators',17:'idtheft'};
 function scheduleCards(){const k=SCHEDULE[S.month];if(k)learn(k);}
-function afterMonth(){
+function afterMonth(){if(S.season&&seasonTick())return;runFollowups();
   if(G.runWon){const w=G.runWon;G.runWon=null;confetti(170);sfx('win');queueModal(()=>{const C=openModal(`<div class="eyebrow">Crisis over</div><h2>The doors stayed open</h2><p class="sub">You calmed ${w.calmed} depositors and paid out ${w.done}. Trust stopped the panic. That is the reason FDIC insurance exists: insured savers do not need to race to the door.</p><div class="mact"><button class="btn pri" id="ok" data-focus>Back to work</button></div>`,{cls:'dark panel'});C.querySelector('#ok').onclick=closeModal;S.rep=clamp(S.rep+6,0,100);});}
   if(S.month>=S.nextEvent)queueModal(runEvent);
   queueModal(()=>{});if(modalOpen())return;
@@ -123,7 +123,7 @@ function boardTip(){
 }
 function runEvent(){
   const pool=EVENTS.filter(e=>(!S.lastEvent[e.id]||S.month-S.lastEvent[e.id]>9)&&e.when(S));if(!pool.length){S.nextEvent=S.month+1;return onModalsDone();}
-  const e=pick(pool);S.lastEvent[e.id]=S.month;S.nextEvent=S.month+ri(2,3);
+  const e=pick(pool);S.lastEvent[e.id]=S.month;{const gp=evGap();S.nextEvent=S.month+ri(gp[0],gp[1]);}
   if(e.run)return SPECIAL[e.run]();
   const C=openModal(`<div class="eyebrow">A decision for the president</div><h2>${e.title}</h2><p class="sub">${typeof e.text==='function'?e.text(S):e.text}</p><div class="stackb">${e.choices.map((c,i)=>`<button class="choice" data-i="${i}">${esc(c.t)}</button>`).join('')}</div><div class="after" hidden></div>`,{cls:'dark panel job'});
   C.querySelectorAll('.choice').forEach(b=>b.onclick=()=>{const c=e.choices[+b.dataset.i];c.fx(S);b.classList.add('on');verdict(C,true,'',c.r,e.lesson,()=>{});});
@@ -135,21 +135,25 @@ const SPECIAL={
   boom(){S.econ=.8;S.econLeft=6;newsCard('📈 Bot City is booming','Jobs are everywhere, and borrowers are paying on time. Be careful: good times are when banks get sloppy.','total');}
 };
 function newsCard(t,x,a,b){const C=openModal(`<div class="eyebrow">Bot City News</div><h2>${t}</h2><p class="sub">${x}</p><div class="mact"><button class="btn" id="r">Review my rates</button><button class="btn pri" id="ok" data-focus>Got it</button></div>`,{cls:'dark panel'});C.querySelector('#ok').onclick=closeModal;C.querySelector('#r').onclick=()=>{closeModal();setTimeout(panelRates,150);};a&&learn(a);b&&learn(b);}
-function failModal(){const C=openModal(`<div class="eyebrow alarm">Friday, 5:00 PM</div><h2>The FDIC has closed BotBank</h2><p class="sub">Your capital ran out, so regulators stepped in. This is how real bank failures work: they usually happen on a Friday, and by Monday customers can reach their insured money, often at a new bank. Depositors were protected. Owners were not.</p><p class="why">${stmtInsight(S.hist[S.hist.length-1]||{},S.ledger)}</p><div class="mact"><button class="btn pri" id="re" data-focus>Reopen from last quarter</button><button class="btn" id="fresh">Start over</button></div>`,{cls:'dark panel'});learn('fdic');
-  C.querySelector('#re').onclick=()=>{let cp=null;try{cp=localStorage.getItem(SAVE+'-q');}catch(e){}closeModal();if(cp){S=JSON.parse(cp);S.phase='board';resumeWorld();}else startNew(S.name);};C.querySelector('#fresh').onclick=()=>{closeModal();startNew(S.name);};}
+function failModal(){const C=openModal(`<div class="eyebrow alarm">Friday, 5:00 PM</div><h2>The FDIC has closed BotBank</h2><p class="sub">Your capital ran out, so regulators stepped in. This is how real bank failures work: they usually happen on a Friday, and by Monday customers can reach their insured money, often at a new bank. Depositors were protected. Owners were not.</p><p class="why">${stmtInsight(S.hist[S.hist.length-1]||{},S.ledger)}</p><div class="mact"><button class="btn pri" id="re" data-focus>Reopen with new investors</button><button class="btn" id="fresh">Start over</button></div>`,{cls:'dark panel'});learn('fdic');
+  C.querySelector('#re').onclick=()=>{let cp=null;try{cp=localStorage.getItem(SAVE+'-q');}catch(e){}closeModal();if(cp){S=JSON.parse(cp);S.phase='board';const inj=Math.max(150000,Math.round(assetsTotal(S)*.08));S.cash+=inj;S.startCapital+=inj;S.rep=clamp(S.rep-10,0,100);if(S.ledger)S.ledger=blankLedger();resumeWorld();const M=openModal(`<div class="eyebrow">Second chance</div><h2>Investors saved BotBank</h2><p class="sub">New owners put in <b>${money(inj)}</b> of fresh capital. This is called a recapitalization. Your reputation took a hit, and it is on you to fix what went wrong.</p><div class="mact"><button class="btn pri" id="ok" data-focus>Back to work</button></div>`,{cls:'dark panel'});M.querySelector('#ok').onclick=closeModal;}else startNew(S.name);};C.querySelector('#fresh').onclick=()=>{closeModal();startNew(S.name);};}
 
 /* ----- chapters ----- */
-function checkGoals(){if(!S)return;const ch=CHAPTERS[S.chapter];if(!ch)return;ch.goals.forEach(g=>{if(!S.goals[g.id]&&g.n(S)>=g.max){S.goals[g.id]=1;toast(`<b>✓ Goal done</b><br>${g.text}`);sfx('good');if(g.id==='loanoffice')advise('Loan Office open. Hire a <b>Loan Officer Bot</b> to run the lending pipeline, or work the desk yourself.');}});
-  if(ch.goals.every(g=>S.goals[g.id])&&!S.flags['ch'+S.chapter]){S.flags['ch'+S.chapter]=1;const done=S.chapter;queueModal(()=>chapterDone(done));}}
-function chapterDone(i){S.chapter=i+1;confetti(200);sfx('win');const ch=CHAPTERS[i],nx=CHAPTERS[i+1];G.cands=null;
+function checkGoals(){if(!S||S.season)return;const ch=CHAPTERS[S.chapter];if(!ch)return;if(G.chExam&&!modalOpen()&&!MODALQ.length)G.chExam=0;ch.goals.forEach(g=>{if(!S.goals[g.id]&&g.n(S)>=g.max){S.goals[g.id]=1;toast(`<b>✓ Goal done</b><br>${g.text}`);sfx('good');if(g.id==='loanoffice')advise('Loan Office open. Hire a <b>Loan Officer Bot</b> to run the lending pipeline, or work the desk yourself.');}});
+  if(ch.goals.every(g=>S.goals[g.id])&&!G.chExam){G.chExam=1;const done=S.chapter;queueModal(()=>chapterExam(done,()=>chapterDone(done)));}}
+function chapterDone(i){S.chapter=i+1;G.chExam=0;confetti(200);sfx('win');const ch=CHAPTERS[i],nx=CHAPTERS[i+1];G.cands=null;
   if(!nx)return winGame();
-  const unlocked=BUILD.filter(b=>b.lvl===i+1).map(b=>b.icon+' '+b.name).concat(Object.values(ROLES).filter(r=>r.lvl===i+1).map(r=>r.icon+' '+r.name));
+  chapterCine(i);
+  const unlocked=[].concat(BUILD.filter(b=>b.lvl===i+1).map(b=>b.icon+' '+b.name),Object.values(ROLES).filter(r=>r.lvl===i+1).map(r=>r.icon+' '+r.name));
   const C=openModal(`<div class="chap"><img src="${MB_ASSETS.badges[ch.badge]}" alt=""><div class="eyebrow">Chapter ${i+1} complete</div><h2>${ch.name}</h2></div><div class="chapn"><div class="eyebrow">Up next</div><h3 class="t">Chapter ${i+2}: ${nx.name}</h3><p>${nx.intro}</p>${unlocked.length?`<div class="chips">${unlocked.map(u=>`<span>${u}</span>`).join('')}</div>`:''}</div><div class="mact"><button class="btn pri" id="ok" data-focus>Keep going</button></div>`,{cls:'dark panel'});C.querySelector('#ok').onclick=closeModal;save();renderHUD();}
-function winGame(){const n=Object.keys(S.playbook).length,tot=Object.keys(PLAYBOOK).length;
-  const C=openModal(`<div class="cert"><img class="wm" src="${MB_ASSETS.logo}" alt="MoneyBot"><div class="eyebrow">Bot City names you</div><h2>Bank of the Year</h2><p class="nm">${esc(S.name)}</p><p>completed BotBank, ran a full community bank, and earned ${n} of ${tot} Playbook cards.</p><div class="sig2"><div><b>MoneyBot</b><small>Head of Everything</small></div>${sponsorLine('sm')}</div></div><div class="mact"><button class="btn" id="pr">Copy my Playbook</button><button class="btn pri" id="ok" data-focus>Keep running my bank</button></div>`,{cls:'paper stmt'});C.querySelector('#ok').onclick=closeModal;C.querySelector('#pr').onclick=printPlaybook;S.flags.won=1;save();}
+function winGame(){postTest(showCert);}
+function showCert(){const n=Object.keys(S.playbook).length,tot=Object.keys(PLAYBOOK).length,L=LRN();
+  const C=openModal(`<div class="cert"><img class="wm" src="${MB_ASSETS.logo}" alt="MoneyBot"><div class="eyebrow">Bot City names you</div><h2>Bank of the Year</h2><p class="nm">${esc(S.name)}</p><p>completed BotBank, ran a full community bank, and earned ${n} of ${tot} Playbook cards.</p>${L.post!=null?`<p class="grow">${L.pre!=null?`Warm-up <b>${L.pre} of ${CHECKUP.length}</b> → Final Check <b>${L.post} of ${CHECKUP.length}</b>`:`Final Check <b>${L.post} of ${CHECKUP.length}</b>`}</p>`:''}<div class="sig2"><div><b>MoneyBot</b><small>Head of Everything</small></div>${sponsorLine('sm')}</div></div><div class="mact"><button class="btn" id="pr">Copy my Playbook</button><button class="btn" id="rp">Copy learning report</button><button class="btn pri" id="ok" data-focus>Keep running my bank</button></div>`,{cls:'paper stmt'});C.querySelector('#ok').onclick=closeModal;C.querySelector('#pr').onclick=printPlaybook;C.querySelector('#rp').onclick=copyReport;S.flags.won=1;save();}
 
 /* ----- the action button ----- */
 function nearest(){
+  if(G.floor)return floorNearest();
+  if(Math.hypot(P.pos.x-STAIR.ax,P.pos.z-STAIR.az)<1.4)return {t:'Take the stairs',f:panelStairs};
   const px=P.pos.x,pz=P.pos.z,near=(x,z,r)=>Math.hypot(px-x,pz-z)<r,day=S.phase==='day';
   if(G.run&&near(0,3,20)&&G.cust.some(c=>c.kind==='run'&&c.state!=='leave'&&c.state!=='atSpot'&&Math.hypot(c.pos.x-px,c.pos.z-pz)<3.6))return {t:'Calm the crowd',f:shout};
   if(near(0,-9.5,3.8))return day?(G.carry?{t:'Carrying cash',f:null}:{t:'Grab a cash bag',f:()=>{G.carry=true;sfx('tick');}}):{t:'Vault is locked until morning',f:null};
@@ -160,6 +164,7 @@ function nearest(){
   if(S.built.loanoffice&&near(-11.5,-2.7,3.8)&&day&&G.q.loan[0]&&!G.desk.loan.busy)return {t:'Review the application',f:()=>{const c=G.q.loan[0];leaveQueue(c);c.state='toSpot';c.spot=V(-11.5,0,-1.7);c.path=[];c.face=Math.PI;jobLoan(c,()=>payLoan(c,false));}};
   if(S.built.fraudlab&&near(-11.5,-8,3.4)&&G.alerts.length)return {t:'Work the alert',f:()=>{const a=G.alerts.shift();jobFraud(a,()=>{if(a.ok){S.stats.fraudStopped++;S.rep=clamp(S.rep+.6,0,100);}else missFraud();checkGoals();});}};
   if(near(4.2,6,2.6))return {t:'Talk to MoneyBot',f:()=>{rigPlay(world.mascot,'Wave',true);advise(pick(TIPS),8000);}};
+  if(near(ELEV.x-1.2,ELEV.z,2.2))return {t:'Take the elevator',f:panelElevator};
   return null;
 }
 function serveTeller(i,c){const w=G.win[i];if(!w)return;if((c.req.t==='withdraw'||c.req.t==='run')&&w.drawer<=0){toast('This drawer is out of cash. Grab a bag from the vault.','warn');return;}
@@ -175,7 +180,7 @@ function updatePrompt(){const a=!modalOpen()&&!titleOn()?nearest():null,el=$('#a
   /* pins over stations */
   const day=S.phase==='day',n=teller_count(S),ppl=[['teller',0,3.6,COUNTER_Z,G.q.teller.length,tellers().length,'Tellers'],['newacct',-11.5,3.2,6,G.q.newacct.length,staffOf(S,'rep').length,'New Accounts'],['loan',-11.5,3.2,-3,G.q.loan.length,staffOf(S,'loan').length,'Loans'],['fraud',-11.5,3.2,-9,G.alerts.length,staffOf(S,'fraud').length,'Alerts']];
   ppl.forEach(([k,x,y,z,q,st,lab])=>{const el=PINS[k],show=day&&q>0&&!modalOpen();el.hidden=!show;if(show){const p=project(x,y+.9,z);el.style.transform=`translate(${p.x}px,${p.y}px) translate(-50%,-100%)`;el.textContent=`${lab}: ${q} ${st?'':'· no bot here!'}`;el.classList.toggle('alert',!st);}});
-  const low=day&&G.win.slice(0,n).findIndex(w=>w.drawer<=2);const d=PINS.drawer;d.hidden=!(low>=0)||modalOpen();if(low>=0&&!modalOpen()){const p=project(TELLER_X[low],3,COUNTER_Z);d.style.transform=`translate(${p.x}px,${p.y}px) translate(-50%,-100%)`;d.textContent='Drawer low: bring cash';}
+  const low=day?G.win.slice(0,n).findIndex(w=>w.drawer<=2):-1;const d=PINS.drawer;d.hidden=!(low>=0)||modalOpen();if(low>=0&&!modalOpen()){const p=project(TELLER_X[low],3,COUNTER_Z);d.style.transform=`translate(${p.x}px,${p.y}px) translate(-50%,-100%)`;d.textContent='Drawer low: bring cash';}
 }
 const PINS={};
 /* ----- title + boot ----- */
@@ -183,29 +188,29 @@ function bindUI(){
   $('#open').onclick=()=>{if(!AC)initAudio();openDoors();};
   $$('#dock button').forEach(b=>b.onclick=()=>openPanel(b.dataset.p));
   $$('#speed button').forEach(b=>b.onclick=()=>{const v=+b.dataset.sp;if(v===0)togglePause();else setSpeed(v);});
-  $('#act').onclick=doAction;$('#mute').onclick=()=>{muted=!muted;try{localStorage.setItem('botbank-mute',muted?'1':'0');}catch(e){}$('#mute').textContent=muted?'🔇':'🔊';};$('#mute').textContent=muted?'🔇':'🔊';
+  $('#act').onclick=doAction;$('#street').onclick=()=>{camS.street=!camS.street;$('#street').classList.toggle('on',camS.street);if(!camS.street)world.facade.visible=false;sfx('tick');};$('#voice').classList.toggle('off',!VOICE_ON);$('#voice').onclick=()=>{VOICE_ON=!VOICE_ON;try{localStorage.setItem('botbank-voice',VOICE_ON?'1':'0');}catch(e){}$('#voice').classList.toggle('off',!VOICE_ON);if(VOICE_ON)say('Narrator on.');else hush();};$('#cineSkip').onclick=endCine;$('#floorsB').onclick=()=>{if(!S||modalOpen()||titleOn()||CINE.on)return;sfx('open');panelElevator();};$('#mute').onclick=()=>{muted=!muted;if(muted)hush();try{localStorage.setItem('botbank-mute',muted?'1':'0');}catch(e){}$('#mute').classList.toggle('off',muted);};$('#mute').classList.toggle('off',muted);
   ['teller','newacct','loan','fraud','drawer'].forEach(k=>{const e=document.createElement('div');e.className='pin';e.hidden=true;$('#pins').appendChild(e);PINS[k]=e;});
-  $('#btnNew').onclick=()=>{initAudio();$('#setup').hidden=false;$('#btnNew').hidden=true;$('#btnCont').hidden=true;$('#btnGo').hidden=false;$('#pname').focus();};
+  $('#btnSeason').onclick=()=>{initAudio();panelSeasons();};$('#btnNew').onclick=()=>{initAudio();$('#modeSeg').innerHTML=Object.keys(MODES).map(k=>`<button data-m="${k}" class="${(G.pickMode||'pres')===k?'on':''}"><b>${MODES[k].name}</b><small>${MODES[k].sub}</small></button>`).join('');$('#modeSeg').querySelectorAll('button').forEach(b=>b.onclick=()=>{G.pickMode=b.dataset.m;$('#modeSeg').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));});$('#btnSeason').hidden=true;$('#setup').hidden=false;$('#btnNew').hidden=true;$('#btnCont').hidden=true;$('#btnGo').hidden=false;$('#pname').focus();};
   $('#btnGo').onclick=()=>startNew(($('#pname').value||'').trim().slice(0,18)||'President Bot');
   $('#pname').onkeydown=e=>{if(e.key==='Enter')$('#btnGo').click();};
   $('#btnCont').onclick=()=>{initAudio();S=load();if(S.phase!=='board')S.phase='board';S.speed=0;enterGame();resumeWorld();};
 }
-function initAudio(){if(AC)return;try{AC=new (window.AudioContext||window.webkitAudioContext)();}catch(e){}}
+function initAudio(){if(AC)return;try{AC=new (window.AudioContext||window.webkitAudioContext)();}catch(e){}startMusic();}
 function resumeWorld(){G.cust.slice().forEach(freeCust);G.q={teller:[],newacct:[],loan:[]};G.cands=null;syncZones(S);syncStaff();syncPiles(S);dressPlayer();renderGoals.k=null;renderHUD();}
-function startNew(name){S=newBank(name);S.flags.t1=1;enterGame();resumeWorld();learn('bank');save();
-  const C=openModal(`<div class="welcome"><img src="${MB_ASSETS.logo}" alt="MoneyBot"><div class="eyebrow">Welcome, ${esc(S.name)}</div><h2>You run the bank now</h2><p>Bot City needs a bank it can trust, and you just got the charter. You start with <b>${money(S.cash)}</b> of capital. Nobody has deposited a dime yet.</p><p>${CHAPTERS[0].intro}</p></div><div class="mact"><button class="btn pri" id="ok" data-focus>Let's go</button></div>`,{cls:'dark panel'});C.querySelector('#ok').onclick=()=>{closeModal();advise(`Move with <b>${TOUCH?'the stick':'WASD'}</b>${TOUCH?'':', or click the floor'}. Hit <b>Open the Doors</b> when you are ready. Customers will walk in. Walk to the teller counter and press <b>${TOUCH?'the action button':'E'}</b> to help them.`,20000);};}
-function enterGame(){$('#title').hidden=true;document.body.classList.remove('titling');camS.title=false;camS.pos.set(0,15,25);camS.look.set(0,1,6);P.pos.set(0,0,8.4);P.ry=Math.PI;world.facade.visible=false;P.rig.root.visible=true;}
+function startNew(name){S=newBank(name);applyMode(S,G.pickMode||'pres');S.flags.t1=1;enterGame();resumeWorld();learn('bank');save();if(!G.seasonStart)introCine();
+  const C=openModal(`<div class="welcome"><img src="${MB_ASSETS.logo}" alt="MoneyBot"><div class="eyebrow">Welcome, ${esc(S.name)}</div><h2>You run the bank now</h2><p>Bot City needs a bank it can trust, and you just got the charter. You start with <b>${money(S.cash)}</b> of capital. Nobody has deposited a dime yet.</p><p>${CHAPTERS[0].intro}</p></div><div class="mact"><button class="btn pri" id="ok" data-focus>Let's go</button></div>`,{cls:'dark panel'});if(!G.seasonStart)MODALQ.push(preTest);C.querySelector('#ok').onclick=()=>{closeModal();advise(`Move with <b>${TOUCH?'the stick':'WASD'}</b>${TOUCH?'':', or click the floor'}. Hit <b>Open the Doors</b> when you are ready. Customers will walk in. Walk to the teller counter and press <b>${TOUCH?'the action button':'E'}</b> to help them.`,20000);};}
+function enterGame(){$('#title').hidden=true;document.body.classList.remove('titling');camS.title=false;camS.pos.set(0,15,25);camS.look.set(0,1,6);P.pos.set(0,0,8.4);P.ry=Math.PI;camS.street=false;world.facade.visible=false;P.rig.root.visible=true;resetFloor();}
 async function boot(){
   const bar=$('#loadfill');bar.style.width='20%';
   initThree();setupMaterials();bar.style.width='35%';buildWorld();
-  await new Promise(r=>setTimeout(r,30));
+  floorsInit();await new Promise(r=>setTimeout(r,30));
   const [h,c]=await Promise.all([parseGLB(MB_ASSETS.hero),parseGLB(MB_ASSETS.crowd)]);const clips=emoteClips();h.animations.push(...clips);c.animations.push(...clips.map(x=>x.clone()));GLTF.hero=h;GLTF.crowd=c;bar.style.width='75%';
   buildPlayer();buildMascot();initInput();bindUI();P.rig.root.visible=false;
   S=newBank('');syncZones(S);Object.keys(world.zones).forEach(k=>{if(k.startsWith('mark_'))world.zones[k].visible=false;});syncPiles({cash:900000});S=null;
   /* a few bots out front for the title shot */
   for(let i=0;i<5;i++){const r=makeRig(GLTF.crowd,pick(MB.tints),1.42);r.root.position.set(-9+i*4.4,.0,14+rand(-1,2));r.root.rotation.y=rand(-.6,.6)+Math.PI;scene.add(r.root);(world.titleBots=world.titleBots||[]).push(r);}
   renderer.compile(scene,camera);bar.style.width='100%';
-  $('#btnNew').disabled=false;$('#btnNew').textContent='New Bank';if(load()){$('#btnCont').hidden=false;}
+  $('#btnNew').disabled=false;$('#btnNew').textContent='New Bank';if(load()){$('#btnCont').hidden=false;}$('#btnSeason').hidden=false;
   $('#loadbar').style.visibility='hidden';
   camera.position.set(-16,7.5,36);camS.look.set(-2,6.4,BD);
   requestAnimationFrame(frame);
@@ -215,7 +220,7 @@ function frame(){
   requestAnimationFrame(frame);const dt=Math.min(.05,clock.getDelta()),t=clock.elapsedTime;
   if(document.hidden)return;
   if(S&&!titleOn()){
-    const paused=modalOpen();const mul=paused?0:(S.phase==='day'?(S.speed||0):0);
+    const paused=modalOpen()||CINE.on;const mul=paused?0:(S.phase==='day'?(S.speed||0):0);
     if(world.titleBots){world.titleBots.forEach(r=>{scene.remove(r.root);});world.titleBots=null;}
     if(S.phase==='day'&&mul>0)tickDay(dt*mul);
     if(G.shout>0)G.shout-=dt;
@@ -224,8 +229,8 @@ function frame(){
     if((frames++%20)===0){renderHUD();syncPiles(S);}
     if(S.phase==='closing'&&G.cust.length===0&&0){}
   }else if(world.titleBots){world.titleBots.forEach(r=>r.mixer.update(dt));world.mascot&&world.mascot.mixer.update(dt);}
-  updateWorld(dt,t,S&&S.phase==='day');updateCamera(dt,t);renderer.render(scene,camera);drawConfetti();
+  updateWorld(dt,t,S&&S.phase==='day');updateCamera(dt,t);updateLook(dt,t);renderFrame(t);drawConfetti();
   /* auto-downshift on slow machines */
-  if(dt>=.049){slowT+=dt;if(slowT>6&&Q.t>=2){Q.t=1;renderer.setPixelRatio(1);slowT=0;}if(slowT>10&&Q.t===1){Q.t=0;sun.castShadow=false;renderer.shadowMap.autoUpdate=false;}}else slowT=Math.max(0,slowT-dt*.5);
+  if(dt>=.049){slowT+=dt;if(slowT>6&&Q.t>=2){Q.t=1;dropPost();renderer.setPixelRatio(1);slowT=0;}if(slowT>10&&Q.t===1){Q.t=0;sun.castShadow=false;renderer.shadowMap.autoUpdate=false;}}else slowT=Math.max(0,slowT-dt*.5);
 }
 window.addEventListener('DOMContentLoaded',()=>{$('#titleHero').src=MB_ASSETS.logo;$('#hudLogo').src=MB_ASSETS.logo;$('#advFace').src=MB_ASSETS.badges.icon||MB_ASSETS.logo;$('#titleSpons').innerHTML=sponsorLine();if(TOUCH)document.body.classList.add('touch');boot().catch(e=>{console.error(e);$('#btnNew').textContent='Could not start. Try another browser.';});});
